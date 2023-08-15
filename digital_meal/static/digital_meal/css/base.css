@@ -1,0 +1,209 @@
+@import url("colors.css");
+@import url("fonts.css");
+@import url("report.css");
+
+.font-source-serif-pro {
+    font-family: Source Serif Pro;
+}
+
+.text-small {
+    font-size: 0.9rem;
+}
+
+/* ELEMENT STYLES */
+#dm-body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+#header {
+    margin-bottom: 90px;
+}
+
+#dm-content {
+    flex-grow: 1;
+}
+
+.dm-header-nav {
+    height: 33%;
+}
+.nav-element-container {
+    padding-left: 5%;
+    padding-right: 5%;
+}
+.nav-element {
+    font-family: Space Grotesk;
+    font-size: 1.2rem;
+    text-decoration: None;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.nav-element a {
+    color: black;
+    text-decoration: none;
+    flex-grow: 1;
+    text-align: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    display: flex;
+}
+.nav-active {
+    /* box-shadow: 0px 10px 0px -5px #F5E165; */
+}
+
+#collapseNav div {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.account-tile {
+    font-weight: normal;
+    font-size: 0.8rem;
+    line-height: 1rem;
+    flex-direction: column;
+    justify-content: center;
+}
+.account-tile p {
+    line-height: 1rem;
+    margin-bottom: 0;
+}
+
+.account-tile a {
+    height: 1rem !important;
+}
+
+.main-content {
+    font-family: Source Serif Pro, serif;
+    padding-left: 100px;
+    padding-right: 20px;
+}
+
+p {
+    line-height: 1.7rem;
+}
+
+button,
+.button,
+input[type="submit"] {
+    background: #bfe2e0;
+    border-radius: 2px;
+    border: none;
+    padding: 2px 7px 2px 7px;
+    font-family: Space Grotesk, sans-serif;
+    display: inline-block;
+}
+button:hover,
+.button:hover,
+input[type="submit"]:hover {
+    filter: brightness(90%);
+    background: #bfe2e0 !important;
+    text-decoration: none;
+}
+
+.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
+    font-family: Space Grotesk, sans-serif;
+}
+
+a,
+a:visited {
+    color: black;
+    text-decoration-color: #BFE2E0;
+    text-decoration-thickness: 5px;
+    font-family: Space Grotesk
+}
+a:hover {
+    background: rgba(191, 226, 224, 0.35);
+}
+a.link-document {
+    padding-left: 22px;
+}
+a.link-document::before {
+    content: "";
+    background:url("../img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg");
+    background-size:cover;
+    position:absolute;
+    width:20px;
+    height:20px;
+    margin-left: -22px;
+    margin-top: 5px;
+}
+
+#footer {
+    margin-top: 90px;
+}
+.footer-container {
+    padding: 20px;
+}
+
+.message-container {
+    display: block;
+    background: greenyellow;
+    width: 100%;
+    margin-top: -90px;
+    margin-bottom: 90px;
+    padding-top: 10px;
+    font-size: 0.9rem;
+}
+
+form label,
+form input {
+    display: block;
+}
+
+form label {
+    font-family: Space Grotesk, sans-serif;
+    font-weight: bold;
+}
+
+form input[type="text"],
+form input[type="email"],
+form input[type="password"],
+form input[type="number"]{
+    background: rgba(191, 226, 224, 0.4);
+    border: 2px solid white;
+    padding: 5px;
+    width: 40%;
+    min-width: 300px;
+}
+
+form input:focus {
+    border: 2px solid black;
+    outline: none;
+}
+
+form select {
+    background: #e5f3f3;
+    border: 2px solid white;
+    padding: 5px;
+}
+
+form .select-items {
+    color: #ffffff;
+    padding: 8px 16px;
+    border: 1px solid transparent;
+    border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+    cursor: pointer;
+}
+
+
+form .helptext {
+    font-size: 0.9rem;
+    padding-left: 5px;
+}
+
+.dm-form .errorlist {
+    color: darkred;
+    margin-bottom: 0 !important;
+    margin-top: 30px !important;
+    list-style-type: none;
+    padding: 0;
+}

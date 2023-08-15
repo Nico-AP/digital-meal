@@ -1,0 +1,30 @@
+{% load static %}
+
+<!--
+<div>
+  <div class="d-flex justify-content-center">
+    <div>
+      <img alt="Digital Meal Brand" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="250px">
+    </div>
+  </div>
+  <div class="d-flex justify-content-between nav-element-container">
+    <div class="nav-element background-blue nav-active"><a href="">für Lehrpersonen</a></div>
+    <div class="nav-element background-green"><a href="">für Schüler:innen</a></div>
+    <div class="nav-element background-orange"><a href="">Materialien</a></div>
+    <div class="nav-element background-violet"><a href="">Über</a></div>
+  </div>
+</div>
+-->
+
+<div class="d-flex flex-column dm-header">
+  <div class="row flex-row align-items-stretch dm-header-top">
+    <div class="col background-white"><a href="/"><img alt="Digital Meal Brand" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="120px"></a></div>
+    <div class="col background-blue"></div>
+  </div>
+  <div class="row flex-row align-items-stretch dm-header-nav">
+    <div class="col nav-element background-violet nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>  <!-- TODO: Rollback before commit -->
+    <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
+    <div class="col nav-element background-green"><a href="">für Forschende</a></div>
+    <div class="col nav-element background-yellow"><a href="">Über</a></div>
+  </div>
+</div>

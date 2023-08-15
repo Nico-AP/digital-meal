@@ -1,0 +1,74 @@
+#report {
+    text-align: center;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    height: 100vh;
+}
+
+#report h1,
+#report h2,
+#report h3,
+#report h4,
+#report h5,
+#report h6 {
+    margin-bottom: 30px;
+}
+
+#report h1 {
+    font-size: 3.5rem;
+}
+
+#report h2 {
+    font-size: 2.5rem;
+}
+
+#report p {
+    font-family: Open Sans;
+    font-size: 1.1rem;
+    line-height: 1.8rem;
+}
+
+#report .report-section {
+    padding: 100px 40px 200px;
+    scroll-snap-align: start;
+    min-height: 50vh;
+    display: flex;
+    justify-content: center;
+}
+
+#report .report-content {
+    max-width: 1200px;
+}
+
+#report .font-size-highlight {
+    font-size: 1.8rem;
+    line-height: 3rem;
+}
+
+.flash-yellow-background {
+    background-color: #ffda3c;
+}
+.section-green-background {
+    background-color: #5cdb95;
+}
+
+
+.custom-shape-divider-bottom-1691418846 {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    overflow: hidden;
+    line-height: 0;
+}
+
+.custom-shape-divider-bottom-1691418846 svg {
+    position: relative;
+    display: block;
+    width: calc(100% + 1.3px);
+    height: 200px;
+}
+
+.custom-shape-divider-bottom-1691418846 .shape-fill {
+    fill: #ffda3c;
+}

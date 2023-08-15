@@ -1,0 +1,77 @@
+{% extends "digital_meal/base.html" %}
+
+{% block title %}Klassenübersicht "{{ object.name }}"{% endblock title %}
+
+{% block main_content %}
+
+<h1 class="mb-3">Klasse "{{ object.name }}"</h1>
+
+<div class="mb-4">
+  <table>
+    <tbody>
+    <tr>
+      <td class="pe-5">Klassenbezeichnung:</td>
+      <td>{{ object.name }}</td>
+    </tr>
+    <tr>
+      <td>Erstellt am:</td>
+      <td>{{ object.date_created }}</td>
+    </tr>
+    <tr>
+      <td>Schulstufe:</td>
+      <td>{{ object.get_school_level_display }}</td>
+    </tr>
+    <tr>
+      <td>Schuljahr:</td>
+      <td>{{ object.school_year }}</td>
+    </tr>
+    <tr>
+      <td>Unterrichtsfach:</td>
+      <td>{{ object.get_subject_display }}</td>
+    </tr>
+    <tr>
+      <td>Unterrichtsformat:</td>
+      <td>{{ object.get_instruction_format_display }}</td>
+    </tr>
+    <tr>
+      <td class="pt-3"><b>Teilnahmelink</b>:</td>
+      <td class="pt-3"><a href="">LINK MUSS NOCH EINGEPFLEGT WERDEN</a></td>  <!-- TODO: Add Link -->
+    </tr>
+    </tbody>
+  </table>
+
+</div>
+
+<div class="mt-4">
+  <h2>Informationen zu Schüler:innen</h2>
+
+  {% if participation_stats %}
+  <table>
+    <thead>
+    <tr>
+      <th class="pe-3">External ID</th>
+      <th class="pe-3">Pool ID</th>
+      <th class="pe-3">Status</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for p in participation_stats %}  <!-- TODO: Update this section -->
+    <tr>
+      <td>{{ p.external_id }}</td>
+      <td>{{ p.pool_id }}</td>
+      <td>{{ p.status }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <p class="pt-3">
+    <a href="">Klassen-Statistiken anzeigen</a>
+  </p>
+  {% else %}
+  <p>Es konnten keine Informationen zu den Schüler:innen abgerufen werden.</p>
+  {% endif %}
+
+</div>
+
+{% endblock main_content %}

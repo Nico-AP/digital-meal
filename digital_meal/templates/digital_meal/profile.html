@@ -1,0 +1,40 @@
+{% extends "digital_meal/base.html" %}
+
+{% block title %}Profilübersicht{% endblock title %}
+
+{% block main_content %}
+<div>
+  <h1>Nutzerprofil von {{ teacher }}</h1>
+
+  <table>
+    <tbody>
+    <tr>
+      <td class="pe-3">Vorname:</td>
+      <td>{{ teacher.first_name }}</td>
+    </tr>
+    <tr>
+      <td class="pe-3">Nachname:</td>
+      <td>{{ teacher.name }}</td>
+    </tr>
+    <tr>
+      <td class="pe-3">E-Mail Adresse:</td>
+      <td>{{ teacher.user.email }}</td>
+    </tr>
+    <tr>
+      <td class="pe-3">Kanton:</td>
+      <td>{{ teacher.get_canton_display }}</td>
+    </tr>
+    <tr>
+      <td class="pe-3">Schule:</td>
+      <td>{{ teacher.school_name }}</td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="pt-4">
+    <a href="{% url 'account_email' %}" class="button">E-Mail Adresse ändern</a>
+    <a href="{% url 'account_change_password' %}" class="button">Passwort ändern</a>
+  </div>
+
+</div>
+{% endblock main_content %}

@@ -1,0 +1,44 @@
+@font-face {
+    font-family: Space Grotesk;
+    src: url("../fonts/space_grotesk/SpaceGrotesk-VariableFont_wght.ttf");
+}
+@font-face {
+    font-family: Source Serif Pro;
+    src: url("../fonts/source_serif_pro/SourceSerifPro-Regular.ttf");
+}
+@font-face {
+    font-family: Source Serif Pro;
+    src: url("../fonts/source_serif_pro/SourceSerifPro-Italic.ttf");
+    font-style: italic;
+}
+@font-face {
+    font-family: Source Serif Pro;
+    src: url("../fonts/source_serif_pro/SourceSerifPro-Bold.ttf");
+    font-weight: bold;
+}
+@font-face {
+    font-family: Source Serif Pro;
+    src: url("../fonts/source_serif_pro/SourceSerifPro-BoldItalic.ttf");
+    font-style: italic;
+    font-weight: bold;
+}
+@font-face {
+    font-family: Open Sans;
+    src: url("../fonts/open_sans/OpenSans-Regular.ttf");
+}
+@font-face {
+    font-family: Open Sans;
+    src: url("../fonts/open_sans/OpenSans-Bold.ttf");
+    font-weight: bold;
+}
+@font-face {
+    font-family: Open Sans;
+    src: url("../fonts/open_sans/OpenSans-Italic.ttf");
+    font-style: italic;
+}
+@font-face {
+    font-family: Open Sans;
+    src: url("../fonts/open_sans/OpenSans-BoldItalic.ttf");
+    font-style: italic;
+    font-weight: bold;
+}

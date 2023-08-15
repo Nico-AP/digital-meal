@@ -1,0 +1,88 @@
+{% load static i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block title %}Digital Meal | Home{% endblock %}</title>
+  <meta name="description" content="This is the Digital Meal website.">
+
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal/img/DigitalMeal_favicon.svg' %}">
+
+  {% block site_css %}
+  <link rel="stylesheet" href="{% static 'digital_meal/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal/css/base.css' %}">
+  {% endblock site_css %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
+
+<body>
+<div id="dm-body" style="display: flex; flex-direction: column">
+
+  {% block header %}
+  <div id="header" class="background-blue">
+    <div class="container">
+      <div class="row">
+        {% block header_content %}
+        {% include "digital_meal/components/top-nav.html" %}
+        {% endblock header_content %}
+      </div>
+    </div>
+  </div>
+  {% endblock header %}
+
+  <!-- TODO: Style messages
+  {% if messages %}
+  {% include "digital_meal/components/messages.html" %}
+  {% endif %}
+  -->
+
+  <div id="dm-content">
+    <div class="container">
+
+      <div id="main" class="row main-content">
+        {% block main_content %}
+        <div>
+          <h1>Heading 1</h1>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+          <h2>Heading 2</h2>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+          <h3>Heading 3</h3>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+          <h4>Heading 4</h4>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+          <h5>Heading 5</h5>
+          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+        </div>
+        {% endblock main_content %}
+      </div>
+
+    </div>
+  </div>
+
+  <div id="footer" class="background-blue">
+    <div class="container">
+      <div class="row">
+        {% block footer_content %}
+        {% include "digital_meal/components/footer.html" %}
+        {% endblock footer_content %}
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% block site_js %}
+<script src="{% static 'digital_meal/js/jquery/jquery-3.6.2.min.js' %}"></script>
+<script src="{% static 'digital_meal/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+{% endblock site_js %}
+
+</body>
+
+</html>
