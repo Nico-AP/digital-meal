@@ -395,7 +395,7 @@ msgstr "Primär"
 
 #: templates/account/email.html:34
 msgid "Make Primary"
-msgstr "Als primäre Adresse festlegen"
+msgstr "als primäre Adresse festlegen"
 
 #: templates/account/email.html:35 templates/account/email_change.html:21
 msgid "Re-send Verification"
@@ -403,7 +403,7 @@ msgstr "Bestätigungs-Mail nochmal verschicken"
 
 #: templates/account/email.html:36 templates/socialaccount/connections.html:35
 msgid "Remove"
-msgstr "Ausgewählte entfernen"
+msgstr "entfernen"
 
 #: templates/account/email.html:47
 msgid "Add Email Address"
@@ -591,15 +591,12 @@ msgid "Confirm Email Address"
 msgstr "E-Mail-Adresse bestätigen"
 
 #: templates/account/email_confirm.html:17
-#, fuzzy, python-format
-#| msgid ""
-#| "Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-"
-#| "mail address for user %(user_display)s."
+#, python-format
 msgid ""
-"Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an email "
+"Please confirm that <a href=\"mailto:%(email)s\">%(email)s</a> is an e-mail "
 "address for user %(user_display)s."
 msgstr ""
-"Bitte bestätigen Sie, dass <a href=\"mailto:%(email)s\">%(email)s</a> eine E-Mail-"
+"Bitte bestätigen Sie, dass <a href=\"mailto:%(email)s\">%(email)s</a> die E-Mail-"
 "Adresse von %(user_display)s ist."
 
 #: templates/account/email_confirm.html:21
@@ -618,13 +615,10 @@ msgstr ""
 "Seite verknüpft."
 
 #: templates/account/email_confirm.html:31
-#, fuzzy, python-format
-#| msgid ""
-#| "This e-mail confirmation link expired or is invalid. Please <a href="
-#| "\"%(email_url)s\">issue a new e-mail confirmation request</a>."
+#, python-format
 msgid ""
-"This email confirmation link expired or is invalid. Please <a href="
-"\"%(email_url)s\">issue a new email confirmation request</a>."
+"This e-mail confirmation link expired or is invalid. Please <a href="
+"\"%(email_url)s\">issue a new e-mail confirmation request</a>."
 msgstr ""
 "Dieser Bestätigungslink ist leider abgelaufen. Fordern Sie bitte eine neue <a "
 "href=\"%(email_url)s\">Bestätigungs-Mail</a> an."
@@ -725,13 +719,9 @@ msgid "Password Reset"
 msgstr "Passwort zurücksetzen"
 
 #: templates/account/password_reset.html:15
-#, fuzzy
-#| msgid ""
-#| "Forgotten your password? Enter your e-mail address below, and we'll send "
-#| "you an e-mail allowing you to reset it."
 msgid ""
-"Forgotten your password? Enter your email address below, and we'll send you "
-"an email allowing you to reset it."
+"Forgotten your password? Enter your e-mail address below, and we'll send you "
+"an e-mail allowing you to reset it."
 msgstr ""
 "Passwort vergessen? Geben Sie Ihre E-Mail-Adresse unten ein, dann schicken wir "
 "Ihnen einen Link, unter dem Sie Ihr Passwort zurücksetzen können."
@@ -746,13 +736,8 @@ msgstr ""
 "Bitte kontaktieren Sie uns, wenn das Zurücksetzen des Passworts nicht klappt."
 
 #: templates/account/password_reset_done.html:15
-#, fuzzy
-#| msgid ""
-#| "We have sent you an e-mail. If you have not received it please check your "
-#| "spam folder. Otherwise contact us if you do not receive it in a few "
-#| "minutes."
 msgid ""
-"We have sent you an email. If you have not received it please check your "
+"We have sent you an e-mail. If you have not received it please check your "
 "spam folder. Otherwise contact us if you do not receive it in a few minutes."
 msgstr ""
 "Wir haben Ihnen eine E-Mail geschickt. Wenn Sie die E-Mail nicht in Ihrem "
@@ -822,14 +807,9 @@ msgid "Warning:"
 msgstr "Warnung:"
 
 #: templates/account/snippets/warn_no_email.html:3
-#, fuzzy
-#| msgid ""
-#| "You currently do not have any e-mail address set up. You should really "
-#| "add an e-mail address so you can receive notifications, reset your "
-#| "password, etc."
 msgid ""
-"You currently do not have any email address set up. You should really add an "
-"email address so you can receive notifications, reset your password, etc."
+"You currently do not have any e-mail address set up. You should really add an "
+"e-mail address so you can receive notifications, reset your password, etc."
 msgstr ""
 "Sie haben derzeit keine E-Mail-Adressen angegeben. Das sollten Sie allerdings "
 "tun, denn nur so können wir Sie benachrichtigen und Ihr Passwort "
@@ -839,21 +819,15 @@ msgstr ""
 #: templates/account/verification_sent.html:8
 #: templates/account/verified_email_required.html:5
 #: templates/account/verified_email_required.html:8
-msgid "Verify Your Email Address"
+msgid "Verify Your E-mail Address"
 msgstr "Bestätigen Sie Ihre E-Mail-Adresse"
 
 #: templates/account/verification_sent.html:10
-#, fuzzy
-#| msgid ""
-#| "We have sent an e-mail to you for verification. Follow the link provided "
-#| "to finalize the signup process. If you do not see the verification e-mail "
-#| "in your main inbox, check your spam folder. Please contact us if you do "
-#| "not receive the verification e-mail within a few minutes."
 msgid ""
-"We have sent an email to you for verification. Follow the link provided to "
-"finalize the signup process. If you do not see the verification email in "
-"your main inbox, check your spam folder. Please contact us if you do not "
-"receive the verification email within a few minutes."
+"We have sent an e-mail to you for verification. Follow the link provided "
+"to finalize the signup process. If you do not see the verification e-mail "
+"in your main inbox, check your spam folder. Please contact us if you do "
+"not receive the verification e-mail within a few minutes."
 msgstr ""
 "Wir haben Ihnen eine E-Mail geschickt, um Ihre Adresse zu verifizieren. Bitte "
 "folgen Sie dem Link in der E-Mail um den Anmeldeprozess abzuschließen. Wenn Sie "
@@ -862,32 +836,20 @@ msgstr ""
 "bitte Bescheid."
 
 #: templates/account/verified_email_required.html:12
-#, fuzzy
-#| msgid ""
-#| "This part of the site requires us to verify that\n"
-#| "you are who you claim to be. For this purpose, we require that you\n"
-#| "verify ownership of your e-mail address. "
 msgid ""
 "This part of the site requires us to verify that\n"
 "you are who you claim to be. For this purpose, we require that you\n"
-"verify ownership of your email address. "
+"verify ownership of your e-mail address. "
 msgstr ""
 "Auf diesem Teil der Webseite möchten wir sichergehen,\n"
 "dass Sie die Person sind, für die Sie sich ausgeben.\n"
 "Dazu müssen Sie Ihre E-Mail-Adresse verifizieren. "
 
 #: templates/account/verified_email_required.html:16
-#, fuzzy
-#| msgid ""
-#| "We have sent an e-mail to you for\n"
-#| "verification. Please click on the link inside that e-mail. If you do not "
-#| "see the verification e-mail in your main inbox, check your spam folder. "
-#| "Otherwise\n"
-#| "contact us if you do not receive it within a few minutes."
 msgid ""
-"We have sent an email to you for\n"
-"verification. Please click on the link inside that email. If you do not see "
-"the verification email in your main inbox, check your spam folder. "
+"We have sent an e-mail to you for\n"
+"verification. Please click on the link inside that e-mail. If you do not see "
+"the verification e-mail in your main inbox, check your spam folder. "
 "Otherwise\n"
 "contact us if you do not receive it within a few minutes."
 msgstr ""
@@ -898,13 +860,9 @@ msgstr ""
 "paar Minuten angekommen ist, geben Sie uns bitte Bescheid."
 
 #: templates/account/verified_email_required.html:20
-#, fuzzy, python-format
-#| msgid ""
-#| "<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change "
-#| "your e-mail address</a>."
 msgid ""
 "<strong>Note:</strong> you can still <a href=\"%(email_url)s\">change your "
-"email address</a>."
+"e-mail address</a>."
 msgstr ""
 "<strong>Anmerkung:</strong> Sie können <a href=\"%(email_url)s\">Ihre E-Mail-"
 "Adresse ändern</a>."
