@@ -13,12 +13,26 @@ from datetime import datetime, timedelta
 from digital_meal.utils import yt_data
 
 
-days_de = ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
-           'Freitag', 'Samstag', 'Sonntag']
-days_en_de = {'Monday': 'Montag', 'Tuesday': 'Dienstag',
-              'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
-              'Friday': 'Freitag', 'Saturday': 'Samstag',
-              'Sunday': 'Sonntag'}
+days_de = [
+    'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
+    'Freitag', 'Samstag', 'Sonntag'
+]
+days_de_short = [
+    'Mo', 'Di', 'Mi', 'Do',
+    'Fr', 'Sa', 'So'
+]
+days_en_de = {
+    'Monday': 'Montag', 'Tuesday': 'Dienstag',
+    'Wednesday': 'Mittwoch', 'Thursday': 'Donnerstag',
+    'Friday': 'Freitag', 'Saturday': 'Samstag',
+    'Sunday': 'Sonntag'
+}
+days_en_de_short = {
+    'Monday': 'Mo', 'Tuesday': 'Di',
+    'Wednesday': 'Mi', 'Thursday': 'Do',
+    'Friday': 'Fr', 'Saturday': 'Sa',
+    'Sunday': 'So'
+}
 
 
 def get_timeseries_plot(data):
@@ -31,7 +45,7 @@ def get_timeseries_plot(data):
     p = figure(
         x_range=(min(x_labels), min(x_labels) + timedelta(days=120)),
         x_axis_type='datetime',
-        height=300, width=1000,
+        height=300, width=1200,
         toolbar_location=None,
         tools='xpan'
     )
@@ -60,9 +74,9 @@ def get_timeseries_plot(data):
     p.xaxis.major_tick_line_color = 'white'
 
     select = figure(
-        title='Verschieben oder vergrössern/verkleinern Sie das helle '
+        title='Verschiebe oder vergrössere/verkleinere das helle '
               'Auswahlfeld unten, um den Bereich darüber zu ändern',
-        height=130, width=1000,
+        height=130, width=1200,
         y_range=p.y_range,
         y_axis_type=None,
         x_axis_type='datetime',
@@ -81,7 +95,7 @@ def get_timeseries_plot(data):
     select.title.align = 'center'
     select.title.text_color = '#465ad9'
 
-    plot = column(p, select)
+    plot = column(p, select, sizing_mode='stretch_width')
     script, div = components(plot)
 
     return {'script': script, 'div': div}
@@ -159,7 +173,7 @@ def get_day_usetime_plot(data):
     df = pd.DataFrame(list(zip(weekdays, hours)), columns=['Day', 'Time'])
     df['Count'] = 1
     times = df.Time.sort_values(ascending=False).unique().tolist()
-    df.replace({'Day': days_en_de}, inplace=True)
+    df.replace({'Day': days_en_de_short}, inplace=True)
     df_grouped = df.groupby(['Day', 'Time']).count().reset_index()
 
     # Create figure.
@@ -173,7 +187,7 @@ def get_day_usetime_plot(data):
         """
 
     p = figure(
-        x_range=days_de,
+        x_range=days_de_short,
         y_range=times,
         x_axis_location='above',
         width=700, height=500,

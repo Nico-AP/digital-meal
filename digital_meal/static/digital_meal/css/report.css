@@ -18,6 +18,12 @@
     font-size: 3.5rem;
 }
 
+@media screen and (max-width: 576px) {
+    #report h1 {
+        font-size: 10vw !important;
+    }
+}
+
 #report h2 {
     font-size: 2.5rem;
 }
@@ -37,7 +43,15 @@
 }
 
 #report .report-content {
-    max-width: 1200px;
+    width: 1200px;
+    max-width: 100%;
+    flex-wrap: nowrap;
+}
+
+@media screen and (max-width: 992px) {
+    #report .report-content {
+        flex-wrap: wrap;
+    }
 }
 
 #report .font-size-highlight {
@@ -71,4 +85,34 @@
 
 .custom-shape-divider-bottom-1691418846 .shape-fill {
     fill: #ffda3c;
+}
+
+.detailed-use-plot {
+    overflow: visible;
+}
+
+@media screen and (max-width: 992px) {
+    .detailed-use-plot {
+        overflow: auto;
+    }
+}
+
+.fav-video-teaser {
+    overflow: visible;
+}
+
+@media screen and (max-width: 992px) {
+    .fav-video-teaser {
+        overflow: hidden;
+    }
+}
+
+.searchbar-font {
+    font-size:inherit;
+}
+
+@media screen and (max-width: 992px) {
+    .searchbar-font {
+        font-size: 2vw !important;
+    }
 }

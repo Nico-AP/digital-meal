@@ -1,0 +1,9 @@
+{% extends "digital_meal/base.html" %}
+
+<!-- load wagtailcore_tags by adding this: -->
+{% load wagtailcore_tags %}
+
+<!-- replace everything below with: -->
+{% block main_content %}
+{{ page.body|richtext }}
+{% endblock %}

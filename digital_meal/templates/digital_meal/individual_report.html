@@ -116,7 +116,7 @@
             <b style="border-bottom: 2px solid #ffda3c; background: #ffda3c; padding-left: 5px; padding-right: 5px;">Je dunkler das Feld, desto höher war deine Nutzung in dieser Zeitperiode.</b>
           </p>
         </div>
-        <div>
+        <div class="detailed-use-plot">
           <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
           <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
         </div>
@@ -138,11 +138,9 @@
       </div>
     </div>
 
-    <div class="report-section section-green-background">
+    <div class="report-section section-green-background overflow-hidden">
 
-      <div class="report-content">
-
-        <div class="d-flex flex-row pb-5 align-content-stretch pt-5">
+        <div class="report-content d-flex flex-row pb-5 align-content-stretch pt-5">
           <div class="ps-5 pe-5 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
             <h2>Dein Lieblingsvideo</h2>
             <p class="text-center">
@@ -150,7 +148,7 @@
             </p>
           </div>
 
-          <div class="ps-5 pe-5 flex-grow-1 d-flex justify-content-center align-items-center">
+          <div class="ps-5 pe-5 flex-grow-1 d-flex justify-content-center align-items-center fav-video-teaser">
             <div style="background-color: #001310; padding: 20px; transform: rotate(135deg);">
               <div style="background-color: #389583; padding: 20px; transform: rotate(15deg);">
                 <div style="background-color: #8de4af; padding: 20px; transform: rotate(195deg);">
@@ -161,7 +159,7 @@
           </div>
         </div>
       </div>
-    </div>
+
   </div>
   {% endif %}
 
@@ -215,7 +213,7 @@
         <h2>Nach was Du gesucht hast</h2>
 
         <p>
-          <span class="font-size-highlight" style="margin-left: 5px; color: #1f2833; border: 1px solid #d2d2d2;  background: white; border-top-left-radius: 40px; border-bottom-left-radius: 40px; padding: 5px 40px 5px 20px;"><b>Du hast insgesamt <span style="border-bottom: 3px solid #66fcf1;">{{ n_searches }} Suchen</span> durchgeführt</b></span><span class="font-size-highlight" style="margin-right: 5px; background: #f8f8f8; border-top-right-radius: 40px; border-bottom-right-radius: 40px; border: 1px solid #d2d2d2;padding: 5px 22px 5px 20px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" style="color: #393939;margin-bottom: 5px;">
+          <span class="font-size-highlight searchbar-font" style="margin-left: 5px; color: #1f2833; border: 1px solid #d2d2d2;  background: white; border-top-left-radius: 40px; border-bottom-left-radius: 40px; padding: 5px 40px 5px 20px;"><b>Du hast insgesamt <span style="border-bottom: 3px solid #66fcf1;">{{ n_searches }} Suchen</span> durchgeführt</b></span><span class="font-size-highlight searchbar-font" style="margin-right: 5px; background: #f8f8f8; border-top-right-radius: 40px; border-bottom-right-radius: 40px; border: 1px solid #d2d2d2;padding: 5px 22px 5px 20px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" style="color: #393939;margin-bottom: 5px;">
   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
 </svg></span>
         </p>
