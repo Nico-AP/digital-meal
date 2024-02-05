@@ -1,0 +1,26 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Anmelden{% endblock %}
+
+{% block content %}
+
+<h1>Anmelden</h1>
+
+<div>
+  <p>Melden Sie sich mit Ihrer E-Mail-Adresse und ihrem persönlichen Passwort bei Ihrem Digital Meal Konto an.</p>
+  <p>Falls Sie noch kein Profil besitzen, können Sie <a href="{% url 'account_signup'%}">hier ein neues Profil erstellen</a>.</p>
+</div>
+
+<form class="login dm-form" method="POST" action="{% url 'account_login' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+  {% endif %}
+  <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
+  <button class="primaryAction" type="submit">Anmelden &raquo;</button>
+</form>
+
+{% endblock %}

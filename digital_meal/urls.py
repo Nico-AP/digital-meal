@@ -1,7 +1,9 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from digital_meal import views as dm_views
+from digital_meal.views import base as dm_views
+from digital_meal.views import reports as dm_reports
+from digital_meal import apis as dm_apis
 
 
 urlpatterns = [
@@ -9,9 +11,13 @@ urlpatterns = [
     path('lehrpersonen', TemplateView.as_view(template_name='digital_meal/temp_lehrpersonen.html'), name='dm-lehrpersonen'),  # TODO: Rollback before commit.
     path('class/<int:pk>', dm_views.ClassroomDetail.as_view(), name='classroom-detail'),
     path('class/create', dm_views.ClassroomCreate.as_view(), name='classroom-create'),
-    path('class/list', dm_views.ClassroomList.as_view(), name='classroom-list'),
-    path('report/<slug:external_pool_project_id>/<slug:external_pool_participant_id>', dm_views.IndividualReport.as_view(), name='individual-report'),
-    path('report/pdf/<slug:external_pool_project_id>/<slug:external_pool_participant_id>', dm_views.IndividualReportPDF.as_view(), name='individual-report-as-pdf'),
+    path('class/<int:pk>/assign-track', dm_views.ClassroomAssignTrack.as_view(), name='classroom-assign-track'),
+    path('class/<int:pk>/report', dm_reports.ClassroomReport.as_view(), name='classroom-report'),
+    path('class/<int:pk>/expired', dm_views.ClassroomExpired.as_view(), name='classroom-expired'),
+    path('report/individual/<slug:external_pool_participant_id>', dm_reports.IndividualReport.as_view(), name='individual-report'),
     path('profil/', dm_views.ProfileView.as_view(), name='profile'),
-    path('styleguide', dm_views.StyleGuide.as_view(), name='styleguide')
+    path('profil/uebersicht', dm_views.ProfileOverview.as_view(), name='profile-overview'),
+    path('styleguide', dm_views.StyleGuide.as_view(), name='styleguide'),
+    # APIs
+    path('api/<int:pk>/classreport', dm_apis.ClassReportAPI.as_view(), name='class-report-api')
 ]

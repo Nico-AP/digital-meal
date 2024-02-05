@@ -1,9 +1,11 @@
 import uuid
+from datetime import timedelta
 
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
+from django.utils import timezone
 
 
 class User(AbstractUser):
@@ -87,20 +89,22 @@ class Teacher(models.Model):
         return f'{self.first_name} {self.name}'
 
 
+def now_plus_six_months():
+    return timezone.now() + timedelta(days=180)
+
+
 class Classroom(models.Model):
     owner = models.ForeignKey('digital_meal.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
-    pool_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    pool_id = models.UUIDField(default=uuid.uuid4, editable=False)  # TODO: Rename - Pool is outdated
     date_created = models.DateTimeField(auto_now_add=True, null=False)
+    expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
         'digital_meal.Track',
         on_delete=models.CASCADE,
-        verbose_name='Track'
+        verbose_name='Track',
+        null=True
     )
-
-    # end_date = models.DateTimeField(
-    #     null=False,
-    # ) TODO: Move to Report Level somehow
 
     school_level = models.CharField(
         max_length=20,
@@ -139,20 +143,6 @@ class Classroom(models.Model):
         return reverse('classroom-detail', kwargs={'pk': self.pk})
 
 
-class Module(models.Model):
-    """
-    A Module corresponds to an overarching teaching topic cluster
-    (i.e., usually a specific platform).
-    """
-    name = models.CharField(max_length=50, blank=False, null=False)
-    date_created = models.DateTimeField(auto_now_add=True, null=False)
-    ddm_external_project_id = 0
-    active = models.BooleanField(default=False)
-
-    def __str__(self):
-        return self.name
-
-
 class Track(models.Model):
     """
     A Track corresponds to a 'teaching path' within a Module
@@ -161,8 +151,13 @@ class Track(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=50, blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
-    module = models.ForeignKey('digital_meal.Module', on_delete=models.CASCADE)
     active = models.BooleanField(default=False)
+    # TODO: Add image/icon field
+
+    ddm_path = models.URLField()
+    ddm_project_id = models.CharField(max_length=255)
+    ddm_api_endpoint = models.URLField()
+    ddm_api_token = models.CharField(max_length=40)
 
     def __str__(self):
         return self.name

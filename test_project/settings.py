@@ -1,19 +1,35 @@
 import os
+import sys
 
 from dotenv import load_dotenv
-from pathlib import Path
+
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+APP_DIR = os.path.join(BASE_DIR, 'ddm')
+sys.path.append(BASE_DIR)
+sys.path.append(APP_DIR)
 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+
+# DEBUG
+# ------------------------------------------------------------------------------
+DEBUG = True
+
+
+# DATABASE
+# ------------------------------------------------------------------------------
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'dm.sqlite',
+    }
+}
 
 # APPLICATION DEFINITION
 # ------------------------------------------------------------------------------
 SECRET_KEY = os.environ['DJANGO_SECRET']
-
-SITE_ID = 1
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -26,7 +42,15 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
-    'digital_meal'
+    'taggit',
+    'digital_meal',
+    # DDM
+    'ddm',
+    'ckeditor',
+    'ckeditor_uploader',
+    'webpack_loader',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -36,10 +60,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
-ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
@@ -54,13 +75,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'ddm.context_processors.add_ddm_version'
             ],
         },
     },
 ]
 
-WSGI_APPLICATION = 'config.wsgi.application'
-
+SITE_ID = 1
+ROOT_URLCONF = 'urls'
 
 # USER AUTHENTICATION AND PASSWORD VALIDATION
 # ------------------------------------------------------------------------------
@@ -88,7 +110,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
-LOGIN_REDIRECT_URL = '/class/list'
+LOGIN_REDIRECT_URL = '/profil/uebersicht'
 LOGOUT_REDIRECT_URL = '/'
 
 
@@ -121,3 +143,31 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # DEFAULT PRIMARY KEY FIELD TYPE
 # ------------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# DIGITAL MEAL SETTINGS
+# ------------------------------------------------------------------------------
+
+
+
+# DDM API SETTINGS
+# ------------------------------------------------------------------------------
+DDM_PARTICIPANT_ENDPOINT = 'http://127.0.0.1:8000/ddm/api/project/1/participants'
+DDM_DONATION_ENDPOINT = 'http://127.0.0.1:8000/ddm/api/project/1/donations'
+DDM_API_TOKEN = 'b4556a18949d12c2b29ec2e1148618131c51b327'
+
+
+# DDM SETTINGS
+# ------------------------------------------------------------------------------
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': True,
+        'BUNDLE_DIR_NAME': 'ddm/vue/',
+        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm/vue/webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    }
+}
+
+CKEDITOR_RESTRICT_BY_USER = True  # Files uploaded by one user can only be accessed by this particular user
+CKEDITOR_UPLOAD_PATH = 'uploads/'

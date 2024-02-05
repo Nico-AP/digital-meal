@@ -18,11 +18,8 @@
     justify-content: space-between;
 }
 
-#header {
-    margin-bottom: 90px;
-}
-
 #dm-content {
+    margin-top: 90px;
     flex-grow: 1;
 }
 
@@ -83,8 +80,8 @@
 
 .main-content {
     font-family: Source Serif Pro, serif;
-    padding-left: 100px;
-    padding-right: 20px;
+    padding-left: 80px;
+    padding-right: 80px;
 }
 
 p {
@@ -144,14 +141,13 @@ a.link-document::before {
     padding: 20px;
 }
 
-.message-container {
+.dm-message-container {
     display: block;
-    background: greenyellow;
     width: 100%;
     margin-top: -90px;
-    margin-bottom: 90px;
     padding-top: 10px;
     font-size: 0.9rem;
+    font-family: Space Grotesk;
 }
 
 form label,
@@ -194,7 +190,6 @@ form .select-items {
     cursor: pointer;
 }
 
-
 form .helptext {
     font-size: 0.9rem;
     padding-left: 5px;
@@ -206,4 +201,25 @@ form .helptext {
     margin-top: 30px !important;
     list-style-type: none;
     padding: 0;
+}
+
+.dm-alert {
+    padding: 0 !important;
+    background: #e4f3f2;
+}
+
+#user-nav-bar {
+    padding-top: 5px;
+    padding-bottom: 5px;
+    background-color: #00213f;
+    color: white;
+}
+
+.user-nav {
+    text-decoration: none;
+    font-weight: bold;
+    color: white !important;
+}
+.user-nav:hover {
+    background: none;
 }

@@ -35,18 +35,27 @@
       </div>
     </div>
   </div>
-  {% endblock header %}
 
-  <!-- TODO: Style messages
-  {% if messages %}
-  {% include "digital_meal/components/messages.html" %}
+  {% if user.is_authenticated %}
+  <div id="user-nav-bar" class="background-lightgreen">
+    <div class="container">
+      <div class="row">
+        {% include "digital_meal/components/user-nav.html" %}
+      </div>
+    </div>
+  </div>
   {% endif %}
-  -->
+
+  {% endblock header %}
 
   <div id="dm-content">
     <div class="container">
 
       <div id="main" class="row main-content">
+        {% if messages %}
+        {% include "digital_meal/components/messages.html" %}
+        {% endif %}
+
         {% block main_content %}
         <div>
           <h1>Heading 1</h1>

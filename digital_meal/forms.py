@@ -70,7 +70,7 @@ class ClassroomCreateForm(forms.ModelForm):
         model = Classroom
         fields = [
             'name', 'school_level', 'school_year', 'subject',
-            'instruction_format', 'track'
+            'instruction_format'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Name/Bezeichnung der Klasse'}),
@@ -83,4 +83,13 @@ class ClassroomCreateForm(forms.ModelForm):
             'school_level': 'Zu welcher Schulstufe gehört die Klasse?',
             'school_year': 'In welchem Schuljahr befindet sich die Klasse aktuell?',
             'subject': 'In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?',
+            'instruction_format': 'In welchem Format unterrichten Sie die Klasse?'
         }
+
+
+class ClassroomTrackForm(forms.ModelForm):
+    class Meta:
+        model = Classroom
+        fields = [
+            'track'
+        ]

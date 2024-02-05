@@ -35,7 +35,7 @@
     </tr>
     <tr>
       <td class="pt-3"><b>Teilnahmelink</b>:</td>
-      <td class="pt-3"><a href="">LINK MUSS NOCH EINGEPFLEGT WERDEN</a></td>  <!-- TODO: Add Link -->
+      <td class="pt-3"><a href="{{ object.track.ddm_path }}?dmclsrm={{ object.pool_id }}">{{ object.track.ddm_path }}?dmclsrm={{ object.pool_id }}</a></td>
     </tr>
     </tbody>
   </table>
@@ -43,7 +43,20 @@
 </div>
 
 <div class="mt-4">
-  <h2>Informationen zu Schüler:innen</h2>
+  <h2>Materialien</h2>
+
+  <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube" gehören.</p>
+
+  <ul>
+    <li>Handbuch</li>
+    <li>Arbeitsblätter</li>
+    <li>Fact-Sheet</li>
+    <li>Foliensätze</li>
+  </ul>
+</div>
+
+<div class="mt-4">
+  <h2>Teilnahmeübersicht</h2>
 
   {% if participation_stats %}
   <table>
@@ -69,9 +82,23 @@
     <a href="">Klassen-Statistiken anzeigen</a>
   </p>
   {% else %}
-  <p>Es konnten keine Informationen zu den Schüler:innen abgerufen werden.</p>
+  <p>Es konnten keine Informationen zu den Teilnehmer:innen abgerufen werden.</p>
   {% endif %}
 
+</div>
+
+
+<div class="mt-4">
+  <h2>Reports</h2>
+
+  <p>
+    Hier finden Sie die Links zu den Klassenauswertungen. Bitte beachten Sie, dass die Auswertungen erst angezeigt werden,
+    wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
+  </p>
+
+  <ul>
+    <li><a href="{% url 'classroom-report' object.pk %}">Klassenreports</a></li>
+  </ul>
 </div>
 
 {% endblock main_content %}

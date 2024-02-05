@@ -8,13 +8,13 @@
     <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
     <div class="col nav-element background-green"><a href="">für Forschende</a></div>
     <div class="col nav-element background-purple"><a href="">Über</a></div>
-    {% if user.is_authenticated %}
-    <div class="col nav-element account-tile">
-      <p>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a></p>
-      <p class="pt-2"><a href="{% url 'classroom-list' %}">Meine Klassen</a></p>
-      <p class="pt-2"><a href="{% url 'account_logout' %}">Abmelden</a></p>
-    </div>
-    {% endif %}
+<!--    {% if user.is_authenticated %}-->
+<!--    <div class="col nav-element account-tile align-items-start">-->
+<!--      <p>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a></p>-->
+<!--      <p class="pt-2"><a href="{% url 'profile-overview' %}">> Übersicht</a></p>-->
+<!--      <p class="pt-2"><a href="{% url 'account_logout' %}">> Abmelden</a></p>-->
+<!--    </div>-->
+<!--    {% endif %}-->
   </div>
 
   <div class="row flex-row d-lg-none align-items-center">
@@ -30,7 +30,7 @@
     <div class="col nav-element background-purple"><a href="">Über</a></div>
     {% if user.is_authenticated %}
     <div class="col nav-element account-tile justify-content-around">
-      <div>Angemeldet als <a href="{% url 'classroom-list' %}">{{ user.email }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{% url 'account_logout' %}">Abmelden</a></div>
+      <div>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{% url 'account_logout' %}">Abmelden</a></div>
     </div>
     {% endif %}
   </div>

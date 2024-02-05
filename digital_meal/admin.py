@@ -1,5 +1,5 @@
 from django.contrib import admin
-from digital_meal.models import Classroom, User, Teacher, Module, Track
+from digital_meal.models import Classroom, User, Teacher, Track
 
 
 @admin.register(User)
@@ -12,14 +12,10 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'first_name', 'canton', 'school_name']
 
 
-@admin.register(Module)
-class ModuleAdmin(admin.ModelAdmin):
-    list_display = ['name', 'ddm_external_project_id', 'date_created', 'active']
-
-
 @admin.register(Track)
 class ModuleAdmin(admin.ModelAdmin):
-    list_display = ['name', 'module', 'date_created', 'id', 'active']
+    list_display = ['name', 'date_created', 'id', 'active',
+                    'ddm_path', 'ddm_project_id']
 
 
 @admin.register(Classroom)

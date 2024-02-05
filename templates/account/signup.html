@@ -1,0 +1,24 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+
+{% block title %}Profil erstellen{% endblock %}
+
+{% block content %}
+<h1>Neues Profil erstellen</h1>
+
+<div>
+  <p>Mit wenigen Angaben können Sie auf dieser Seite ein neues Profil für die Nutzung von Digital Meal erstellen.</p>
+  <p>Falls Sie bereits ein Profil besitzen, können Sie sich <a href="{% url 'account_login'%}">hier anmelden</a>.</p>
+</div>
+
+<form class="signup dm-form" id="signup_form" method="post" action="{% url 'account_signup' %}">
+  {% csrf_token %}
+  {{ form.as_p }}
+  {% if redirect_field_value %}
+  <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+  {% endif %}
+  <button type="submit">Profil erstellen &raquo;</button>
+</form>
+
+{% endblock %}

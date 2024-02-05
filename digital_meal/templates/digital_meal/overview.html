@@ -1,0 +1,44 @@
+{% extends "digital_meal/base.html" %}
+
+{% block title %}Profilübersicht{% endblock title %}
+
+{% block main_content %}
+
+<h1>Profilübersicht</h1>
+
+<div class="dm-intro">
+  <p>Auf dieser Seite finden Sie alle wichtigen Informationen zur Benutzung von Digital Meal.</p>
+</div>
+
+<div class="dm-section">
+  <h2>Informationsmaterialen</h2>
+
+  <p>
+    Hier finden Sie Links zu allgemeinen Informationsmaterialien. <br>
+    Arbeits- und Unterrichtsmaterialien die zu spezifischen Modulen passen, finden
+    Sie in der Übersicht der einzelnen Klassen. Klicken Sie dazu unten auf einen
+    Klassennnamen.
+  </p>
+</div>
+
+<div class="dm-section">
+  <h2>Meine Klassen</h2>
+</div>
+
+
+<div>
+  {% if object_list %}
+  <ul>
+    {% for room in object_list %}
+    <li><a href="{{ room.get_absolute_url }}">{{ room.name }}</a></li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  Es wurde noch keine Klasse erstellt.
+  {% endif %}
+</div>
+<div class="mt-4">
+  <p><a class="button" href="{% url 'classroom-create' %}">Neue Klasse erstellen</a></p>
+</div>
+
+{% endblock main_content %}

@@ -1,0 +1,4 @@
+<div class="d-flex justify-content-start" style="padding-left: 80px; padding-right: 80px;">
+  <div class="pe-4" style="border-right: 2px solid white;">Angemeldet als <a class="user-nav" href="{% url 'profile' %}">{{ user.email }}</a> (<a class="user-nav" href="{% url 'account_logout' %}">Abmelden</a>)</div>
+  <div class="ps-4"><a class="user-nav" href="{% url 'profile-overview' %}">Profilübersicht</a></div>
+</div>
