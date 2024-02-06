@@ -1,37 +1,32 @@
 {% load static %}
 
 <div class="d-flex flex-column">
+
   <div class="row flex-row align-items-stretch d-none d-lg-flex">
     <div class="col"><a href="/"><img alt="Digital Meal Brand" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="100px"></a></div>
     <div class="col"></div>
-    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>  <!-- TODO: Rollback before commit -->
+    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
     <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
-    <div class="col nav-element background-green"><a href="">für Forschende</a></div>
-    <div class="col nav-element background-purple"><a href="">Über</a></div>
-<!--    {% if user.is_authenticated %}-->
-<!--    <div class="col nav-element account-tile align-items-start">-->
-<!--      <p>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a></p>-->
-<!--      <p class="pt-2"><a href="{% url 'profile-overview' %}">> Übersicht</a></p>-->
-<!--      <p class="pt-2"><a href="{% url 'account_logout' %}">> Abmelden</a></p>-->
-<!--    </div>-->
-<!--    {% endif %}-->
+    <div class="col nav-element background-green"><a href="">Über uns</a></div>
   </div>
 
   <div class="row flex-row d-lg-none align-items-center">
     <div class="col"><a href="/"><img alt="Digital Meal Brand" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="100px"></a></div>
     <div class="col"></div>
-    <div class="col d-flex justify-content-end"><a data-bs-toggle="collapse" href="#collapseNav" role="button" aria-expanded="false" aria-controls="collapseExample"><img alt="hamburger nav" src="{% static 'digital_meal/img/DM_Hamburger.svg' %}" height="70px"></a></div>
+    <div class="col d-flex justify-content-end">
+      <a data-bs-toggle="collapse" href="#collapseNav" role="button" aria-expanded="false" aria-controls="collapseExample"><img alt="hamburger nav" src="{% static 'digital_meal/img/DM_Hamburger.svg' %}" height="70px"></a>
+    </div>
   </div>
 
   <div class="collapse" id="collapseNav">
-    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>  <!-- TODO: Rollback before commit -->
+    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
     <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
-    <div class="col nav-element background-green"><a href="">für Forschende</a></div>
-    <div class="col nav-element background-purple"><a href="">Über</a></div>
+    <div class="col nav-element background-green"><a href="">Über uns</a></div>
     {% if user.is_authenticated %}
     <div class="col nav-element account-tile justify-content-around">
       <div>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{% url 'account_logout' %}">Abmelden</a></div>
     </div>
     {% endif %}
   </div>
+
 </div>

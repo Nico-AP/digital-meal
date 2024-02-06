@@ -223,3 +223,7 @@ form .helptext {
 .user-nav:hover {
     background: none;
 }
+
+.dm-footer-linksection p {
+    margin-bottom: 0 !important;
+}
