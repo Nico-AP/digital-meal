@@ -134,10 +134,15 @@ class Classroom(models.Model):
     )
 
     participant_ids = models.JSONField(default=list)  # list
-    active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.name
+
+    def is_active(self):
+        if self.expiry_date > timezone.now():
+            return True
+        else:
+            return False
 
     def get_absolute_url(self):
         return reverse('classroom-detail', kwargs={'pk': self.pk})
