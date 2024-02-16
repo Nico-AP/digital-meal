@@ -50,7 +50,7 @@ class BaseClassroomReport(DDMReport, DetailView):
         return self.object.track.ddm_api_token
 
     def get_payload(self):
-        return {'class': self.object.pool_id, }
+        return {'class': self.object.external_id, }
 
     def get_data(self, payload=None):
         """ Retrieve data from DDM. """

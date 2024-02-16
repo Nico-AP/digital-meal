@@ -84,7 +84,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         endpoint = self.request.build_absolute_uri(
             reverse_lazy('class-overview-api', kwargs={'pk': self.object.pk}))
         headers = {'Authorization': f'Token {self.object.track.ddm_api_token}'}
-        payload = {'class': self.object.pool_id}
+        payload = {'class': self.object.external_id}
         r = requests.get(endpoint, headers=headers, params=payload)
 
         if r.ok:
