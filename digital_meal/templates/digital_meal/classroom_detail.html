@@ -35,7 +35,7 @@
     </tr>
     <tr>
       <td class="pt-3"><b>Teilnahmelink</b>:</td>
-      <td class="pt-3"><a href="{{ object.track.ddm_path }}?dmclsrm={{ object.pool_id }}">{{ object.track.ddm_path }}?dmclsrm={{ object.pool_id }}</a></td>
+      <td class="pt-3"><a href="{{ object.track.ddm_path }}?class={{ object.pool_id }}">{{ object.track.ddm_path }}?class={{ object.pool_id }}</a></td>
     </tr>
     </tbody>
   </table>
@@ -58,32 +58,17 @@
 <div class="mt-4">
   <h2>Teilnahmeübersicht</h2>
 
-  {% if participation_stats %}
-  <table>
-    <thead>
-    <tr>
-      <th class="pe-3">External ID</th>
-      <th class="pe-3">Pool ID</th>
-      <th class="pe-3">Status</th>
-    </tr>
-    </thead>
-    <tbody>
-    {% for p in participation_stats %}  <!-- TODO: Update this section -->
-    <tr>
-      <td>{{ p.external_id }}</td>
-      <td>{{ p.pool_id }}</td>
-      <td>{{ p.status }}</td>
-    </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-
-  <p class="pt-3">
-    <a href="">Klassen-Statistiken anzeigen</a>
-  </p>
-  {% else %}
-  <p>Es konnten keine Informationen zu den Teilnehmer:innen abgerufen werden.</p>
-  {% endif %}
+  <ul>
+    <li>Abgeschlossene Teilnahmen: {{ n_finished }}</li>
+    <li>Laufende Teilnahmen: {{ n_not_finished }}</li>
+    <li>Anzahl hochgeladene Datensätze:</li>
+    <li style="list-style-type:none">
+      <ul>
+        {% for key, value in n_donations.items %}
+        <li>{{ key }}: {{ value }}</li>
+        {% endfor %}
+    </li>
+  </ul>
 
 </div>
 
@@ -97,7 +82,7 @@
   </p>
 
   <ul>
-    <li><a href="{% url 'classroom-report' object.pk %}">Klassenreports</a></li>
+    <li><a href="{% url 'classroom-report' object.pk %}" target="_blank">Klassenreports</a></li>
   </ul>
 </div>
 

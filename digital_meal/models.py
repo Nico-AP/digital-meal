@@ -96,7 +96,7 @@ def now_plus_six_months():
 class Classroom(models.Model):
     owner = models.ForeignKey('digital_meal.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
-    pool_id = models.UUIDField(default=uuid.uuid4, editable=False)  # TODO: Rename - Pool is outdated
+    pool_id = models.UUIDField(default=uuid.uuid4, editable=False)  # TODO: Rename to class_id
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
@@ -160,7 +160,7 @@ class Track(models.Model):
     # TODO: Add image/icon field
 
     ddm_path = models.URLField()
-    ddm_project_id = models.CharField(max_length=255)
+    ddm_project_id = models.CharField(max_length=255)  # external ID
     ddm_api_endpoint = models.URLField()
     ddm_api_token = models.CharField(max_length=40)
 

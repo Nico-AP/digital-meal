@@ -1,0 +1,74 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>{% block page_title %}Report Page Title{% endblock %}</title>
+
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal/img/DigitalMeal_favicon.svg' %}">
+
+  {% block site_css %}
+  <link rel="stylesheet" href="{% static 'digital_meal/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal/css/base.css' %}">
+  {% endblock site_css %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
+
+<body>
+<div id="report">
+  {% block report_header %}
+    <div class="position-relative" style="padding-top: 25px;">
+      <div class="report-content container">
+        <div class="text-end row">
+          <div class="col">
+            <img alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="70px">
+            <img alt="Data Donation Lab Logo" src="{% static 'digital_meal/img/ddl_logo_black.svg' %}" height="70px">
+            <img alt="UZH Logo" src="{% static 'digital_meal/img/UZH_logo.svg' %}" height="70px">
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+
+  {% block report_intro %}
+    <div class="report-section position-relative" style="padding-bottom: 200px; padding-top: 25px;">
+
+    <div class="report-content container">
+      <div class="row">
+        <div class="row">
+          <h1 class="mt-5 pb-3 col col-lg-6">{% block report_intro_title %}Report Title{% endblock %}</h1>
+        </div>
+
+        <div class="row d-flex flex-row">
+          <div class="pt-3 col col-lg-4">
+            <img alt="Symbolbild Report" src="{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}" height="180px">
+          </div>
+          <div class="col col-lg-6 text-end">
+            {% block report_intro_text %}
+            {% endblock %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endblock %}
+
+  {% block report_body %}
+  {% endblock %}
+</div>
+
+{% block scripts %}
+<script src="{% static 'digital_meal/js/jquery/jquery-3.6.2.min.js' %}"></script>
+<script src="{% static 'digital_meal/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'digital_meal/js/bokeh/bokeh-3.1.1.min.js' %}"></script>
+{% endblock %}
+
+</body>
+
+</html>

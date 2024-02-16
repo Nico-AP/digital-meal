@@ -1,14 +1,44 @@
 # util functions to manipulate youtube data
 
 import random
+import re
+from datetime import datetime
+
 import pandas as pd
 from dateutil.parser import parse
+
+
+def get_video_ids(watch_history):
+    """ Get a list containing only the video ids from the watch history. """
+    video_ids = [
+        d['titleUrl'].replace('https://www.youtube.com/watch?v=', '')
+        for d in watch_history if 'titleUrl' in d
+    ]
+    return video_ids
 
 
 def get_date_list(watch_history):
     """ Get a list containing the dates of all watched videos. """
     dates = [parse(d['time']) for d in watch_history if 'time' in d]
     return dates
+
+
+def get_entries_in_date_range(entries, date_min, date_max=datetime.now()):
+    """ Filter a series to only keep entries recorded in a given date range. """
+    if date_min.tzinfo is not None and date_min.tzinfo.utcoffset(date_min) is not None:
+        timezone = date_min.tzinfo
+        date_max = date_max.replace(tzinfo=timezone)
+    else:
+        date_max = date_max.replace(tzinfo=None)
+
+    result = []
+    for entry in entries:
+        if 'time' not in entry:
+            continue
+
+        if date_min <= parse(entry['time']) <= date_max:
+            result.append(entry)
+    return result
 
 
 def get_watched_video_urls(watch_history):
@@ -32,6 +62,41 @@ def exclude_google_ads_videos(watch_history):
         else:
             watched_videos.append(video)
     return watched_videos
+
+
+def exclude_ads_from_search_history(search_history):
+    """ Excludes all ads from search history. """
+    history = []
+    for entry in search_history:
+        if 'activityControls' not in entry:
+            continue
+
+        if 'Web & App Activity' in entry['activityControls']:
+            continue
+
+        history.append(entry)
+
+    return history
+
+
+def clean_search_titles(search_history):
+    """
+    Delete pre- and postfixes from search titles.
+    Supports takeouts in German, English, Italian, and French.
+    """
+    prefix_en = '^Searched for '
+    prefix_de = '^Gesucht nach: '
+    prefix_it = '^Hai cercato '
+    prefix_fr = '^Vous avez recherché '
+    r = '|'.join([prefix_en, prefix_de, prefix_it, prefix_fr])
+
+    clean_searches = []
+    for entry in search_history:
+        if 'title' in entry:
+            entry['title'] = re.sub(r, '', entry['title'])
+        clean_searches.append(entry)
+
+    return clean_searches
 
 
 def get_video_title_dict(watch_history):

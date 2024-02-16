@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 from django.conf import settings
@@ -73,30 +75,22 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['participation_stats'] = self.get_participation_data(self.object)
+        overview_data = json.loads(self.get_overview_data())
+        context.update(overview_data)
         return context
 
-    @staticmethod
-    def get_participation_data(classroom):
-        """
-        Gets participation data by querying the participation API endpoint of a
-        DDM instance that has ddm-pooled enabled.
-        """
-        api_endpoint = settings.DDM_PARTICIPANT_ENDPOINT
-        api_token = settings.DDM_API_TOKEN
+    def get_overview_data(self):
+        """ Retrieve overview data from DDM. """
+        endpoint = self.request.build_absolute_uri(
+            reverse_lazy('class-overview-api', kwargs={'pk': self.object.pk}))
+        headers = {'Authorization': f'Token {self.object.track.ddm_api_token}'}
+        payload = {'class': self.object.pool_id}
+        r = requests.get(endpoint, headers=headers, params=payload)
 
-        headers = {
-            'Authorization': f'Token {api_token}'
-        }
-        payload = {
-            'project': classroom.track.ddm_project_id,
-            'pool': classroom.pool_id
-        }
-        try:
-            r = requests.get(api_endpoint, headers=headers, params=payload)
+        if r.ok:
             return r.json()
-        except:  # requests.ConnectionError:
-            return None
+        else:
+            return {}
 
 
 class ClassroomCreate(CreateView, LoginRequiredMixin):
