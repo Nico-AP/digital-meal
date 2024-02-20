@@ -145,13 +145,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# DDM API SETTINGS
-# ------------------------------------------------------------------------------
-DDM_PARTICIPANT_ENDPOINT = 'http://127.0.0.1:8000/ddm/api/project/1/participants'
-DDM_DONATION_ENDPOINT = 'http://127.0.0.1:8000/ddm/api/project/1/donations'
-DDM_API_TOKEN = 'b4556a18949d12c2b29ec2e1148618131c51b327'
-
-
 # DDM SETTINGS
 # ------------------------------------------------------------------------------
 WEBPACK_LOADER = {
