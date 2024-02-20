@@ -1,33 +1,14 @@
 import os
-import sys
 
 from dotenv import load_dotenv
-
+from pathlib import Path
 
 load_dotenv()
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-APP_DIR = os.path.join(BASE_DIR, 'ddm')
-sys.path.append(BASE_DIR)
-sys.path.append(APP_DIR)
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
-
-# DEBUG
-# ------------------------------------------------------------------------------
-DEBUG = True
-
-
-# DATABASE
-# ------------------------------------------------------------------------------
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'dm.sqlite',
-    }
-}
-
-# APPLICATION DEFINITION
+# APPLICATION DEFINITIONS
 # ------------------------------------------------------------------------------
 SECRET_KEY = os.environ['DJANGO_SECRET']
 
@@ -44,44 +25,26 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'taggit',
     'digital_meal',
-    'website',
-    # DDM
-    'ddm',
-    'ckeditor',
-    'ckeditor_uploader',
-    'webpack_loader',
-    'rest_framework',
-    'rest_framework.authtoken',
-    'wagtail.contrib.forms',
-    'wagtail.contrib.redirects',
-    'wagtail.embeds',
-    'wagtail.sites',
-    'wagtail.users',
-    'wagtail.snippets',
-    'wagtail.documents',
-    'wagtail.images',
-    'wagtail.search',
-    'wagtail.admin',
-    'wagtail.locales',
-    'wagtail.contrib.simple_translation',
-    'wagtail',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 ]
+
+ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [
-            os.path.join(BASE_DIR, 'templates')
-        ],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -89,14 +52,32 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'ddm.context_processors.add_ddm_version'
+                'django.template.context_processors.i18n',
+                'ddm.context_processors.add_ddm_version',
             ],
         },
     },
 ]
 
-SITE_ID = 1
-ROOT_URLCONF = 'urls'
+WSGI_APPLICATION = 'config.wsgi.application'
+
+
+# INTERNATIONALIZATION
+# ------------------------------------------------------------------------------
+LANGUAGE_CODE = 'de'
+TIME_ZONE = 'Europe/Zurich'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale'), ]
+
+WAGTAILSIMPLETRANSLATION_SYNC_PAGE_TREE = True
+
+WAGTAIL_CONTENT_LANGUAGES = LANGUAGES = [
+    ('de', 'Deutsch')
+]
+
 
 # USER AUTHENTICATION AND PASSWORD VALIDATION
 # ------------------------------------------------------------------------------
@@ -128,23 +109,6 @@ LOGIN_REDIRECT_URL = '/profil/uebersicht'
 LOGOUT_REDIRECT_URL = '/'
 
 
-# E-MAIL SETTINGS
-# ------------------------------------------------------------------------------
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
-# INTERNATIONALIZATION
-# ------------------------------------------------------------------------------
-LANGUAGE_CODE = 'de'
-TIME_ZONE = 'Europe/Zurich'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-LOCALE_PATHS = [os.path.join(BASE_DIR, 'locale'), ]
-
-
 # STATIC FILES
 # ------------------------------------------------------------------------------
 STATIC_URL = '/static/'
@@ -158,23 +122,20 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 # ------------------------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-# DDM SETTINGS
+# DJANGO-FILER
 # ------------------------------------------------------------------------------
-WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': True,
-        'BUNDLE_DIR_NAME': 'ddm/vue/',
-        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm/vue/webpack-stats.json'),
-        'POLL_INTERVAL': 0.1,
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
-    }
-}
+THUMBNAIL_HIGH_RESOLUTION = True
 
-CKEDITOR_RESTRICT_BY_USER = True  # Files uploaded by one user can only be accessed by this particular user
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'easy_thumbnails.processors.autocrop',
+    'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters'
+)
 
 # WAGTAIL
+# ------------------------------------------------------------------------------
 WAGTAIL_SITE_NAME = 'Digital Meal'
-WAGTAILADMIN_BASE_URL = os.environ['WAGTAILADMIN_BASE_URL']
+WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL', None)

@@ -1,0 +1,26 @@
+{% extends "digital_meal/base.html" %}
+
+<!-- load wagtailcore_tags by adding this: -->
+{% load wagtailcore_tags %}
+
+<!-- replace everything below with: -->
+{% block main_content %}
+ {% for block in page.body %}
+
+      {% if block.block_type == "heading" %}
+      <h1>{{ block.value }}</h1>
+      {% elif block.block_type == "paragraph" %}
+      <div class="paragraph-block content">
+        {{ block.value }}
+      </div>
+      {% elif block.block_type == "list" %}
+      <div class="list-block">
+        {% include_block block %}
+      </div>
+      {% elif block.block_type == "image" %}
+      {% elif block.block_type == "highlight" %}
+      {% include_block block %}
+      {% endif %}
+
+      {% endfor %}
+{% endblock %}
