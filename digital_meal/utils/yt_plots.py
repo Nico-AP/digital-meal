@@ -10,8 +10,6 @@ from bokeh.transform import linear_cmap
 
 from datetime import datetime, timedelta
 
-from digital_meal.utils import yt_data
-
 
 days_de = [
     'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',

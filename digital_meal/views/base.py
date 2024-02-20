@@ -2,7 +2,6 @@ import json
 
 import requests
 
-from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -14,8 +13,8 @@ from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from digital_meal.forms import ClassroomCreateForm, ClassroomTrackForm
-from digital_meal.models import Classroom, User, Teacher
+from ..forms import ClassroomCreateForm, ClassroomTrackForm
+from ..models import Classroom, Teacher
 
 
 class OwnershipRequiredMixin:

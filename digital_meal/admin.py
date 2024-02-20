@@ -1,5 +1,5 @@
 from django.contrib import admin
-from digital_meal.models import Classroom, User, Teacher, Track
+from .models import Classroom, User, Teacher, Track
 
 
 @admin.register(User)

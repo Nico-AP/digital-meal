@@ -1,7 +1,7 @@
 from allauth.account.forms import SignupForm
 from django import forms
 
-from digital_meal.models import SwissCantons, Teacher, Classroom
+from .models import SwissCantons, Teacher, Classroom
 
 
 cantons = SwissCantons.choices

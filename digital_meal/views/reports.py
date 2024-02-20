@@ -7,8 +7,8 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import DetailView
 
-from digital_meal.models import Classroom
-from digital_meal.utils import yt_data, yt_plots
+from ..models import Classroom
+from ..utils import yt_data, yt_plots
 
 
 class DDMReport:

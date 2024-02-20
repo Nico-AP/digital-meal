@@ -1,9 +1,9 @@
 from django.urls import path
 from django.views.generic import TemplateView
 
-from digital_meal.views import base as dm_views
-from digital_meal.views import reports as dm_reports
-from digital_meal import apis as dm_apis
+from .views import base as dm_views
+from .views import reports as dm_reports
+from . import apis as dm_apis
 
 
 urlpatterns = [

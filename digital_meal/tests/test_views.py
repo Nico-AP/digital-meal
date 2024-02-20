@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
 
-from digital_meal.models import Classroom, Track
+from ..models import Classroom, Track
 
 User = get_user_model()
 
