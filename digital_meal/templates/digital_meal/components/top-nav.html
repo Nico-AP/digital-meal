@@ -5,9 +5,9 @@
   <div class="row flex-row align-items-stretch d-none d-lg-flex">
     <div class="col"><a href="/"><img alt="Digital Meal Brand" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="100px"></a></div>
     <div class="col"></div>
-    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
-    <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
-    <div class="col nav-element background-green"><a href="">Über uns</a></div>
+    <div class="col nav-element background-yellow nav-active"><a href="/digital-meal/lehrpersonen">für Lehrpersonen</a></div>
+    <div class="col nav-element background-orange"><a href="/digital-meal/teilnehmende">für Teilnehmende</a></div>
+    <div class="col nav-element background-green"><a href="/digital-meal/about">Über uns</a></div>
   </div>
 
   <div class="row flex-row d-lg-none align-items-center">
@@ -19,9 +19,9 @@
   </div>
 
   <div class="collapse" id="collapseNav">
-    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
-    <div class="col nav-element background-orange"><a href="">für Teilnehmende</a></div>
-    <div class="col nav-element background-green"><a href="">Über uns</a></div>
+    <div class="col nav-element background-yellow nav-active"><a href="/digital-meal/lehrpersonen">für Lehrpersonen</a></div>
+    <div class="col nav-element background-orange"><a href="/digital-meal/teilnehmende">für Teilnehmende</a></div>
+    <div class="col nav-element background-green"><a href="/digital-meal/about">Über uns</a></div>
     {% if user.is_authenticated %}
     <div class="col nav-element account-tile justify-content-around">
       <div>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{% url 'account_logout' %}">Abmelden</a></div>
