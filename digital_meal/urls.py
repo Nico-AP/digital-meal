@@ -7,7 +7,6 @@ from . import apis as dm_apis
 
 
 urlpatterns = [
-    path('lehrpersonen', TemplateView.as_view(template_name='digital_meal/temp_lehrpersonen.html'), name='dm-lehrpersonen'),  # TODO: Rollback before commit.
     path('class/<int:pk>', dm_views.ClassroomDetail.as_view(), name='classroom-detail'),
     path('class/create', dm_views.ClassroomCreate.as_view(), name='classroom-create'),
     path('class/<int:pk>/assign-track', dm_views.ClassroomAssignTrack.as_view(), name='classroom-assign-track'),
