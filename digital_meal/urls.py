@@ -1,5 +1,4 @@
 from django.urls import path
-from django.views.generic import TemplateView
 
 from .views import base as dm_views
 from .views import reports as dm_reports
