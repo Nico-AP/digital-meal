@@ -6,7 +6,7 @@
 
 <h1 class="mb-3">Klasse "{{ object.name }}"</h1>
 
-<div class="mb-4">
+<div>
   <table>
     <tbody>
     <tr>
@@ -30,17 +30,38 @@
       <td>{{ object.get_subject_display }}</td>
     </tr>
     <tr>
-      <td>Unterrichtsformat:</td>
-      <td>{{ object.get_instruction_format_display }}</td>
-    </tr>
-    <tr>
-      <td class="pt-3"><b>Teilnahmelink</b>:</td>
-      <td class="pt-3"><a href="{{ object.track.ddm_path }}?class={{ object.external_id }}">{{ object.track.ddm_path }}?class={{ object.external_id }}</a></td>
+      <td class="pb-3">Unterrichtsformat:</td>
+      <td class="pb-3">{{ object.get_instruction_format_display }}</td>
     </tr>
     </tbody>
   </table>
 
 </div>
+
+<div class="mt-4">
+  <h3>Testlink</h3>
+  <p>
+    Der Testlink ist für Sie als Lehrperson gedacht, um den Fragebogen und die Datenspende auszuprobieren.
+    Am besten öffnen Sie den Link in einem privaten Fenster, ansonsten können Sie den Testdurchlauf nur einmal durchführen.
+    Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen werden automatisch am Ende eines Tages gelöscht und fliessen
+    nicht in die Klassenauswertung mit ein.
+  </p>
+
+  <div class="ms-2 me-2 p-2" style="background: lightgreen; border-radius: 5px;">
+    <strong>Testlink: </strong><a href="{{ object.track.ddm_path }}?class=testlink">{{ object.track.ddm_path }}?class=testlink</a>
+  </div>
+
+  <h3 class="mt-3">Teilnahmelink</h3>
+  <p>
+    Der Teilnahmelink ist für Ihre Schüler:innen. Die Antworten und Daten, die Ihre Schüler:innen geben bzw. hochladen,
+    wenn sie diesen Link benutzen, fliessen in die Klassenauswertung mit ein (wenn die Schüler:innen während dem Ausfüllen ihre
+    Einwilligung dazu geben).
+  </p>
+  <div class="ms-2 me-2 p-2" style="background: lightsalmon; border-radius: 5px;">
+    <strong>Teilnahmelink: </strong><a href="{{ object.track.ddm_path }}?class={{ object.external_id }}">{{ object.track.ddm_path }}?class=testlink</a>
+  </div>
+</div>
+
 
 <div class="mt-4">
   <h2>Materialien</h2>
