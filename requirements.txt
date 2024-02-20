@@ -1,4 +1,5 @@
 Django>=3.2,<4.0
+django-allauth==0.54.0
 django-ddm>=1.0.15
 python-dotenv==1.0.0
 requests==2.31
