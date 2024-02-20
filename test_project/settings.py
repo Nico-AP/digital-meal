@@ -145,11 +145,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-# DIGITAL MEAL SETTINGS
-# ------------------------------------------------------------------------------
-
-
-
 # DDM API SETTINGS
 # ------------------------------------------------------------------------------
 DDM_PARTICIPANT_ENDPOINT = 'http://127.0.0.1:8000/ddm/api/project/1/participants'

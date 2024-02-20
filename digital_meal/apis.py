@@ -13,7 +13,7 @@ from ddm.models.core import (
 )
 from ddm.models.encryption import Decryption
 from ddm.models.serializers import (
-    ProjectSerializer, ParticipantSerializer, SerializerDecryptionMixin, DonationSerializer, ResponseSerializer
+    ProjectSerializer, SerializerDecryptionMixin, DonationSerializer, ResponseSerializer
 )
 from ddm.views.apis import DDMAPIMixin, user_is_allowed
 
