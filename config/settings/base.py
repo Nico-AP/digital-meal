@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from pathlib import Path
 
+
 load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -24,7 +25,21 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'taggit',
+    'ddm',
     'digital_meal',
+    'wagtail.contrib.forms',
+    'wagtail.contrib.redirects',
+    'wagtail.embeds',
+    'wagtail.sites',
+    'wagtail.users',
+    'wagtail.snippets',
+    'wagtail.documents',
+    'wagtail.images',
+    'wagtail.search',
+    'wagtail.admin',
+    'wagtail.locales',
+    'wagtail.contrib.simple_translation',
+    'wagtail'
 ]
 
 MIDDLEWARE = [
