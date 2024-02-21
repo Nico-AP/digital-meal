@@ -5,6 +5,7 @@ media/
 
 # environment variables
 .env
+.envrc
 
 # pycache
 *.py[cod]
@@ -22,3 +23,9 @@ staticfiles/
 
 # sqlite database
 *.sqlite
+
+# Scripts
+RUN
+python
+
+*.pid
