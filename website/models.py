@@ -5,7 +5,7 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.images.blocks import ImageChooserBlock
 
 
-class DigitalMealContentPage(Page):
+class HomePage(Page):
     template = 'digital_meal/digital_meal_wagtail_content.html'
 
     body = StreamField([
@@ -18,3 +18,7 @@ class DigitalMealContentPage(Page):
     content_panels = Page.content_panels + [
         FieldPanel('body', classname='full'),
     ]
+
+
+class DigitalMealContentPage(HomePage):
+    pass
