@@ -20,5 +20,16 @@ class HomePage(Page):
     ]
 
 
-class DigitalMealContentPage(HomePage):
-    pass
+class DigitalMealContentPage(Page):
+    template = 'digital_meal/digital_meal_wagtail_content.html'
+
+    body = StreamField([
+        ('heading', blocks.CharBlock(form_classname='full title', icon='title')),
+        ('paragraph', blocks.RichTextBlock(icon='pilcrow')),
+        ('list', blocks.ListBlock(blocks.CharBlock(label='List'), icon='list-ul')),
+        ('image', ImageChooserBlock()),
+    ], use_json_field=True)
+
+    content_panels = Page.content_panels + [
+        FieldPanel('body', classname='full'),
+    ]
