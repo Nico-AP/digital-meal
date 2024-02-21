@@ -2,7 +2,7 @@ from .base import *
 import os
 
 ALLOWED_HOSTS = [
-    'digital-meal.ch',
+    'digital-meal.ch', 'www.digital-meal.ch',
 ]
 
 SITE_ID = 1
