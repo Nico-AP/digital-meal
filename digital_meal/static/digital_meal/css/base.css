@@ -84,7 +84,7 @@
     padding-right: 80px;
 }
 
-p {
+p, ol, ul {
     line-height: 1.7rem;
 }
 
