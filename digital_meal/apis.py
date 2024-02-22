@@ -143,7 +143,6 @@ class ClassOverviewAPI(DDMBaseProjectApi):
             'n_not_finished': (n_started - n_finished),
             'n_finished': n_finished
         }
-        print(data)
         return data
 
 
