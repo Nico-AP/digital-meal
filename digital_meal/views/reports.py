@@ -44,7 +44,7 @@ class BaseClassroomReport(DDMReport, DetailView):
     template_name = 'digital_meal/reports/youtube/class_report.html'
 
     def get_endpoint(self):
-        return self.object.track.ddm_api_endpoint
+        return self.object.track.data_endpoint
 
     def get_token(self):
         return self.object.track.ddm_api_token

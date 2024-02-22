@@ -80,8 +80,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
 
     def get_overview_data(self):
         """ Retrieve overview data from DDM. """
-        endpoint = self.request.build_absolute_uri(
-            reverse_lazy('class-overview-api', kwargs={'pk': self.object.pk}))
+        endpoint = self.object.track.overview_endpoint
         headers = {'Authorization': f'Token {self.object.track.ddm_api_token}'}
         payload = {'class': self.object.external_id}
         r = requests.get(endpoint, headers=headers, params=payload)
@@ -89,7 +88,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         if r.ok:
             return r.json()
         else:
-            return {}
+            return '{}'
 
 
 class ClassroomCreate(CreateView, LoginRequiredMixin):

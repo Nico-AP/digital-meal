@@ -161,7 +161,8 @@ class Track(models.Model):
 
     ddm_path = models.URLField()
     ddm_project_id = models.CharField(max_length=255)  # external ID
-    ddm_api_endpoint = models.URLField()
+    data_endpoint = models.URLField()
+    overview_endpoint = models.URLField()
     ddm_api_token = models.CharField(max_length=40)
 
     def __str__(self):
