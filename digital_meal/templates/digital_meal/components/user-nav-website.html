@@ -3,7 +3,7 @@
     <div class="row">
       <div class="d-flex justify-content-between user-nav-content">
         <div>
-          <button><a href="{% url 'profile-overview' %}"><b>Zum Onlinetool</b></a></button> <!-- TODO: Adjust link. -->
+          <button><a href="{% url 'tool_main_page' %}"><b>Zum Onlinetool</b></a></button>
         </div>
         <div class="ps-3" >
           {% if user.is_authenticated %}

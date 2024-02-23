@@ -48,10 +48,10 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ProfileOverview(ListView, LoginRequiredMixin):
+class ToolMainPage(ListView, LoginRequiredMixin):
     """ Show overview for a specific user. """
     model = Classroom
-    template_name = 'digital_meal/overview.html'
+    template_name = 'digital_meal/tool_main_page.html'
 
     def get_queryset(self):
         return Classroom.objects.filter(owner=self.request.user)
@@ -65,10 +65,10 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
         if not obj.track:
-            return redirect(reverse_lazy('classroom-assign-track', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_assign_track', kwargs={'pk': obj.pk}))
 
         if obj.expiry_date < timezone.now():
-            return redirect(reverse_lazy('classroom-expired', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_expired', kwargs={'pk': obj.pk}))
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -102,7 +102,7 @@ class ClassroomCreate(CreateView, LoginRequiredMixin):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('classroom-assign-track', kwargs={'pk': self.object.pk})
+        return reverse_lazy('class_assign_track', kwargs={'pk': self.object.pk})
 
 
 class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
@@ -115,7 +115,7 @@ class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
         # If classroom has track already assigned, redirect to overview
         obj = self.get_object()
         if obj.track:
-            return redirect(reverse_lazy('classroom-detail', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_detail', kwargs={'pk': obj.pk}))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
