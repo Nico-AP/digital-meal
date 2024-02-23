@@ -145,7 +145,7 @@ class Classroom(models.Model):
             return False
 
     def get_absolute_url(self):
-        return reverse('classroom-detail', kwargs={'pk': self.pk})
+        return reverse('class_detail', kwargs={'pk': self.pk})
 
 
 class Track(models.Model):
