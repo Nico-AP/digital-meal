@@ -46,6 +46,8 @@
   Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen werden automatisch am Ende eines Tages gelöscht und fliessen
   nicht in die Klassenauswertung mit ein.
 
+  <!-- TODO: Show button for test link instead of URL. -->
+
   <div class="ms-2 mt-1 me-2 p-2" style="background: lightgreen; border-radius: 5px;">
     <strong>Testlink: </strong><a href="{{ object.track.ddm_path }}?class=testlink">{{ object.track.ddm_path }}?class=testlink</a>
   </div>
@@ -56,6 +58,8 @@
   wenn sie diesen Link benutzen, fliessen in die Klassenauswertung mit ein (wenn die Schüler:innen während dem Ausfüllen ihre
   Einwilligung dazu geben).
 
+  <!-- TODO: Try to add a QR Code for participation link (see https://www.nayuki.io/page/qr-code-generator-library). -->
+
   <div class="ms-2 me-2 mt-1 p-2" style="background: lightsalmon; border-radius: 5px;">
     <strong>Teilnahmelink: </strong><a href="{{ object.track.ddm_path }}?class={{ object.external_id }}">{{ object.track.ddm_path }}?class={{ object.external_id }}</a>
   </div>
@@ -63,6 +67,7 @@
 
 
 <div class="mt-4">
+  <!-- TODO: Move to top right to a box. -->
   <h2>Materialien</h2>
 
   <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube" gehören.</p>
@@ -81,12 +86,12 @@
   <table>
     <tbody>
     <tr>
-      <td>Abgeschlossene Teilnahmen:</td>
-      <td>{{ n_finished }}</td>
-    </tr>
-    <tr>
       <td>Laufende Teilnahmen:</td>
       <td>{{ n_not_finished }}</td>
+    </tr>
+    <tr>
+      <td>Abgeschlossene Teilnahmen:</td>
+      <td>{{ n_finished }}</td>
     </tr>
     <tr>
       <td>Anzahl hochgeladene Datensätze</td>
@@ -107,6 +112,8 @@
 
 
 <div class="mt-4">
+  <!-- TODO: Change to singular. -->
+  <!-- TODO: Show Link to report as a big button. -->
   <h2>Reports</h2>
 
   <p>

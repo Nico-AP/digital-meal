@@ -69,8 +69,12 @@ class ClassroomReportYouTube(BaseClassroomReport):
     template_name = 'digital_meal/reports/youtube/class_report.html'
 
     def get_context_data(self, **kwargs):
+        import datetime
+        print(f'Classroom report Requested: {datetime.datetime.now()}')
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
+
+        print(f'Received class data from API: {datetime.datetime.now()}')
 
         if all(v is None for k, v in data['donations'].items()):
             self.template_name = 'digital_meal/reports/report_exception.html'
@@ -81,13 +85,16 @@ class ClassroomReportYouTube(BaseClassroomReport):
             return context
 
         # Watch history (wh)
+        print(f'Started to generate Watch History Report: {datetime.datetime.now()}')
         context.update(self.get_watch_context(data['donations']['Angesehene Videos']))
 
         # Search history (sh)
+        print(f'Started to generate Search History Report: {datetime.datetime.now()}')
         context.update(self.get_search_context(data['donations']['Suchverlauf']))
 
         # Subscribed channels (sc)
-        context.update(self.get_subs_context(data['donations']['Abonnierte Kanäle']))
+        print(f'Started to generate Subscription Report: {datetime.datetime.now()}')
+        context.update(self.get_subs_context(data['donations']['Subs 2']))
 
         n_donations = [len(v) for k, v in data['donations'].items() if v is not None]
         context['n_participants'] = max(n_donations)
@@ -198,7 +205,7 @@ class ClassroomReportYouTube(BaseClassroomReport):
         # subs_counts_relative = pd.Series(sc_titles).value_counts(normalize=True)
         n_subs_multiple = subs_counts[subs_counts > 1]
         c['n_subs_multiple'] = len(n_subs_multiple)
-        c['most_popular_channels'] = subs_counts.nlargest(5).to_dict()
+        c['most_popular_channels'] = subs_counts.nlargest(50).to_dict()
         return c
 
 
@@ -233,14 +240,19 @@ class IndividualReportYouTube(BaseIndividualReport):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-
         data = json.loads(self.get_data())
 
+        # These are the names of the ddm-blueprint.
+        watch_history_id = 'Angesehene Videos'
+        search_history_id = 'Suchverlauf'
+
         # Watch history
-        context.update(self.get_watch_context(data['donations']['Angesehene Videos']))
+        if watch_history_id in data['donations'].keys():
+            context.update(self.get_watch_context(data['donations'][watch_history_id]))
 
         # Search history (sh)
-        context.update(self.get_search_context(data['donations']['Suchverlauf']))
+        if search_history_id in data['donations'].keys():
+            context.update(self.get_search_context(data['donations'][search_history_id]))
 
         return context
 

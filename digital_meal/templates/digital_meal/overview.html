@@ -4,6 +4,9 @@
 
 {% block main_content %}
 
+<!-- TODO: Add info button in the top right window and show modal containing a screenshot with all important parts highlighted (not on mobile). -->
+
+<!-- TODO: Delete "Profilübersicht title -->
 <h1>Profilübersicht</h1>
 
 <div class="dm-intro">
@@ -12,6 +15,8 @@
 
 <div class="dm-section">
   <h2>Informationsmaterialen</h2>
+
+  <!-- TODO: Update description and summarize the "flow" of digital meal. -->
 
   <p>
     Hier finden Sie Links zu allgemeinen Informationsmaterialien. <br>
@@ -29,6 +34,8 @@
 <div class="mt-3">
 {% if object_list %}
   <h3>Aktive Klassen</h3>
+  <!-- TODO: Show active classes as tiles (or similar) and add extra information. -->
+  <!-- TODO: Move Archive to the right of active classes. -->
   <ul>
     {% for room in object_list %}
     {% if room.is_active %}

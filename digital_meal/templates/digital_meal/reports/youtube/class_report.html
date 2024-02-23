@@ -25,15 +25,24 @@
 
       <div class="report-content">
         <h2>Einige Statistiken</h2>
+        <!-- TODO: Check Kommastellen, Darstellung. -->
+        <!-- TODO: Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
+        <!-- TODO: Videos von Shorts trennen. -->
         <h3>Total</h3>
         <p>Anzahl angeschaute Videos: {{ n_vids_overall }}</p>
         <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
         <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall }}</p>
 
-        <h3>In den letzten 290 Tagen</h3>
+        <h3>In den letzten 30 Tagen</h3>
+        <!-- TODO: Letzte 30 Tage
+          Nennung des Zeitraums.
+          Erste Spende als Referenz; Dann letzter kompletter Monat.
+        -->
         <p>Anzahl angeschaute Videos: {{ n_vids_interval }}</p>
         <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
         <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval }}</p>
+
+        <!-- TODO: Add CH-Vergleich, wenn verfügbar. -->
 
       </div>
 
@@ -46,12 +55,14 @@
 
     <div class="report-section flash-yellow-background position-relative">
       <div class="report-content">
-        <h2>Nutzung im Jahresverlauf</h2>
+        <h2>Nutzung im Zeitverlauf</h2>
+        <!-- TODO: Tages-bins, Wochen-Bins, Monats-Bins mit Toggles; basierend auf Median -->
         <div>
           <p>
             Seit dem [DATUM] habt ihr in der Klasse <b class="font-size-highlight" style="color: #465ad9">insgesamt {{ n_vids_overall }} Videos angesehen</b>.
           </p>
           <p>In der Grafik unten wird die Anzahl Videos dargestellt, die ihr im Schnitt pro Tag angesehen habt.</p>
+          <p>Für die durchschnittliche Person sieht blabla</p>
         </div>
         <div class="d-flex justify-content-center">{{ dates_plot.div | safe }}</div>
       </div>
@@ -79,6 +90,7 @@
           </p>
         </div>
         <div class="detailed-use-plot">
+          <!-- TODO: Berechnungsgrundlage Median -->
           <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
           <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
         </div>
@@ -90,6 +102,7 @@
 
 
   <!-- FAVORITE VIDEO -->
+  <!-- TODO: Podest übergreifend bei den meisten Personen im Verlauf -->
   {% if fav_video.n_watched > 1 %}
   <div class="section-container">
 
@@ -136,6 +149,7 @@
             {% endfor %}
           </ul>
         </div>
+        <!-- TODO: Podest Top 3 als Podest; zusätzlich Platz 4 bis 10 als Liste -->
         <div class="d-flex justify-content-center pt-5">{{ channel_plot.div | safe }}</div>
       </div>
     </div>
@@ -144,6 +158,7 @@
 
 
   <!-- CHANNELS -->
+  <!-- TODO: Analog zu individuellem Report - Unterschied: Nur Kanäle aufnehmen, die von mindestens 2 Personen geschaut werden. -->
   {% if channel_plot %}
   <div class="section-container">
 
@@ -171,6 +186,8 @@
 
   <!-- SEARCHES -->
   {% if n_searches_overall > 0 %}
+
+  <!-- TODO: Mindestens von 2 Personen mit gestemmtem approach. -->
   <div class="section-container">
 
     <div class="report-section" style="background: #1F2833; color: white">
