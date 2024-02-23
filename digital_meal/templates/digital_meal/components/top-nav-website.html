@@ -1,8 +1,5 @@
 {% load static %}
 
-<!-- TODO: Login Button immer anzeigen -->
-<!-- TODO: Separater Header für Onlinetool; dort immer Button für den Switch zur Webseite anzeigen. -->
-
 <div class="d-flex flex-column">
 
   <div class="row flex-row align-items-stretch d-none d-lg-flex">
@@ -21,15 +18,10 @@
     </div>
   </div>
 
-  <div class="collapse" id="collapseNav">
+  <div class="collapse d-lg-none" id="collapseNav">
     <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
     <div class="col nav-element background-orange"><a href="/teilnehmende">für Teilnehmende</a></div>
     <div class="col nav-element background-green"><a href="/about">Über uns</a></div>
-    {% if user.is_authenticated %}
-    <div class="col nav-element account-tile justify-content-around">
-      <div>Angemeldet als <a href="{% url 'profile' %}">{{ user.email }}</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="{% url 'account_logout' %}">Abmelden</a></div>
-    </div>
-    {% endif %}
   </div>
 
 </div>

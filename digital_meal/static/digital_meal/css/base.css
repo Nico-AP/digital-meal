@@ -217,11 +217,14 @@ form .helptext {
 
 .user-nav {
     text-decoration: none;
-    font-weight: bold;
     color: white !important;
 }
 .user-nav:hover {
     background: none;
+}
+
+.user-nav-content {
+    padding-left: 35px;
 }
 
 .dm-footer-linksection p {

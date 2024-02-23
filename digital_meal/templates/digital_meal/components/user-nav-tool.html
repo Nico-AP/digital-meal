@@ -1,0 +1,19 @@
+<div id="user-nav-bar" class="background-lightgreen">
+  <div class="container">
+    <div class="row">
+      <div class="d-flex justify-content-between user-nav-content">
+        <div>
+          <button><a href="/"><b>Zur Webseite</b></a></button>
+        </div>
+        <div class="ps-3" >
+          {% if user.is_authenticated %}
+          Angemeldet als <a class="user-nav" href="{% url 'profile' %}"><b>{{ user.email }}</b></a> |
+          <a class="user-nav" href="{% url 'account_logout' %}">Abmelden</a>
+          {% else %}
+          <a class="user-nav" href="{% url 'profile' %}">Anmelden</a></div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
