@@ -26,7 +26,7 @@ class SimpleSignupForm(SignupForm):
     canton = forms.ChoiceField(
         choices=cantons,
         label='Kanton',
-        help_text='Kanton, in dem Sie hauptsächlich Schule geben'
+        help_text='Kanton, in dem Sie hauptsächlich unterrichten'
     )
     school_name = forms.CharField(
         max_length=100,
