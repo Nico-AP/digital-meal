@@ -60,7 +60,7 @@ class ToolMainPage(ListView, LoginRequiredMixin):
 class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
     """ Display participation overview statistics for a classroom. """
     model = Classroom
-    template_name = 'digital_meal/classroom_detail.html'
+    template_name = 'digital_meal/class/detail.html'
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
@@ -94,7 +94,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
 class ClassroomCreate(CreateView, LoginRequiredMixin):
     """ Register a new classroom. """
     model = Classroom
-    template_name = 'digital_meal/classroom_create.html'
+    template_name = 'digital_meal/class/create.html'
     form_class = ClassroomCreateForm
 
     def form_valid(self, form):
@@ -108,7 +108,7 @@ class ClassroomCreate(CreateView, LoginRequiredMixin):
 class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
     """ Assign a track to a classroom. """
     model = Classroom
-    template_name = 'digital_meal/classroom_create_track.html'
+    template_name = 'digital_meal/class/create_track.html'
     form_class = ClassroomTrackForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -124,7 +124,7 @@ class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
 
 
 class ClassroomExpired(LoginRequiredMixin, OwnershipRequiredMixin, TemplateView):
-    template_name = 'digital_meal/classroom_expired.html'
+    template_name = 'digital_meal/class/expired.html'
 
 
 class TeacherEdit(UpdateView, LoginRequiredMixin):
