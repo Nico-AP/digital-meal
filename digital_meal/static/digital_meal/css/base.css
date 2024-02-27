@@ -235,3 +235,11 @@ form .helptext {
 .dm-footer-linksection p {
     margin-bottom: 0 !important;
 }
+
+.link-card {
+    text-decoration: none;
+}
+.link-card:hover {
+    filter: brightness(105%);
+    color: black;
+}

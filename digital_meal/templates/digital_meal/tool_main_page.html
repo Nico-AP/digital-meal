@@ -1,60 +1,66 @@
 {% extends "digital_meal/base_tool.html" %}
 
-{% block title %}Profilübersicht{% endblock title %}
+{% block title %}DM Onlinetool | Hauptseite{% endblock title %}
 
 {% block main_content %}
 
 <!-- TODO: Add info button in the top right window and show modal containing a screenshot with all important parts highlighted (not on mobile). -->
 
-<!-- TODO: Delete "Profilübersicht title -->
-<h1>Profilübersicht</h1>
+<div class="row">
+  <div class="col me-3 pe-4">
+    <h1>Willkommen im Digital Meal Onlinetool</h1>
+    <p class="ff-non-seri">
+      Hier können Sie neue Klassen für den interaktiven Unterricht erfassen und finden weitere Informationsmaterialien.
+    </p>
+  </div>
+  <div class="col ms-4 m-3 p-3 background-red">
+    <h3>Informationsmaterialen</h3>
 
-<div class="dm-intro">
-  <p>Auf dieser Seite finden Sie alle wichtigen Informationen zur Benutzung von Digital Meal.</p>
+    <p class="ff-non-serif">
+      Hier finden Sie Links zu allgemeinen Informationsmaterialien. <br> [LINKS EINBAUEN] <br>
+      Arbeits- und Unterrichtsmaterialien, die zu spezifischen Modulen passen, finden
+      Sie in den einzelnen Klassen. Klicken Sie dazu unten auf eine Klasse.
+    </p>
+  </div>
 </div>
 
-<div class="dm-section">
-  <h2>Informationsmaterialen</h2>
+<div class="mt-4 row">
+  <h3>Meine Klassen</h3>
 
-  <!-- TODO: Update description and summarize the "flow" of digital meal. -->
+  <div class="col m-3 p-3 background-green">
+    <h4>Aktive Klassen</h4>
+    {% if active_classes %}
+    <div class="row row-cols-2">
+      {% for class in active_classes %}
+      <div class="col p-2">
+        <a href="{{ class.get_absolute_url }}" class="link-card">
+        <div class="p-3 background-yellow">
+          <b>{{ class.name }}</b><br>
+          Erstellt am {{ class.date_created|date:"d.m.Y" }}
+        </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
 
-  <p>
-    Hier finden Sie Links zu allgemeinen Informationsmaterialien. <br>
-    Arbeits- und Unterrichtsmaterialien die zu spezifischen Modulen passen, finden
-    Sie in der Übersicht der einzelnen Klassen. Klicken Sie dazu unten auf einen
-    Klassennnamen.
-  </p>
-</div>
-
-<div class="dm-section">
-  <h2>Meine Klassen</h2>
-</div>
-
-
-<div class="mt-3">
-{% if object_list %}
-  <h3>Aktive Klassen</h3>
-  <!-- TODO: Show active classes as tiles (or similar) and add extra information. -->
-  <!-- TODO: Move Archive to the right of active classes. -->
-  <ul>
-    {% for room in object_list %}
-    {% if room.is_active %}
-    <li><a href="{{ room.get_absolute_url }}">{{ room.name }}</a></li>
+    {% else %}
+    Keine aktiven Klassen
     {% endif %}
-    {% endfor %}
-  </ul>
+  </div>
 
-  <h3>Archiv</h3>
-  <ul>
-    {% for room in object_list %}
-    {% if room.is_active is not True %}
-    <li><a href="{{ room.get_absolute_url }}">{{ room.name }}</a></li>
+  <div class="col m-3 p-3 background-purple">
+    <h4>Archiv</h4>
+    {% if archived_classes %}
+    <ul>
+      {% for class in archived_classes %}
+      <li><a href="{{ class.get_absolute_url }}">{{ class.name }}</a></li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="ff-non-serif">Keine archivierten Klassen</p>
     {% endif %}
-    {% endfor %}
-  </ul>
-  {% else %}
-  Es wurde noch keine Klasse erstellt.
-  {% endif %}
+  </div>
+
 </div>
 <div class="mt-4">
   <p><a class="button" href="{% url 'class_create' %}">Neue Klasse erstellen</a></p>

@@ -56,6 +56,12 @@ class ToolMainPage(LoginRequiredMixin, ListView):
     def get_queryset(self):
         return Classroom.objects.filter(owner=self.request.user)
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['active_classes'] = [c for c in context['object_list'] if c.is_active]
+        context['archived_classes'] = [c for c in context['object_list'] if not c.is_active]
+        return context
+
 
 class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
     """ Display participation overview statistics for a classroom. """
