@@ -20,3 +20,19 @@
 .background-lightgreen {
     background: #D6E297;
 }
+
+.background-red {
+    background: #f99;
+}
+
+.orange-button {
+    background: #F7B17B;
+    text-decoration-color: #f99;
+    text-decoration-thickness: 5px;
+}
+
+.orange-button:hover {
+    filter: brightness(90%);
+    background: #F7B17B !important;
+    text-decoration: none;
+}
