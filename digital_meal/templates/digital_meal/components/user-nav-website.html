@@ -10,7 +10,7 @@
           Angemeldet als <a class="user-nav" href="{% url 'profile' %}"><b>{{ user.email }}</b></a> |
           <a class="user-nav" href="{% url 'account_logout' %}">Abmelden</a>
           {% else %}
-          <a class="user-nav" href="{% url 'profile' %}">Anmelden</a></div>
+          <a class="user-nav" href="{% url 'profile' %}">Anmelden</a>
           {% endif %}
         </div>
       </div>
