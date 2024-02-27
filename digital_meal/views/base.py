@@ -48,7 +48,7 @@ class ProfileView(LoginRequiredMixin, TemplateView):
         return context
 
 
-class ToolMainPage(ListView, LoginRequiredMixin):
+class ToolMainPage(LoginRequiredMixin, ListView):
     """ Show overview for a specific user. """
     model = Classroom
     template_name = 'digital_meal/tool_main_page.html'
