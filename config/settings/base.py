@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'wagtail.admin',
     'wagtail.locales',
     'wagtail.contrib.simple_translation',
-    'wagtail'
+    'wagtail',
+    'qr_code'
 ]
 
 MIDDLEWARE = [

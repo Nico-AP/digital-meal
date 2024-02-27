@@ -12,7 +12,7 @@ urlpatterns = [
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('cms/', include('wagtail.admin.urls')),
     path('documents/', include('wagtail.documents.urls')),
-    path('', include('wagtail.urls')),
+    path('', include('wagtail.urls'))
 ]
 
 if settings.DEBUG:

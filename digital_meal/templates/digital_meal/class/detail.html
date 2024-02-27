@@ -1,5 +1,7 @@
 {% extends "digital_meal/base.html" %}
 
+{% load qr_code static %}
+
 {% block title %}Klassenübersicht "{{ object.name }}"{% endblock title %}
 
 {% block main_content %}
@@ -9,7 +11,10 @@
 <div class="row">
 
   <div class="col m-3 p-3 background-green">
-    <h4>Übersicht</h4>
+    <h4>
+      <img alt="Icon Datenauswertung" class="pe-1" src="{% static 'digital_meal/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}" height="50px">
+      Klassendetails
+    </h4>
 
     <table>
       <tbody>
@@ -43,7 +48,10 @@
   </div>
 
   <div class="col m-3 p-3 background-red">
-    <h4>Materialien</h4>
+    <h4>
+      <img alt="Icon Materialien & Geräte" src="{% static 'digital_meal/img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg' %}" height="50px">
+      Materialien
+    </h4>
 
     <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube" gehören.</p>
 
@@ -68,20 +76,24 @@
       nicht in die Klassenauswertung mit ein.
     </p>
 
-    <p><a href="{{ object.track.ddm_path }}?class=testlink" target="_blank"><button class="orange-button">Test-Teilnahme >></button></a></p>
+    <p><a href="{{ object.track.ddm_path }}?class=testlink" target="_blank"><button class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Test-Teilnahme >></button></a></p>
   </div>
 
   <div class="col m-3 p-3 background-orange">
     <h4>Link für Schüler:innen</h4>
+    <p>
+      Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen werden fliessen in die Klassenauswertung mit ein
+      (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
+    </p>
 
-    Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen werden fliessen in die Klassenauswertung mit ein
-    (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
+    <p class="text-center">
+      {% with object.external_id|stringformat:"s" as external_id %}
+        {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:external_id %}
+          {% qr_from_text participation_url size="M" %}
+        {% endwith %}
+      {% endwith %}
+    </p>
 
-    <!-- TODO: Try to add a QR Code for participation link (see https://www.nayuki.io/page/qr-code-generator-library). -->
-
-    <div class="ms-2 me-2 mt-1 p-2 background-red">
-      <strong>Teilnahmelink: </strong><a href="{{ object.track.ddm_path }}?class={{ object.external_id }}">{{ object.track.ddm_path }}?class={{ object.external_id }}</a>
-    </div>
   </div>
 </div>
 
@@ -94,11 +106,11 @@
     <table>
       <tbody>
       <tr>
-        <td class="ps-3"><span class="pe-2">▪</span> Laufende Teilnahmen:</td>
+        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Laufende Teilnahmen:</td>
         <td>{{ n_not_finished }}</td>
       </tr>
       <tr>
-        <td class="ps-3"><span class="pe-2">▪</span> Abgeschlossene Teilnahmen:</td>
+        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Abgeschlossene Teilnahmen:</td>
         <td>{{ n_finished }}</td>
       </tr>
       <tr>
@@ -118,7 +130,10 @@
   </div>
 
   <div class="col m-3 p-3 background-purple">
-    <h4>Report</h4>
+    <h4>
+      <img alt="Icon Datenauswertung" src="{% static 'digital_meal/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}" height="50px">
+      Report
+    </h4>
 
     <p>
       Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
@@ -130,7 +145,7 @@
       wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
     </p>
 
-    <p><button><a href="{% url 'class_report' object.pk %}" target="_blank">Klassenreport >></a></button></p>
+    <p><a href="{% url 'class_report' object.pk %}" target="_blank"><button class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport >></button></a></p>
   </div>
 
 </div>
