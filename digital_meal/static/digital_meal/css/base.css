@@ -80,8 +80,13 @@
 
 .main-content {
     font-family: Source Serif Pro, serif;
-    padding-left: 80px;
-    padding-right: 80px;
+}
+
+@media screen and (min-width: 992px) {
+    .main-content {
+        padding-left: 80px;
+        padding-right: 80px;
+    }
 }
 
 p, ol, ul {
