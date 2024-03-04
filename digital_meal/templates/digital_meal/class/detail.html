@@ -87,8 +87,8 @@
     </p>
 
     <p class="text-center">
-      {% with object.external_id|stringformat:"s" as external_id %}
-        {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:external_id %}
+      {% with object.class_id|stringformat:"s" as class_id %}
+        {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
           {% qr_from_text participation_url size="M" %}
         {% endwith %}
       {% endwith %}

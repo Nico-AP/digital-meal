@@ -23,4 +23,4 @@ class ClassroomAdmin(admin.ModelAdmin):
     """
     Provides an overview of all Pooled Donation Projects.
     """
-    list_display = ['name', 'external_id', 'date_created', 'owner', 'track']
+    list_display = ['name', 'class_id', 'date_created', 'owner', 'track']

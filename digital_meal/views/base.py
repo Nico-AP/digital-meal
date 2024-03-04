@@ -88,7 +88,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         """ Retrieve overview data from DDM. """
         endpoint = self.object.track.overview_endpoint
         headers = {'Authorization': f'Token {self.object.track.ddm_api_token}'}
-        payload = {'class': self.object.external_id}
+        payload = {'class': self.object.class_id}
         r = requests.get(endpoint, headers=headers, params=payload)
 
         if r.ok:

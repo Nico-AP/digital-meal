@@ -96,7 +96,7 @@ def now_plus_six_months():
 class Classroom(models.Model):
     owner = models.ForeignKey('digital_meal.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
-    external_id = models.UUIDField(default=uuid.uuid4, editable=False)  # TODO: Rename to class_id
+    class_id = models.UUIDField(default=uuid.uuid4, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
