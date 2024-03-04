@@ -137,7 +137,6 @@ class Classroom(models.Model):
         verbose_name='Unterrichtsformat'
     )
 
-    participant_ids = models.JSONField(default=list)  # TODO: Check if can be deleted.
     report_ref_end_date = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
