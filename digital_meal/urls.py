@@ -25,9 +25,9 @@ urlpatterns_reports = [
 ]
 
 urlpatterns_apis = [
-    path('<int:pk>/class-data', dm_apis.ClassReportAPI.as_view(), name='class_data_api'),  # int:pk relates to ID of DDM project.  <!-- TODO: Rename int:pk to be more meaningful. -->
-    path('<int:pk>/class-overview', dm_apis.ClassOverviewAPI.as_view(), name='class_overview_api'),  # int:pk relates to ID of DDM project.
-    path('<int:pk>/individual-data', dm_apis.IndividualReportAPI.as_view(), name='individual_data_api')  # int:pk relates to ID of DDM project.
+    path('<int:project_id>/class-data', dm_apis.ClassReportAPI.as_view(), name='class_data_api'),  # int:project_id relates to ID of DDM project.
+    path('<int:project_id>/class-overview', dm_apis.ClassOverviewAPI.as_view(), name='class_overview_api'),  # int:project_id relates to ID of DDM project.
+    path('<int:project_id>/individual-data', dm_apis.IndividualReportAPI.as_view(), name='individual_data_api')  # int:project_id relates to ID of DDM project.
 ]
 
 urlpatterns = [

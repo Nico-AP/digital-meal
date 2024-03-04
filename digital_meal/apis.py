@@ -53,7 +53,7 @@ class DDMBaseProjectApi(APIView, DDMAPIMixin):
 
     def get_project(self):
         """ Returns project instance. """
-        return DonationProject.objects.filter(pk=self.kwargs['pk']).first()
+        return DonationProject.objects.filter(pk=self.kwargs['project_id']).first()
 
     def check_request_allowed(self, request, project):
         if not user_is_allowed(request.user, project):
