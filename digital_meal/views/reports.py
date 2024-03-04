@@ -118,8 +118,8 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_vids_unique_overall'] = len(set(wh_overall_ids))
         c['n_vids_mean_overall'] = len(wh_overall) / n_donations
 
-        interval_min = timezone.now() - timezone.timedelta(days=290)  # TODO: Adjust.
-        wh_interval = yt_data.get_entries_in_date_range(wh_overall, interval_min)
+        interval_min, interval_max = self.object.get_reference_interval()
+        wh_interval = yt_data.get_entries_in_date_range(wh_overall, interval_min, interval_max)
 
         wh_interval_ids = yt_data.get_video_ids(wh_interval)
         c['n_vids_interval'] = len(wh_interval)
@@ -157,8 +157,8 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_searches_unique_overall'] = len(set(sh_overall_ids))
         c['n_searches_mean_overall'] = len(sh_overall) / n_donations
 
-        interval_min = timezone.now() - timezone.timedelta(days=290)  # TODO: Adjust.
-        sh_interval = yt_data.get_entries_in_date_range(sh_overall, interval_min)
+        interval_min, interval_max = self.object.get_reference_interval()
+        sh_interval = yt_data.get_entries_in_date_range(sh_overall, interval_min, interval_max)
 
         sh_interval_ids = yt_data.get_video_ids(sh_interval)
         c['n_search_interval'] = len(sh_interval)

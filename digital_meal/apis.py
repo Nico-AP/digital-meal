@@ -53,7 +53,7 @@ class DDMBaseProjectApi(APIView, DDMAPIMixin):
 
     def get_project(self):
         """ Returns project instance. """
-        return DonationProject.objects.filter(pk=self.kwargs['project_id']).first()
+        return DonationProject.objects.filter(pk=self.kwargs['pk']).first()
 
     def check_request_allowed(self, request, project):
         if not user_is_allowed(request.user, project):
@@ -130,18 +130,21 @@ class ClassOverviewAPI(DDMBaseProjectApi):
         n_started = len(participants)
         n_finished = len(participants.filter(completed=True))
 
-        donations = {}
+        n_donations = {}
+        donation_dates = []
         blueprints = DonationBlueprint.objects.filter(project=project)
         for blueprint in blueprints:
             blueprint_donations = blueprint.datadonation_set.filter(
                 participant__pk__in=participant_ids, status='success').defer('data')
 
-            donations[blueprint.name] = len(blueprint_donations)
+            n_donations[blueprint.name] = len(blueprint_donations)
+            donation_dates.extend(blueprint_donations.values_list('time_submitted', flat=True))
 
         data = {
-            'n_donations': donations,
+            'n_donations': n_donations,
             'n_not_finished': (n_started - n_finished),
-            'n_finished': n_finished
+            'n_finished': n_finished,
+            'donation_dates': [d.strftime('%Y-%m-%dT%H:%M:%S.%fZ') for d in list(set(donation_dates))]
         }
         return data
 

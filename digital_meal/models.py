@@ -1,11 +1,15 @@
+import datetime
+import json
 import uuid
-from datetime import timedelta
+import requests
 
+from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.timezone import make_aware
 
 
 class User(AbstractUser):
@@ -133,7 +137,8 @@ class Classroom(models.Model):
         verbose_name='Unterrichtsformat'
     )
 
-    participant_ids = models.JSONField(default=list)  # list
+    participant_ids = models.JSONField(default=list)  # TODO: Check if can be deleted.
+    report_ref_end_date = models.DateTimeField(null=True, default=None)
 
     def __str__(self):
         return self.name
@@ -146,6 +151,47 @@ class Classroom(models.Model):
 
     def get_absolute_url(self):
         return reverse('class_detail', kwargs={'pk': self.pk})
+
+    def get_donation_dates(self):
+        """
+        Get list of donation dates for current class through ClassOverviewAPI.
+        """
+        endpoint = self.track.overview_endpoint
+        header = {'Authorization': f'Token {self.track.ddm_api_token}'}
+        payload = {'class': self.class_id, }
+
+        r = requests.get(endpoint, headers=header, params=payload)
+
+        if not r.ok:
+            return None
+
+        data = json.loads(r.json())
+        print(data)
+        dates = [datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S.%fZ') for d in data['donation_dates']]
+        return dates
+
+    def get_reference_interval(self):
+        """
+        Computes the date interval of the reference timespan for the usage
+        reports.
+        Returns a tuple containing the start date and the end date of the
+        reference timespan ('start_date', 'end_date').
+        """
+        if not self.report_ref_end_date:
+            donation_dates = self.get_donation_dates()
+
+            # Calculate reference date
+            date_min = min(donation_dates)
+            if date_min.month == 1:
+                end_date = date_min.replace(day=31, month=12)
+            else:
+                end_date = date_min.replace(day=1) - timedelta(days=1)
+
+            self.report_ref_end_date = make_aware(end_date)
+            self.save()
+
+        start_date = self.report_ref_end_date.replace(day=1)
+        return start_date, self.report_ref_end_date
 
 
 class Track(models.Model):
