@@ -119,6 +119,8 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_vids_mean_overall'] = len(wh_overall) / n_donations
 
         interval_min, interval_max = self.object.get_reference_interval()
+        c['wh_int_min_date'] = interval_min
+        c['wh_int_max_date'] = interval_max
         wh_interval = yt_data.get_entries_in_date_range(wh_overall, interval_min, interval_max)
 
         wh_interval_ids = yt_data.get_video_ids(wh_interval)
@@ -158,6 +160,8 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_searches_mean_overall'] = len(sh_overall) / n_donations
 
         interval_min, interval_max = self.object.get_reference_interval()
+        c['sh_int_min_date'] = interval_min
+        c['sh_int_max_date'] = interval_max
         sh_interval = yt_data.get_entries_in_date_range(sh_overall, interval_min, interval_max)
 
         sh_interval_ids = yt_data.get_video_ids(sh_interval)

@@ -21,27 +21,31 @@
 
   <!-- NUTZUNGSINTENSITÄT -->
   <div class="section-container">
-    <div class="report-section flash-yellow-background position-relative">
+    <div class="report-section section-green-background position-relative">
 
       <div class="report-content">
         <h2>Einige Statistiken</h2>
-        <!-- TODO: Check Kommastellen, Darstellung. -->
         <!-- TODO: Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
         <!-- TODO: Videos von Shorts trennen. -->
-        <h3>Total</h3>
-        <p>Anzahl angeschaute Videos: {{ n_vids_overall }}</p>
-        <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
-        <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall }}</p>
+        <div class="d-flex flex-row justify-content-center">
+          <div class="pe-3">
+            <div style="height: 90px;">
+              <h3>Total</h3>
+            </div>
+            <p>Anzahl angeschaute Videos: {{ n_vids_overall }}</p>
+            <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
+            <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
+          </div>
 
-        <h3>In den letzten 30 Tagen</h3>
-        <!-- TODO: Letzte 30 Tage
-          Nennung des Zeitraums.
-          Erste Spende als Referenz; Dann letzter kompletter Monat.
-        -->
-        <p>Anzahl angeschaute Videos: {{ n_vids_interval }}</p>
-        <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
-        <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval }}</p>
-
+          <div class="ps-3">
+            <div style="height: 90px;">
+              <h3>Im letzten Monat<br><span style="font-size: 1rem">({{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }})</span></h3>
+            </div>
+            <p>Anzahl angeschaute Videos: {{ n_vids_interval }}</p>
+            <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
+            <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
+          </div>
+        </div>
         <!-- TODO: Add CH-Vergleich, wenn verfügbar. -->
 
       </div>
