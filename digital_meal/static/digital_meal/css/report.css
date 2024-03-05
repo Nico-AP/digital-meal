@@ -115,3 +115,24 @@
         font-size: 2vw !important;
     }
 }
+
+.toggle-btn {
+    width: 100%;
+    border: 2px solid #465ad9;
+    background: transparent;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    font-weight: bold;
+}
+.toggle-btn:hover {
+    background: transparent !important;
+}
+
+.toggle-btn-active {
+    background: #465ad9;
+    color: white;
+}
+
+.toggle-btn-active:hover {
+    background: #465ad9 !important;
+}

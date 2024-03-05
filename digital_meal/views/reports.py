@@ -1,10 +1,9 @@
+import datetime
 import json
-
 import pandas as pd
 import requests
-from django.urls import reverse_lazy
 
-from django.utils import timezone
+from django.urls import reverse_lazy
 from django.views.generic import DetailView
 
 from ..models import Classroom
@@ -69,7 +68,6 @@ class ClassroomReportYouTube(BaseClassroomReport):
     template_name = 'digital_meal/reports/youtube/class_report.html'
 
     def get_context_data(self, **kwargs):
-        import datetime
         print(f'Classroom report Requested: {datetime.datetime.now()}')
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
@@ -129,8 +127,11 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_vids_mean_interval'] = len(wh_interval) / n_donations
 
         wh_overall_dates = yt_data.get_date_list(wh_overall)
-        # Barplot "n videos over the course of a year" - y: n_videos, x: dates
-        c['dates_plot'] = yt_plots.get_timeseries_plot(wh_overall_dates)
+        # Barplot "n videos over time" - y: n_videos, x: dates
+        c['dates_plot_days'] = yt_plots.get_timeseries_plot(wh_overall_dates)
+        c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='w')
+        c['dates_plot_months'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='m')
+        c['wh_dates_min'] = min(wh_overall_dates)
 
         # Barplot "n videos per weekday" - y: n_videos, x: weekdays
         c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(wh_overall_dates)

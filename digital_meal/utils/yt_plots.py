@@ -33,21 +33,53 @@ days_en_de_short = {
 }
 
 
-def get_timeseries_plot(data):
-    dates = pd.Series(
-        [datetime.combine(d.date(), datetime.min.time()) for d in data])
-    x_labels = dates.value_counts().keys().to_list()
-    y_values = dates.value_counts().values.tolist()
+def get_timeseries_plot(data, bins='d'):
+    """
+    Create timeseries bar plot.
+    :param data: List of datetime objects.
+    :param bins: Type of bins to be plotted ('d' for days, 'w' for weeks,
+        'm' for months.
+    :return: Dictionary containing bokeh script and bokeh plot
+        ({'script': script, 'div': div}).
+    """
+    day_dates = pd.Series(
+            [datetime.combine(d.date(), datetime.min.time()) for d in data])
+    if bins == 'd':
+        dates = day_dates
+        x_values = dates.value_counts().keys().to_list()
+        y_values = dates.value_counts().values.tolist()
+        bin_width = timedelta(days=1)
+    elif bins == 'w':
+        dates = []
+        for d in data:
+            date = d.date()
+            week_start = date - timedelta(days=date.weekday())
+            dates.append(datetime.combine(week_start, datetime.min.time()))
+        dates = pd.Series(dates)
+        x_values = dates.value_counts().keys().to_list()
+        y_values = dates.value_counts().values.tolist()
+        bin_width = timedelta(days=7)
+    elif bins == 'm':
+        dates = pd.Series(
+            [datetime.combine(d.date().replace(day=15), datetime.min.time()) for d in data])
+        x_values = dates.value_counts().keys().to_list()
+        y_values = dates.value_counts().values.tolist()
+        bin_width = timedelta(days=30)
+    else:
+        print('Invalid bins')
+        return None
 
-    # TODO: Calculate custom min, max
+    day_range = max(day_dates) - min(day_dates)
+    upper_bound = max(day_dates)
+    lower_bound = max(day_dates) - timedelta(days=(day_range.days/3) * 2)
     p = figure(
-        x_range=(min(x_labels), min(x_labels) + timedelta(days=120)),
+        x_range=(lower_bound, upper_bound),
         x_axis_type='datetime',
         height=300, width=1200,
         toolbar_location=None,
         tools='xpan'
     )
-    p.vbar(x=x_labels, top=y_values, fill_color='#465ad9', line_color='#465ad9', width=5)
+    p.vbar(x=x_values, top=y_values, fill_color='#465ad9', line_color='#465ad9', width=bin_width)
     p.background_fill_color = None
     p.border_fill_color = None
     p.outline_line_color = None
@@ -84,7 +116,7 @@ def get_timeseries_plot(data):
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = 'white'
     range_tool.overlay.fill_alpha = 0.5
-    select.vbar(x=x_labels, top=y_values, fill_color='white', line_color='white')
+    select.vbar(x=x_values, top=y_values, fill_color='white', line_color='white', width=bin_width)
     select.ygrid.grid_line_color = None
     select.border_fill_alpha = 0
     select.background_fill_color = '#465ad9'

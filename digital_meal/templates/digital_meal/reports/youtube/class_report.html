@@ -54,21 +54,33 @@
   </div>
 
     <!-- YEARLY USE -->
-  {% if dates_plot %}
+  {% if dates_plot_days %}
   <div class="section-container">
 
     <div class="report-section flash-yellow-background position-relative">
       <div class="report-content">
         <h2>Nutzung im Zeitverlauf</h2>
-        <!-- TODO: Tages-bins, Wochen-Bins, Monats-Bins mit Toggles; basierend auf Median -->
+        <!-- TODO: Verlauf basierend auf Median -->
         <div>
           <p>
-            Seit dem [DATUM] habt ihr in der Klasse <b class="font-size-highlight" style="color: #465ad9">insgesamt {{ n_vids_overall }} Videos angesehen</b>.
+            Seit dem {{ wh_dates_min|date:"d. F Y" }} habt ihr in der Klasse <b class="font-size-highlight" style="color: #465ad9">insgesamt&nbsp;{{ n_vids_overall }}&nbsp;Videos&nbsp;angesehen</b>.
           </p>
           <p>In der Grafik unten wird die Anzahl Videos dargestellt, die ihr im Schnitt pro Tag angesehen habt.</p>
           <p>Für die durchschnittliche Person sieht blabla</p>
         </div>
-        <div class="d-flex justify-content-center">{{ dates_plot.div | safe }}</div>
+        <div class="d-flex flex-row">
+          <div id="date_plot_toggles" class="d-flex flex-column justify-content-evenly align-items-stretch pe-5">
+            <div><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">Tagesverlauf</button></div>
+            <div><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">Wochenverlauf</button></div>
+            <div><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">Monatsverlauf</button></div>
+          </div>
+          <div id="date_plot_container" class="d-flex justify-content-center border-bottom-2">
+            <div id="dates_plot_days" class="collapse-dates-plots">{{ dates_plot_days.div | safe }}</div>
+            <div id="dates_plot_weeks" class="collapse-dates-plots d-none">{{ dates_plot_weeks.div | safe }}</div>
+            <div id="dates_plot_months" class="collapse-dates-plots d-none">{{ dates_plot_months.div | safe }}</div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -79,6 +91,7 @@
   <!-- DAILY USE -->
   {% if weekday_use_plot %}
   <div class="section-container">
+    <!-- TODO: Check datetime logic of Google -->
 
     <div class="report-section" style="background: #D0C3FF">
       <div class="report-content d-flex flex-row">
@@ -250,10 +263,21 @@
 {% block scripts %}
 {{ block.super }}
 
-{{ dates_plot.script | safe }}
+{{ dates_plot_days.script | safe }}
+{{ dates_plot_weeks.script | safe }}
+{{ dates_plot_months.script | safe }}
 {{ weekday_use_plot.script | safe }}
 {{ hours_plot.script | safe }}
 {{ channel_plot.script | safe }}
 {{ search_plot.script | safe }}
+
+<script>
+  function toggleButton(button, target) {
+    $('.collapse-dates-plots').addClass('d-none');
+    $(target).removeClass('d-none');
+    $('.toggle-btn').removeClass('toggle-btn-active');
+    $(button).addClass('toggle-btn-active')
+  }
+</script>
 
 {% endblock %}
