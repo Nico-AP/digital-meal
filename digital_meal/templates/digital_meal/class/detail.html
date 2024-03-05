@@ -87,6 +87,7 @@
     </p>
 
     <p class="text-center">
+      <!-- TODO: Add button "Copy Link"/"Per Mail versenden"/"Per Teams"(?) -->
       {% with object.class_id|stringformat:"s" as class_id %}
         {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
           {% qr_from_text participation_url size="M" %}
