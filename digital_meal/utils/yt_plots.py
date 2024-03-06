@@ -2,7 +2,7 @@ import math
 import pandas as pd
 
 from bokeh.embed import components
-from bokeh.layouts import column
+from bokeh.layouts import column, gridplot
 from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter, HBar
 from bokeh.palettes import BuGn9
 from bokeh.plotting import figure
@@ -75,9 +75,10 @@ def get_timeseries_plot(data, bins='d'):
     p = figure(
         x_range=(lower_bound, upper_bound),
         x_axis_type='datetime',
-        height=300, width=1200,
+        height=300,
         toolbar_location=None,
-        tools='xpan'
+        tools='xpan',
+        sizing_mode='stretch_width'
     )
     p.vbar(x=x_values, top=y_values, fill_color='#465ad9', line_color='#465ad9', width=bin_width)
     p.background_fill_color = None
@@ -104,14 +105,15 @@ def get_timeseries_plot(data, bins='d'):
     p.xaxis.major_tick_line_color = 'white'
 
     select = figure(
-        title='Verschiebe oder vergrössere/verkleinere das helle '
-              'Auswahlfeld unten, um den Bereich darüber zu ändern',
-        height=130, width=1200,
+        title='Verschiebe oder ändere die Grösse des hellen '
+              'Auswahlfelds unten, um den oben angezeigten Bereich anzupassen.',
+        height=130,
         y_range=p.y_range,
         y_axis_type=None,
         x_axis_type='datetime',
         tools='',
-        toolbar_location=None
+        toolbar_location=None,
+        sizing_mode='stretch_width'
     )
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = 'white'
@@ -159,10 +161,11 @@ def get_weekday_use_plot(data):
         x_range=days_de,
         y_range=['00:00'],
         x_axis_location=None,
-        width=700, height=80,
+        height=80,
         tools='hover,save,pan,box_zoom,reset,wheel_zoom',
         toolbar_location=None,
-        tooltips=TOOLTIPS
+        tooltips=TOOLTIPS,
+        sizing_mode='stretch_width'
     )
 
     p.grid.grid_line_color = None
@@ -220,10 +223,11 @@ def get_day_usetime_plot(data):
         x_range=days_de_short,
         y_range=times,
         x_axis_location='above',
-        width=700, height=500,
+        height=500,
         tools='hover,save,pan,box_zoom,reset,wheel_zoom',
         toolbar_location=None,
-        tooltips=TOOLTIPS
+        tooltips=TOOLTIPS,
+        sizing_mode='stretch_width'
     )
     p.border_fill_color = None
     p.outline_line_color = None

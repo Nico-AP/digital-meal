@@ -132,6 +132,7 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='w')
         c['dates_plot_months'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='m')
         c['wh_dates_min'] = min(wh_overall_dates)
+        c['wh_dates_max'] = max(wh_overall_dates)
 
         # Barplot "n videos per weekday" - y: n_videos, x: weekdays
         c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(wh_overall_dates)

@@ -34,7 +34,7 @@
 }
 
 #report .report-section {
-    padding: 100px 40px 200px;
+    padding: 100px 40px 100px;
     scroll-snap-align: start;
     min-height: 50vh;
     display: flex;

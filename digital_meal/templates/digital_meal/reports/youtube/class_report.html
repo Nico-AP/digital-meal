@@ -8,12 +8,8 @@
 {% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}
 
 {% block report_intro_text %}
-<p>
-  In diesem Report erfahrt Ihr mehr über die YouTube-Nutzung in eurer Klasse.
-</p>
-<p>
-  Der Report basiert auf den Daten von {{ n_participants }} Schüler:innen.
-</p>
+<p>In diesem Report erfahrt Ihr mehr über die YouTube-Nutzung in eurer Klasse.</p>
+<p>Der Report basiert aktuell auf den Daten von {{ n_participants }} Schüler:innen.</p>
 {% endblock %}
 
 
@@ -24,25 +20,34 @@
     <div class="report-section section-green-background position-relative">
 
       <div class="report-content">
-        <h2>Einige Statistiken</h2>
+        <h2>Wie viele Videos hat sich eure Klasse auf YouTube angesehen?</h2>
+        <p>
+          Seit dem {{ wh_dates_min|date:"d. F Y" }} habt ihr in der Klasse <b class="font-size-highlight" style="color: #465ad9">insgesamt&nbsp;{{ n_vids_overall }}&nbsp;Videos&nbsp;angesehen</b>.</br>
+        </p>
+        <p>
+          Unten findet ihr weitere Zahlen zur zusammengefassten YouTube-Nutzung eurer Klasse.
+          Links seht ihr die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
+        </p>
         <!-- TODO: Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
         <!-- TODO: Videos von Shorts trennen. -->
-        <div class="d-flex flex-row justify-content-center">
-          <div class="pe-3">
+        <div class="row justify-content-center pt-5">
+          <div class="col-12 col-md-6 p-5" style="background: #52ffa0">
             <div style="height: 90px;">
-              <h3>Total</h3>
+              <h3>Insgesamt<br><span style="font-size: 1rem">{{ wh_dates_min|date:"d.m.Y" }} bis {{ wh_dates_max|date:"d.m.Y" }}</span></h3>
             </div>
-            <p>Anzahl angeschaute Videos: {{ n_vids_overall }}</p>
-            <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
+            <p>Angeschaute Videos: {{ n_vids_overall }}</p>
+            <p>Angeschaute Shorts: TODO</p>
+            <p>Unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
             <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
           </div>
 
-          <div class="ps-3">
+          <div class="col-12 col-md-6 p-5" style="background: #94ffc3">
             <div style="height: 90px;">
-              <h3>Im letzten Monat<br><span style="font-size: 1rem">({{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }})</span></h3>
+              <h3>Im letzten Monat<br><span style="font-size: 1rem">{{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }}</span></h3>
             </div>
-            <p>Anzahl angeschaute Videos: {{ n_vids_interval }}</p>
-            <p>Anzahl unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
+            <p>Angeschaute Videos: {{ n_vids_interval }}</p>
+            <p>Angeschaute Shorts: TODO</p>
+            <p>Unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
             <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
           </div>
         </div>
@@ -59,25 +64,26 @@
 
     <div class="report-section flash-yellow-background position-relative">
       <div class="report-content">
-        <h2>Nutzung im Zeitverlauf</h2>
-        <!-- TODO: Verlauf basierend auf Median -->
+        <h2>Wie hat sich eure YouTube-Nutzung im Zeitverlauf verändert?</h2>
         <div>
           <p>
-            Seit dem {{ wh_dates_min|date:"d. F Y" }} habt ihr in der Klasse <b class="font-size-highlight" style="color: #465ad9">insgesamt&nbsp;{{ n_vids_overall }}&nbsp;Videos&nbsp;angesehen</b>.
+            Unten seht ihr, wie sich die Anzahl der durchschnittlich pro Person angeschauten Videos über die Zeit verändert.
+            Ihr könnt euch die Zahlen pro Tag, Woche oder Monat anzeigen lassen.
           </p>
-          <p>In der Grafik unten wird die Anzahl Videos dargestellt, die ihr im Schnitt pro Tag angesehen habt.</p>
-          <p>Für die durchschnittliche Person sieht blabla</p>
+          <!-- TODO: Verlauf basierend auf Median und Erklärung/Interpretationshilfe (<p>Für die durchschnittliche Person sieht blabla</p>) -->
         </div>
-        <div class="d-flex flex-row">
-          <div id="date_plot_toggles" class="d-flex flex-column justify-content-evenly align-items-stretch pe-5">
-            <div><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">Tagesverlauf</button></div>
-            <div><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">Wochenverlauf</button></div>
-            <div><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">Monatsverlauf</button></div>
+        <div class="row pb-2 pb-lg-0">
+          <div id="date_plot_toggles" class="col-xl-2 col-lg-3 justify-content-evenly align-items-lg-stretch pe-lg-5">
+            <div class="row d-flex justify-content-around g-1 g-lg-4 pt-lg-5">
+              <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">pro Tag</button></div>
+              <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">pro Woche</button></div>
+              <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">pro Monat</button></div>
+            </div>
           </div>
-          <div id="date_plot_container" class="d-flex justify-content-center border-bottom-2">
-            <div id="dates_plot_days" class="collapse-dates-plots">{{ dates_plot_days.div | safe }}</div>
-            <div id="dates_plot_weeks" class="collapse-dates-plots d-none">{{ dates_plot_weeks.div | safe }}</div>
-            <div id="dates_plot_months" class="collapse-dates-plots d-none">{{ dates_plot_months.div | safe }}</div>
+          <div id="date_plot_container" class="col justify-content-center border-bottom-2 w-100">
+            <div id="dates_plot_days" class="collapse-dates-plots w-100">{{ dates_plot_days.div | safe }}</div>
+            <div id="dates_plot_weeks" class="collapse-dates-plots d-none w-100">{{ dates_plot_weeks.div | safe }}</div>
+            <div id="dates_plot_months" class="collapse-dates-plots d-none w-100">{{ dates_plot_months.div | safe }}</div>
           </div>
         </div>
 
@@ -94,19 +100,20 @@
     <!-- TODO: Check datetime logic of Google -->
 
     <div class="report-section" style="background: #D0C3FF">
-      <div class="report-content d-flex flex-row">
-        <div class="pe-5">
-          <h2>Nutzung im Tagesverlauf</h2>
+      <div class="report-content row">
+        <div class="col-12 col-lg-5 pe-5">
+          <h2>Wann nutzt ihr YouTube in einer durchschnittlichen Woche am intensivsten?</h2>
           <p class="text-start">
-            Die folgenden Grafiken zeigen, wie sich die Youtube-Nutzung der Klasse über die Zeit verteilt.
+            Die folgende Grafik veranschaulicht die Intensität der durchschnittlichen YouTube-Nutzung in eurer Klasse
+            über den Verlauf einer typischen Woche.
           </p>
+          <p class="text-start">Oben ist ersichtlich, wie sich die Anzahl angesehener Videos prozentual auf die Wochentage verteilt.</p>
           <p class="text-start">
-            Oben ist ersichtlich, wie sich die Nutzung prozentual auf die Wochentage verteilt.
-            Unten sieht man die durchschnittliche Nutzung pro Tag pro Stunde.
+            Unten seht ihr die durchschnittliche Nutzung pro Tag pro Stunde.
             <b style="border-bottom: 2px solid #ffda3c; background: #ffda3c; padding-left: 5px; padding-right: 5px;">Je dunkler das Feld, desto mehr Videos wurden in dieser Zeitperiode angeschaut.</b>
           </p>
         </div>
-        <div class="detailed-use-plot">
+        <div class="col-12 col-lg-7 detailed-use-plot">
           <!-- TODO: Berechnungsgrundlage Median -->
           <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
           <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
