@@ -190,16 +190,20 @@ def normalize_datetime(date, mode='d'):
         return None
 
 
-def summarize_list(li, mode='sum'):
+def summarize_list(li, n=1, mode='sum'):
     """
     Summarizes a list of numbers as sum, median, or mean.
     :param li: A list of numbers
+    :param n: The number of reference cases.
     :param mode: Defines the summary logic:
         'sum' - Returns the sum over all list elements.
         'median' - Returns the median of the list elements.
         'mean' - Returns the mean of the list elements.
     :return: Number
     """
+    while len(li) < n:
+        li.append(0)
+
     if mode == 'sum':
         return sum(li)
     elif mode == 'median':
@@ -228,6 +232,7 @@ def get_summary_counts_per_date(data, ref='d', base='sum'):
         'median' - Median over all persons
     :return: Dictionary containing summary counts per date ({'date': count})
     """
+    n_cases = len(data)
     dates_combined = []
     for p in data:
         dates_combined += p
@@ -245,6 +250,6 @@ def get_summary_counts_per_date(data, ref='d', base='sum'):
 
     # iterate over counts and sum/median/average (whatever)
     for key, value in counts.items():
-        counts[key] = summarize_list(value, mode=base)
+        counts[key] = summarize_list(value, n=n_cases, mode=base)
 
     return counts

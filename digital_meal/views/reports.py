@@ -133,19 +133,19 @@ class ClassroomReportYouTube(BaseClassroomReport):
         min_date = min(wh_combined_dates)
         max_date = max(wh_combined_dates)
 
-        dates_days = yt_data.get_summary_counts_per_date(whs_individual_dates, 'd', 'median')
+        dates_days = yt_data.get_summary_counts_per_date(whs_individual_dates, 'd', 'mean')
         c['dates_plot_days'] = yt_plots.get_timeseries_plot(
             pd.Series(dates_days), date_min=min_date, date_max=max_date)
 
-        dates_weeks = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'median')
+        dates_weeks = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'mean')
         c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(
             pd.Series(dates_weeks), bin_width=7, date_min=min_date, date_max=max_date)
 
-        dates_months = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'median')
+        dates_months = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'mean')
         c['dates_plot_months'] = yt_plots.get_timeseries_plot(
             pd.Series(dates_months), bin_width=30, date_min=min_date, date_max=max_date)
 
-        dates_years = yt_data.get_summary_counts_per_date(whs_individual_dates, 'y', 'median')
+        dates_years = yt_data.get_summary_counts_per_date(whs_individual_dates, 'y', 'mean')
         c['dates_plot_years'] = yt_plots.get_timeseries_plot(
             pd.Series(dates_years), bin_width=365, date_min=min_date, date_max=max_date)
 
