@@ -107,38 +107,56 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['wh_available'] = True
         n_donations = len(data)
 
-        wh_overall = []
-        for entry in data:
-            wh_overall += entry['data']
-        wh_overall = yt_data.exclude_google_ads_videos(wh_overall)
-        wh_overall_ids = yt_data.get_video_ids(wh_overall)
-        c['n_vids_overall'] = len(wh_overall)
-        c['n_vids_unique_overall'] = len(set(wh_overall_ids))
-        c['n_vids_mean_overall'] = len(wh_overall) / n_donations
+        whs_individual = [yt_data.exclude_google_ads_videos(e['data']) for e in data]
+        wh_combined = []
+        for wh in whs_individual:
+            wh_combined += wh
+
+        wh_combined_ids = yt_data.get_video_ids(wh_combined)
+        c['n_vids_overall'] = len(wh_combined)
+        c['n_vids_unique_overall'] = len(set(wh_combined_ids))
+        c['n_vids_mean_overall'] = len(wh_combined) / n_donations
 
         interval_min, interval_max = self.object.get_reference_interval()
         c['wh_int_min_date'] = interval_min
         c['wh_int_max_date'] = interval_max
-        wh_interval = yt_data.get_entries_in_date_range(wh_overall, interval_min, interval_max)
+        wh_interval = yt_data.get_entries_in_date_range(wh_combined, interval_min, interval_max)
 
         wh_interval_ids = yt_data.get_video_ids(wh_interval)
         c['n_vids_interval'] = len(wh_interval)
         c['n_vids_unique_interval'] = len(set(wh_interval_ids))
         c['n_vids_mean_interval'] = len(wh_interval) / n_donations
 
-        wh_overall_dates = yt_data.get_date_list(wh_overall)
         # Barplot "n videos over time" - y: n_videos, x: dates
-        c['dates_plot_days'] = yt_plots.get_timeseries_plot(wh_overall_dates)
-        c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='w')
-        c['dates_plot_months'] = yt_plots.get_timeseries_plot(wh_overall_dates, bins='m')
-        c['wh_dates_min'] = min(wh_overall_dates)
-        c['wh_dates_max'] = max(wh_overall_dates)
+        whs_individual_dates = [yt_data.get_date_list(wh) for wh in whs_individual]
+        wh_combined_dates = yt_data.get_date_list(wh_combined)
+        min_date = min(wh_combined_dates)
+        max_date = max(wh_combined_dates)
+
+        dates_days = yt_data.get_summary_counts_per_date(whs_individual_dates, 'd', 'median')
+        c['dates_plot_days'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_days), date_min=min_date, date_max=max_date)
+
+        dates_weeks = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'median')
+        c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_weeks), bin_width=7, date_min=min_date, date_max=max_date)
+
+        dates_months = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'median')
+        c['dates_plot_months'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_months), bin_width=30, date_min=min_date, date_max=max_date)
+
+        dates_years = yt_data.get_summary_counts_per_date(whs_individual_dates, 'y', 'median')
+        c['dates_plot_years'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_years), bin_width=365, date_min=min_date, date_max=max_date)
+
+        c['wh_dates_min'] = min_date
+        c['wh_dates_max'] = max_date
 
         # Barplot "n videos per weekday" - y: n_videos, x: weekdays
-        c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(wh_overall_dates)
+        c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(wh_combined_dates)
 
         # Heatmap "n videos per day per hour"
-        c['hours_plot'] = yt_plots.get_day_usetime_plot(wh_overall_dates)
+        c['hours_plot'] = yt_plots.get_day_usetime_plot(wh_combined_dates)
         return c
 
     def get_search_context(self, data):
@@ -150,28 +168,28 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['sh_available'] = True
         n_donations = len(data)
 
-        sh_overall = []
+        sh_combined = []
         for entry in data:
-            sh_overall += entry['data']
+            sh_combined += entry['data']
 
-        sh_overall = yt_data.exclude_ads_from_search_history(sh_overall)
-        sh_overall = yt_data.clean_search_titles(sh_overall)
-        sh_overall_ids = yt_data.get_video_ids(sh_overall)
-        c['n_searches_overall'] = len(sh_overall)
-        c['n_searches_unique_overall'] = len(set(sh_overall_ids))
-        c['n_searches_mean_overall'] = len(sh_overall) / n_donations
+        sh_combined = yt_data.exclude_ads_from_search_history(sh_combined)
+        sh_combined = yt_data.clean_search_titles(sh_combined)
+        sh_combined_ids = yt_data.get_video_ids(sh_combined)
+        c['n_searches_overall'] = len(sh_combined)
+        c['n_searches_unique_overall'] = len(set(sh_combined_ids))
+        c['n_searches_mean_overall'] = len(sh_combined) / n_donations
 
         interval_min, interval_max = self.object.get_reference_interval()
         c['sh_int_min_date'] = interval_min
         c['sh_int_max_date'] = interval_max
-        sh_interval = yt_data.get_entries_in_date_range(sh_overall, interval_min, interval_max)
+        sh_interval = yt_data.get_entries_in_date_range(sh_combined, interval_min, interval_max)
 
         sh_interval_ids = yt_data.get_video_ids(sh_interval)
         c['n_search_interval'] = len(sh_interval)
         c['n_search_unique_interval'] = len(set(sh_interval_ids))
         c['n_search_mean_interval'] = len(sh_interval) / n_donations
 
-        c['search_plot'] = yt_plots.get_searches_plot(sh_overall)
+        c['search_plot'] = yt_plots.get_searches_plot(sh_combined)
         return c
 
     def get_subs_context(self, data):
@@ -196,16 +214,16 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['sc_available'] = True
         n_donations = len(data)
 
-        sc_overall = []
+        sc_combined = []
         for entry in data:
-            sc_overall += entry['data']
+            sc_combined += entry['data']
 
-        sc_overall = clean_channel_list(sc_overall)
-        sc_titles = [entry['title'] for entry in sc_overall]
+        sc_combined = clean_channel_list(sc_combined)
+        sc_titles = [entry['title'] for entry in sc_combined]
 
-        c['n_subs'] = len(sc_overall)
+        c['n_subs'] = len(sc_combined)
         c['n_subs_unique'] = len(set(sc_titles))
-        c['n_subs_mean'] = len(sc_overall) / n_donations
+        c['n_subs_mean'] = len(sc_combined) / n_donations
 
         subs_counts = pd.Series(sc_titles).value_counts()
         # subs_counts_relative = pd.Series(sc_titles).value_counts(normalize=True)

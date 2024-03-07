@@ -2,13 +2,13 @@ import math
 import pandas as pd
 
 from bokeh.embed import components
-from bokeh.layouts import column, gridplot
-from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter, HBar
+from bokeh.layouts import column
+from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter
 from bokeh.palettes import BuGn9
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
 
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 
 days_de = [
@@ -33,45 +33,31 @@ days_en_de_short = {
 }
 
 
-def get_timeseries_plot(data, bins='d'):
+def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     """
     Create timeseries bar plot.
-    :param data: List of datetime objects.
-    :param bins: Type of bins to be plotted ('d' for days, 'w' for weeks,
-        'm' for months.
+    :param date_series: Pandas Series of datetime objects and counts.
+    :param bin_width: Width of bin in bar plot.
+    :param date_min: Minimum date of date range on x-axis - if None is provided,
+        minimum of data_series is used.
+    :param date_max: Maximum date of date range on x-axis - if None is provided,
+        maximum of data_series is used.
     :return: Dictionary containing bokeh script and bokeh plot
         ({'script': script, 'div': div}).
     """
-    day_dates = pd.Series(
-            [datetime.combine(d.date(), datetime.min.time()) for d in data])
-    if bins == 'd':
-        dates = day_dates
-        x_values = dates.value_counts().keys().to_list()
-        y_values = dates.value_counts().values.tolist()
-        bin_width = timedelta(days=1)
-    elif bins == 'w':
-        dates = []
-        for d in data:
-            date = d.date()
-            week_start = date - timedelta(days=date.weekday())
-            dates.append(datetime.combine(week_start, datetime.min.time()))
-        dates = pd.Series(dates)
-        x_values = dates.value_counts().keys().to_list()
-        y_values = dates.value_counts().values.tolist()
-        bin_width = timedelta(days=7)
-    elif bins == 'm':
-        dates = pd.Series(
-            [datetime.combine(d.date().replace(day=15), datetime.min.time()) for d in data])
-        x_values = dates.value_counts().keys().to_list()
-        y_values = dates.value_counts().values.tolist()
-        bin_width = timedelta(days=30)
-    else:
-        print('Invalid bins')
-        return None
+    x_values = date_series.keys().to_list()
+    y_values = date_series.values.tolist()
 
-    day_range = max(day_dates) - min(day_dates)
-    upper_bound = max(day_dates)
-    lower_bound = max(day_dates) - timedelta(days=(day_range.days/3) * 2)
+    bin_width = timedelta(days=bin_width)
+
+    if date_min is None:
+        date_min = min(date_series.keys())
+    if date_max is None:
+        date_max = max(date_series.keys())
+
+    day_range = date_max - date_min
+    upper_bound = date_max + timedelta(days=30)
+    lower_bound = date_max - timedelta(days=(day_range.days/3) * 2)
     p = figure(
         x_range=(lower_bound, upper_bound),
         x_axis_type='datetime',
