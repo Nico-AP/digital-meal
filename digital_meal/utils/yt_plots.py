@@ -55,11 +55,14 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     if date_max is None:
         date_max = max(date_series.keys())
 
-    day_range = date_max - date_min
-    upper_bound = date_max + timedelta(days=30)
-    lower_bound = date_max - timedelta(days=(day_range.days/3) * 2)
+    x_range = date_max - date_min
+    x_upper_bound = date_max + timedelta(days=30)
+    x_lower_bound = date_max - timedelta(days=(x_range.days/3) * 2)
+
+    y_max = max(y_values) + (0.05 * max(y_values))
+
     p = figure(
-        x_range=(lower_bound, upper_bound),
+        x_range=(x_lower_bound, x_upper_bound),
         x_axis_type='datetime',
         height=300,
         toolbar_location=None,
@@ -79,7 +82,7 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     p.yaxis.major_tick_line_color = None
 
     p.y_range.start = 0
-    p.y_range.end = max(y_values)
+    p.y_range.end = y_max
 
     p.yaxis.axis_label = 'Anzahl Videos'
     p.yaxis.axis_label_text_font_style = 'normal'
