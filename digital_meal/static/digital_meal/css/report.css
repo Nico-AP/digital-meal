@@ -148,3 +148,22 @@
     padding-left: 15px;
     padding-right: 15px;
 }
+
+.white-podium {
+    background: white;
+    font-size: 3rem;
+    color: black;
+}
+
+.subs-bullet-point {
+    color: black;
+    font-weight: bold;
+    font-size: 1.5rem;
+}
+
+.subs-list-prefix {
+    width: 30px;
+    display: inline-block;
+    color: black;
+    font-weight: bold;
+}

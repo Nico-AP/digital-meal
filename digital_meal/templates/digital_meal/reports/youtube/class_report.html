@@ -164,20 +164,54 @@
 
   <div class="report-section" style="background-color: #e83e3e">
     <div class="report-content" style="color: white">
-      <h2>Hier sind die beliebtesten YouTube Kanäle eurer Klasse</h2>
+      <h2>Die meist abonnierten YouTube-Kanäle eurer Klasse</h2>
 
-      <div>
-        <p>Insgesamt habt ihr in eurer Klasse {{ n_subs_unique }} unterschiedliche Kanäle abonniert.</p>
-        <p>Im Schnitt folgt ihr {{ n_subs_mean|floatformat:"0" }} Kanälen, wobei {{ n_subs_multiple }} Kanäle von mehr als einer Person abonniert sind.</p>
-        <p>Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</p>
-        <ul>
-          {% for key, value in most_popular_channels.items %}
-          <li>{{ key }} (von {{ value }} Personen abonniert)</li>
-          {% endfor %}
-        </ul>
+      <div class="text-start">
+        <p><span class="subs-bullet-point">⦁</span> Insgesamt habt ihr in eurer Klasse <span style="font-weight: bold;">{{ n_subs_unique }} unterschiedliche Kanäle</span> abonniert.</p>
+        <p><span class="subs-bullet-point">⦁</span> <b>Im Schnitt</b> folgt ihr <b>{{ n_subs_mean|floatformat:"0" }} Kanälen</b>.</p>
+        <p><span class="subs-bullet-point">⦁</span> <b>{{ n_subs_multiple }}</b> Kanäle sind <b>von mehr als einer Person</b> abonniert.</p>
+        <p class="pt-5"><span style="color: black;background: white;padding: 5px;font-weight: bold;">Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</span></p>
       </div>
-      <!-- TODO: Podest Top 3 als Podest; zusätzlich Platz 4 bis 10 als Liste -->
-      <div class="d-flex justify-content-center pt-5">{{ channel_plot.div | safe }}</div>
+
+      <div class="row">
+        <div class="col-12 col-lg-8">
+          <div class="row">
+
+            {% for key, value in most_popular_channels.items %}
+            {% if forloop.counter == 2 %}
+            <div class="col-12 col-lg-4 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="white-podium" style="height: 160px;"><b>2</b></div>
+            </div>
+
+            {% elif forloop.counter == 1 %}
+            <div class="col-12 col-lg-4 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="white-podium" style="height: 200px;"><b>1</b></div>
+            </div>
+
+            {% elif forloop.counter == 3 %}
+            <div class="col-12 col-lg-4 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="white-podium" style="height: 120px;"><b>3</b></div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 pt-5 text-start" style="padding-left: 50px;">
+          <h4>Plätze 4 bis 10</h4>
+          {% for key, value in most_popular_channels.items %}
+          {% if forloop.counter > 3 %}
+          <p><span class="subs-list-prefix">{{ forloop.counter|add:"1" }}</span>{{ key }}</p>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+      </div>
+
     </div>
   </div>
 

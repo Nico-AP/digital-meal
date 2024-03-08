@@ -92,7 +92,7 @@ class ClassroomReportYouTube(BaseClassroomReport):
 
         # Subscribed channels (sc)
         print(f'Started to generate Subscription Report: {datetime.datetime.now()}')
-        context.update(self.get_subs_context(data['donations']['Subs 2']))
+        context.update(self.get_subs_context(data['donations']['Abonnierte Kanäle']))
 
         n_donations = [len(v) for k, v in data['donations'].items() if v is not None]
         context['n_participants'] = max(n_donations)
@@ -242,10 +242,9 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_subs_mean'] = len(sc_combined) / n_donations
 
         subs_counts = pd.Series(sc_titles).value_counts()
-        # subs_counts_relative = pd.Series(sc_titles).value_counts(normalize=True)
         n_subs_multiple = subs_counts[subs_counts > 1]
         c['n_subs_multiple'] = len(n_subs_multiple)
-        c['most_popular_channels'] = subs_counts.nlargest(50).to_dict()
+        c['most_popular_channels'] = subs_counts.nlargest(10).to_dict()
         return c
 
 
