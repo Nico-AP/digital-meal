@@ -136,3 +136,15 @@
 .toggle-btn-active:hover {
     background: #465ad9 !important;
 }
+
+.podium-col {
+    height: 400px;
+}
+
+.podium-title {
+    font-weight: bold;
+    font-size: 1.5rem;
+    padding-bottom: 15px;
+    padding-left: 15px;
+    padding-right: 15px;
+}

@@ -117,6 +117,22 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_vids_unique_overall'] = len(set(wh_combined_ids))
         c['n_vids_mean_overall'] = len(wh_combined) / n_donations
 
+        wh_combined_ids_sets = []
+        for wh in whs_individual:
+            wh_ids = yt_data.get_video_ids(wh)
+            wh_combined_ids_sets += list(set(wh_ids))
+
+        video_titles = yt_data.get_video_title_dict(wh_combined)
+        most_popular_videos = pd.Series(wh_combined_ids_sets).value_counts()[:10].to_dict()
+        videos_top_ten = []
+        for key, value in most_popular_videos.items():
+            videos_top_ten.append({
+                'id': key,
+                'count': value,
+                'title': yt_data.clean_video_title(video_titles.get(key))
+            })
+        c['fav_vids_top_ten'] = videos_top_ten
+
         interval_min, interval_max = self.object.get_reference_interval()
         c['wh_int_min_date'] = interval_min
         c['wh_int_max_date'] = interval_max

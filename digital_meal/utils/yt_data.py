@@ -100,6 +100,22 @@ def clean_search_titles(search_history):
     return clean_searches
 
 
+def clean_video_title(video_title):
+    """
+    Delete pre- and postfixes from video titles as exported from Google Takeout.
+    Supports takeouts in German, English, Italian, and French.
+    :param video_title: String with video title as exported by Google.
+    :return: Cleaned video title (string).
+    """
+    prefix_en = '^Watched '
+    prefix_it = '^Hai guardato '
+    prefix_fr = '^Vous avez regardé '
+    postfix_de = ' angesehen$'
+    r = '|'.join([prefix_en, prefix_it, prefix_fr, postfix_de])
+    clean_title = re.sub(r, '', video_title)
+    return clean_title
+
+
 def get_video_title_dict(watch_history):
     """
     Create a dict with Video IDs as keys and video title as value.
