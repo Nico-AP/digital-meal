@@ -149,10 +149,10 @@
     padding-right: 15px;
 }
 
-.white-podium {
-    background: white;
+.blue-podium {
+    background: linear-gradient(0deg, rgb(9, 65, 102) 0%, rgb(62, 125, 232) 62%, rgb(62, 173, 232) 100%);
     font-size: 3rem;
-    color: black;
+    color: white;
 }
 
 .subs-bullet-point {

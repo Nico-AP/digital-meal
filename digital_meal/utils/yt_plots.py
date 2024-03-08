@@ -252,12 +252,10 @@ def get_day_usetime_plot(data):
     return {'script': script, 'div': div}
 
 
-def get_channel_plot(channel_list):
+def get_channel_plot(channel_list, n_channels=20):
     channels = pd.Series(channel_list)
     x_labels = channels.value_counts().keys().to_list()
     y_values = channels.value_counts().values.tolist()
-
-    n_channels = 20
 
     # Create barplot with X most watched channels
     p = figure(

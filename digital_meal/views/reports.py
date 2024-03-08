@@ -173,6 +173,20 @@ class ClassroomReportYouTube(BaseClassroomReport):
 
         # Heatmap "n videos per day per hour"
         c['hours_plot'] = yt_plots.get_day_usetime_plot(wh_combined_dates)
+
+        # Watched channels.
+        channel_sets = []
+        for wh in whs_individual:
+            channel_sets += list(set(yt_data.get_channels_from_history(wh)))
+
+        # Get list of channels that have been watched by at least two people.
+        channel_vc = pd.Series(channel_sets).value_counts()
+        allowed_channels = channel_vc[channel_vc > 1].index.tolist()
+        combined_channels = yt_data.get_channels_from_history(wh_combined)
+        channels_for_plot = [c for c in combined_channels if c in allowed_channels]
+        c['channel_plot'] = yt_plots.get_channel_plot(channels_for_plot)
+        c['n_distinct_channels'] = len(set(combined_channels))
+
         return c
 
     def get_search_context(self, data):
