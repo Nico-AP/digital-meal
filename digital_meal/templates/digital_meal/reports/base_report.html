@@ -25,11 +25,9 @@
   {% block report_header %}
     <div class="position-relative" style="padding-top: 25px;">
       <div class="report-content container">
-        <div class="text-end row">
-          <div class="col">
-            <img alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="70px">
-            <img alt="Data Donation Lab Logo" src="{% static 'digital_meal/img/ddl_logo_black.svg' %}" height="70px">
-            <img alt="UZH Logo" src="{% static 'digital_meal/img/UZH_logo.svg' %}" height="70px">
+        <div class="text-end row justify-content-center">
+          <div class="col-4 col-sm-auto">
+            <img class="report-header-logo" alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}">
           </div>
         </div>
       </div>
@@ -37,24 +35,24 @@
   {% endblock %}
 
   {% block report_intro %}
-    <div class="report-section position-relative" style="padding-top: 25px;">
+  <div class="report-section position-relative" style="padding-top: 25px;">
 
     <div class="report-content container">
-      <div class="row">
-        <div class="row">
-          <h1 class="mt-5 pb-3 col-12 col-lg-8">{% block report_intro_title %}Report Title{% endblock %}</h1>
-        </div>
+          <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+            <h1 class="mt-5 pb-3">{% block report_intro_title %}Report Title{% endblock %}</h1></div>
+          </div>
 
-        <div class="row d-flex flex-row">
-          <div class="pt-3 col-12 col-lg-4">
-            <img alt="Symbolbild Report" src="{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}" height="180px">
+          <div class="row d-flex flex-row">
+            <div class="pt-lg-3 pt-0 col-12 col-lg-4">
+              <img alt="Symbolbild Report" src="{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}" height="180px">
+            </div>
+            <div class="col col-lg-8 d-flex flex-column justify-content-center text-center text-lg-start pt-3 pt-lg-0">
+              {% block report_intro_text %}
+              {% endblock %}
+            </div>
           </div>
-          <div class="col col-lg-8 d-flex flex-column justify-content-center text-center text-lg-start pt-3 pt-lg-0">
-            {% block report_intro_text %}
-            {% endblock %}
-          </div>
-        </div>
-      </div>
+
     </div>
   </div>
   {% endblock %}

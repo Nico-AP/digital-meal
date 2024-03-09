@@ -43,6 +43,10 @@
     font-weight: bold;
 }
 
+.ff-space-grotesk {
+    font-family: Space Grotesk, sans-serif;
+}
+
 .ff-non-serif {
     font-family: Open Sans;
 }

@@ -1,3 +1,55 @@
+/* Report colors */
+.bg-darkyellow { background: #ffc01e; }
+.bg-yellow { background: #ffda3c; }
+.bg-royalblue { background: #465ad9; }
+.bg-darkpurple { background: #3e4a90; }
+.bg-melrose { background: #d0c3ff; }
+.bg-pastelgreen { background: #5cdb95; }
+.bg-ebonyclay { background: #1f2833; }
+.bg-cinnabar { background: #e83e3e; }
+.bg-pictonblue { background: #3ee0e8; }
+
+.bg-grad-blue-1 {
+    background: linear-gradient(270deg, rgb(23, 29, 36) 0%, rgb(36, 52, 71) 10%, rgb(39, 58, 81) 29%, rgb(39, 58, 81) 100%);
+}
+.bg-grad-blue-2 {
+    background: linear-gradient(90deg, rgb(23, 29, 36) 0%, rgb(31, 59, 79) 10%, rgb(33, 75, 105) 29%, rgb(33, 75, 105) 100%);
+}
+
+.bg-grad-red-2 {
+    background: linear-gradient(270deg, rgb(133, 33, 33) 0%, rgb(232, 62, 62) 10%);
+}
+.bg-grad-red-3 {
+    background: linear-gradient(90deg, rgb(133, 33, 33) 0%, rgb(232, 62, 62) 10%);
+}
+
+@media screen and (max-width: 575px) {
+    .bg-grad-red-vert {
+        background: linear-gradient(0deg, rgb(255, 255, 255) 0%, rgb(159, 138, 138) 20%, rgb(133, 33, 33) 20%, rgb(232, 62, 62) 50%) !important;
+    }
+}
+@media screen and (max-width: 992px) {
+    .bg-grad-blue-vert {
+        background: linear-gradient(0deg, rgb(92, 219, 149) 0%, rgb(23, 29, 36) 20%, rgb(31, 59, 79) 20%, rgb(33, 75, 105) 100%) !important;
+    }
+}
+@media screen and (max-width: 992px) {
+    .bg-grad-red-2 {
+        background: linear-gradient(90deg, rgb(133, 33, 33) 0%, rgb(232, 62, 62) 10%);
+    }
+}
+@media screen and (max-width: 575px) {
+    .bg-grad-red-2,
+    .bg-grad-red-3 {
+        background: #e83e3e;
+    }
+}
+
+.text-color-royalblue { color: #465ad9; }
+.text-color-killarney { color: #437158; }
+.text-color-mineshaftgray { color: #393939; }
+.text-color-ebonyclay { color: #1f2833; }
+
 #report {
     text-align: center;
     overflow-y: scroll;
@@ -33,6 +85,15 @@
     line-height: 1.8rem;
 }
 
+.report-header-logo {
+    height: 200px;
+}
+@media screen and (max-width: 575px) {
+    .report-header-logo {
+        max-height: 70px;
+    }
+}
+
 #report .report-section {
     padding: 100px 40px 100px;
     scroll-snap-align: start;
@@ -58,34 +119,6 @@
     line-height: 3rem;
 }
 
-.flash-yellow-background {
-    background-color: #ffda3c;
-}
-.section-green-background {
-    background-color: #5cdb95;
-}
-
-
-.custom-shape-divider-bottom-1691418846 {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    overflow: hidden;
-    line-height: 0;
-}
-
-.custom-shape-divider-bottom-1691418846 svg {
-    position: relative;
-    display: block;
-    width: calc(100% + 1.3px);
-    height: 200px;
-}
-
-.custom-shape-divider-bottom-1691418846 .shape-fill {
-    fill: #ffda3c;
-}
-
 .detailed-use-plot {
     overflow: visible;
 }
@@ -104,10 +137,6 @@
     .fav-video-teaser {
         overflow: hidden;
     }
-}
-
-.searchbar-font {
-    font-size:inherit;
 }
 
 @media screen and (max-width: 992px) {
@@ -149,16 +178,11 @@
     padding-right: 15px;
 }
 
-.blue-podium {
-    background: linear-gradient(0deg, rgb(9, 65, 102) 0%, rgb(62, 125, 232) 62%, rgb(62, 173, 232) 100%);
-    font-size: 3rem;
-    color: white;
-}
-
 .subs-bullet-point {
-    color: black;
+    color: white;
     font-weight: bold;
     font-size: 1.5rem;
+    padding-right: 10px;
 }
 
 .subs-list-prefix {
@@ -171,4 +195,48 @@
 .report-explanation {
     font-size: 0.75rem;
     font-style: italic;
+}
+
+.searchbar {
+    margin-left: 5px;
+    color: #1f2833;
+    border: 1px solid #d2d2d2;
+    border-top-left-radius: 40px;
+    border-bottom-left-radius: 40px;
+    padding: 5px 40px 5px 20px;
+    font-size:inherit;
+}
+@media screen and (max-width: 992px) {
+    .searchbar {
+        font-size: 2vw !important;
+    }
+}
+.searchbar-icon-container {
+    background: #f8f8f8;
+    border-top-right-radius: 40px;
+    border-bottom-right-radius: 40px;
+    border: 1px solid #d2d2d2;
+    padding: 5px 22px 5px 20px;
+}
+@media screen and (max-width: 992px) {
+    .searchbar-icon-container {
+        font-size: 2vw !important;
+    }
+}
+.searchbar-icon {
+    width: 2%;
+}
+
+.red-podium-container {
+    border-bottom: 7px solid black;padding-left: 5px;padding-right: 5px;
+}
+
+@media screen and (max-width: 575px) {
+    .red-podium-col {
+        margin-left: 12px;
+        height: 300px;
+    }
+    .red-podium-container {
+        border-bottom: none;
+    }
 }
