@@ -199,11 +199,13 @@ class ClassroomReportYouTube(BaseClassroomReport):
         n_donations = len(data)
 
         sh_combined = []
+        shs_individual = []
         for entry in data:
-            sh_combined += entry['data']
+            entry = yt_data.exclude_ads_from_search_history(entry['data'])
+            cleaned_entry = yt_data.clean_search_titles(entry)
+            sh_combined += cleaned_entry
+            shs_individual.append(cleaned_entry)
 
-        sh_combined = yt_data.exclude_ads_from_search_history(sh_combined)
-        sh_combined = yt_data.clean_search_titles(sh_combined)
         sh_combined_ids = yt_data.get_video_ids(sh_combined)
         c['n_searches_overall'] = len(sh_combined)
         c['n_searches_unique_overall'] = len(set(sh_combined_ids))
@@ -219,7 +221,17 @@ class ClassroomReportYouTube(BaseClassroomReport):
         c['n_search_unique_interval'] = len(set(sh_interval_ids))
         c['n_search_mean_interval'] = len(sh_interval) / n_donations
 
-        c['search_plot'] = yt_plots.get_searches_plot(sh_combined)
+        # For search plot, only use search terms that are used by at least 2 people.
+        terms_combined = [t['title'] for t in sh_combined]
+        terms_individual = [[t['title'] for t in sh] for sh in shs_individual]
+
+        sh_sets = []
+        for sh in terms_individual:
+            sh_sets += list(set(sh))
+        sh_vc = pd.Series(sh_sets).value_counts()
+        allowed_terms = sh_vc[sh_vc > 1].index.tolist()
+        terms_for_plot = [t for t in terms_combined if t in allowed_terms]
+        c['search_plot'] = yt_plots.get_searches_plot(terms_for_plot)
         return c
 
     def get_subs_context(self, data):

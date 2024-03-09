@@ -293,8 +293,8 @@ def get_channel_plot(channel_list, n_channels=20):
     return {'script': script, 'div': div}
 
 
-def get_searches_plot(search_history):
-    search_terms = pd.Series([t['title'] for t in search_history])
+def get_searches_plot(search_term_list):
+    search_terms = pd.Series(search_term_list)
     y_labels = search_terms.value_counts().keys().to_list()
     x_values = search_terms.value_counts().values.tolist()
 
@@ -330,7 +330,7 @@ def get_searches_plot(search_history):
         x_values,
         y_labels,
         size=20,
-        fill_color='#66fcf1',
+        fill_color='#3ee0e8',
         line_color='#e83e3e',
         line_width=2,
         angle=-1.5708

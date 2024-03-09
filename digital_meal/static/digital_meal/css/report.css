@@ -167,3 +167,8 @@
     color: black;
     font-weight: bold;
 }
+
+.report-explanation {
+    font-size: 0.75rem;
+    font-style: italic;
+}

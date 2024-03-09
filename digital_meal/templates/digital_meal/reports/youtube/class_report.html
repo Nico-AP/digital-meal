@@ -132,9 +132,8 @@
 <div class="section-container">
   <div class="report-section flex-column section-green-background overflow-hidden">
 
-    <div class="col pb-5 align-content-stretch pt-5">
+    <div class="col pb-2 align-content-stretch">
       <h2>Die beliebtesten Videos in eurer Klasse sind...</h2>
-      <p>Die folgenden Videos haben am meisten von euch gesehen:</p>
     </div>
 
     <div class="row">
@@ -155,6 +154,8 @@
       </div>
     </div>
 
+    <p class="report-explanation pt-5 mb-0" style="color: #437158;">Es werden diejenigen Videos angezeigt, welche bei den meisten von euch im Wiedergabeverlauf erscheinen.</p>
+
   </div>
 </div>
 
@@ -164,18 +165,18 @@
 <div class="section-container">
 
   <div class="report-section" style="background-color: #e83e3e">
-    <div class="report-content" style="color: white">
+    <div class="report-content text-white">
       <h2>Die beliebtesten YouTube-Kanäle</h2>
 
       <div>
         <p>
-            <span style="background: #1f2833; color: white; padding-left: 5px; padding-right: 5px;">Ihr habt euch Videos von <b class="font-size-highlight" style="color: #1f2833; background: white; padding-left: 5px; padding-right: 5px;">{{ n_distinct_channels }}</b> verschiedenen <b class="font-size-highlight" style="color: #1f2833; background: white; padding-left: 5px; padding-right: 5px;">YouTube-Kanälen</b> angeschaut.</span>
+            <span style="background: #1f2833; padding-left: 5px; padding-right: 5px;">Ihr habt euch Videos von <b class="font-size-highlight bg-white" style="color: #1f2833; padding-left: 5px; padding-right: 5px;">{{ n_distinct_channels }}</b> verschiedenen <b class="font-size-highlight" style="color: #1f2833; background: white; padding-left: 5px; padding-right: 5px;">YouTube-Kanälen</b> angeschaut.</span>
         </p>
         <p>
-            <span style="background: #1f2833; color: white; padding-left: 5px; padding-right: 5px;">In dieser Grafik seht ihr die 20 Kanäle, von denen ihr euch am meisten
+            <span style="background: #1f2833; padding-left: 5px; padding-right: 5px;">In dieser Grafik seht ihr die 20 Kanäle, von denen ihr euch am meisten
             Videos angesehen habt.</span>
         </p>
-        <p style="font-size: 0.8rem;"><i>Es werden nur Kanäle berücksichtigt, die von mindestens 2 Personen in der Klasse angeschaut wurden.</i></p>
+        <p class="report-explanation"><i>Es werden nur Kanäle berücksichtigt, die von mindestens 2 Personen in der Klasse angeschaut wurden.</i></p>
       </div>
       <div class="d-flex justify-content-center pt-5">{{ channel_plot.div | safe }}</div>
     </div>
@@ -192,32 +193,37 @@
     <div class="report-content">
       <h2>Die meist <span style="text-decoration: underline #e83e3e  10px;">abonnierten YouTube-Kanäle</span> eurer Klasse</h2>
 
-      <div class="text-start">
-        <p><span class="subs-bullet-point">⦁</span> Insgesamt habt ihr in eurer Klasse <span style="font-weight: bold;">{{ n_subs_unique }} unterschiedliche Kanäle</span> abonniert.</p>
-        <p><span class="subs-bullet-point">⦁</span> <b>Im Schnitt</b> folgt ihr <b>{{ n_subs_mean|floatformat:"0" }} Kanälen</b>.</p>
-        <p><span class="subs-bullet-point">⦁</span> <b>{{ n_subs_multiple }}</b> Kanäle sind <b>von mehr als einer Person</b> abonniert.</p>
-        <p class="pt-5"><span style="color: black;background: white;padding: 5px;font-weight: bold;">Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</span></p>
+      <div class="text-start ms-5 me-5 row">
+        <div class="d-none d-lg-block col-2"></div>
+        <div class="col-12 col-lg-8 p-3 text-white" style="background-color: #e83e3e;">
+          <p><span class="subs-bullet-point">⦁</span> Insgesamt habt ihr in eurer Klasse <span class="fw-bold">{{ n_subs_unique }} unterschiedliche Kanäle</span> abonniert.</p>
+          <p><span class="subs-bullet-point">⦁</span> <b>Im Schnitt</b> folgt ihr <b>{{ n_subs_mean|floatformat:"0" }} Kanälen</b>.</p>
+          <p><span class="subs-bullet-point">⦁</span> <b>{{ n_subs_multiple }}</b> Kanäle sind <b>von mehr als einer Person</b> abonniert.</p>
+        </div>
+        <div class="d-none d-lg-block col-2"></div>
       </div>
 
-      <div class="row">
-        <div class="col-12 col-lg-8">
-          <div class="row">
+      <p class="pt-5 mb-0"><span class="text-black bg-white fw-bold" style="padding: 5px;">Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</span></p>
+
+      <div class="row align-items-end mt-0 bg-white" style="border: 15px solid white;">
+        <div class="col-12 col-lg-8 d-flex align-items-end">
+          <div class="row align-items-end w-100"> <!-- d-flex flex-column -->
 
             {% for key, value in most_popular_channels.items %}
             {% if forloop.counter == 2 %}
-            <div class="col-12 col-lg-4 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+            <div class="col-12 col-sm-4 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
               <div class="podium-title">{{ key }}</div>
               <div class="blue-podium" style="height: 160px; background: linear-gradient(270deg, rgb(133, 33, 33) 0%, rgb(232, 62, 62) 10%);"><b>2</b></div>
             </div>
 
             {% elif forloop.counter == 1 %}
-            <div class="col-12 col-lg-4 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+            <div class="col-12 col-sm-4 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
               <div class="podium-title">{{ key }}</div>
               <div class="blue-podium" style="height: 200px; background: linear-gradient(0deg, rgb(232, 62, 62) 0%, rgb(232, 62, 62) 50%);"><b>1</b></div>
             </div>
 
             {% elif forloop.counter == 3 %}
-            <div class="col-12 col-lg-4 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+            <div class="col-12 col-sm-4 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
               <div class="podium-title">{{ key }}</div>
               <div class="blue-podium" style="height: 120px; background: linear-gradient(90deg, rgb(133, 33, 33) 0%, rgb(232, 62, 62) 10%);"><b>3</b></div>
             </div>
@@ -227,11 +233,11 @@
           </div>
         </div>
 
-        <div class="col-12 col-lg-4 pt-5 text-start" style="padding-left: 50px;">
+        <div class="col-12 col-lg-4 text-start pt-lg-0 pt-5" style="padding-left: 50px;">
           <h4>Plätze 4 bis 10</h4>
           {% for key, value in most_popular_channels.items %}
           {% if forloop.counter > 3 %}
-          <p><span class="subs-list-prefix">{{ forloop.counter|add:"1" }}</span>{{ key }}</p>
+          <p><span class="subs-list-prefix">{{ forloop.counter }}</span>{{ key }}</p>
           {% endif %}
           {% endfor %}
         </div>
@@ -247,15 +253,15 @@
 <!-- SEARCHES -->
 {% if n_searches_overall > 0 %}
 
-<!-- TODO: Mindestens von 2 Personen mit gestemmtem approach. -->
+<!-- TODO: Stemming approach. -->
 <div class="section-container">
 
-  <div class="report-section" style="background: #1F2833; color: white">
+  <div class="report-section text-white" style="background: #1F2833;">
     <div class="report-content">
       <h2>Nach was ihr in der Klasse gesucht habt</h2>
 
       <p>
-        <span class="font-size-highlight searchbar-font" style="margin-left: 5px; color: #1f2833; border: 1px solid #d2d2d2;  background: white; border-top-left-radius: 40px; border-bottom-left-radius: 40px; padding: 5px 40px 5px 20px;"><b>Ihr habt im Schnitt <span style="border-bottom: 3px solid #66fcf1;">{{ n_searches_mean_overall|floatformat:"0" }} Suchen</span> durchgeführt</b></span><span class="font-size-highlight searchbar-font" style="margin-right: 5px; background: #f8f8f8; border-top-right-radius: 40px; border-bottom-right-radius: 40px; border: 1px solid #d2d2d2;padding: 5px 22px 5px 20px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" style="color: #393939;margin-bottom: 5px;">
+        <span class="font-size-highlight searchbar-font bg-white" style="margin-left: 5px; color: #1f2833; border: 1px solid #d2d2d2;  border-top-left-radius: 40px; border-bottom-left-radius: 40px; padding: 5px 40px 5px 20px;"><b>Ihr habt im Schnitt <span style="border-bottom: 3px solid #3ee0e8;">{{ n_searches_mean_overall|floatformat:"0" }} Suchen</span> durchgeführt</b></span><span class="font-size-highlight searchbar-font" style="margin-right: 5px; background: #f8f8f8; border-top-right-radius: 40px; border-bottom-right-radius: 40px; border: 1px solid #d2d2d2;padding: 5px 22px 5px 20px;"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16" style="color: #393939;margin-bottom: 5px;">
   <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
 </svg></span>
       </p>
