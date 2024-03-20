@@ -5,7 +5,7 @@ Guten Tag
 {% block content %}{% endblock %}
 
 Beste Grüsse
-Digital Meal Team
+Das Digital Meal Team
 
 -- Diese Nachricht wurde automatisch generiert und versendet. --
 {% endautoescape %}
