@@ -62,7 +62,121 @@ class BaseClassroomReport(DDMReport, DetailView):
             return {}
 
 
-class ClassroomReportYouTube(BaseClassroomReport):
+class BaseIndividualReport(DDMReport, DetailView):
+    """ Base class to generate an individual report. """
+    model = Classroom
+    template_name = 'digital_meal/reports/youtube/individual_report.html'
+
+    def setup(self, request, *args, **kwargs):
+        return super().setup(request, *args, **kwargs)
+
+    def get_endpoint(self):
+        return self.object.track.ddm_api_endpoint
+
+    def get_token(self):
+        return self.object.track.ddm_api_token
+
+    def get_payload(self):
+        payload = {'participant_id': self.kwargs.get('participant_id')}
+        return payload
+
+
+class BaseYouTubeReport:
+
+    @staticmethod
+    def add_wh_timeseries_plots_to_context(context, date_list, min_date, max_date):
+        dates_days = yt_data.get_summary_counts_per_date(date_list, 'd', 'mean')
+        context['dates_plot_days'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_days), date_min=min_date, date_max=max_date)
+
+        dates_weeks = yt_data.get_summary_counts_per_date(date_list, 'w', 'mean')
+        context['dates_plot_weeks'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_weeks), bin_width=7, date_min=min_date, date_max=max_date)
+
+        dates_months = yt_data.get_summary_counts_per_date(date_list, 'w', 'mean')
+        context['dates_plot_months'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_months), bin_width=30, date_min=min_date, date_max=max_date)
+
+        dates_years = yt_data.get_summary_counts_per_date(date_list, 'y', 'mean')
+        context['dates_plot_years'] = yt_plots.get_timeseries_plot(
+            pd.Series(dates_years), bin_width=365, date_min=min_date, date_max=max_date)
+        return context
+
+    @staticmethod
+    def add_wh_date_infos_to_context(context, date_list):
+        context['wh_dates_min'] = min(date_list)
+        context['wh_dates_max'] = max(date_list)
+        context['wh_date_range'] = max(date_list) - min(date_list)
+        return context
+
+    @staticmethod
+    def add_favorite_videos_to_context(context, watch_history, video_ids):
+        video_titles = yt_data.get_video_title_dict(watch_history)
+        most_popular_videos = pd.Series(video_ids).value_counts()[:10].to_dict()
+        videos_top_ten = []
+        for key, value in most_popular_videos.items():
+            videos_top_ten.append({
+                'id': key,
+                'count': value,
+                'title': yt_data.clean_video_title(video_titles.get(key))
+            })
+        context['fav_vids_top_ten'] = videos_top_ten
+        return context
+
+    def add_wh_statistics_to_context(self, context, watch_history, video_ids, n_donations=1, ):
+        # Statistics overall
+        context['n_vids_overall'] = len(watch_history)
+        context['n_vids_unique_overall'] = len(set(video_ids))
+        context['n_vids_mean_overall'] = len(watch_history) / n_donations
+        context['n_vids_per_day']: round((len(watch_history) / context['wh_date_range'].days), 2)
+
+        # Statistics interval
+        interval_min, interval_max = self.object.get_reference_interval()
+        context['wh_int_min_date'] = interval_min
+        context['wh_int_max_date'] = interval_max
+        wh_interval = yt_data.get_entries_in_date_range(
+            watch_history, interval_min, interval_max)
+        wh_interval_ids = yt_data.get_video_ids(wh_interval)
+        context['n_vids_interval'] = len(wh_interval)
+        context['n_vids_unique_interval'] = len(set(wh_interval_ids))
+        context['n_vids_mean_interval'] = len(wh_interval) / n_donations
+        return context
+
+    @staticmethod
+    def add_wh_plots_to_context(context, date_list):
+        context['weekday_use_plot'] = yt_plots.get_weekday_use_plot(date_list)
+        context['hours_plot'] = yt_plots.get_day_usetime_plot(date_list)
+        return context
+
+    @staticmethod
+    def add_wh_channel_info_to_context(context, channels, channels_for_plot=None):
+        if channels_for_plot is None:
+            channels_for_plot = channels
+        context['channel_plot'] = yt_plots.get_channel_plot(channels_for_plot)
+        context['n_distinct_channels'] = len(set(channels))
+        return context
+
+    def add_sh_statistics_to_context(self, context, search_history, n_donations=1):
+        # Statistics overall
+        context['n_searches_overall'] = len(search_history)
+        context['n_searches_mean_overall'] = len(search_history) / n_donations
+
+        # Statistics interval
+        interval_min, interval_max = self.object.get_reference_interval()
+        context['sh_int_min_date'] = interval_min
+        context['sh_int_max_date'] = interval_max
+        sh_interval = yt_data.get_entries_in_date_range(search_history, interval_min, interval_max)
+        context['n_search_interval'] = len(sh_interval)
+        context['n_search_mean_interval'] = len(sh_interval) / n_donations
+        return context
+
+    @staticmethod
+    def add_sh_plot_to_context(context, search_terms):
+        context['search_plot'] = yt_plots.get_searches_plot(search_terms)
+        return context
+
+
+class ClassroomReportYouTube(BaseClassroomReport, BaseYouTubeReport):
     """ Classroom report for the YouTube data. """
     model = Classroom
     template_name = 'digital_meal/reports/youtube/class_report.html'
@@ -84,15 +198,21 @@ class ClassroomReportYouTube(BaseClassroomReport):
 
         # Watch history (wh)
         print(f'Started to generate Watch History Report: {datetime.datetime.now()}')
-        context.update(self.get_watch_context(data['donations']['Angesehene Videos']))
+        watch_history_id = 'Angesehene Videos'
+        if watch_history_id in data['donations'].keys():
+            context.update(self.get_watch_context(data['donations'][watch_history_id]))
 
         # Search history (sh)
         print(f'Started to generate Search History Report: {datetime.datetime.now()}')
-        context.update(self.get_search_context(data['donations']['Suchverlauf']))
+        search_history_id = 'Suchverlauf'
+        if search_history_id in data['donations'].keys():
+            context.update(self.get_search_context(data['donations'][search_history_id]))
 
         # Subscribed channels (sc)
         print(f'Started to generate Subscription Report: {datetime.datetime.now()}')
-        context.update(self.get_subs_context(data['donations']['Abonnierte Kanäle']))
+        subscription_id = 'Abonnierte Kanäle'
+        if subscription_id in data['donations'].keys():
+            context.update(self.get_subs_context(data['donations'][subscription_id]))
 
         n_donations = [len(v) for k, v in data['donations'].items() if v is not None]
         context['n_participants'] = max(n_donations)
@@ -103,90 +223,36 @@ class ClassroomReportYouTube(BaseClassroomReport):
         if data is None:
             c['wh_available'] = False
             return c
-
         c['wh_available'] = True
-        n_donations = len(data)
 
+        n_donations = len(data)
         whs_individual = [yt_data.exclude_google_ads_videos(e['data']) for e in data]
         wh_combined = []
         for wh in whs_individual:
             wh_combined += wh
-
         wh_combined_ids = yt_data.get_video_ids(wh_combined)
-        c['n_vids_overall'] = len(wh_combined)
-        c['n_vids_unique_overall'] = len(set(wh_combined_ids))
-        c['n_vids_mean_overall'] = len(wh_combined) / n_donations
+        wh_combined_dates = yt_data.get_date_list(wh_combined)
+        self.add_wh_date_infos_to_context(c,  wh_combined_dates)
+        self.add_wh_statistics_to_context(c, wh_combined, wh_combined_ids, n_donations)
 
         wh_combined_ids_sets = []
         for wh in whs_individual:
             wh_ids = yt_data.get_video_ids(wh)
             wh_combined_ids_sets += list(set(wh_ids))
-
-        video_titles = yt_data.get_video_title_dict(wh_combined)
-        most_popular_videos = pd.Series(wh_combined_ids_sets).value_counts()[:10].to_dict()
-        videos_top_ten = []
-        for key, value in most_popular_videos.items():
-            videos_top_ten.append({
-                'id': key,
-                'count': value,
-                'title': yt_data.clean_video_title(video_titles.get(key))
-            })
-        c['fav_vids_top_ten'] = videos_top_ten
-
-        interval_min, interval_max = self.object.get_reference_interval()
-        c['wh_int_min_date'] = interval_min
-        c['wh_int_max_date'] = interval_max
-        wh_interval = yt_data.get_entries_in_date_range(wh_combined, interval_min, interval_max)
-
-        wh_interval_ids = yt_data.get_video_ids(wh_interval)
-        c['n_vids_interval'] = len(wh_interval)
-        c['n_vids_unique_interval'] = len(set(wh_interval_ids))
-        c['n_vids_mean_interval'] = len(wh_interval) / n_donations
-
-        # Barplot "n videos over time" - y: n_videos, x: dates
+        self.add_favorite_videos_to_context(c, wh_combined, wh_combined_ids_sets)
         whs_individual_dates = [yt_data.get_date_list(wh) for wh in whs_individual]
-        wh_combined_dates = yt_data.get_date_list(wh_combined)
-        min_date = min(wh_combined_dates)
-        max_date = max(wh_combined_dates)
 
-        dates_days = yt_data.get_summary_counts_per_date(whs_individual_dates, 'd', 'mean')
-        c['dates_plot_days'] = yt_plots.get_timeseries_plot(
-            pd.Series(dates_days), date_min=min_date, date_max=max_date)
+        self.add_wh_timeseries_plots_to_context(c, whs_individual_dates, c['wh_dates_min'], c['wh_dates_max'])
+        self.add_wh_plots_to_context(c, wh_combined_dates)
 
-        dates_weeks = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'mean')
-        c['dates_plot_weeks'] = yt_plots.get_timeseries_plot(
-            pd.Series(dates_weeks), bin_width=7, date_min=min_date, date_max=max_date)
-
-        dates_months = yt_data.get_summary_counts_per_date(whs_individual_dates, 'w', 'mean')
-        c['dates_plot_months'] = yt_plots.get_timeseries_plot(
-            pd.Series(dates_months), bin_width=30, date_min=min_date, date_max=max_date)
-
-        dates_years = yt_data.get_summary_counts_per_date(whs_individual_dates, 'y', 'mean')
-        c['dates_plot_years'] = yt_plots.get_timeseries_plot(
-            pd.Series(dates_years), bin_width=365, date_min=min_date, date_max=max_date)
-
-        c['wh_dates_min'] = min_date
-        c['wh_dates_max'] = max_date
-
-        # Barplot "n videos per weekday" - y: n_videos, x: weekdays
-        c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(wh_combined_dates)
-
-        # Heatmap "n videos per day per hour"
-        c['hours_plot'] = yt_plots.get_day_usetime_plot(wh_combined_dates)
-
-        # Watched channels.
         channel_sets = []
         for wh in whs_individual:
             channel_sets += list(set(yt_data.get_channels_from_history(wh)))
-
-        # Get list of channels that have been watched by at least two people.
         channel_vc = pd.Series(channel_sets).value_counts()
         allowed_channels = channel_vc[channel_vc > 1].index.tolist()
         combined_channels = yt_data.get_channels_from_history(wh_combined)
         channels_for_plot = [c for c in combined_channels if c in allowed_channels]
-        c['channel_plot'] = yt_plots.get_channel_plot(channels_for_plot)
-        c['n_distinct_channels'] = len(set(combined_channels))
-
+        self.add_wh_channel_info_to_context(c, combined_channels, channels_for_plot)
         return c
 
     def get_search_context(self, data):
@@ -194,10 +260,9 @@ class ClassroomReportYouTube(BaseClassroomReport):
         if data is None:
             c['sh_available'] = False
             return c
-
         c['sh_available'] = True
-        n_donations = len(data)
 
+        n_donations = len(data)
         sh_combined = []
         shs_individual = []
         for entry in data:
@@ -206,20 +271,7 @@ class ClassroomReportYouTube(BaseClassroomReport):
             sh_combined += cleaned_entry
             shs_individual.append(cleaned_entry)
 
-        sh_combined_ids = yt_data.get_video_ids(sh_combined)
-        c['n_searches_overall'] = len(sh_combined)
-        c['n_searches_unique_overall'] = len(set(sh_combined_ids))
-        c['n_searches_mean_overall'] = len(sh_combined) / n_donations
-
-        interval_min, interval_max = self.object.get_reference_interval()
-        c['sh_int_min_date'] = interval_min
-        c['sh_int_max_date'] = interval_max
-        sh_interval = yt_data.get_entries_in_date_range(sh_combined, interval_min, interval_max)
-
-        sh_interval_ids = yt_data.get_video_ids(sh_interval)
-        c['n_search_interval'] = len(sh_interval)
-        c['n_search_unique_interval'] = len(set(sh_interval_ids))
-        c['n_search_mean_interval'] = len(sh_interval) / n_donations
+        self.add_sh_statistics_to_context(c, sh_combined, n_donations)
 
         # For search plot, only use search terms that are used by at least 2 people.
         terms_combined = [t['title'] for t in sh_combined]
@@ -231,7 +283,8 @@ class ClassroomReportYouTube(BaseClassroomReport):
         sh_vc = pd.Series(sh_sets).value_counts()
         allowed_terms = sh_vc[sh_vc > 1].index.tolist()
         terms_for_plot = [t for t in terms_combined if t in allowed_terms]
-        c['search_plot'] = yt_plots.get_searches_plot(terms_for_plot)
+
+        self.add_sh_plot_to_context(c, terms_for_plot)
         return c
 
     def get_subs_context(self, data):
@@ -274,82 +327,58 @@ class ClassroomReportYouTube(BaseClassroomReport):
         return c
 
 
-class BaseIndividualReport(DDMReport, DetailView):
-    """ Base class to generate an individual report. """
-    template_name = 'digital_meal/reports/youtube/individual_report.html'
-    model = Classroom
-    participant_id = None
-    project_id = None
-
-    def setup(self, request, *args, **kwargs):
-        return super().setup(request, *args, **kwargs)
-
-    def get_endpoint(self):
-        return self.object.track.ddm_api_endpoint
-
-    def get_token(self):
-        return self.object.track.ddm_api_token
-
-    def get_payload(self):
-        payload = {'participant_id': self.kwargs.get('participant_id')}
-        return payload
-
-
-class IndividualReportYouTube(BaseIndividualReport):
+class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
     """ Base class to generate an individual report for the YouTube data. """
     template_name = 'digital_meal/reports/youtube/individual_report.html'
 
     def get_endpoint(self):
         kwargs = {'pk': self.object.pk}
-        return self.request.build_absolute_uri(reverse_lazy('individual-data-api', kwargs=kwargs))
+        return self.request.build_absolute_uri(reverse_lazy('individual_data_api', kwargs=kwargs))
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
 
-        # These are the names of the ddm-blueprint.
-        watch_history_id = 'Angesehene Videos'
-        search_history_id = 'Suchverlauf'
-
         # Watch history
+        watch_history_id = 'Angesehene Videos'
+
+        # TODO: Add check for no donations available.
+
         if watch_history_id in data['donations'].keys():
             context.update(self.get_watch_context(data['donations'][watch_history_id]))
 
         # Search history (sh)
+        search_history_id = 'Suchverlauf'
         if search_history_id in data['donations'].keys():
             context.update(self.get_search_context(data['donations'][search_history_id]))
+
+        # Subscribed channels (sc)
+        subscription_id = 'Abonnierte Kanäle'
+        if subscription_id in data['donations'].keys():
+            context.update(self.get_subs_context(data['donations'][subscription_id]))
 
         return context
 
     def get_watch_context(self, data):
         c = {}  # c = context
         if data is None:
-            c['watch_available'] = False
+            c['wh_available'] = False
             return c
+        c['wh_available'] = True
 
-        c['watch_available'] = True
-        watched_videos = yt_data.exclude_google_ads_videos(data['data'])
+        wh = yt_data.exclude_google_ads_videos(data['data'])
+        wh_ids = yt_data.get_video_ids(wh)
 
-        dates = yt_data.get_date_list(watched_videos)
-        date_range = max(dates) - min(dates)
-        c['date_first'] = min(dates)
-        c['date_last'] = max(dates)
-        c['dates_plot'] = yt_plots.get_timeseries_plot(dates)
-        c['weekday_use_plot'] = yt_plots.get_weekday_use_plot(dates)
-        c['hours_plot'] = yt_plots.get_day_usetime_plot(dates)
+        wh_dates = yt_data.get_date_list(wh)
+        self.add_wh_date_infos_to_context(c, wh_dates)
+        self.add_wh_statistics_to_context(c, wh, wh_ids)
+        self.add_favorite_videos_to_context(c, wh, wh_ids)
+        self.add_wh_timeseries_plots_to_context(c, [wh_dates], c['wh_dates_min'], c['wh_dates_max'])
+        self.add_wh_plots_to_context(c, wh_dates)
 
-        n_videos_total = len(watched_videos)
-        c['n_videos_total'] = n_videos_total
-        c['n_videos_mean']: round((n_videos_total / date_range.days), 2)
-
-        video_titles = yt_data.get_video_title_dict(watched_videos)
-        fav_video = yt_data.get_most_watched_video(watched_videos)
-        fav_video['title'] = video_titles.get(fav_video['id'])
-        c['fav_video'] = fav_video
-
-        channels = yt_data.get_channels_from_history(watched_videos)
-        c['n_distinct_channels'] = len(set(channels))
-        c['channel_plot'] = yt_plots.get_channel_plot(channels)
+        # Watched channels
+        channels = yt_data.get_channels_from_history(wh)
+        self.add_wh_channel_info_to_context(c, channels)
         return c
 
     def get_search_context(self, data):
@@ -357,15 +386,11 @@ class IndividualReportYouTube(BaseIndividualReport):
         if data is None:
             c['search_available'] = False
             return c
-
         c['search_available'] = True
-        searches = yt_data.exclude_google_ads_videos(data['data'])
 
-        search_dates = yt_data.get_date_list(searches)
-        search_terms = yt_data.get_search_term_frequency(searches, 15)
+        sh = yt_data.exclude_google_ads_videos(data['data'])
+        self.add_sh_statistics_to_context(c, sh)
+        search_terms = [t['title'] for t in sh]
 
-        c['date_first_search'] = min(search_dates)
-        c['n_searches'] = len(searches)
-        c['searches'] = search_terms
-        c['search_plot'] = yt_plots.get_searches_plot(searches)
+        self.add_sh_plot_to_context(c, search_terms)
         return c
