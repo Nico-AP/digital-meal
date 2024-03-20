@@ -12,7 +12,6 @@
 <p class="fs-4 mt-0 ff-space-grotesk">Der Report basiert aktuell auf den Daten von {{ n_participants }} Schüler:innen.</p>
 {% endblock %}
 
-
 {% block report_body %}
 
 <!-- NUTZUNGSINTENSITÄT -->
@@ -117,7 +116,7 @@
         </p>
       </div>
       <div class="col-12 col-lg-7 detailed-use-plot">
-        <!-- TODO: Berechnungsgrundlage Median -->
+        <!-- TODO: Berechnungsgrundlage Mean -->
         <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
         <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
       </div>
