@@ -86,13 +86,20 @@
       (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
     </p>
 
-    <p class="text-center">
-      <!-- TODO: Add button "Copy Link"/"Per Mail versenden"/"Per Teams"(?) -->
+    <div class="text-center position-relative" onclick="copyLinkToClipboard()" style="cursor: pointer;">
       {% with object.class_id|stringformat:"s" as class_id %}
         {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
           {% qr_from_text participation_url size="M" %}
+          <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
         {% endwith %}
       {% endwith %}
+      <div id="copydisclaimer" class="text-center w-100 position-absolute top-50" style="display: none;">
+        <span class="p-1 ps-3 pe-3 fw-bold background-green fs-5 text-black rounded">Link kopiert</span>
+      </div>
+    </div>
+
+    <p>
+      Mit einem Klick auf den QR-Code wird der Teilnahmelink in die Zwischenablage kopiert.
     </p>
 
   </div>
@@ -152,3 +159,19 @@
 </div>
 
 {% endblock main_content %}
+
+{% block site_js %}
+{{ block.super }}
+
+<script>
+  function copyLinkToClipboard() {
+    let participationLink = document.getElementById("teilnahmelink").value;
+    navigator.clipboard.writeText(participationLink);
+    $('#copydisclaimer').show();
+    setTimeout(function() {
+       $('#copydisclaimer').fadeOut();
+    }, 330);
+  }
+</script>
+
+{% endblock %}
