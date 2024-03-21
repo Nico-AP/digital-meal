@@ -219,6 +219,7 @@ class ClassroomReportYouTube(BaseClassroomReport, BaseYouTubeReport):
         return context
 
     def get_watch_context(self, data):
+        # TODO: Move this to the class level -> optimize the times these statistics are computed.
         c = {}  # c = context
         if data is None:
             c['wh_available'] = False
