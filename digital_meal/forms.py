@@ -70,14 +70,14 @@ class ClassroomCreateForm(forms.ModelForm):
         model = Classroom
         fields = [
             'name', 'school_level', 'school_year', 'subject',
-            'instruction_format'
+            'instruction_format', 'agb_agree'
         ]
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': 'Name/Bezeichnung der Klasse'}),
             'track': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'school_level': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'subject': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
-            'instruction_format': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'})
+            'instruction_format': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
         }
         labels = {
             'school_level': 'Zu welcher Schulstufe gehört die Klasse?',
@@ -85,6 +85,22 @@ class ClassroomCreateForm(forms.ModelForm):
             'subject': 'In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?',
             'instruction_format': 'In welchem Format unterrichten Sie die Klasse?'
         }
+        # TODO: Optimize help text and add link.
+        help_texts = {
+            'agb_agree': 'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
+                         'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die Datenschutzbestimmungen '
+                         '<LINK WIRD ERGÄNZT> gelesen habe und damit einverstanden bin.'
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        agb_agreed = cleaned_data.get('agb_agree')
+        if not agb_agreed:
+            self.add_error(
+                'agb_agree',
+                'Sie müssen bestätigen, dass Sie die Nutzungsbedingungen '
+                'gelesen haben und mit ihnen einverstanden sind.'
+            )
 
 
 class ClassroomTrackForm(forms.ModelForm):

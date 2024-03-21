@@ -136,6 +136,12 @@ class Classroom(models.Model):
         choices=InstructionFormats.choices,
         verbose_name='Unterrichtsformat'
     )
+    agb_agree = models.BooleanField(
+        null=False,
+        blank=False,
+        default=False,
+        verbose_name='AGBs akzeptiert'
+    )
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
 
