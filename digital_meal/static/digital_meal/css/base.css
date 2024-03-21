@@ -84,13 +84,27 @@
 
 @media screen and (min-width: 992px) {
     .main-content {
-        padding-left: 80px;
-        padding-right: 80px;
+        padding-left: 160px;
+        padding-right: 160px;
+    }
+    .main-content-tool {
+        padding-left: 30px;
+        padding-right: 30px;
     }
 }
 
-p, ol, ul {
+.main-content p,
+.main-content ol,
+.main-content ul {
+    line-height: 1.8rem;
+    font-size: 1.1rem;
+}
+
+.main-content-tool p,
+.main-content-tool ol,
+.main-content-tool ul {
     line-height: 1.7rem;
+    font-size: 1rem;
 }
 
 button,
@@ -113,6 +127,14 @@ input[type="submit"]:hover {
 
 .h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6 {
     font-family: Space Grotesk, sans-serif;
+}
+.main-content h2,
+.main-content h3,
+.main-content h4,
+.main-content h5,
+.main-content h6 {
+    font-family: Space Grotesk, sans-serif;
+    margin-top: 30px;
 }
 
 a,
@@ -171,9 +193,10 @@ form input[type="password"],
 form input[type="number"]{
     background: rgba(191, 226, 224, 0.4);
     border: 2px solid white;
-    padding: 5px;
+    padding: 7px;
     width: 40%;
     min-width: 300px;
+    font-family: Open Sans, sans-serif;
 }
 
 form input:focus {
@@ -184,7 +207,8 @@ form input:focus {
 form select {
     background: #e5f3f3;
     border: 2px solid white;
-    padding: 5px;
+    padding: 7px;
+    font-family: Open Sans, sans-serif;
 }
 
 form .select-items {
@@ -193,19 +217,22 @@ form .select-items {
     border: 1px solid transparent;
     border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
     cursor: pointer;
+    font-family: Open Sans, sans-serif;
 }
 
 form .helptext {
     font-size: 0.9rem;
     padding-left: 5px;
+    font-family: Open Sans, sans-serif;
 }
 
 .dm-form .errorlist {
-    color: darkred;
+    color: #b00000;
     margin-bottom: 0 !important;
     margin-top: 30px !important;
     list-style-type: none;
     padding: 0;
+    font-family: Open Sans, sans-serif;
 }
 
 .dm-alert {

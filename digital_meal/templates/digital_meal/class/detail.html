@@ -8,7 +8,7 @@
 
 <h1 class="mb-3">Klasse "{{ object.name }}"</h1>
 
-<div class="row">
+<div class="row ff-non-serif">
 
   <div class="col m-3 p-3 background-green">
     <h4>
@@ -17,30 +17,30 @@
     </h4>
 
     <table>
-      <tbody>
+      <tbody class="align-baseline">
       <tr>
-        <td class="pe-5">Klassenbezeichnung:</td>
-        <td>{{ object.name }}</td>
+        <td class="pe-3 fw-bold">Klassenbezeichnung:</td>
+        <td class="pb-2">{{ object.name }}</td>
       </tr>
       <tr>
-        <td>Erstellt am:</td>
-        <td>{{ object.date_created }}</td>
+        <td class="pe-3 fw-bold">Erstellt am:</td>
+        <td class="pb-2">{{ object.date_created }}</td>
       </tr>
       <tr>
-        <td>Schulstufe:</td>
-        <td>{{ object.get_school_level_display }}</td>
+        <td class="pe-3 fw-bold">Schulstufe:</td>
+        <td class="pb-2">{{ object.get_school_level_display }}</td>
       </tr>
       <tr>
-        <td>Schuljahr:</td>
-        <td>{{ object.school_year }}</td>
+        <td class="pe-3 fw-bold">Schuljahr:</td>
+        <td class="pb-2">{{ object.school_year }}</td>
       </tr>
       <tr>
-        <td>Unterrichtsfach:</td>
-        <td>{{ object.get_subject_display }}</td>
+        <td class="pe-3 fw-bold">Unterrichtsfach:</td>
+        <td class="pb-2">{{ object.get_subject_display }}</td>
       </tr>
       <tr>
-        <td>Unterrichtsformat:</td>
-        <td>{{ object.get_instruction_format_display }}</td>
+        <td class="pe-3 fw-bold">Unterrichtsformat:</td>
+        <td class="pb-2">{{ object.get_instruction_format_display }}</td>
       </tr>
       </tbody>
     </table>
@@ -69,7 +69,7 @@
 
   <div class="col m-3 p-3 background-yellow">
     <h4>Test-Teilnahme</h4>
-    <p>
+    <p class="ff-non-serif">
       Mit dem Testlink können Sie den Fragebogen und die Datenspende ausprobieren.
       Am besten öffnen Sie den Link in einem privaten Fenster, ansonsten können Sie den Testdurchlauf nur einmal durchführen.
       Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen werden automatisch am Ende eines Tages gelöscht und fliessen
@@ -81,7 +81,7 @@
 
   <div class="col m-3 p-3 background-orange">
     <h4>Link für Schüler:innen</h4>
-    <p>
+    <p class="ff-non-serif">
       Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen werden fliessen in die Klassenauswertung mit ein
       (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
     </p>
@@ -101,7 +101,7 @@
 <div class="mt-4 row">
   <h3>Statistiken & Reports</h3>
 
-  <div class="col m-3 p-3 background-blue">
+  <div class="col m-3 p-3 background-blue ff-non-serif">
     <h4>Teilnahmeübersicht</h4>
 
     <table>
@@ -136,12 +136,12 @@
       Report
     </h4>
 
-    <p>
+    <p class="ff-non-serif">
       Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
       des Reports kann anschliessend einige Sekunden dauern - bitte aktualisieren
       Sie die Webseite während des Ladens nicht.
     </p>
-    <p>
+    <p class="ff-non-serif">
       Bitte beachten Sie ausserdem, dass die Reports erst angezeigt werden,
       wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
     </p>

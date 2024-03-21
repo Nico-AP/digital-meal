@@ -110,7 +110,7 @@ ACCOUNT_USERNAME_REQUIRED = False
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
-ACCOUNT_EMAIL_SUBJECT_PREFIX = '[Digital Meal]'
+ACCOUNT_EMAIL_SUBJECT_PREFIX = '[Digital Meal] '
 ACCOUNT_FORMS = {'signup': 'digital_meal.forms.SimpleSignupForm'}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2
@@ -122,7 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
-LOGIN_REDIRECT_URL = '/profil/uebersicht'
+LOGIN_REDIRECT_URL = '/tool/'
 LOGOUT_REDIRECT_URL = '/'
 
 

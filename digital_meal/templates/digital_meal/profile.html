@@ -3,30 +3,30 @@
 {% block title %}Profilübersicht{% endblock title %}
 
 {% block main_content %}
-<div>
+<div class="ff-non-serif">
   <h1>Nutzerprofil von {{ teacher }}</h1>
 
   <table>
     <tbody>
     <tr>
-      <td class="pe-3">Vorname:</td>
-      <td>{{ teacher.first_name }}</td>
+      <td class="pe-3 pb-2 fw-bold">Vorname:</td>
+      <td class="pb-2">{{ teacher.first_name }}</td>
     </tr>
     <tr>
-      <td class="pe-3">Nachname:</td>
-      <td>{{ teacher.name }}</td>
+      <td class="pe-3 pb-2 fw-bold">Nachname:</td>
+      <td class="pb-2">{{ teacher.name }}</td>
     </tr>
     <tr>
-      <td class="pe-3">E-Mail Adresse:</td>
-      <td>{{ teacher.user.email }}</td>
+      <td class="pe-3 pb-2 fw-bold">E-Mail Adresse:</td>
+      <td class="pb-2">{{ teacher.user.email }}</td>
     </tr>
     <tr>
-      <td class="pe-3">Kanton:</td>
-      <td>{{ teacher.get_canton_display }}</td>
+      <td class="pe-3 pb-2 fw-bold">Kanton:</td>
+      <td class="pb-2">{{ teacher.get_canton_display }}</td>
     </tr>
     <tr>
-      <td class="pe-3">Schule:</td>
-      <td>{{ teacher.school_name }}</td>
+      <td class="pe-3 pb-2 fw-bold">Schule:</td>
+      <td class="pb-2">{{ teacher.school_name }}</td>
     </tr>
     </tbody>
   </table>
