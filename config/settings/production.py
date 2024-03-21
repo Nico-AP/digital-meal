@@ -73,5 +73,4 @@ DATABASES = {
 
 # E-MAIL SETTINGS
 # ------------------------------------------------------------------------------
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
