@@ -22,6 +22,7 @@ urlpatterns_tool = [
 urlpatterns_reports = [
     path('<int:pk>/individual/<slug:participant_id>', dm_reports.IndividualReportYouTube.as_view(),
          name='individual_report'),  # int:pk relates to ID of classroom.
+    path('send-report-link', dm_reports.SendReportLink.as_view(), name='send_report_link')
 ]
 
 urlpatterns_apis = [

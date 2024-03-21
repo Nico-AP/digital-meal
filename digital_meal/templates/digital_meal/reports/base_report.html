@@ -73,6 +73,11 @@
         </p>
 
         <p>
+          Mit einem Klick auf den folgenden Button können Sie sich den Link zu diesem Report an eine E-Mail-Adresse
+          senden lassen: <button data-bs-toggle="modal" data-bs-target="#send-link">Link zum Report per E-Mail senden</button>
+        </p>
+
+        <p>
           <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen von Forschenden der Universität Zürich.
           Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
           Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
@@ -91,10 +96,80 @@
 
 </div>
 
+{# Modals to send link to report via e-mail #}
+<div class="modal" id="send-link" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <h4>An welche E-Mail-Adresse soll der Report gesendet werden?</h4>
+        <p>
+          <input id="email-input" class="w-100 mt-2" name="email">
+          <span id="email-input-error" style="display: none; color: darkred;">Das ist keine gültige E-Mail-Adresse</span>
+        </p>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-bs-dismiss="modal">Abbrechen</button>
+        <button id="send-email-button" type="button" data-bs-dismiss="modal" onclick="sendLinkToReport('{% url "send_report_link" %}', '{{csrf_token}}')">Link senden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal" id="send-link-message" data-bs-backdrop="static" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        <p id="send-mail-success" style="display: none;">Der Link wurde an die angegebene E-Mail-Adresse gesendet.</p>
+        <p id="send-mail-error" style="display: none;">Der Link konnte nicht an die angegebene E-Mail-Adresse gesendet werden.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" data-bs-dismiss="modal">Okay</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 {% block scripts %}
 <script src="{% static 'digital_meal/js/jquery/jquery-3.6.2.min.js' %}"></script>
 <script src="{% static 'digital_meal/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'digital_meal/js/bokeh/bokeh-3.1.1.min.js' %}"></script>
+
+
+<script>
+  function sendLinkToReport(postUrl, csrfToken) {
+    let emailAddress = $('#email-input').val();
+
+    let mailFormat =  /\S+@\S+\.\S+/;
+    if (emailAddress.match(mailFormat)) {
+      $('#email-input-error').hide();
+    } else {
+      $('#email-input-error').show();
+      $('#send-link').modal('toggle');
+      return false;
+    }
+
+    let reportUrl = window.location.href;
+    $.ajax({
+      type: 'POST',
+      data: {'email': emailAddress, 'link': reportUrl},
+      url: postUrl,
+      headers: {
+        'X-CSRFToken': csrfToken
+      },
+      success: function (data, status, result) {
+        $('#send-mail-success').show();
+        $('#send-mail-error').hide();
+        $('#send-link-message').modal('toggle');
+      },
+      error: function(request, status, error) {
+        $('#send-mail-success').hide();
+        $('#send-mail-error').show();
+        $('#send-link-message').modal('toggle');
+      },
+    });
+  }
+</script>
 {% endblock %}
 
 </body>

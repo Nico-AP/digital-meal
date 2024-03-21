@@ -1,9 +1,14 @@
 import datetime
 import json
+from smtplib import SMTPException
+
 import pandas as pd
 import requests
+from django.core.mail import send_mail
+from django.http import JsonResponse
 
 from django.urls import reverse_lazy
+from django.views import View
 from django.views.generic import DetailView
 
 from ..models import Classroom
@@ -395,3 +400,27 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
 
         self.add_sh_plot_to_context(c, search_terms)
         return c
+
+
+class SendReportLink(View):
+    """ Sends the link to the open report to a given e-mail address. """
+
+    def post(self, request, *args, **kwargs):
+        email_address = request.POST.get('email', None)
+        report_link = request.POST.get('link', None)
+
+        if email_address and report_link:
+            try:
+                send_mail(
+                    subject='Link zum Digital Meal Report',
+                    message=f'Link zum Report: {report_link}',
+                    from_email='contact@digital-meal.ch',
+                    recipient_list=[email_address],
+                    fail_silently=False
+                )
+                return JsonResponse({'status': 'success'})
+            except SMTPException:
+                return JsonResponse({'status': 'error'})
+
+        else:
+            return JsonResponse({'status': 'error'})
