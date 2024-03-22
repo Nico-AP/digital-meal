@@ -1,6 +1,6 @@
 from django.apps import AppConfig
 
 
-class DigitalMealConfig(AppConfig):
+class DigitalMealWebsiteConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'website'
+    name = 'digital_meal_website'

@@ -45,7 +45,7 @@ INSTALLED_APPS = [
     'taggit',
     'digital_meal',
     'digital_meal_endpoints',
-    'website',
+    'digital_meal_website',
     # DDM
     'ddm',
     'ckeditor',

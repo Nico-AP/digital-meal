@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'taggit',
     'ddm',
     'digital_meal',
-    'website',
+    'digital_meal_website',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
