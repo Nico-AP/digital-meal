@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'taggit',
     'digital_meal',
+    'digital_meal_endpoints',
     'website',
     # DDM
     'ddm',

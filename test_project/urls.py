@@ -8,6 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('', include('digital_meal.urls')),
+    path('api/', include('digital_meal_endpoints.urls')),
     path('ddm/', include('ddm.urls')),
     path('ckeditor/', include('ckeditor_uploader.urls')),
     path('cms/', include('wagtail.admin.urls')),

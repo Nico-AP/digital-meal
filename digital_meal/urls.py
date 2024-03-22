@@ -2,11 +2,10 @@ from django.urls import path, include
 
 from .views import base as dm_views
 from .views import reports as dm_reports
-from . import apis as dm_apis
 
 
 urlpatterns_website = [
-    path('styleguide', dm_views.StyleGuide.as_view(), name='styleguide'),
+    path('styleguide', dm_views.StyleGuide.as_view(), name='styleguide'),  # TODO: move to website
     path('profil/', dm_views.ProfileView.as_view(), name='profile'),
 ]
 
@@ -25,15 +24,8 @@ urlpatterns_reports = [
     path('send-report-link', dm_reports.SendReportLink.as_view(), name='send_report_link')
 ]
 
-urlpatterns_apis = [
-    path('<int:pk>/class-data', dm_apis.ClassReportAPI.as_view(), name='class_data_api'),  # int:pk relates to ID of DDM project (must be named 'pk' due to ddm authentication scheme).
-    path('<int:pk>/class-overview', dm_apis.ClassOverviewAPI.as_view(), name='class_overview_api'),  # int:pk relates to ID of DDM project.
-    path('<int:pk>/individual-data', dm_apis.IndividualReportAPI.as_view(), name='individual_data_api')  # int:pk relates to ID of DDM project.
-]
-
 urlpatterns = [
     path('', include(urlpatterns_website)),
     path('reports/', include(urlpatterns_reports)),
-    path('tool/', include(urlpatterns_tool)),
-    path('api/', include(urlpatterns_apis)),
+    path('tool/', include(urlpatterns_tool))
 ]
