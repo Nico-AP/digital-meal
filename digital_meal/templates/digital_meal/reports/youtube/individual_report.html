@@ -10,8 +10,8 @@
 {% block report_intro_text %}
 <p>In dieser persönlichen Auswertung findest Du Informationen, wie Du YouTube in der Vergangenheit genutzt hast.
   Die von Dir hochgeladenen Daten beinhalten <b>Deinen Wiedergabeverlauf</b> und <b>Deinen Suchverlauf</b>
-  zwischen dem {{ date_first|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem {{
-  date_last|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
+  zwischen dem {{ wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
+  {{ wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
 </p>
 {% endblock %}
 
@@ -35,8 +35,8 @@
           <div style="height: 90px;">
             <h3>Insgesamt<br><span class="fs-6">{{ wh_dates_min|date:"d.m.Y" }} bis {{ wh_dates_max|date:"d.m.Y" }}</span></h3>
           </div>
+          <!-- TODO: Check how to handle shorts. -->
           <p>Angeschaute Videos: {{ n_vids_overall }}</p>
-          <p>Angeschaute Shorts: TODO</p>
           <p>Unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
           <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
         </div>
@@ -46,7 +46,6 @@
             <h3>Im letzten Monat<br><span class="fs-6">{{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }}</span></h3>
           </div>
           <p>Angeschaute Videos: {{ n_vids_interval }}</p>
-          <p>Angeschaute Shorts: TODO</p>
           <p>Unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
           <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
         </div>
@@ -207,40 +206,6 @@
 </div>
 {% endif %}
 
-
-<div class="section-container">
-
-  <div class="report-section">
-    <div class="report-content">
-      <h3>Über diesen Report</h3>
-
-      <p>
-        Dieser Report wurde automatisch basierend auf deinen hochgeladenen Daten generiert. Er ist für eine befristete
-        Zeit für Personen, die über den Link verfügen, abrufbar.
-        Wenn du diesen Report später nochmals ansehen möchtest, kannst du ihn als PDF speichern.
-      </p>
-
-      <p>
-        <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen von Forschenden der Universität Zürich.
-        Wir legen grossen Wert auf die Sicherheit Ihrer Daten. In diesem Report sind grösstenteils aggregierte und vereinzelt
-        explizite Werte integriert, die aber keinen Rückschluss auf Dich als Person zulassen.
-      </p>
-
-      <p>
-        Bei Fragen oder Inputs kannst du uns jederzeit mit einer E-Mail an <a href="mailto:datadonation@ikmz.uzh.ch">datadonation@ikmz.uzh.ch</a> kontaktieren.
-      </p>
-
-      <div class="text-center">
-        <img alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="70px">
-        <img alt="Data Donation Lab Logo" src="{% static 'digital_meal/img/ddl_logo_black.svg' %}" height="70px">
-        <img alt="UZH Logo" src="{% static 'digital_meal/img/UZH_logo.svg' %}" height="70px">
-      </div>
-    </div>
-  </div>
-
-</div>
-
-</div>
 {% endblock report_body %}
 
 

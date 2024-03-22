@@ -7,24 +7,24 @@
 {% block content %}
 <h1>{% trans "E-mail Addresses" %}</h1>
 {% if user.emailaddress_set.all %}
-<p>{% trans 'The following e-mail addresses are associated with your account:' %}</p>
+<p class="ff-non-serif">{% trans 'The following e-mail addresses are associated with your account:' %}</p>
 
-<form action="{% url 'account_email' %}" class="email_list" method="post">
+<form action="{% url 'account_email' %}" class="email_list ff-non-serif" method="post">
   {% csrf_token %}
   <fieldset class="blockLabels">
 
     <table>
       <thead>
-        <tr>
+        <tr class="border-bottom">
           <th class="pe-3"></th>
-          <th class="pe-3">E-Mail</th>
+          <th class="pe-3" style="width: 250px;">E-Mail</th>
           <th class="pe-3">Bestätigt</th>
           <th class="pe-3">Primäre Adresse</th>
         </tr>
       </thead>
       <tbody>
         {% for emailaddress in user.emailaddress_set.all %}
-        <tr>
+        <tr class="border-bottom">
           <td class="pe-3">
             <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
           </td>
@@ -39,36 +39,24 @@
             {% endif %}
           </td>
           <td class="pe-3">
-            {% if emailaddress.primary %}<span class="primary">&Cross;</span>{% endif %}
+            {% if emailaddress.primary %}
+            <span class="primary">&check;</span>
+            {% else %}
+            <span class="primary">&Cross;</span>
+            {% endif %}
           </td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
 
-<!--
-    {% for emailaddress in user.emailaddress_set.all %}
-    <div class="ctrlHolder">
-      <label for="email_radio_{{forloop.counter}}" class="{% if emailaddress.primary %}primary_email{%endif%}">
-
-        <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
-
-        {{ emailaddress.email }}
-        {% if emailaddress.verified %}
-        <span class="verified">{% trans "Verified" %}</span>
-        {% else %}
-        <span class="unverified">{% trans "Unverified" %}</span>
-        {% endif %}
-        {% if emailaddress.primary %}<span class="primary">{% trans "Primary" %}</span>{% endif %}
-      </label>
-    </div>
-    {% endfor %}
--->
     <div class="buttonHolder mt-4">
       <p><b>Ausgewählte Adresse...</b></p>
-      <p><button class="secondaryAction" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></p>
-      <p><button class="primaryAction" type="submit" name="action_remove" >{% trans 'Remove' %}</button></p>
-      <p><button class="secondaryAction" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></p>
+      <p>
+        <span class="pe-2"><button class="btn-dark ff-non-serif" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></span>
+        <span class="pe-2"><button class="btn-secondary ff-non-serif" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></span>
+        <span><button class="btn-danger ff-non-serif" type="submit" name="action_remove" >{% trans 'Remove' %}</button></span>
+      </p>
     </div>
 
   </fieldset>
@@ -80,7 +68,12 @@
 {% endif %}
 
 {% if can_add_email %}
-<h2 class="mt-4">{% trans "Add E-mail Address" %}</h2>
+<h2 class="mt-4">E-Mail-Adresse ändern</h2>
+
+<p class="ff-non-serif">
+  Um die E-Mail-Adresse zu ändern, fügen Sie erst eine neue E-Mail-Adresse hinzu, bestätigen Sie die neue E-Mail-Adresse und legen Sie
+  oben die neu hinzugefügte Adresse als primäre Adresse fest.
+</p>
 
 <form method="post" action="{% url 'account_email' %}" class="add_email">
   {% csrf_token %}

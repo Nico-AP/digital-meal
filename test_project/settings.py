@@ -125,13 +125,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
 ]
 
-LOGIN_REDIRECT_URL = '/profil/uebersicht'
+LOGIN_REDIRECT_URL = '/tool/'
 LOGOUT_REDIRECT_URL = '/'
-
 
 # E-MAIL SETTINGS
 # ------------------------------------------------------------------------------
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
