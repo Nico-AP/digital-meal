@@ -6,7 +6,7 @@ from wagtail.images.blocks import ImageChooserBlock
 
 
 class HomePage(Page):
-    template = 'digital_meal/digital_meal_wagtail_content.html'
+    template = 'digital_meal_website/wagtail_content.html'
 
     body = StreamField([
         ('heading', blocks.CharBlock(form_classname='full title', icon='title')),
@@ -21,7 +21,7 @@ class HomePage(Page):
 
 
 class DigitalMealContentPage(Page):
-    template = 'digital_meal/digital_meal_wagtail_content.html'
+    template = 'digital_meal_website/wagtail_content.html'
 
     body = StreamField([
         ('heading', blocks.CharBlock(form_classname='full title', icon='title')),

@@ -4,11 +4,6 @@ from .views import base as dm_views
 from .views import reports as dm_reports
 
 
-urlpatterns_website = [
-    path('styleguide', dm_views.StyleGuide.as_view(), name='styleguide'),  # TODO: move to website
-    path('profil/', dm_views.ProfileView.as_view(), name='profile'),
-]
-
 urlpatterns_tool = [
     path('', dm_views.ToolMainPage.as_view(), name='tool_main_page'),
     path('class/create', dm_views.ClassroomCreate.as_view(), name='class_create'),
@@ -16,6 +11,7 @@ urlpatterns_tool = [
     path('class/<int:pk>', dm_views.ClassroomDetail.as_view(), name='class_detail'),
     path('class/<int:pk>/report', dm_reports.ClassroomReportYouTube.as_view(), name='class_report'),
     path('class/<int:pk>/expired', dm_views.ClassroomExpired.as_view(), name='class_expired'),
+    path('profil/', dm_views.ProfileView.as_view(), name='profile'),
 ]
 
 urlpatterns_reports = [
@@ -25,7 +21,6 @@ urlpatterns_reports = [
 ]
 
 urlpatterns = [
-    path('', include(urlpatterns_website)),
     path('reports/', include(urlpatterns_reports)),
     path('tool/', include(urlpatterns_tool))
 ]

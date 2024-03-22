@@ -2,14 +2,12 @@ import json
 
 import requests
 
-from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
-from django.utils.decorators import method_decorator
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -137,7 +135,7 @@ class TeacherEdit(UpdateView, LoginRequiredMixin):
     """ Edit teacher account details. """
     model = Teacher
     fields = []
-    template_name = 'digital_meal/form.html'
+    template_name = 'digital_meal_website/form.html'
 
     def dispatch(self, request, *args, **kwargs):
         """ Make sure users can only edit their own profile. """
@@ -154,8 +152,3 @@ class TeacherEdit(UpdateView, LoginRequiredMixin):
             return super().dispatch(request, *args, **kwargs)
         else:
             raise Http404()
-
-
-@method_decorator(staff_member_required, name='dispatch')
-class StyleGuide(TemplateView):
-    template_name = 'digital_meal/styleguide.html'

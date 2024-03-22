@@ -9,11 +9,11 @@
 
   <title>{% block page_title %}Report Page Title{% endblock %}</title>
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal/img/DigitalMeal_favicon.svg' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal_website/img/DigitalMeal_favicon.svg' %}">
 
   {% block site_css %}
-  <link rel="stylesheet" href="{% static 'digital_meal/css/bootstrap/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'digital_meal/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal_website/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal_website/css/base.css' %}">
   {% endblock site_css %}
 
   {% block extra_head %}
@@ -27,7 +27,7 @@
       <div class="report-content container">
         <div class="text-end row justify-content-center">
           <div class="col-4 col-sm-auto">
-            <img class="report-header-logo" alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}">
+            <img class="report-header-logo" alt="Digital Meal Logo" src="{% static 'digital_meal_website/img/DigitalMeal_Logo.svg' %}">
           </div>
         </div>
       </div>
@@ -84,9 +84,9 @@
         </p>
 
         <div class="text-center">
-          <img alt="Digital Meal Logo" src="{% static 'digital_meal/img/DigitalMeal_Logo.svg' %}" height="70px">
-          <img alt="Data Donation Lab Logo" src="{% static 'digital_meal/img/ddl_logo_black.svg' %}" height="70px">
-          <img alt="UZH Logo" src="{% static 'digital_meal/img/UZH_logo.svg' %}" height="70px">
+          <img alt="Digital Meal Logo" src="{% static 'digital_meal_website/img/DigitalMeal_Logo.svg' %}" height="70px">
+          <img alt="Data Donation Lab Logo" src="{% static 'digital_meal_website/img/ddl_logo_black.svg' %}" height="70px">
+          <img alt="UZH Logo" src="{% static 'digital_meal_website/img/UZH_logo.svg' %}" height="70px">
         </div>
       </div>
     </div>
@@ -131,8 +131,8 @@
 </div>
 
 {% block scripts %}
-<script src="{% static 'digital_meal/js/jquery/jquery-3.6.2.min.js' %}"></script>
-<script src="{% static 'digital_meal/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'digital_meal_website/js/jquery/jquery-3.6.2.min.js' %}"></script>
+<script src="{% static 'digital_meal_website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 <script src="{% static 'digital_meal/js/bokeh/bokeh-3.1.1.min.js' %}"></script>
 
 

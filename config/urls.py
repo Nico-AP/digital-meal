@@ -6,12 +6,9 @@ from django.urls import path, include
 
 urlpatterns = [
     path('', include('digital_meal.urls')),
+    path('', include('digital_meal_website.urls')),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('ckeditor/', include('ckeditor_uploader.urls')),
-    path('cms/', include('wagtail.admin.urls')),
-    path('documents/', include('wagtail.documents.urls')),
-    path('', include('wagtail.urls')),
 ]
 
 if settings.DEBUG:

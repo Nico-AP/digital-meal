@@ -11,11 +11,11 @@
   <title>{% block title %}Digital Meal | Home{% endblock %}</title>
   <meta name="description" content="This is the Digital Meal website.">
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal/img/DigitalMeal_favicon.svg' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'digital_meal_website/img/DigitalMeal_favicon.svg' %}">
 
   {% block site_css %}
-  <link rel="stylesheet" href="{% static 'digital_meal/css/bootstrap/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'digital_meal/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal_website/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'digital_meal_website/css/base.css' %}">
   {% endblock site_css %}
 
   {% block extra_head %}
@@ -30,7 +30,7 @@
     <div class="container">
       <div class="row">
         {% block header_content %}
-        {% include "digital_meal/components/top-nav-website.html" %}
+        {% include "digital_meal_website/components/top-nav-website.html" %}
         {% endblock header_content %}
       </div>
     </div>
@@ -38,7 +38,7 @@
   {% endblock header %}
 
   {% block user_nav %}
-  {% include "digital_meal/components/user-nav-website.html" %}
+  {% include "digital_meal_website/components/user-nav-website.html" %}
   {% endblock user_nav %}
 
   <div id="dm-content">
@@ -46,7 +46,7 @@
 
       <div id="main" class="row main-content">
         {% if messages %}
-        {% include "digital_meal/components/messages.html" %}
+        {% include "digital_meal_website/components/messages.html" %}
         {% endif %}
 
         {% block main_content %}
@@ -72,7 +72,7 @@
     <div class="container">
       <div class="row">
         {% block footer_content %}
-        {% include "digital_meal/components/footer.html" %}
+        {% include "digital_meal_website/components/footer.html" %}
         {% endblock footer_content %}
       </div>
     </div>
@@ -81,8 +81,8 @@
 </div>
 
 {% block site_js %}
-<script src="{% static 'digital_meal/js/jquery/jquery-3.6.2.min.js' %}"></script>
-<script src="{% static 'digital_meal/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'digital_meal_website/js/jquery/jquery-3.6.2.min.js' %}"></script>
+<script src="{% static 'digital_meal_website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 {% endblock site_js %}
 
 </body>
