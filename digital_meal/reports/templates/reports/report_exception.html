@@ -1,0 +1,12 @@
+{% extends "reports/base_report.html" %}
+{% load static %}
+
+{% block page_title %}Klassenreport{% endblock %}
+
+{% block report_intro_title %}Etwas ist schiefgegangen{% endblock %}
+
+{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}
+
+{% block report_intro_text %}
+{{ exception_message }}
+{% endblock %}

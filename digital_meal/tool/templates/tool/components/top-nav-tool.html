@@ -1,0 +1,32 @@
+{% load static %}
+
+<div class="d-flex flex-column">
+
+  <div class="col flex-row align-items-center justify-content-start d-none d-lg-flex">
+    <div><a href="{% url 'tool_main_page' %}"><img alt="Digital Meal Brand" src="{% static 'website/img/DigitalMeal_logo.svg' %}" height="100px"></a></div>
+    <div><span class="border-end border-dark border-3 pb-4 pt-4 ps-3"></span></div>
+    <div><span class="ps-4" style="font-size: 35px; font-weight: bold; font-family: Space Grotesk;">Onlinetool</span></div>
+  </div>
+
+  <div class="row flex-row d-lg-none align-items-center">
+    <div class="col">
+      <div>
+        <a href="/"><img alt="Digital Meal Brand" src="{% static 'website/img/DigitalMeal_logo.svg' %}" height="100px"></a>
+      </div>
+      <div style="margin-top: -20px;">
+        <span class="ps-4" style="font-size: 25px; font-weight: bold; font-family: Space Grotesk;">Onlinetool</span>
+      </div>
+    </div>
+    <div class="col"></div>
+    <div class="col d-flex justify-content-end">
+      <a data-bs-toggle="collapse" href="#collapseNav" role="button" aria-expanded="false" aria-controls="collapseExample"><img alt="hamburger nav" src="{% static 'website/img/DigitalMeal_hamburger.svg' %}" height="70px"></a>
+    </div>
+  </div>
+
+  <div class="collapse d-lg-none" id="collapseNav">
+    <div class="col nav-element background-yellow nav-active"><a href="/lehrpersonen">für Lehrpersonen</a></div>
+    <div class="col nav-element background-orange"><a href="/teilnehmende">für Teilnehmende</a></div>
+    <div class="col nav-element background-green"><a href="/about">Über uns</a></div>
+  </div>
+
+</div>

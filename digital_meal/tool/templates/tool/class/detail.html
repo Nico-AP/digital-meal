@@ -1,0 +1,166 @@
+{% extends "tool/base.html" %}
+
+{% load qr_code static %}
+
+{% block title %}Klassenübersicht "{{ object.name }}"{% endblock title %}
+
+{% block main_content %}
+
+<h1 class="mb-3">Klasse "{{ object.name }}"</h1>
+
+<div class="row ff-non-serif">
+
+  <div class="col m-3 p-3 background-green">
+    <h4>
+      <img alt="Icon Datenauswertung" class="pe-1" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}" height="50px">
+      Klassendetails
+    </h4>
+
+    <table>
+      <tbody class="align-baseline">
+      <tr>
+        <td class="pe-3 fw-bold">Klassenbezeichnung:</td>
+        <td class="pb-2">{{ object.name }}</td>
+      </tr>
+      <tr>
+        <td class="pe-3 fw-bold">Erstellt am:</td>
+        <td class="pb-2">{{ object.date_created }}</td>
+      </tr>
+      <tr>
+        <td class="pe-3 fw-bold">Schulstufe:</td>
+        <td class="pb-2">{{ object.get_school_level_display }}</td>
+      </tr>
+      <tr>
+        <td class="pe-3 fw-bold">Schuljahr:</td>
+        <td class="pb-2">{{ object.school_year }}</td>
+      </tr>
+      <tr>
+        <td class="pe-3 fw-bold">Unterrichtsfach:</td>
+        <td class="pb-2">{{ object.get_subject_display }}</td>
+      </tr>
+      <tr>
+        <td class="pe-3 fw-bold">Unterrichtsformat:</td>
+        <td class="pb-2">{{ object.get_instruction_format_display }}</td>
+      </tr>
+      </tbody>
+    </table>
+
+  </div>
+
+  <div class="col m-3 p-3 background-red">
+    <h4>
+      <img alt="Icon Materialien & Geräte" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg' %}" height="50px">
+      Materialien
+    </h4>
+
+    <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube" gehören.</p>
+
+    <ul>
+      <li>Handbuch</li>
+      <li>Arbeitsblätter</li>
+      <li>Fact-Sheet</li>
+      <li>Foliensätze</li>
+    </ul>
+  </div>
+</div>
+
+<div class="mt-4 row">
+  <h3>Teilnahme</h3>
+
+  <div class="col m-3 p-3 background-yellow">
+    <h4>Test-Teilnahme</h4>
+    <p class="ff-non-serif">
+      Mit dem Testlink können Sie den Fragebogen und die Datenspende ausprobieren.
+      Am besten <b>öffnen Sie den Link in einem privaten Browser-Fenster</b>, ansonsten können Sie den Testdurchlauf nur einmal durchführen.
+      Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen werden automatisch am Ende eines Tages gelöscht und fliessen
+      nicht in die Klassenauswertung mit ein.
+    </p>
+
+    <p><a href="{{ object.track.ddm_path }}?class=testlink" target="_blank"><button class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Test-Teilnahme >></button></a></p>
+  </div>
+
+  <div class="col m-3 p-3 background-orange">
+    <h4>Link für Schüler:innen</h4>
+    <p class="ff-non-serif">
+      Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen werden fliessen in die Klassenauswertung mit ein
+      (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
+    </p>
+
+    <div class="text-center position-relative" onclick="copyLinkToClipboard()" style="cursor: pointer;">
+      {% with object.class_id|stringformat:"s" as class_id %}
+        {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
+          {% qr_from_text participation_url size="M" %}
+          <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
+        {% endwith %}
+      {% endwith %}
+      <div id="copydisclaimer" class="text-center w-100 position-absolute top-50" style="display: none;">
+        <span class="p-1 ps-3 pe-3 fw-bold background-green fs-5 text-black rounded">Link kopiert</span>
+      </div>
+    </div>
+
+    <p>
+      Mit einem Klick auf den QR-Code wird der Teilnahmelink in die Zwischenablage kopiert.
+    </p>
+
+  </div>
+</div>
+
+<div class="mt-4 row">
+  <h3>Statistiken & Reports</h3>
+
+  <div class="col m-3 p-3 background-blue ff-non-serif">
+    <h4>Teilnahmeübersicht</h4>
+
+    <table>
+      <tbody>
+      <tr>
+        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Laufende Teilnahmen:</td>
+        <td>{{ n_not_finished }}</td>
+      </tr>
+      <tr>
+        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Abgeschlossene Teilnahmen:</td>
+        <td>{{ n_finished }}</td>
+      </tr>
+      <tr>
+        <td class="pt-2">Anzahl hochgeladene Datensätze</td>
+        <td></td>
+      </tr>
+
+      {% for key, value in n_donations.items %}
+      <tr>
+        <td class="ps-3"><span class="pe-2">▪</span> {{ key }}:</td>
+        <td>{{ value }}</td>
+      </tr>
+      {% endfor %}
+
+      </tbody>
+    </table>
+  </div>
+
+  <div class="col m-3 p-3 background-purple">
+    <h4>
+      <img alt="Icon Datenauswertung" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}" height="50px">
+      Report
+    </h4>
+
+    <p class="ff-non-serif">
+      Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
+      des Reports kann anschliessend einige Sekunden dauern - bitte aktualisieren
+      Sie die Webseite während des Ladens nicht.
+    </p>
+    <p class="ff-non-serif">
+      Bitte beachten Sie ausserdem, dass die Reports erst angezeigt werden,
+      wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
+    </p>
+
+    <p><a href="{% url 'class_report' object.pk %}" target="_blank"><button class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport >></button></a></p>
+  </div>
+
+</div>
+
+{% endblock main_content %}
+
+{% block site_js %}
+{{ block.super }}
+<script src="{% static 'tool/js/copy-link-to-clipboard.js' %}"></script>
+{% endblock %}

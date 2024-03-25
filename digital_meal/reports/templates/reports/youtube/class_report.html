@@ -1,0 +1,294 @@
+{% extends "reports/base_report.html" %}
+{% load static %}
+
+{% block page_title %}Klassenreport YouTube{% endblock %}
+
+{% block report_intro_title %}Klassenreport YouTube{% endblock %}
+
+{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
+
+{% block report_intro_text %}
+<p class="fs-4 ff-space-grotesk">In diesem Report erfahrt Ihr mehr über die YouTube-Nutzung in eurer Klasse.</p>
+<p class="fs-4 mt-0 ff-space-grotesk">Der Report basiert aktuell auf den Daten von {{ n_participants }} Schüler:innen.</p>
+{% endblock %}
+
+{% block report_body %}
+
+<!-- NUTZUNGSINTENSITÄT -->
+<div class="section-container">
+  <div class="report-section position-relative bg-darkyellow">
+
+    <div class="report-content">
+      <h2>Wie viele Videos hat sich eure Klasse auf YouTube angesehen?</h2>
+      <p>
+        Seit dem {{ wh_dates_min|date:"d. F Y" }} habt ihr in der Klasse <b class="font-size-highlight text-color-royalblue">insgesamt&nbsp;{{ n_vids_overall }}&nbsp;Videos&nbsp;angesehen</b>.</br>
+      </p>
+      <p>
+        Unten findet ihr einige Zahlen zur zusammengefassten YouTube-Nutzung eurer Klasse.
+        Links seht ihr die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
+      </p>
+      <!-- TODO: Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
+      <div class="row justify-content-center pt-5">
+        <div class="col-12 col-md-6 p-5 bg-royalblue text-white">
+          <div style="height: 90px;">
+            <h3>Insgesamt<br><span class="fs-6">{{ wh_dates_min|date:"d.m.Y" }} bis {{ wh_dates_max|date:"d.m.Y" }}</span></h3>
+          </div>
+          <!-- TODO: Check how to handle shorts. -->
+          <p>Angeschaute Videos: {{ n_vids_overall }}</p>
+          <p>Unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
+        </div>
+
+        <div class="col-12 col-md-6 p-5 bg-darkpurple text-white">
+          <div style="height: 90px;">
+            <h3>Im letzten Monat<br><span class="fs-6">{{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }}</span></h3>
+          </div>
+          <p>Angeschaute Videos: {{ n_vids_interval }}</p>
+          <p>Unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
+        </div>
+      </div>
+      <!-- TODO: Add CH-Vergleich, wenn verfügbar. -->
+
+    </div>
+
+  </div>
+</div>
+
+<!-- YEARLY USE -->
+{% if dates_plot_days %}
+<div class="section-container">
+
+  <div class="report-section bg-yellow position-relative">
+    <div class="report-content">
+      <h2>Wie hat sich eure YouTube-Nutzung im Zeitverlauf verändert?</h2>
+      <div>
+        <p>
+          Unten seht ihr, wie sich die Anzahl der durchschnittlich pro Person angeschauten Videos über die Zeit verändert.
+          Ihr könnt euch die Zahlen pro Tag, Woche, Monat oder Jahr anzeigen lassen.
+        </p>
+        <!-- TODO: Erklärung/Interpretationshilfe (<p>Für die durchschnittliche Person sieht blabla</p>) -->
+      </div>
+      <div class="row pb-2 pb-lg-0">
+        <div id="date_plot_toggles" class="col-xl-2 col-lg-3 justify-content-evenly align-items-lg-stretch pe-lg-5">
+          <div class="row d-flex justify-content-around g-1 g-lg-4 pt-lg-5">
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">pro Tag</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">pro Woche</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">pro Monat</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_years')">pro Jahr</button></div>
+          </div>
+        </div>
+        <div id="date_plot_container" class="col justify-content-center border-bottom-2 w-100">
+          <div id="dates_plot_days" class="collapse-dates-plots w-100">{{ dates_plot_days.div | safe }}</div>
+          <div id="dates_plot_weeks" class="collapse-dates-plots d-none w-100">{{ dates_plot_weeks.div | safe }}</div>
+          <div id="dates_plot_months" class="collapse-dates-plots d-none w-100">{{ dates_plot_months.div | safe }}</div>
+          <div id="dates_plot_years" class="collapse-dates-plots d-none w-100">{{ dates_plot_years.div | safe }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- DAILY USE -->
+{% if weekday_use_plot %}
+<!-- TODO: Base this on the last full month? -->
+<div class="section-container">
+  <!-- TODO: Check datetime logic of Google -->
+
+  <div class="report-section bg-melrose">
+    <div class="report-content row">
+      <div class="col-12 col-lg-5 pe-5">
+        <h2>Wann nutzt ihr YouTube in einer durchschnittlichen Woche am intensivsten?</h2>
+        <p class="text-start">
+          Die folgende Grafik veranschaulicht die Intensität der durchschnittlichen YouTube-Nutzung in eurer Klasse
+          über den Verlauf einer typischen Woche.
+        </p>
+        <p class="text-start">Oben ist ersichtlich, wie sich die Anzahl angesehener Videos prozentual auf die Wochentage verteilt.</p>
+        <p class="text-start">
+          Unten seht ihr die durchschnittliche Nutzung pro Tag pro Stunde.
+          <span class="fw-bold bg-yellow" style="border-bottom: 2px solid #ffda3c; padding-left: 5px; padding-right: 5px;">Je dunkler das Feld, desto mehr Videos wurden in dieser Zeitperiode angeschaut.</span>
+        </p>
+      </div>
+      <div class="col-12 col-lg-7 detailed-use-plot">
+        <!-- TODO: Berechnungsgrundlage Mean -->
+        <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
+        <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- FAVORITE VIDEO -->
+<div class="section-container">
+  <div class="report-section flex-column bg-pastelgreen overflow-hidden">
+
+    <div class="col pb-2 align-content-stretch">
+      <h2>Die beliebtesten Videos in eurer Klasse sind...</h2>
+    </div>
+
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-3 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vids_top_ten.1.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(-5deg);"></div>
+        <div class="podium-title">{{ fav_vids_top_ten.1.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-grad-blue-1 bg-grad-blue-vert" style="height: 105px;">2</div>
+      </div>
+      <div class="col-12 col-lg-3 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vids_top_ten.0.id }}/mqdefault.jpg" height="150px;"></div>
+        <div class="podium-title">{{ fav_vids_top_ten.0.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-ebonyclay bg-grad-blue-vert" style="height: 135px;">1</div>
+      </div>
+      <div class="col-12 col-lg-3 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vids_top_ten.2.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(5deg);"></div>
+        <div class="podium-title">{{ fav_vids_top_ten.2.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-grad-blue-2 bg-grad-blue-vert" style="height: 75px;">3</div>
+      </div>
+    </div>
+
+    <p class="report-explanation pt-5 mb-0 text-color-killarney">Es werden diejenigen Videos angezeigt, welche bei den meisten von euch im Wiedergabeverlauf erscheinen.</p>
+
+  </div>
+</div>
+
+
+<!-- CHANNELS -->
+{% if channel_plot %}
+<div class="section-container">
+
+  <div class="report-section bg-cinnabar">
+    <div class="report-content text-white">
+      <h2>Die beliebtesten YouTube-Kanäle</h2>
+
+      <div>
+        <p>
+            <span class="bg-ebonyclay ps-2 pe-2 pb-1">Ihr habt euch Videos von <b class="font-size-highlight bg-white text-color-ebonyclay ps-2 pe-2">{{ n_distinct_channels }}</b> verschiedenen <span class="font-size-highlight bg-white fw-bold ps-2 pe-2 text-color-ebonyclay">YouTube-Kanälen</span> angeschaut.</span>
+        </p>
+        <p>
+            <span class="bg-ebonyclay ps-2 pe-2 pb-1">In dieser Grafik seht ihr die 20 Kanäle, von denen ihr euch am meisten
+            Videos angesehen habt.</span>
+        </p>
+        <p class="report-explanation"><i>Es werden nur Kanäle berücksichtigt, die von mindestens 2 Personen in der Klasse angeschaut wurden.</i></p>
+      </div>
+      <div class="d-flex justify-content-center pt-5">{{ channel_plot.div | safe }}</div>
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- SUBSCRIBED CHANNELS -->
+<div class="section-container">
+
+  <div class="report-section bg-pictonblue">
+    <div class="report-content">
+      <h2>Die meist <span style="text-decoration: underline #e83e3e 10px;">abonnierten YouTube-Kanäle</span> eurer Klasse</h2>
+
+      <div class="text-start ms-5 me-5 row">
+        <div class="d-none d-lg-block col-2"></div>
+        <div class="col-12 col-lg-8 p-3 text-white bg-cinnabar">
+          <p><span class="subs-bullet-point">⦁</span>Insgesamt habt ihr in eurer Klasse <span class="fw-bold">{{ n_subs_unique }} unterschiedliche Kanäle</span> abonniert.</p>
+          <p><span class="subs-bullet-point">⦁</span><b>Im Schnitt</b> folgt ihr <b>{{ n_subs_mean|floatformat:"0" }} Kanälen</b>.</p>
+          <p><span class="subs-bullet-point">⦁</span><b>{{ n_subs_multiple }}</b> Kanäle sind <b>von mehr als einer Person</b> abonniert.</p>
+        </div>
+        <div class="d-none d-lg-block col-2"></div>
+      </div>
+
+      <p class="pt-5 mb-0"><span class="text-black bg-white fw-bold p-2">Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</span></p>
+
+      <div class="row align-items-end mt-0 bg-white" style="border: 15px solid white;">
+        <div class="col-12 col-lg-8 d-flex align-items-end ms-sm-2 ms-lg-0">
+          <div class="row align-items-end w-100 ps-1 pe-1 red-podium-container">
+
+            {% for key, value in most_popular_channels.items %}
+            {% if forloop.counter == 2 %}
+            <div class="col-12 col-sm-4 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col red-podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-grad-red-2 bg-grad-red-vert text-white fw-bold fs-1" style="height: 160px;">2</div>
+            </div>
+
+            {% elif forloop.counter == 1 %}
+            <div class="col-12 col-sm-4 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col red-podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-cinnabar bg-grad-red-vert text-white fw-bold fs-1" style="height: 200px;">1</div>
+            </div>
+
+            {% elif forloop.counter == 3 %}
+            <div class="col-12 col-sm-4 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col red-podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-grad-red-3 bg-grad-red-vert text-white fw-bold fs-1" style="height: 120px;">3</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 text-start pt-lg-0 pt-5" style="padding-left: 50px;">
+          <h4>Plätze 4 bis 10</h4>
+          {% for key, value in most_popular_channels.items %}
+          {% if forloop.counter > 3 %}
+          <p><span class="subs-list-prefix">{{ forloop.counter }}</span>{{ key }}</p>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<!-- SEARCHES -->
+{% if n_searches_overall > 0 %}
+
+<!-- TODO: Stemming approach. -->
+<div class="section-container">
+
+  <div class="report-section text-white bg-ebonyclay">
+    <div class="report-content">
+      <h2>Nach was ihr in der Klasse gesucht habt</h2>
+
+      <p>
+        <span class="font-size-highlight searchbar bg-white fw-bold">Ihr habt im Schnitt <span style="border-bottom: 3px solid #3ee0e8;">{{ n_searches_mean_overall|floatformat:"0" }} Suchen</span> durchgeführt</span><span class="font-size-highlight searchbar-icon-container me-2"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-search text-color-mineshaftgray mb-2 searchbar-icon" viewBox="0 0 16 16">
+  <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001c.03.04.062.078.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1.007 1.007 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0z"/>
+</svg></span>
+      </p>
+      <p>
+        Die am häufigsten verwendeten Suchbegriffe sind:
+      </p>
+
+      <div class="d-flex justify-content-center pt-3">
+        {{ search_plot.div | safe }}
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+{% endblock report_body %}
+
+
+{% block scripts %}
+{{ block.super }}
+
+{{ dates_plot_days.script | safe }}
+{{ dates_plot_weeks.script | safe }}
+{{ dates_plot_months.script | safe }}
+{{ dates_plot_years.script | safe }}
+{{ weekday_use_plot.script | safe }}
+{{ hours_plot.script | safe }}
+{{ channel_plot.script | safe }}
+{{ search_plot.script | safe }}
+<script src="{% static 'reports/js/report-functions.js' %}"></script>
+
+{% endblock %}

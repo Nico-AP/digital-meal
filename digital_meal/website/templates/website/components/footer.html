@@ -1,0 +1,30 @@
+{% load static %}
+
+<div>
+  <div class="d-flex flex-wrap justify-content-between align-items-xl-stretch footer-container">
+
+    <div>
+      <img alt="Logo Universität Zürich" src="{% static 'website/img/UZH_logo.svg' %}" height="85px">
+      <img alt="Citizen Science Zürich" src="{% static 'website/img/CitizenScience_logo.svg' %}" height="65px">
+    </div>
+
+    <div class="text-small dm-footer-linksection p-3">
+      <p><b>Digital Meal</b></p>
+      <p>▪ <a href="/lehrpersonen">für Lehrpersonen</a></p>
+      <p>▪ <a href="/teilnehmende">für Teilnehmende</a></p>
+      <p>▪ <a href="/forschende">für Forschende</a></p>
+      <p>▪ <a href="/about">über uns</a></p>
+      <p>▪ <a href="{% url 'tool_main_page' %}">Onlinetool</a></p>
+    </div>
+
+    <div class="text-small pt-3 pb-3 ps-3">
+      <b>Kontakt</b><br>
+      Digital Meal, Abteilung Mediennutzung & Medienwirkung<br>
+      Institut für Kommunikationswissenschaft und Medienforschung<br>
+      Universität Zürich<br>
+      Andreasstrasse 15<br>
+      CH-8050 Zürich
+    </div>
+
+  </div>
+</div>
