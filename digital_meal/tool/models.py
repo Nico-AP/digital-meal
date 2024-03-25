@@ -80,7 +80,7 @@ class SchoolSubjects(models.TextChoices):
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField('digital_meal.User', on_delete=models.CASCADE)
+    user = models.OneToOneField('tool.User', on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     name = models.CharField(max_length=50, null=False)
     first_name = models.CharField(max_length=50, null=False)
@@ -98,13 +98,13 @@ def now_plus_six_months():
 
 
 class Classroom(models.Model):
-    owner = models.ForeignKey('digital_meal.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
     class_id = models.UUIDField(default=uuid.uuid4, editable=False)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
-        'digital_meal.Track',
+        'tool.Track',
         on_delete=models.CASCADE,
         verbose_name='Track',
         null=True
