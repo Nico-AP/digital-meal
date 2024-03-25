@@ -208,7 +208,7 @@ class Track(models.Model):
     name = models.CharField(max_length=50, blank=False, null=False)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     active = models.BooleanField(default=False)
-    # TODO: Add image/icon field
+    image = models.ImageField(null=True, blank=True, upload_to='uploads/images/%Y/%m/')
 
     ddm_path = models.URLField()
     ddm_project_id = models.CharField(max_length=255)  # external ID
