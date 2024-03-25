@@ -26,8 +26,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'taggit',
     'ddm',
-    'digital_meal',
-    'digital_meal_website',
+    'digital_meal.tool',
+    'digital_meal.website',
+    'digital_meal.reports',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',
     'wagtail.embeds',
@@ -98,7 +99,7 @@ WAGTAIL_CONTENT_LANGUAGES = LANGUAGES = [
 
 # USER AUTHENTICATION AND PASSWORD VALIDATION
 # ------------------------------------------------------------------------------
-AUTH_USER_MODEL = 'digital_meal.User'
+AUTH_USER_MODEL = 'tool.User'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -111,7 +112,7 @@ ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_SIGNUP_EMAIL_ENTER_TWICE = True
 ACCOUNT_EMAIL_VERIFICATION = 'mandatory'
 ACCOUNT_EMAIL_SUBJECT_PREFIX = '[Digital Meal] '
-ACCOUNT_FORMS = {'signup': 'digital_meal.forms.SimpleSignupForm'}
+ACCOUNT_FORMS = {'signup': 'digital_meal.tool.forms.SimpleSignupForm'}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2
 
