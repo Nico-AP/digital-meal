@@ -3,6 +3,8 @@ import json
 import uuid
 import requests
 
+from ckeditor.fields import RichTextField
+
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
@@ -104,11 +106,13 @@ class Classroom(models.Model):
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
-        'tool.Track',
+        'tool.MainTrack',
         on_delete=models.CASCADE,
-        verbose_name='Track',
+        verbose_name='Main Track',
         null=True
     )
+
+    sub_tracks = models.ManyToManyField('tool.SubTrack')
 
     school_level = models.CharField(
         max_length=20,
@@ -199,7 +203,7 @@ class Classroom(models.Model):
         return start_date, self.report_ref_end_date
 
 
-class Track(models.Model):
+class MainTrack(models.Model):
     """
     A Track corresponds to a 'teaching path' within a Module
     (e.g., small, medium etc.).
@@ -210,11 +214,32 @@ class Track(models.Model):
     active = models.BooleanField(default=False)
     image = models.ImageField(null=True, blank=True, upload_to='uploads/images/%Y/%m/')
 
+    materials_text = RichTextField()
+
     ddm_path = models.URLField()
     ddm_project_id = models.CharField(max_length=255)  # external ID
     data_endpoint = models.URLField()
     overview_endpoint = models.URLField()
     ddm_api_token = models.CharField(max_length=40)
+
+    def __str__(self):
+        return self.name
+
+    def get_active_sub_tracks(self):
+        return self.subtrack_set.filter(active=True)
+
+
+class SubTrack(models.Model):
+    """."""
+    main_track = models.ForeignKey(
+        'tool.MainTrack', on_delete=models.SET_NULL, null=True)
+
+    name = models.CharField(max_length=50, blank=False, null=False)
+    url_parameter = models.SlugField(max_length=5, blank=False, null=False)
+    description = models.TextField()
+    materials_text = RichTextField()
+
+    active = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name

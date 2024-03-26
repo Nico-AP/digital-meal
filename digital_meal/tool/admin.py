@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Classroom, User, Teacher, Track
+from .models import Classroom, User, Teacher, MainTrack, SubTrack
 
 
 @admin.register(User)
@@ -12,10 +12,15 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'first_name', 'canton', 'school_name']
 
 
-@admin.register(Track)
+@admin.register(MainTrack)
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'date_created', 'id', 'active',
                     'ddm_path', 'ddm_project_id']
+
+
+@admin.register(SubTrack)
+class ModuleAdmin(admin.ModelAdmin):
+    list_display = ['name', 'url_parameter', 'active']
 
 
 @admin.register(Classroom)

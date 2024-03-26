@@ -174,6 +174,19 @@ WEBPACK_LOADER = {
 
 CKEDITOR_RESTRICT_BY_USER = True  # Files uploaded by one user can only be accessed by this particular user
 CKEDITOR_UPLOAD_PATH = 'uploads/'
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Bold', 'Italic', 'Underline'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink'],
+            ['RemoveFormat', 'Source']
+        ],
+        'height': 300,
+        'width': 800,
+    },
+}
 
 
 # WAGTAIL

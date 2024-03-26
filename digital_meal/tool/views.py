@@ -10,9 +10,10 @@ from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
+from requests import JSONDecodeError
 
 from .forms import ClassroomCreateForm, ClassroomTrackForm
-from .models import Classroom, Teacher
+from .models import Classroom, Teacher, MainTrack
 
 
 class OwnershipRequiredMixin:
@@ -90,7 +91,10 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         r = requests.get(endpoint, headers=headers, params=payload)
 
         if r.ok:
-            return r.json()
+            try:
+                return r.json()
+            except JSONDecodeError:
+                return '{}'
         else:
             return '{}'
 
@@ -112,7 +116,7 @@ class ClassroomCreate(CreateView, LoginRequiredMixin):
 class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
     """ Assign a track to a classroom. """
     model = Classroom
-    template_name = 'tool/class/create_track.html'
+    template_name = 'tool/class/assign_track.html'
     form_class = ClassroomTrackForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -125,6 +129,12 @@ class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
     def form_valid(self, form):
         form.instance.owner = self.request.user
         return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        active_main_tracks = MainTrack.objects.filter(active=True)
+        context['active_main_tracks'] = active_main_tracks
+        return context
 
 
 class ClassroomExpired(LoginRequiredMixin, OwnershipRequiredMixin, TemplateView):

@@ -1,0 +1,92 @@
+{% extends "tool/form.html" %}
+
+{% load static %}
+
+{% block title %}Modul auswählen{% endblock title %}
+
+
+
+{% block main_content %}
+
+<h1>Wahl der Themenschwerpunkte</h1>
+
+<p class="ff-non-serif">
+  Auf dieser Seite können Sie auswählen, auf welche Themenbereiche Sie sich mit
+  Ihrer Klasse fokussieren möchten.
+</p>
+
+<h2>Basismodul</h2>
+<p class="ff-non-serif">
+  Das Basismodul bestimmt, welche Plattform Sie mit Ihrer Klasse bearbeiten möchten.
+  Die Schüler:innen werden im Verlauf des Moduls die Daten von der hier ausgewählten
+  Plattform anfordern und herunterladen.
+</p>
+
+<div id="main-track-container" class="main-track-container d-flex ff-no-serif">
+  {% for track in active_main_tracks %}
+  <div class="p-3">
+    <input type="radio" name="main-tracks" value="{{ track.id }}" id="mt-{{ forloop.counter }}" class="d-none" />
+    <label onclick="showHideSubTracks(this); selectTrack('{{ track.id }}')" class="d-flex flex-column justify-content-center align-items-center main-track-label main-track-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
+      <div>{{ track.name }}</div>
+    </label>
+  </div>
+  {% empty %}
+  <p>Es existiert noch kein Basismodul. Bitte kontaktieren Sie den Betreiber der Webseite.</p>
+  {% endfor %}
+</div>
+
+<h2 class="pt-5">Vertiefungsmodule</h2>
+<div>
+  <p class="ff-non-serif">
+    Vertiefungsmodule vertiefen einen bestimmten Themenbereich. Die Vertiefungsmodule
+    sind optional und Sie können beliebig viele Module auswählen.
+  </p>
+</div>
+
+<div id="sub-task-placeholder" class="ff-non-serif bg-secondary text-white rounded p-2 m-1">
+  Um die Vertiefungsmodule anzuzeigen, müssen Sie zunächst ein Basismodul auswählen.
+</div>
+
+<div id="sub-track-container" class="pb-5">
+  {% for track in active_main_tracks %}
+  {% with mt=forloop.counter %}
+
+  <div id="mt-{{ mt }}-subtracks" class="mt-subtrack-container" style="display: none;">
+    {% for sub_track in track.get_active_sub_tracks %}
+    <div class="pb-3">
+      <input type="checkbox" name="sub-tracks-{{ mt }}" value="{{ track.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
+      <label onclick="selectSubTrack('{{ sub_track.id }}')" class="d-flex flex-column justify-content-center align-items-center sub-track-label sub-track-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-75" for="st-{{ forloop.counter }}-{{ mt }}">
+
+          <div class="text-black">{{ sub_track.name }}</div>
+          <div class="ff-non-serif fs-6 fw-normal text-black">{{ sub_track.description }}</div>
+
+      </label>
+    </div>
+
+    {% empty %}
+    <p>Für das ausgewählte Basismodul existieren keine Vertiefungsmodule.</p>
+    {% endfor %}
+    <p class="ff-non-serif">
+      Bitte beachten Sie, dass zusätzliche Module die Anzahl empfohlene Lektionen für das Durchführen erhöhen.
+    </p>
+  </div>
+  {% endwith %}
+  {% endfor %}
+</div>
+
+
+<form class="dm-form" method="post">
+  {% csrf_token %}
+  <div class="d-none">
+    <table>
+      {{ form.as_p }}
+    </table>
+  </div>
+  <input type="submit" value="Module auswählen" class="button is-light">
+</form>
+{% endblock main_content %}
+
+{% block site_js %}
+{{ block.super }}
+<script src="{% static 'tool/js/track-assign.js' %}"></script>
+{% endblock site_js %}

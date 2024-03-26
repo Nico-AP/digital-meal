@@ -1,0 +1,50 @@
+.main-track-label {
+    cursor: pointer;
+    height: 200px;
+    width: 200px;
+    border: 2px solid white;
+    background: #f99;
+    color: #414141;
+    filter: brightness(110%);
+}
+#main-track-container input[type=radio]:checked + .main-track-label{
+    filter: brightness(100%) !important;
+    border: 2px solid black;
+    color: black;
+}
+
+.main-track-bg-1 {
+    background: #f99;
+}
+.main-track-bg-2 {
+    background: #F7B17B;
+}
+.main-track-bg-3 {
+    background: #C8C1E1;
+}
+
+.sub-track-label {
+    cursor: pointer;
+    height: 150px;
+    border: 2px solid white;
+    background: #F5E165;
+    filter: brightness(140%);
+}
+#sub-track-container input[type=checkbox]:checked + .sub-track-label{
+    filter: none !important;
+    border: 2px solid black;
+    color: black;
+}
+
+.sub-track-bg-1 {
+    background: #F5E165;
+}
+.sub-track-bg-2 {
+    background: #9BCEA4;
+}
+.sub-track-bg-3 {
+    background: #BFE2E0;
+}
+.sub-track-bg-4 {
+    background: #D6E297;
+}

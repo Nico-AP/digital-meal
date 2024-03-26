@@ -107,5 +107,18 @@ class ClassroomTrackForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = [
-            'track'
+            'track',
+            'sub_tracks'
         ]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        main_track = cleaned_data.get('track')
+        allowed_sub_tracks = main_track.get_active_sub_tracks()
+        sub_tracks = []
+        for sub_track in cleaned_data['sub_tracks']:
+            if sub_track in allowed_sub_tracks:
+                sub_tracks.append(sub_track)
+
+        cleaned_data['sub_tracks'] = sub_tracks
+        return cleaned_data
