@@ -1,6 +1,6 @@
 {% extends "website/base.html" %}
 
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags wagtailimages_tags %}
 
 {% block main_content %}
  {% for block in page.body %}
@@ -16,6 +16,9 @@
         {% include_block block %}
       </div>
       {% elif block.block_type == "image" %}
+      <div class="image-block w-100 text-center">
+        {% picture block.value width-800 class="wagtail-image" %}
+      </div>
       {% elif block.block_type == "highlight" %}
       {% include_block block %}
       {% endif %}

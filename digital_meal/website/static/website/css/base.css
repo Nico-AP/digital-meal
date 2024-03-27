@@ -269,3 +269,7 @@ form .helptext {
     filter: brightness(105%);
     color: black;
 }
+
+.wagtail-image {
+    width: 90% !important;
+}
