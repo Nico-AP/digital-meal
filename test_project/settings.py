@@ -192,3 +192,4 @@ CKEDITOR_CONFIGS = {
 # WAGTAIL
 WAGTAIL_SITE_NAME = 'Digital Meal'
 WAGTAILADMIN_BASE_URL = os.environ['WAGTAILADMIN_BASE_URL']
+WAGTAILIMAGES_EXTENSIONS = ['gif', 'jpg', 'jpeg', 'png', 'webp', 'svg']
