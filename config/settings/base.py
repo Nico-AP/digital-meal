@@ -158,7 +158,7 @@ THUMBNAIL_PROCESSORS = (
 WAGTAIL_SITE_NAME = 'Digital Meal'
 WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL', None)
 
-WAGTAILIMAGES_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp", "svg"]
+WAGTAILIMAGES_EXTENSIONS = ['gif', 'jpg', 'jpeg', 'png', 'webp', 'svg']
 
 
 CKEDITOR_CONFIGS = {
