@@ -5,8 +5,44 @@
 
 {% block report_intro_title %}Etwas ist schiefgegangen{% endblock %}
 
-{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}
+{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
 
 {% block report_intro_text %}
-{{ exception_message }}
+<p class="fs-4 mt-0 ff-space-grotesk">
+  {% if exception_message %}
+  {{ exception_message }}
+  {% else %}
+  Beim Laden des Reports ist etwas schiefgegangen. Bitte versuchen Sie später
+  nochmal, den Report aufzurufen. Sollte das Problem weiterhin bestehen,
+  kontaktieren Sie bitte den Administrator der Webseite.
+  {% endif %}
+</p>
+{% endblock %}
+
+{% block footer %}
+<div class="section-container">
+
+  <div class="report-section">
+    <div class="report-content">
+      <h3>Über diesen Report</h3>
+
+      <p>
+        Dieser Report ist Teil des Lernmoduls "Digital Meal".
+      </p>
+
+      <p>
+        <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen von Forschenden der Universität Zürich.
+        Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
+        Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
+      </p>
+
+      <div class="text-center">
+        <img alt="Digital Meal Logo" src="{% static 'website/img/DigitalMeal_logo.svg' %}" height="70px">
+        <img alt="Data Donation Lab Logo" src="{% static 'website/img/DataDonationLab_logo.svg' %}" height="70px">
+        <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}" height="70px">
+      </div>
+    </div>
+  </div>
+
+</div>
 {% endblock %}

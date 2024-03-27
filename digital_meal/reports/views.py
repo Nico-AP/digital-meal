@@ -1,15 +1,16 @@
 import datetime
 import json
-from smtplib import SMTPException
-
 import pandas as pd
 import requests
+
 from django.core.mail import send_mail
 from django.http import JsonResponse
-
 from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView
+
+from requests import JSONDecodeError
+from smtplib import SMTPException
 
 from ..tool.models import Classroom
 from .utils import yt_data, yt_plots
@@ -37,7 +38,10 @@ class DDMReport:
         r = requests.get(self.get_endpoint(), headers=self.get_headers(), params=payload)
 
         if r.ok:
-            return r.json()
+            try:
+                return r.json()
+            except JSONDecodeError:
+                return '{"errors": ["JSONDecodeError"]}'
         else:
             return None
 
@@ -62,7 +66,10 @@ class BaseClassroomReport(DDMReport, DetailView):
         r = requests.get(self.get_endpoint(), headers=self.get_headers(), params=payload)
 
         if r.ok:
-            return r.json()
+            try:
+                return r.json()
+            except JSONDecodeError:
+                return '{"errors": ["JSONDecodeError"]}'
         else:
             return {}
 
@@ -191,10 +198,13 @@ class ClassroomReportYouTube(BaseClassroomReport, BaseYouTubeReport):
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
 
-        print(f'Received class data from API: {datetime.datetime.now()}')
+        if 'errors' in data:
+            self.template_name = 'reports/report_exception.html'
+            return context
 
+        print(f'Received class data from API: {datetime.datetime.now()}')
         if all(v is None for k, v in data['donations'].items()):
-            self.template_name = 'digital_meal/reports/report_exception.html'
+            self.template_name = 'reports/report_exception.html'
             context['exception_message'] = (
                 'Es haben weniger als 5 Personen aus der Klasse ihre Daten '
                 'hochgeladen.'
@@ -345,11 +355,12 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
 
+        if 'errors' in data or 'donations' not in data:
+            self.template_name = 'reports/report_exception.html'
+            return context
+
         # Watch history
         watch_history_id = 'Angesehene Videos'
-
-        # TODO: Add check for no donations available.
-
         if watch_history_id in data['donations'].keys():
             context.update(self.get_watch_context(data['donations'][watch_history_id]))
 
