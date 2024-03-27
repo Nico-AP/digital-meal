@@ -81,6 +81,8 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         context = super().get_context_data(**kwargs)
         overview_data = json.loads(self.get_overview_data())
         context.update(overview_data)
+        context['main_track'] = self.object.track
+        context['sub_tracks'] = self.object.sub_tracks.all()
         return context
 
     def get_overview_data(self):
