@@ -9,7 +9,7 @@
 }
 #main-track-container input[type=radio]:checked + .main-track-label{
     filter: brightness(100%) !important;
-    border: 2px solid black;
+    border: 6px solid black;
     color: black;
 }
 
@@ -28,11 +28,11 @@
     height: 150px;
     border: 2px solid white;
     background: #F5E165;
-    filter: brightness(140%);
+    color: #414141;
 }
 #sub-track-container input[type=checkbox]:checked + .sub-track-label{
     filter: none !important;
-    border: 2px solid black;
+    border: 6px solid black;
     color: black;
 }
 
