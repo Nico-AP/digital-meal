@@ -26,6 +26,8 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'taggit',
     'ddm',
+    'ckeditor',
+    'ckeditor_uploader',
     'digital_meal.tool',
     'digital_meal.website',
     'digital_meal.reports',
