@@ -43,7 +43,7 @@ class DDMReport:
             except JSONDecodeError:
                 return '{"errors": ["JSONDecodeError"]}'
         else:
-            return None
+            return {}
 
 
 class BaseClassroomReport(DDMReport, DetailView):
