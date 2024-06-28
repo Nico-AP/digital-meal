@@ -352,9 +352,6 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
         url = url.replace('class-data', 'individual-data')
         return url
 
-    def get_payload(self):
-        return {'participant_id': self.object.pk}
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         data = json.loads(self.get_data())
