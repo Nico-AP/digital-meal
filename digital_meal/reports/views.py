@@ -370,11 +370,6 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
         if search_history_id in data['donations'].keys():
             context.update(self.get_search_context(data['donations'][search_history_id]))
 
-        # Subscribed channels (sc)
-        subscription_id = 'Abonnierte Kanäle'
-        if subscription_id in data['donations'].keys():
-            context.update(self.get_subs_context(data['donations'][subscription_id]))
-
         return context
 
     def get_watch_context(self, data):
