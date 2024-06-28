@@ -90,7 +90,7 @@
     <div class="text-center position-relative" onclick="copyLinkToClipboard()" style="cursor: pointer;">
       {% with object.class_id|stringformat:"s" as class_id %}
         {% with object.pk|stringformat:"s" as class_pk %}
-          {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id|add:"?class_pk="|add:class_pk %}
+          {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id|add:"&class_pk="|add:class_pk %}
             {% qr_from_text participation_url size="M" %}
             <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
           {% endwith %}
