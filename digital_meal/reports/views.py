@@ -348,8 +348,12 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
     template_name = 'reports/youtube/individual_report.html'
 
     def get_endpoint(self):
-        kwargs = {'pk': self.object.pk}
-        return self.request.build_absolute_uri(reverse_lazy('individual_data_api', kwargs=kwargs))
+        url = self.object.track.data_endpoint
+        url = url.replaces('class-data', 'individual-data')
+        return url
+
+    def get_payload(self):
+        return {'participant_id': self.object.pk}
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
