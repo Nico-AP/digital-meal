@@ -349,7 +349,7 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
 
     def get_endpoint(self):
         url = self.object.track.data_endpoint
-        url = url.replaces('class-data', 'individual-data')
+        url = url.replace('class-data', 'individual-data')
         return url
 
     def get_payload(self):
