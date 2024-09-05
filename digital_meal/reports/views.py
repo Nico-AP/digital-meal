@@ -401,7 +401,8 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
             return c
         c['search_available'] = True
 
-        sh = yt_data.exclude_google_ads_videos(data['data'])
+        sh = yt_data.exclude_ads_from_search_history(data['data'])
+        sh = yt_data.clean_search_titles(sh)
         self.add_sh_statistics_to_context(c, sh)
         search_terms = [t['title'] for t in sh]
 
