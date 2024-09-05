@@ -95,11 +95,17 @@
 }
 
 #report .report-section {
-    padding: 100px 40px 100px;
+    padding: 80px 10px 80px;
     scroll-snap-align: start;
     min-height: 50vh;
     display: flex;
     justify-content: center;
+}
+
+@media screen and (min-width: 768px) {
+    #report .report-section {
+        padding: 100px 40px 100px;
+    }
 }
 
 #report .report-content {
@@ -141,7 +147,7 @@
 
 @media screen and (max-width: 992px) {
     .searchbar-font {
-        font-size: 2vw !important;
+        font-size: 3.4vw !important;
     }
 }
 
@@ -203,12 +209,12 @@
     border: 1px solid #d2d2d2;
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
-    padding: 5px 40px 5px 20px;
+    padding: 5px 15px 5px 15px;
     font-size:inherit;
 }
 @media screen and (max-width: 992px) {
     .searchbar {
-        font-size: 2vw !important;
+        font-size: 3.4vw !important;
     }
 }
 .searchbar-icon-container {
@@ -220,11 +226,11 @@
 }
 @media screen and (max-width: 992px) {
     .searchbar-icon-container {
-        font-size: 2vw !important;
+        font-size: 3.4vw !important;
     }
 }
 .searchbar-icon {
-    width: 2%;
+    width: 3%;
 }
 
 .red-podium-container {

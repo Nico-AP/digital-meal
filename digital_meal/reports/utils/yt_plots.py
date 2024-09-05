@@ -94,9 +94,7 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     p.xaxis.major_tick_line_color = 'white'
 
     select = figure(
-        title='Verschiebe oder ändere die Grösse des hellen '
-              'Auswahlfelds unten, um den oben angezeigten Bereich anzupassen.',
-        height=130,
+        height=70,
         y_range=p.y_range,
         y_axis_type=None,
         x_axis_type='datetime',
@@ -112,9 +110,6 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     select.border_fill_alpha = 0
     select.background_fill_color = '#465ad9'
     select.add_tools(range_tool)
-    select.title.text_font_style = 'normal'
-    select.title.align = 'center'
-    select.title.text_color = '#465ad9'
 
     plot = column(p, select, sizing_mode='stretch_width')
     script, div = components(plot)
@@ -252,7 +247,7 @@ def get_day_usetime_plot(data):
     return {'script': script, 'div': div}
 
 
-def get_channel_plot(channel_list, n_channels=20):
+def get_channel_plot(channel_list, n_channels=10):
     channels = pd.Series(channel_list)
     x_labels = channels.value_counts().keys().to_list()
     y_values = channels.value_counts().values.tolist()
