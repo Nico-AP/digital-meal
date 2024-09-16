@@ -112,7 +112,7 @@ class Classroom(models.Model):
         null=True
     )
 
-    sub_tracks = models.ManyToManyField('tool.SubTrack')
+    sub_tracks = models.ManyToManyField('tool.SubTrack', blank=True)
 
     school_level = models.CharField(
         max_length=20,
