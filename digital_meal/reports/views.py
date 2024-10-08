@@ -5,7 +5,6 @@ import requests
 
 from django.core.mail import send_mail
 from django.http import JsonResponse
-from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView
 
@@ -71,7 +70,7 @@ class BaseClassroomReport(DDMReport, DetailView):
             except JSONDecodeError:
                 return '{"errors": ["JSONDecodeError"]}'
         else:
-            return {}
+            return '{"errors": ["Request failed"]}'
 
 
 class BaseIndividualReport(DDMReport, DetailView):
