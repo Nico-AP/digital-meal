@@ -5,7 +5,7 @@
 
 {% block report_intro_title %}Die personalisierte Auswertung deiner YouTube-Nutzung{% endblock %}
 
-{% block report_intro_image_path %}{% static 'digital_meal/img/yt_symbol.png' %}{% endblock %}
+{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
 
 {% block report_intro_text %}
 <p>In dieser persönlichen Auswertung findest Du Informationen, wie Du YouTube in der Vergangenheit genutzt hast.
@@ -135,10 +135,9 @@
       <div class="ps-5 pe-5 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
         <h2>Dein Lieblingsvideo</h2>
         <p class="text-center">
-          Dein Lieblingsvideo<br><b class="font-size-highlight" style="color: #001310; background: #d0c3ff; padding-left: 15px; padding-right: 10px;">{{ fav_vids_top_ten.0.title }}</b><br>hast du dir <b class="font-size-highlight" style="color: #001310; border-bottom: 3px solid #d0c3ff;">{{ fav_vids_top_ten.0.count }} mal</b> angesehen.
+          Dein Lieblingsvideo<br><b class="font-size-highlight" style="color: #001310; background: #d0c3ff; padding-left: 15px; padding-right: 10px;">{{ fav_vids_top_ten.0.title }}</b><br>hast du dir im gesamten Zeitraum <b class="font-size-highlight" style="color: #001310; border-bottom: 3px solid #d0c3ff;">{{ fav_vids_top_ten.0.count }} mal</b> angesehen.
         </p>
       </div>
-
       <div class="ps-5 pe-5 flex-grow-1 d-flex justify-content-center align-items-center fav-video-teaser">
         <div style="background-color: #001310; padding: 20px; transform: rotate(135deg);">
           <div style="background-color: #389583; padding: 20px; transform: rotate(15deg);">
