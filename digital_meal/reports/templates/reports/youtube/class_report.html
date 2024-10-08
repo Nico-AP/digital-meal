@@ -183,6 +183,7 @@
 
 
 <!-- SUBSCRIBED CHANNELS -->
+{% if n_subs_unique %}
 <div class="section-container">
 
   <div class="report-section bg-pictonblue">
@@ -244,7 +245,7 @@
   </div>
 
 </div>
-
+{% endif %}
 
 <!-- SEARCHES -->
 {% if n_searches_overall > 0 %}
