@@ -15,35 +15,37 @@
       <img alt="Icon Datenauswertung" class="pe-1" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}" height="50px">
       Klassendetails
     </h4>
+    <div class="container">
+      <div class="row">
+        <div class="pe-3 fw-bold">Klassenbezeichnung</div>
+        <div class="pb-2">{{ object.name }}</div>
+      </div>
 
-    <table>
-      <tbody class="align-baseline">
-      <tr>
-        <td class="pe-3 fw-bold">Klassenbezeichnung:</td>
-        <td class="pb-2">{{ object.name }}</td>
-      </tr>
-      <tr>
-        <td class="pe-3 fw-bold">Erstellt am:</td>
-        <td class="pb-2">{{ object.date_created }}</td>
-      </tr>
-      <tr>
-        <td class="pe-3 fw-bold">Schulstufe:</td>
-        <td class="pb-2">{{ object.get_school_level_display }}</td>
-      </tr>
-      <tr>
-        <td class="pe-3 fw-bold">Schuljahr:</td>
-        <td class="pb-2">{{ object.school_year }}</td>
-      </tr>
-      <tr>
-        <td class="pe-3 fw-bold">Unterrichtsfach:</td>
-        <td class="pb-2">{{ object.get_subject_display }}</td>
-      </tr>
-      <tr>
-        <td class="pe-3 fw-bold">Unterrichtsformat:</td>
-        <td class="pb-2">{{ object.get_instruction_format_display }}</td>
-      </tr>
-      </tbody>
-    </table>
+      <div class="row">
+        <div class="pe-3 fw-bold">Erstellt am</div>
+        <div class="pb-2">{{ object.date_created }}</div>
+      </div>
+
+      <div class="row">
+        <div class="pe-3 fw-bold">Schulstufe</div>
+        <div class="pb-2">{{ object.get_school_level_display }}</div>
+      </div>
+
+      <div class="row">
+        <div class="pe-3 fw-bold">Schuljahr</div>
+        <div class="pb-2">{{ object.school_year }}</div>
+      </div>
+
+      <div class="row">
+        <div class="pe-3 fw-bold">Unterrichtsfach</div>
+        <div class="pb-2">{{ object.get_subject_display }}</div>
+      </div>
+
+      <div class="row">
+        <div class="pe-3 fw-bold">Unterrichtsformat</div>
+        <div class="pb-2">{{ object.get_instruction_format_display }}</div>
+      </div>
+    </div>
 
   </div>
 
