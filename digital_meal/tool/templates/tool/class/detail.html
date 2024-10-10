@@ -93,7 +93,7 @@
       {% with object.class_id|stringformat:"s" as class_id %}
         {% with object.pk|stringformat:"s" as class_pk %}
           {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id|add:"&class_pk="|add:class_pk %}
-            {% qr_from_text participation_url size="M" %}
+            <img src="{% qr_url_from_text participation_url %}" alt="Participation URL" style="max-height: 400px;" class="w-100">
             <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
           {% endwith %}
         {% endwith %}
@@ -104,7 +104,7 @@
     </div>
 
     <p class="text-center">
-      <i>Mit einem Klick auf den QR-Code wird der Teilnahmelink in die Zwischenablage kopiert.</i>
+      <i>Mit einem Klick auf den QR-Code wird der Teilnahmelink in die Zwischenablage kopiert (bspw. um ihn via E-Mail zu teilen).</i>
     </p>
 
   </div>
