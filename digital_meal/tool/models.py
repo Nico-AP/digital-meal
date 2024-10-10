@@ -152,6 +152,7 @@ class Classroom(models.Model):
     def __str__(self):
         return self.name
 
+    @property
     def is_active(self):
         if self.expiry_date > timezone.now():
             return True

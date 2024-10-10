@@ -74,7 +74,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         if not obj.track:
             return redirect(reverse_lazy('class_assign_track', kwargs={'pk': obj.pk}))
 
-        if obj.expiry_date < timezone.now():
+        if not obj.is_active:
             return redirect(reverse_lazy('class_expired', kwargs={'pk': obj.pk}))
 
         return super().dispatch(request, *args, **kwargs)
