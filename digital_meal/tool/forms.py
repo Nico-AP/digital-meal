@@ -88,7 +88,7 @@ class ClassroomCreateForm(forms.ModelForm):
         help_texts = {
             'agb_agree': 'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
                          'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die '
-                         '<a href="/tool/datenschutz">Datenschutzerklärung</a> gelesen habe und damit einverstanden bin.'
+                         '<a href="/tool/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen habe und damit einverstanden bin.'
         }
 
     def clean(self):
