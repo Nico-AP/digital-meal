@@ -92,11 +92,13 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     p.xaxis.major_label_text_font_size = '15px'
     p.xaxis.axis_line_color = '#465ad9'
     p.xaxis.major_tick_line_color = 'white'
+    p.x_range.bounds = (date_min, date_max)
 
     select = figure(
         height=70,
         y_range=p.y_range,
         y_axis_type=None,
+        x_range=(date_min, date_max),
         x_axis_type='datetime',
         tools='',
         toolbar_location=None,
@@ -105,6 +107,11 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     range_tool = RangeTool(x_range=p.x_range)
     range_tool.overlay.fill_color = 'white'
     range_tool.overlay.fill_alpha = 0.5
+
+    select.x_range.min_interval = timedelta(days=1)
+    select.x_range.max_interval = date_max - date_min
+    select.x_range.bounds = (date_min, date_max)
+
     select.vbar(x=x_values, top=y_values, fill_color='white', line_color='white', width=bin_width)
     select.ygrid.grid_line_color = None
     select.border_fill_alpha = 0
