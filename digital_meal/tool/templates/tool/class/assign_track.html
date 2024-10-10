@@ -65,8 +65,8 @@
     <div class="pb-3">
       <input type="checkbox" name="sub-tracks-{{ mt }}" value="{{ track.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
       <label onclick="selectSubTrack('{{ sub_track.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-track-label sub-track-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
-          <div>{{ sub_track.name }}</div>
-          <div class="ff-non-serif fs-6 fw-normal">{{ sub_track.description }}</div>
+        <div>{{ sub_track.name }}</div>
+        <div class="ff-non-serif fs-6 fw-normal">{{ sub_track.description }}</div>
       </label>
     </div>
 

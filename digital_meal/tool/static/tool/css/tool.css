@@ -4,7 +4,7 @@
     width: 200px;
     border: 2px solid white;
     background: #f99;
-    color: #414141;
+    color: #575757;
     filter: brightness(110%);
 }
 #main-track-container input[type=radio]:checked + .main-track-label{
@@ -25,10 +25,10 @@
 
 .sub-track-label {
     cursor: pointer;
-    height: 150px;
-    border: 2px solid white;
+    min-height: 150px;
+    border: 6px solid white;
     background: #F5E165;
-    color: #414141;
+    color: #575757;
 }
 #sub-track-container input[type=checkbox]:checked + .sub-track-label{
     filter: none !important;
