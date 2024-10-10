@@ -24,12 +24,14 @@ class OwnershipRequiredMixin:
     def dispatch(self, request, *args, **kwargs):
         classroom_id = self.kwargs.get('id', None)
         if classroom_id is None:
+            classroom_id = self.kwargs.get('pk', None)
+        if classroom_id is None:
             raise Http404()
 
         try:
             classroom = Classroom.objects.get(id=classroom_id)
         except Classroom.DoesNotExist:
-            raise Http404()
+            return redirect('class_not_found')
 
         if classroom.owner == request.user or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
@@ -141,6 +143,10 @@ class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
 
 class ClassroomExpired(LoginRequiredMixin, OwnershipRequiredMixin, TemplateView):
     template_name = 'tool/class/expired.html'
+
+
+class ClassroomDoesNotExist(LoginRequiredMixin, TemplateView):
+    template_name = 'tool/class/does_not_exist.html'
 
 
 class TeacherEdit(UpdateView, LoginRequiredMixin):
