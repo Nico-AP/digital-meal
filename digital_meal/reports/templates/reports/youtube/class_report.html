@@ -27,13 +27,13 @@
         Unten findet ihr einige Zahlen zur zusammengefassten YouTube-Nutzung eurer Klasse.
         Links seht ihr die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
       </p>
-      <!-- TODO: Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
+      <!-- TODO(optimization): Ideal wäre eine Info zur Zeitdauer der angeschauten Videos (insgesamt X Zeit auf YouTube verbracht). -->
       <div class="row justify-content-center pt-5">
         <div class="col-12 col-md-6 p-5 bg-royalblue text-white">
           <div style="height: 90px;">
             <h3>Insgesamt<br><span class="fs-6">{{ wh_dates_min|date:"d.m.Y" }} bis {{ wh_dates_max|date:"d.m.Y" }}</span></h3>
           </div>
-          <!-- TODO: Check how to handle shorts. -->
+          <!-- TODO(optimization): Separate shorts from regular videos. -->
           <p>Angeschaute Videos: {{ n_vids_overall }}</p>
           <p>Unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
           <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
@@ -48,7 +48,7 @@
           <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
         </div>
       </div>
-      <!-- TODO: Add CH-Vergleich, wenn verfügbar. -->
+      <!-- TODO(optimization): Add CH-Vergleich, wenn verfügbar. -->
 
     </div>
 
@@ -94,9 +94,9 @@
 
 <!-- DAILY USE -->
 {% if weekday_use_plot %}
-<!-- TODO: Base this on the last full month? -->
+<!-- TODO(optimization): Base this on the last full month? -->
 <div class="section-container">
-  <!-- TODO: Check datetime logic of Google -->
+  <!-- TODO(optimization): Check datetime logic of Google -->
 
   <div class="report-section bg-melrose">
     <div class="report-content row">
@@ -113,7 +113,7 @@
         </p>
       </div>
       <div class="col-12 col-lg-7 detailed-use-plot">
-        <!-- TODO: Berechnungsgrundlage Mean -->
+        <!-- TODO(optimization): Berechnungsgrundlage Mean -->
         <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
         <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
       </div>
@@ -250,7 +250,7 @@
 <!-- SEARCHES -->
 {% if n_searches_overall > 0 %}
 
-<!-- TODO: Stemming approach. -->
+<!-- TODO(optimization): Stemming approach. -->
 <div class="section-container">
 
   <div class="report-section text-white bg-ebonyclay">
