@@ -85,11 +85,10 @@ class ClassroomCreateForm(forms.ModelForm):
             'subject': 'In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?',
             'instruction_format': 'In welchem Format unterrichten Sie die Klasse?'
         }
-        # TODO: Optimize help text and add link.
         help_texts = {
             'agb_agree': 'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
-                         'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die Datenschutzbestimmungen '
-                         '<LINK WIRD ERGÄNZT> gelesen habe und damit einverstanden bin.'
+                         'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die '
+                         '<a href="/tool/datenschutz">Datenschutzbestimmungen</a> gelesen habe und damit einverstanden bin.'
         }
 
     def clean(self):
