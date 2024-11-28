@@ -26,8 +26,6 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'taggit',
     'ddm',
-    'ckeditor',
-    'ckeditor_uploader',
     'digital_meal.tool',
     'digital_meal.website',
     'digital_meal.reports',
@@ -44,7 +42,8 @@ INSTALLED_APPS = [
     'wagtail.locales',
     'wagtail.contrib.simple_translation',
     'wagtail',
-    'qr_code'
+    'qr_code',
+    'django_ckeditor_5',
 ]
 
 MIDDLEWARE = [
@@ -163,21 +162,24 @@ WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL', None)
 
 WAGTAILIMAGES_EXTENSIONS = ['gif', 'jpg', 'jpeg', 'png', 'webp', 'svg']
 
-
-# CKEDITOR
+# CKEditor SETTINGS
 # ------------------------------------------------------------------------------
-CKEDITOR_RESTRICT_BY_USER = True
-CKEDITOR_UPLOAD_PATH = 'uploads/'
-CKEDITOR_CONFIGS = {
+CKEDITOR_5_CONFIGS = {
     'default': {
-        'toolbar': 'Custom',
-        'toolbar_Custom': [
-            ['Bold', 'Italic', 'Underline'],
-            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
-            ['Link', 'Unlink'],
-            ['RemoveFormat', 'Source']
-        ],
-        'height': 300,
-        'width': 800,
+        'toolbar': ['heading', '|', 'bold', 'italic', 'link',
+                    'bulletedList', 'numberedList', 'blockQuote', 'imageUpload',
+                    'sourceEditing'],
+        'htmlSupport': {
+            'allow': [
+                {
+                    'styles': True,
+                    'classes': True
+                }
+            ],
+            'disallow': []
+        },
     },
 }
+
+# Define a constant in settings.py to specify file upload permissions
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'staff'

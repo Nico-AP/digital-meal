@@ -3,7 +3,7 @@ import json
 import uuid
 import requests
 
-from ckeditor.fields import RichTextField
+from django_ckeditor_5.fields import CKEditor5Field
 
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
@@ -215,7 +215,7 @@ class MainTrack(models.Model):
     active = models.BooleanField(default=False)
     image = models.ImageField(null=True, blank=True, upload_to='uploads/images/%Y/%m/')
 
-    materials_text = RichTextField()
+    materials_text = CKEditor5Field()
 
     ddm_path = models.URLField()
     ddm_project_id = models.CharField(max_length=255)  # external ID
@@ -238,7 +238,7 @@ class SubTrack(models.Model):
     name = models.CharField(max_length=50, blank=False, null=False)
     url_parameter = models.SlugField(max_length=5, blank=False, null=False)
     description = models.TextField()
-    materials_text = RichTextField()
+    materials_text = CKEditor5Field()
 
     active = models.BooleanField(default=False)
 
