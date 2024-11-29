@@ -1,0 +1,14 @@
+{% extends "website/base.html" %}
+
+{% block main_content %}
+  <h1>Cookies</h1>
+
+  <p>
+    Dies ist eine Liste der Cookies, die auf unserer Website verwendet werden:
+  </p>
+
+  {% for cookie_group in object_list  %}
+    {% include "cookie_consent/_cookie_group.html" %}
+  {% endfor %}
+
+{% endblock %}

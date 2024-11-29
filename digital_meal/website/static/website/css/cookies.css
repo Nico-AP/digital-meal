@@ -1,0 +1,29 @@
+.cookie-bar {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background-color: #00213f;
+    color: white;
+    text-align: center;
+}
+
+.cookie-group-form {
+    display: flex;
+}
+
+.cookie-group-form form {
+    padding-right: 10px;
+}
+
+.cookie-consent-accepted {
+    padding-right: 10px;
+}
+
+.cookie-group tr {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+}
+.cookie-group th {
+    padding-right: 15px;
+}

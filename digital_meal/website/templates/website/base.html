@@ -1,5 +1,6 @@
-{% load static i18n %}
+{% load static i18n cookie_consent_tags %}
 {% get_current_language as LANGUAGE_CODE %}
+{% url "cookie_consent_cookie_group_list" as url_cookies %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -80,9 +81,11 @@
 
 </div>
 
+{% include "website/components/cookie_info.html" %}
+
 {% block site_js %}
-<script src="{% static 'website/js/jquery/jquery-3.6.2.min.js' %}"></script>
-<script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'website/js/jquery/jquery-3.6.2.min.js' %}"></script>
+  <script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 {% endblock site_js %}
 
 </body>

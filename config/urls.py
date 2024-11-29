@@ -7,6 +7,8 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
+    path('cookies/', include('cookie_consent.urls')),
+    # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
     path('', include('digital_meal.urls')),
 ]
 
