@@ -69,11 +69,3 @@ DATABASES = {
         }
     }
 }
-
-# E-MAIL SETTINGS
-# ------------------------------------------------------------------------------
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TSL = True
-
-DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
-SERVER_EMAIL = os.environ['SERVER_EMAIL']
