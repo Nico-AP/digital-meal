@@ -33,15 +33,16 @@ days_en_de_short = {
 }
 
 
-def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
+def get_timeseries_plot(date_series, bin_width=1,
+                        date_min=None, date_max=None):
     """
     Create timeseries bar plot.
     :param date_series: Pandas Series of datetime objects and counts.
     :param bin_width: Width of bin in bar plot.
-    :param date_min: Minimum date of date range on x-axis - if None is provided,
-        minimum of data_series is used.
-    :param date_max: Maximum date of date range on x-axis - if None is provided,
-        maximum of data_series is used.
+    :param date_min: Minimum date of date range on x-axis - if None
+        is provided, minimum of data_series is used.
+    :param date_max: Maximum date of date range on x-axis - if None
+        is provided, maximum of data_series is used.
     :return: Dictionary containing bokeh script and bokeh plot
         ({'script': script, 'div': div}).
     """
@@ -69,7 +70,13 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
         tools='xpan',
         sizing_mode='stretch_width'
     )
-    p.vbar(x=x_values, top=y_values, fill_color='#465ad9', line_color='#465ad9', width=bin_width)
+    p.vbar(
+        x=x_values,
+        top=y_values,
+        fill_color='#465ad9',
+        line_color='#465ad9',
+        width=bin_width
+    )
     p.background_fill_color = None
     p.border_fill_color = None
     p.outline_line_color = None
@@ -112,7 +119,13 @@ def get_timeseries_plot(date_series, bin_width=1, date_min=None, date_max=None):
     select.x_range.max_interval = date_max - date_min
     select.x_range.bounds = (date_min, date_max)
 
-    select.vbar(x=x_values, top=y_values, fill_color='white', line_color='white', width=bin_width)
+    select.vbar(
+        x=x_values,
+        top=y_values,
+        fill_color='white',
+        line_color='white',
+        width=bin_width
+    )
     select.ygrid.grid_line_color = None
     select.border_fill_alpha = 0
     select.background_fill_color = '#465ad9'
@@ -280,7 +293,13 @@ def get_channel_plot(channel_list, n_channels=10):
     p.border_fill_color = None
     p.outline_line_color = None
     p.background_fill_color = None
-    p.circle(x_labels, y_values, size=12, fill_color='#5cdb95', line_color=None)
+    p.circle(
+        x_labels,
+        y_values,
+        size=12,
+        fill_color='#5cdb95',
+        line_color=None
+    )
     p.yaxis.minor_tick_line_color = None
     p.axis.major_tick_line_color = None
     p.xaxis.major_label_orientation = math.pi/3

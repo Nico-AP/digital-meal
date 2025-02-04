@@ -25,8 +25,11 @@ def get_date_list(watch_history):
 
 
 def get_entries_in_date_range(entries, date_min, date_max=datetime.now()):
-    """ Filter a series to only keep entries recorded in a given date range. """
-    if date_min.tzinfo is not None and date_min.tzinfo.utcoffset(date_min) is not None:
+    """
+    Filter a series to only keep entries recorded in a given date range.
+    """
+    if (date_min.tzinfo is not None and
+            date_min.tzinfo.utcoffset(date_min) is not None):
         timezone = date_min.tzinfo
         date_max = date_max.replace(tzinfo=timezone)
     else:
@@ -102,7 +105,8 @@ def clean_search_titles(search_history):
 
 def clean_video_title(video_title):
     """
-    Delete pre- and postfixes from video titles as exported from Google Takeout.
+    Delete pre- and postfixes from video titles as exported from Google
+    Takeout.
     Supports takeouts in German, English, Italian, and French.
     :param video_title: String with video title as exported by Google.
     :return: Cleaned video title (string).
@@ -122,9 +126,10 @@ def get_video_title_dict(watch_history):
     returns {'video_id': 'video_title', ...}
     """
     titles = {}
+    generic_url = 'https://www.youtube.com/watch?v='
     for video in watch_history:
         if 'titleUrl' in video:
-            video_id = video['titleUrl'].replace('https://www.youtube.com/watch?v=', '')
+            video_id = video['titleUrl'].replace(generic_url, '')
             title = video['title'].strip()
             titles[video_id] = title
     return titles
@@ -133,9 +138,11 @@ def get_video_title_dict(watch_history):
 def get_most_watched_video(watch_history):
     """ Get ID and watch count of the most watched video in watch history. """
     video_urls = pd.Series(get_watched_video_urls(watch_history))
-    # TODO: Make sure, the chosen favorite video is still available, i.e. has not been deleted.
+    # TODO: Make sure, the chosen favorite video is still available,
+    # i.e. has not been deleted.
     max_count = video_urls.value_counts().max()
-    most_watched_urls = video_urls.value_counts()[video_urls.value_counts() == max_count]
+    video_counts = video_urls.value_counts()
+    most_watched_urls = video_counts[video_counts == max_count]
     favorite_video = random.choice(most_watched_urls.keys().to_list())
     return {'id': favorite_video, 'n_watched': max_count}
 
@@ -180,7 +187,8 @@ def normalize_datetime(date, mode='d'):
     :param date: A datetime object.
     :param mode: The normalization mode:
         'd' - Daily: returns date.
-        'w' - Weekly: returns date of first day of the week to which date belongs.
+        'w' - Weekly: returns date of first day of the week to which date
+            belongs.
         'm' - Monthly: returns the 15th of the month of date.
         'y' - Yearly: returns the 1st of July of the year of date.
         Note: Time is in each case set to 00:00.
@@ -189,17 +197,21 @@ def normalize_datetime(date, mode='d'):
     date = date.date()
 
     if mode == 'd':
-        return datetime.combine(date, datetime.min.time())
+        return datetime.combine(date,
+                                datetime.min.time())
 
     elif mode == 'w':
         week_start = date - timedelta(days=date.weekday())
-        return datetime.combine(week_start, datetime.min.time())
+        return datetime.combine(week_start,
+                                datetime.min.time())
 
     elif mode == 'm':
-        return datetime.combine(date.replace(day=15), datetime.min.time())
+        return datetime.combine(date.replace(day=15),
+                                datetime.min.time())
 
     elif mode == 'y':
-        return datetime.combine(date.replace(day=1, month=7), datetime.min.time())
+        return datetime.combine(date.replace(day=1, month=7),
+                                datetime.min.time())
 
     else:
         print('Invalid mode.')
@@ -236,10 +248,11 @@ def get_summary_counts_per_date(data, ref='d', base='sum'):
     Summarizes date occurrences across dates and persons.
 
     :param data: A list of lists where the inner lists hold the data related to
-        one person ([[{P1 e1}, {p2, e2}], [{P2, e1}, {P2, e2}]]).
+        one person ([[{P1, e1}, {p1, e2}], [{P2, e1}, {P2, e2}]]).
     :param ref: Defines the reference of the date counts:
         'd' - counts per day (default)
-        'w' - counts per week (attributed to the date of the first day of the week)
+        'w' - counts per week (attributed to the date of the first day of
+            the week)
         'm' - counts per month (attributed to the 15th of the month)
         'y' - counts per year (attributed to the 1st of July of the year)
     :param base: Defines how the counts will be summarized:
@@ -260,7 +273,8 @@ def get_summary_counts_per_date(data, ref='d', base='sum'):
 
     # Add counts per person.
     for p in data:
-        individual_date_list = pd.Series([normalize_datetime(d, mode=ref) for d in p]).value_counts()
+        normalized_dates = [normalize_datetime(d, mode=ref) for d in p]
+        individual_date_list = pd.Series(normalized_dates).value_counts()
         for index, value in individual_date_list.items():
             counts[index].append(value)
 
