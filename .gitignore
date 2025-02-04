@@ -29,3 +29,6 @@ RUN
 python
 
 *.pid
+
+#VS Code
+.vscode/
