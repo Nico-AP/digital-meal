@@ -6,6 +6,9 @@ from wagtail.images.blocks import ImageChooserBlock
 
 
 class DigitalMealContentPage(Page):
+    """
+    Default page model used for pages created in the wagtail CMS.
+    """
     template = 'website/wagtail_content.html'
 
     body = StreamField([

@@ -286,7 +286,8 @@ class IndividualReportAPI(DDMBaseProjectApi):
 
             if responses:
                 responses = [
-                    ResponseSerializer(r, decryptor=decryptor).data['responses']
+                    ResponseSerializer(
+                        r, decryptor=decryptor).data['responses']
                     for r in responses
                 ]
 
