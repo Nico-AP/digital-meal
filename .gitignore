@@ -2,6 +2,7 @@
 venv/
 venv2/
 media/
+.venv/
 
 # environment variables
 .env
@@ -19,6 +20,7 @@ logs
 staticfiles/
 
 # Pycharm
+.idea/
 .idea/*
 
 # sqlite database
