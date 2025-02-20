@@ -2,6 +2,8 @@ import datetime
 import json
 import uuid
 import requests
+import secrets
+import string
 
 from django_ckeditor_5.fields import CKEditor5Field
 
@@ -12,6 +14,18 @@ from django.db import models
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.timezone import make_aware
+
+
+def generate_unique_classroom_id() -> str:
+    """
+    Generate a random 10-character URL-safe ID.
+    Checks that generated ID is unique for Classrooms.
+    """
+    allowed_chars = string.ascii_uppercase + string.digits
+    while True:
+        unique_id = ''.join(secrets.choice(allowed_chars) for _ in range(10))
+        if not Classroom.objects.filter(url_id=unique_id).exists():
+            return unique_id
 
 
 class User(AbstractUser):
@@ -103,6 +117,11 @@ class Classroom(models.Model):
     owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
     class_id = models.UUIDField(default=uuid.uuid4, editable=False)
+    url_id = models.SlugField(
+        max_length=10,
+        unique=True,
+        default=generate_unique_classroom_id,
+    )
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
     track = models.ForeignKey(
