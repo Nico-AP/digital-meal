@@ -8,7 +8,44 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
     path('cookies/', include('cookie_consent.urls')),
-    # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
+    path('ckeditor5/', include('django_ckeditor_5.urls')),
+]
+
+custom_ddm_patterns = [
+    path(
+        r'teilnahme/<slug:slug>/',
+         include('ddm.participation.urls', namespace='ddm_participation')
+    ),
+    path(
+        r'ddm/projects/',
+        include('ddm.projects.urls', namespace='ddm_projects')
+    ),
+    path(
+        r'ddm/projects/<slug:project_url_id>/questionnaire/',
+        include('ddm.questionnaire.urls', namespace='ddm_questionnaire')
+    ),
+    path(
+        r'ddm/projects/<slug:project_url_id>/data-donation/',
+        include('ddm.datadonation.urls', namespace='ddm_datadonation')
+    ),
+    path(
+        r'ddm/',
+        include('ddm.logging.urls', namespace='ddm_logging')
+    ),
+    path(
+        r'ddm/',
+        include('ddm.auth.urls', namespace='ddm_auth')
+    ),
+    path(
+        r'ddm-api/',
+        include('ddm.apis.urls', namespace='ddm_apis')
+    ),
+]
+
+urlpatterns += custom_ddm_patterns
+
+# digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
+urlpatterns += [
     path('', include('digital_meal.urls')),
 ]
 

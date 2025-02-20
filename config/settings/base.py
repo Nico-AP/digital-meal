@@ -26,7 +26,6 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'taggit',
-    'ddm',
     'digital_meal.tool',
     'digital_meal.website',
     'digital_meal.reports',
@@ -45,6 +44,18 @@ INSTALLED_APPS = [
     'wagtail.contrib.simple_translation',
     'wagtail',
     'qr_code',
+    # DDM
+    'ddm',
+    'ddm.auth',
+    'ddm.logging',
+    'ddm.questionnaire',
+    'ddm.datadonation',
+    'ddm.participation',
+    'ddm.projects',
+    'ddm.core',
+    'webpack_loader',
+    'rest_framework',
+    'rest_framework.authtoken',
     'django_ckeditor_5',
 ]
 
@@ -75,7 +86,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-                'ddm.context_processors.add_ddm_version',
+                'ddm.core.context_processors.add_ddm_version',
             ],
         },
     },
@@ -206,3 +217,24 @@ DM_OVERVIEW_ENDPOINT = os.getenv('DM_OVERVIEW_ENDPOINT', None)
 DM_CLASS_DATA_ENDPOINT = os.getenv('DM_CLASS_DATA_ENDPOINT', None)
 
 # NON_DONATION_DELETION_TIME = 6 * 30 * 24 * 60  # In minutes.
+
+
+# DDM SETTINGS
+# ------------------------------------------------------------------------------
+WEBPACK_LOADER = {
+    'DEFAULT': {
+        'CACHE': True,
+        'BUNDLE_DIR_NAME': 'core/vue/',
+        'STATS_FILE': os.path.join(STATIC_ROOT, 'ddm_core/vue/webpack-stats.json'),
+        'POLL_INTERVAL': 0.1,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+    }
+}
+
+DDM_SETTINGS = {
+    'EMAIL_PERMISSION_CHECK':  r'.*(\.|@)uzh\.ch$',
+}
+
+CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
+CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
+CKEDITOR_5_UPLOAD_FILE_TYPES = ['jpeg', 'pdf', 'png', 'mp4']
