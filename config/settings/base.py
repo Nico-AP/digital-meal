@@ -9,6 +9,7 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+
 # APPLICATION DEFINITIONS
 # ------------------------------------------------------------------------------
 SECRET_KEY = os.environ['DJANGO_SECRET']
@@ -162,6 +163,7 @@ WAGTAIL_SITE_NAME = 'Digital Meal'
 WAGTAILADMIN_BASE_URL = os.getenv('WAGTAILADMIN_BASE_URL', None)
 
 WAGTAILIMAGES_EXTENSIONS = ['gif', 'jpg', 'jpeg', 'png', 'webp', 'svg']
+
 
 # CKEditor SETTINGS
 # ------------------------------------------------------------------------------
