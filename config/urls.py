@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.views.defaults import page_not_found
 
 
 urlpatterns = [
@@ -39,6 +40,16 @@ custom_ddm_patterns = [
     path(
         r'ddm-api/',
         include('ddm.apis.urls', namespace='ddm_apis')
+    ),
+    path(
+        'login/',
+        page_not_found,
+        name='ddm_login'
+    ),
+    path(
+        'logout/',
+        page_not_found,
+        name='ddm_logout'
     ),
 ]
 
