@@ -39,9 +39,10 @@
   <div class="report-section position-relative" style="padding-top: 25px;">
 
     <div class="report-content container">
-          <div class="row justify-content-center">
-            <div class="col-12 col-lg-8">
-            <h1 class="mt-5 pb-3">{% block report_intro_title %}Report Title{% endblock %}</h1></div>
+      <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+              <h1 class="mt-5 pb-3">{% block report_intro_title %}Report Title{% endblock %}</h1>
+            </div>
           </div>
 
           <div class="row d-flex flex-row">
@@ -74,8 +75,11 @@
         </p>
 
         <p>
-          Mit einem Klick auf den folgenden Button können Sie sich den Link zu diesem Report an eine E-Mail-Adresse
-          senden lassen: <button data-bs-toggle="modal" data-bs-target="#send-link">Link zum Report per E-Mail senden</button>
+          Mit einem Klick auf den folgenden Button können Sie sich den Link
+          zu diesem Report an eine E-Mail-Adresse senden lassen:
+          <button data-bs-toggle="modal" data-bs-target="#send-link">
+            Link zum Report per E-Mail senden
+          </button>
         </p>
 
         <p>
@@ -110,7 +114,9 @@
 
       </div>
       <div class="modal-footer">
-        <button type="button" data-bs-dismiss="modal">Abbrechen</button>
+        <button type="button" data-bs-dismiss="modal">
+          Abbrechen
+        </button>
         <button id="send-email-button" type="button" data-bs-dismiss="modal" onclick="sendLinkToReport('{% url "send_report_link" %}', '{{csrf_token}}')">Link senden</button>
       </div>
     </div>
