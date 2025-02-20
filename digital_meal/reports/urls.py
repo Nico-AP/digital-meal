@@ -5,15 +5,15 @@ from . import views
 
 urlpatterns = [
     path(
-        'class/<int:pk>/overview',  # int:pk relates to ID of classroom.
+        'class/<slug:url_id>/overview',
         views.ClassroomReportYouTube.as_view(),
         name='class_report'
-    ),  # int:pk relates to ID of classroom.
+    ),
     path(
-        'class/<int:pk>/individual/<slug:participant_id>',
+        'class/<slug:url_id>/individual/<slug:participant_id>',
         views.IndividualReportYouTube.as_view(),
         name='individual_report'
-    ),  # int:pk relates to ID of classroom.
+    ),  # slug:url_id relates to Classroom.url_id.
     path(
         'send-report-link',
         views.SendReportLink.as_view(),

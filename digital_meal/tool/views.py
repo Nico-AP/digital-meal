@@ -1,11 +1,10 @@
 import json
-
 import requests
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
@@ -21,21 +20,16 @@ class OwnershipRequiredMixin:
     Superuser can access any object.
     """
     def dispatch(self, request, *args, **kwargs):
-        classroom_id = self.kwargs.get('id', None)
-        if classroom_id is None:
-            classroom_id = self.kwargs.get('pk', None)
+        classroom_id = self.kwargs.get('url_id', None)
         if classroom_id is None:
             raise Http404()
 
-        try:
-            classroom = Classroom.objects.get(id=classroom_id)
-        except Classroom.DoesNotExist:
-            return redirect('class_not_found')
+        classroom = get_object_or_404(Classroom, url_id=classroom_id)
 
         if classroom.owner == request.user or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
-        else:
-            raise PermissionDenied()
+
+        raise PermissionDenied()
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
@@ -66,26 +60,32 @@ class ToolMainPage(LoginRequiredMixin, ListView):
 class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
     """ Display participation overview statistics for a classroom. """
     model = Classroom
+    lookup_field = 'url_id'
+    slug_field = 'url_id'
+    slug_url_kwarg = 'url_id'
     template_name = 'tool/class/detail.html'
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
         if not obj.track:
-            return redirect(reverse_lazy('class_assign_track', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_assign_track',
+                                         kwargs={'url_id': obj.url_id}))
 
         if not obj.is_active:
-            return redirect(reverse_lazy('class_expired', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_expired',
+                                         kwargs={'url_id': obj.url_id}))
 
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        overview_data = json.loads(self.get_overview_data())
-        context.update(overview_data)
+        #overview_data = json.loads(self.get_overview_data())
+        #context.update(overview_data)
         context['main_track'] = self.object.track
         context['sub_tracks'] = self.object.sub_tracks.all()
         return context
 
+    # TODO: Move to internal db queries.
     def get_overview_data(self):
         """ Retrieve overview data from DDM. """
         endpoint = self.object.track.overview_endpoint
@@ -113,12 +113,16 @@ class ClassroomCreate(CreateView, LoginRequiredMixin):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('class_assign_track', kwargs={'pk': self.object.pk})
+        return reverse_lazy(
+            'class_assign_track', kwargs={'url_id': self.object.url_id})
 
 
 class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
     """ Assign a track to a classroom. """
     model = Classroom
+    lookup_field = 'url_id'
+    slug_field = 'url_id'
+    slug_url_kwarg = 'url_id'
     template_name = 'tool/class/assign_track.html'
     form_class = ClassroomTrackForm
 
@@ -126,7 +130,8 @@ class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
         # If classroom has track already assigned, redirect to overview
         obj = self.get_object()
         if obj.track:
-            return redirect(reverse_lazy('class_detail', kwargs={'pk': obj.pk}))
+            return redirect(reverse_lazy('class_detail',
+                                         kwargs={'url_id': obj.url_id}))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -160,12 +165,9 @@ class TeacherEdit(UpdateView, LoginRequiredMixin):
         if teacher_id is None:
             raise Http404()
 
-        try:
-            teacher = Teacher.objects.get(user=request.user)
-        except Teacher.DoesNotExist:
-            raise Http404()
+        teacher = get_object_or_404(Teacher, user=request.user)
 
         if teacher.user == request.user or request.user.is_superuser:
             return super().dispatch(request, *args, **kwargs)
-        else:
-            raise Http404()
+
+        raise Http404()

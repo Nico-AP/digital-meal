@@ -179,7 +179,7 @@ class Classroom(models.Model):
             return False
 
     def get_absolute_url(self):
-        return reverse('class_detail', kwargs={'pk': self.pk})
+        return reverse('class_detail', kwargs={'url_id': self.url_id})
 
     def get_donation_dates(self):
         """
