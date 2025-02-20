@@ -1,6 +1,4 @@
-import json
-import requests
-
+from ddm.datadonation.models import DonationBlueprint
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -8,7 +6,6 @@ from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
-from requests import JSONDecodeError
 
 from .forms import ClassroomCreateForm, ClassroomTrackForm
 from .models import Classroom, Teacher, MainTrack
@@ -79,27 +76,50 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        #overview_data = json.loads(self.get_overview_data())
-        #context.update(overview_data)
+        context.update(self.get_overview_data())
         context['main_track'] = self.object.track
         context['sub_tracks'] = self.object.sub_tracks.all()
         return context
 
-    # TODO: Move to internal db queries.
     def get_overview_data(self):
-        """ Retrieve overview data from DDM. """
-        endpoint = self.object.track.overview_endpoint
-        headers = {'Authorization': f'Token {self.object.track.ddm_api_token}'}
-        payload = {'class': self.object.class_id}
-        r = requests.get(endpoint, headers=headers, params=payload)
+        """
+        Returns a dictionary holding information on how many participants
+        have taken part in a data donation project for the given classroom.
+        """
+        participants = self.object.get_classroom_participants()
 
-        if r.ok:
-            try:
-                return r.json()
-            except JSONDecodeError:
-                return '{}'
-        else:
-            return '{}'
+        if not participants.exists():
+            return {}
+
+        # Compute basic participation statistics.
+        participant_ids = participants.values_list('id', flat=True)
+        n_started = len(participants)
+        n_finished = len(participants.filter(completed=True))
+
+        # Compute donation statistics.
+        donation_project = self.object.get_related_donation_project()
+        n_donations = {}
+        donation_dates = []
+        blueprints = DonationBlueprint.objects.filter(project=donation_project)
+        for blueprint in blueprints:
+            blueprint_donations = blueprint.datadonation_set.filter(
+                participant__pk__in=participant_ids, status='success'
+            ).defer('data')
+
+            n_donations[blueprint.name] = len(blueprint_donations)
+            donation_dates.extend(blueprint_donations.values_list(
+                'time_submitted', flat=True))
+
+        data = {
+            'n_donations': n_donations,
+            'n_not_finished': (n_started - n_finished),
+            'n_finished': n_finished,
+            'donation_dates': [
+                d.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
+                for d in list(set(donation_dates))
+            ]
+        }
+        return data
 
 
 class ClassroomCreate(CreateView, LoginRequiredMixin):
