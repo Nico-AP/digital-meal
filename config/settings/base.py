@@ -198,5 +198,9 @@ DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
+DM_RESPONSES_ENDPOINT = os.getenv('DM_RESPONSES_ENDPOINT', None)
+DM_DONATIONS_ENDPOINT = os.getenv('DM_DONATIONS_ENDPOINT', None)
+DM_OVERVIEW_ENDPOINT = os.getenv('DM_OVERVIEW_ENDPOINT', None)
+DM_CLASS_DATA_ENDPOINT = os.getenv('DM_CLASS_DATA_ENDPOINT', None)
 
 # NON_DONATION_DELETION_TIME = 6 * 30 * 24 * 60  # In minutes.
