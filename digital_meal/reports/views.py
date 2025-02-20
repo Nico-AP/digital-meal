@@ -1,8 +1,8 @@
-import datetime
 import json
 import pandas as pd
 import requests
 
+from django.conf import settings
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.views import View
@@ -53,7 +53,10 @@ class BaseClassroomReport(DDMReport, DetailView):
     template_name = 'reports/youtube/class_report.html'
 
     def get_endpoint(self):
-        return self.object.track.data_endpoint
+        endpoint = settings.DM_CLASS_DATA_ENDPOINT
+        endpoint = endpoint.replace(
+            '<<PROJECT-ID>>', self.object.track.ddm_project_id)
+        return endpoint
 
     def get_token(self):
         return self.object.track.ddm_api_token
@@ -85,13 +88,16 @@ class BaseIndividualReport(DDMReport, DetailView):
         return super().setup(request, *args, **kwargs)
 
     def get_endpoint(self):
-        return self.object.track.ddm_api_endpoint
+        endpoint = settings.DM_DONATIONS_ENDPOINT
+        endpoint = endpoint.replace(
+            '<<PROJECT-ID>>', self.object.track.ddm_project_id)
+        return endpoint
 
     def get_token(self):
         return self.object.track.ddm_api_token
 
     def get_payload(self):
-        payload = {'participant_id': self.kwargs.get('participant_id')}
+        payload = {'participants': self.kwargs.get('participant_id')}
         return payload
 
 
@@ -396,8 +402,7 @@ class ClassroomReportYouTube(BaseClassroomReport, BaseYouTubeReport):
 
         n_donations = len(data)
 
-        # Clean and combine the subscription data of all individuals in
-        # one list.
+        # Clean and combine the subscription data of all individuals in one list.
         sc_combined = []
         for entry in data:
             sc_combined += entry['data']
@@ -422,30 +427,38 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
     """ Base class to generate an individual report for the YouTube data. """
     template_name = 'reports/youtube/individual_report.html'
 
-    def get_endpoint(self):
-        url = self.object.track.data_endpoint
-        url = url.replace('class-data', 'individual-data')
-        return url
+    def get_blueprint_data(self, data, blueprint_id):
+        participant_id = self.kwargs.get('participant_id')
+        if blueprint_id not in data['blueprints'].keys():
+            return None
+
+        donated_data = None
+        for donation in data['blueprints'][blueprint_id]['donations']:
+            if donation['participant'] == participant_id:
+                donated_data =  donation['data']
+                break
+
+        return donated_data
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        data = json.loads(self.get_data())
+        data = self.get_data()
 
-        if 'errors' in data or 'donations' not in data:
+        if 'errors' in data or 'blueprints' not in data:
             self.template_name = 'reports/report_exception.html'
             return context
 
-        # Watch history (wh).
-        watch_history_id = 'Angesehene Videos'
-        if watch_history_id in data['donations'].keys():
-            watch_history_data = data['donations'][watch_history_id]
-            context.update(self.get_watch_context(watch_history_data))
+        # Add watch history (wh) data to context.
+        wh_blueprint_id = '88'
+        wh_data = self.get_blueprint_data(data, wh_blueprint_id)
+        if wh_data is not None:
+            context.update(self.get_watch_context(wh_data))
 
-        # Search history (sh).
-        search_history_id = 'Suchverlauf'
-        if search_history_id in data['donations'].keys():
-            search_history_data = data['donations'][search_history_id]
-            context.update(self.get_search_context(search_history_data))
+        # Add search history (sh) data to context.
+        sh_blueprint_id = '89'
+        sh_data = self.get_blueprint_data(data, sh_blueprint_id)
+        if sh_data is not None:
+            context.update(self.get_search_context(sh_data))
 
         return context
 
@@ -459,7 +472,7 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
 
         # Create list of watched videos and separate lists for ids and dates
         # of watched videos.
-        wh = yt_data.exclude_google_ads_videos(data['data'])
+        wh = yt_data.exclude_google_ads_videos(data)
         wh_ids = yt_data.get_video_ids(wh)
         wh_dates = yt_data.get_date_list(wh)
 
@@ -485,7 +498,7 @@ class IndividualReportYouTube(BaseIndividualReport, BaseYouTubeReport):
             return context
         context['search_available'] = True
 
-        sh = yt_data.exclude_ads_from_search_history(data['data'])
+        sh = yt_data.exclude_ads_from_search_history(data)
         sh = yt_data.clean_search_titles(sh)
         search_terms = [t['title'] for t in sh]
 

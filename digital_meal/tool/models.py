@@ -176,7 +176,6 @@ class Classroom(models.Model):
             return None
 
         data = json.loads(r.json())
-        print(data)
         dates = [datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S.%fZ') for d in data['donation_dates']]
         return dates
 
