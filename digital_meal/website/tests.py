@@ -71,6 +71,3 @@ class DDMMiddlewareTest(TestCase):
             password='testpass123')
         response = self.client.get(self.ddm_url)
         self.assertEqual(response.status_code, 200)
-
-
-# TODO: Add DDM availability tests.
