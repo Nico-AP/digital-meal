@@ -15,7 +15,7 @@ urlpatterns = [
 custom_ddm_patterns = [
     path(
         r'teilnahme/<slug:slug>/',
-         include('ddm.participation.urls', namespace='ddm_participation')
+        include('ddm.participation.urls', namespace='ddm_participation')
     ),
     path(
         r'ddm/projects/',
