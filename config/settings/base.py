@@ -70,6 +70,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'digital_meal.website.middleware.RestrictDDMMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
