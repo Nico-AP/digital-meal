@@ -5,6 +5,8 @@ import requests
 import secrets
 import string
 
+from ddm.participation.models import Participant
+from ddm.projects.models import DonationProject
 from django_ckeditor_5.fields import CKEditor5Field
 
 from datetime import timedelta
@@ -181,6 +183,16 @@ class Classroom(models.Model):
     def get_absolute_url(self):
         return reverse('class_detail', kwargs={'url_id': self.url_id})
 
+    def get_related_donation_project(self):
+        """ Returns Donation Project if it exists, None otherwise. """
+        project_id = self.track.ddm_project_id
+        return DonationProject.objects.filter(url_id=project_id).first()
+
+    def get_classroom_participants(self):
+        project = self.get_related_donation_project()
+        return Participant.objects.filter(
+            project=project, extra_data__url_param__class=self.url_id)
+
     def get_donation_dates(self):
         """
         Get list of donation dates for current class through ClassOverviewAPI.
@@ -195,7 +207,10 @@ class Classroom(models.Model):
             return None
 
         data = json.loads(r.json())
-        dates = [datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S.%fZ') for d in data['donation_dates']]
+        dates = [
+            datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S.%fZ')
+            for d in data['donation_dates']
+        ]
         return dates
 
     def get_reference_interval(self):
@@ -227,11 +242,26 @@ class MainTrack(models.Model):
     A Track corresponds to a 'teaching path' within a Module
     (e.g., small, medium etc.).
     """
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=50, blank=False, null=False)
-    date_created = models.DateTimeField(auto_now_add=True, null=False)
+    id = models.UUIDField(
+        primary_key=True,
+        default=uuid.uuid4,
+        editable=False
+    )
+    name = models.CharField(
+        max_length=50,
+        blank=False,
+        null=False
+    )
+    date_created = models.DateTimeField(
+        auto_now_add=True,
+        null=False
+    )
     active = models.BooleanField(default=False)
-    image = models.ImageField(null=True, blank=True, upload_to='uploads/images/%Y/%m/')
+    image = models.ImageField(
+        null=True,
+        blank=True,
+        upload_to='uploads/images/%Y/%m/'
+    )
 
     materials_text = CKEditor5Field()
 
@@ -249,7 +279,7 @@ class MainTrack(models.Model):
 
 
 class SubTrack(models.Model):
-    """."""
+    """ """
     main_track = models.ForeignKey(
         'tool.MainTrack', on_delete=models.SET_NULL, null=True)
 

@@ -49,12 +49,14 @@ class ToolMainPage(LoginRequiredMixin, ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_classes'] = [c for c in context['object_list'] if c.is_active]
-        context['archived_classes'] = [c for c in context['object_list'] if not c.is_active]
+        context['active_classes'] = [
+            c for c in context['object_list'] if c.is_active]
+        context['archived_classes'] = [
+            c for c in context['object_list'] if not c.is_active]
         return context
 
 
-class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
+class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
     """ Display participation overview statistics for a classroom. """
     model = Classroom
     lookup_field = 'url_id'
@@ -122,7 +124,7 @@ class ClassroomDetail(DetailView, OwnershipRequiredMixin, LoginRequiredMixin):
         return data
 
 
-class ClassroomCreate(CreateView, LoginRequiredMixin):
+class ClassroomCreate(LoginRequiredMixin, CreateView):
     """ Register a new classroom. """
     model = Classroom
     template_name = 'tool/class/create.html'
@@ -137,7 +139,7 @@ class ClassroomCreate(CreateView, LoginRequiredMixin):
             'class_assign_track', kwargs={'url_id': self.object.url_id})
 
 
-class ClassroomAssignTrack(UpdateView, LoginRequiredMixin):
+class ClassroomAssignTrack(LoginRequiredMixin, UpdateView):
     """ Assign a track to a classroom. """
     model = Classroom
     lookup_field = 'url_id'
@@ -173,7 +175,7 @@ class ClassroomDoesNotExist(LoginRequiredMixin, TemplateView):
     template_name = 'tool/class/does_not_exist.html'
 
 
-class TeacherEdit(UpdateView, LoginRequiredMixin):
+class TeacherEdit(LoginRequiredMixin, UpdateView):
     """ Edit teacher account details. """
     model = Teacher
     fields = []
