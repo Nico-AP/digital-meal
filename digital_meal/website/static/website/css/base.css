@@ -10,6 +10,10 @@
     font-size: 0.9rem;
 }
 
+.text-08 {
+    font-size: 0.8rem;
+}
+
 /* ELEMENT STYLES */
 #dm-body {
     min-height: 100vh;
