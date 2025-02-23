@@ -7,6 +7,8 @@ from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django.core.mail import send_mail
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import DetailView, ListView
 from smtplib import SMTPException
@@ -26,6 +28,13 @@ class BaseReport:
         super().setup(request, *args, **kwargs)
         self.register_classroom()
         self.register_project()
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.classroom.is_active:
+            redirect_url = reverse_lazy(
+                'class_expired', kwargs={'url_id': self.classroom.url_id})
+            return redirect(redirect_url)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_class_id(self):
         """Get the class ID from the URL."""
