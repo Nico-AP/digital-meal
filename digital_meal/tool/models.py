@@ -1,10 +1,8 @@
-import datetime
-import json
 import uuid
-import requests
 import secrets
 import string
 
+from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django_ckeditor_5.fields import CKEditor5Field
@@ -15,7 +13,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.timezone import make_aware
+from django.utils.translation import gettext_lazy as _
 
 
 def generate_unique_classroom_id() -> str:
@@ -41,60 +39,60 @@ class User(AbstractUser):
 
 
 class SwissCantons(models.TextChoices):
-    AG = 'AG', 'Aargau'
-    AR = 'AR', 'Appenzell Ausserrhoden'
-    AI = 'AI', 'Appenzell Innerrhoden'
-    BL = 'BL', 'Basel-Landschaft'
-    BS = 'BS', 'Basel-Stadt'
-    BE = 'BE', 'Bern'
-    FR = 'FR', 'Freiburg'
-    GE = 'GE', 'Genf'
-    GL = 'GL', 'Glarus'
-    GR = 'GR', 'Graubünden'
-    JU = 'JU', 'Jura'
-    LU = 'LU', 'Luzern'
-    NE = 'NE', 'Neuenburg'
-    NW = 'NW', 'Nidwalden'
-    OW = 'OW', 'Obwalden'
-    SH = 'SH', 'Schaffhausen'
-    SZ = 'SZ', 'Schwyz'
-    SO = 'SO', 'Solothurn'
-    SG = 'SG', 'St. Gallen'
-    TI = 'TI', 'Tessin'
-    TG = 'TG', 'Thurgau'
-    UR = 'UR', 'Uri'
-    VD = 'VD', 'Waadt'
-    VS = 'VS', 'Wallis'
-    ZG = 'ZG', 'Zug'
-    ZH = 'ZH', 'Zürich'
+    AG = 'AG', _('Aargau')
+    AR = 'AR', _('Appenzell Ausserrhoden')
+    AI = 'AI', _('Appenzell Innerrhoden')
+    BL = 'BL', _('Basel-Landschaft')
+    BS = 'BS', _('Basel-Stadt')
+    BE = 'BE', _('Bern')
+    FR = 'FR', _('Freiburg')
+    GE = 'GE', _('Genf')
+    GL = 'GL', _('Glarus')
+    GR = 'GR', _('Graubünden')
+    JU = 'JU', _('Jura')
+    LU = 'LU', _('Luzern')
+    NE = 'NE', _('Neuenburg')
+    NW = 'NW', _('Nidwalden')
+    OW = 'OW', _('Obwalden')
+    SH = 'SH', _('Schaffhausen')
+    SZ = 'SZ', _('Schwyz')
+    SO = 'SO', _('Solothurn')
+    SG = 'SG', _('St. Gallen')
+    TI = 'TI', _('Tessin')
+    TG = 'TG', _('Thurgau')
+    UR = 'UR', _('Uri')
+    VD = 'VD', _('Waadt')
+    VS = 'VS', _('Wallis')
+    ZG = 'ZG', _('Zug')
+    ZH = 'ZH', _('Zürich')
 
 
 class SchoolLevels(models.TextChoices):
-    PRIMARY = 'primary', 'Primarstufe'
-    SECONDARY = 'secondary', 'Sekundarstufe I (z.B. Sekundar- oder Realschule, Bezirksschule oder Untergymnasium)'
-    GYMNASIUM = 'gymnasium', 'Gymnasiale Maturitätsschulen'
-    SPECIALISED_SECONDARY = 'specialised sec.', 'Fachmittelschulen'
-    VOCATIONAL = 'vocational', 'Berufsschulen und Berufsmaturitätsschulen'
-    PEDAGOGICAL = 'pedagogical', 'Pädagogische Hochschulen'
-    SPECIALISED_TERTIARY = 'specialised tert.', 'Fachhochschulen und Höhere Fachhochschulen'
-    UNIVERSITY = 'university', 'Universitäre Hochschulen'
-    OTHER = 'other', 'Andere'
+    PRIMARY = 'primary', _('Primarstufe')
+    SECONDARY = 'secondary', _('Sekundarstufe I (z.B. Sekundar- oder Realschule, Bezirksschule oder Untergymnasium)')
+    GYMNASIUM = 'gymnasium', _('Gymnasiale Maturitätsschulen')
+    SPECIALISED_SECONDARY = 'specialised sec.', _('Fachmittelschulen')
+    VOCATIONAL = 'vocational', _('Berufsschulen und Berufsmaturitätsschulen')
+    PEDAGOGICAL = 'pedagogical', _('Pädagogische Hochschulen')
+    SPECIALISED_TERTIARY = 'specialised tert.', _('Fachhochschulen und Höhere Fachhochschulen')
+    UNIVERSITY = 'university', _('Universitäre Hochschulen')
+    OTHER = 'other', _('Andere')
 
 
 class InstructionFormats(models.TextChoices):
-    REGULAR = 'regular', 'Regulärer Unterricht'
-    OPTIONAL = 'optional', 'Wahlpflichtfach, Freifach, Kurs, o.ä.'
-    SPECIAL = 'special', 'Sonderwoche o.ä.'
+    REGULAR = 'regular', _('Regulärer Unterricht')
+    OPTIONAL = 'optional', _('Wahlpflichtfach, Freifach, Kurs, o.ä.')
+    SPECIAL = 'special', _('Sonderwoche o.ä.')
 
 
 class SchoolSubjects(models.TextChoices):
-    LANGUAGE = 'languages', 'Sprachunterricht (Deutsch, Französisch, Englisch, etc.)'
-    INFORMATICS = 'informatics and media', 'Medien- und Informatikunterricht, Medienerziehung o.ä.'
-    ETHICS = 'ethics, religion', '"Ethik, Religion, Gemeinschaft" (ERG), Ethikunterricht oder Gesellschaftskunde'
-    GENERAL = 'general education', '"Allgemeinbildender Unterricht" (ABU), o.ä.'
-    MATH_TECHNICAL = 'math, nature and technics', 'Mathematik oder "Natur und Technik"'
-    SOCIETY = 'society, history, geography', '"Räume, Zeiten, Gesellschaften" (RZG), Geschichte, Geografie, o.ä.'
-    OTHER = 'other', 'Anderes'
+    LANGUAGE = 'languages', _('Sprachunterricht (Deutsch, Französisch, Englisch, etc.)')
+    INFORMATICS = 'informatics and media', _('Medien- und Informatikunterricht, Medienerziehung o.ä.')
+    ETHICS = 'ethics, religion', _('"Ethik, Religion, Gemeinschaft" (ERG), Ethikunterricht oder Gesellschaftskunde')
+    GENERAL = 'general education', _('"Allgemeinbildender Unterricht" (ABU), o.ä.')
+    MATH_TECHNICAL = 'math, nature and technics', _('Mathematik oder "Natur und Technik"')
+    SOCIETY = 'society, history, geography', _('"Räume, Zeiten, Gesellschaften" (RZG), Geschichte, Geografie, o.ä.')
+    OTHER = 'other', _('Anderes')
 
 
 class Teacher(models.Model):
@@ -104,7 +102,7 @@ class Teacher(models.Model):
     first_name = models.CharField(max_length=50, null=False)
     canton = models.CharField(
         max_length=2, null=False,
-        choices=SwissCantons.choices, verbose_name='Kanton')
+        choices=SwissCantons.choices, verbose_name=_('Kanton'))
     school_name = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
@@ -139,33 +137,33 @@ class Classroom(models.Model):
         max_length=20,
         null=False,
         choices=SchoolLevels.choices,
-        verbose_name='Schulstufe'
+        verbose_name=_('Schulstufe')
     )
     school_year = models.IntegerField(
         null=False,
         blank=False,
         validators=[MinValueValidator(1), MaxValueValidator(20)],
-        verbose_name='Schuljahr'
+        verbose_name=_('Schuljahr')
     )
     subject = models.CharField(
         max_length=100,
         null=False,
         blank=False,
         choices=SchoolSubjects.choices,
-        verbose_name='Unterrichtsfach'
+        verbose_name=_('Unterrichtsfach')
     )
     instruction_format = models.CharField(
         max_length=20,
         null=False,
         blank=False,
         choices=InstructionFormats.choices,
-        verbose_name='Unterrichtsformat'
+        verbose_name=_('Unterrichtsformat')
     )
     agb_agree = models.BooleanField(
         null=False,
         blank=False,
         default=False,
-        verbose_name='AGBs akzeptiert'
+        verbose_name=_('AGBs akzeptiert')
     )
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
@@ -184,7 +182,7 @@ class Classroom(models.Model):
         return reverse('class_detail', kwargs={'url_id': self.url_id})
 
     def get_related_donation_project(self):
-        """ Returns Donation Project if it exists, None otherwise. """
+        """Returns Donation Project if it exists, None otherwise."""
         project_id = self.track.ddm_project_id
         return DonationProject.objects.filter(url_id=project_id).first()
 
@@ -195,22 +193,13 @@ class Classroom(models.Model):
 
     def get_donation_dates(self):
         """
-        Get list of donation dates for current class through ClassOverviewAPI.
+        Get list of donation dates for current classroom.
         """
-        endpoint = self.track.overview_endpoint
-        header = {'Authorization': f'Token {self.track.ddm_api_token}'}
-        payload = {'class': self.class_id, }
-
-        r = requests.get(endpoint, headers=header, params=payload)
-
-        if not r.ok:
-            return None
-
-        data = json.loads(r.json())
-        dates = [
-            datetime.datetime.strptime(d, '%Y-%m-%dT%H:%M:%S.%fZ')
-            for d in data['donation_dates']
-        ]
+        project = self.get_related_donation_project()
+        dates = DataDonation.objects.filter(
+            project=project,
+            participant__extra_data__url_param__class=self.url_id
+        ).values_list('time_submitted', flat=True)
         return dates
 
     def get_reference_interval(self):
@@ -230,7 +219,7 @@ class Classroom(models.Model):
             else:
                 end_date = date_min.replace(day=1) - timedelta(days=1)
 
-            self.report_ref_end_date = make_aware(end_date)
+            self.report_ref_end_date = end_date
             self.save()
 
         start_date = self.report_ref_end_date.replace(day=1)
@@ -279,7 +268,6 @@ class MainTrack(models.Model):
 
 
 class SubTrack(models.Model):
-    """ """
     main_track = models.ForeignKey(
         'tool.MainTrack', on_delete=models.SET_NULL, null=True)
 

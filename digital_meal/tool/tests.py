@@ -53,7 +53,8 @@ class TestViews(TestCase):
             'main': reverse('tool_main_page'),
             'class_create': reverse('class_create'),
             'class_detail': reverse(
-                'class_detail', kwargs={'url_id': cls.classroom_regular.url_id}),
+                'class_detail',
+                kwargs={'url_id': cls.classroom_regular.url_id}),
             'profile': reverse('profile'),
         }
 

@@ -6,12 +6,12 @@ from . import views
 urlpatterns = [
     path(
         'class/<slug:url_id>/overview',
-        views.ClassroomReportYouTube.as_view(),
+        views.YouTubeReportClassroom.as_view(),
         name='class_report'
     ),
     path(
         'class/<slug:url_id>/individual/<slug:participant_id>',
-        views.IndividualReportYouTube.as_view(),
+        views.YouTubeReportIndividual.as_view(),
         name='individual_report'
     ),  # slug:url_id relates to Classroom.url_id.
     path(

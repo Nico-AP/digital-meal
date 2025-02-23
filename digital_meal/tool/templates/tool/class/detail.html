@@ -12,7 +12,9 @@
 
   <div class="col m-3 p-3 background-green">
     <h4>
-      <img alt="Icon Datenauswertung" class="pe-1" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}" height="50px">
+      <img alt="Icon Datenauswertung" class="pe-1"
+            src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}"
+            height="50px">
       Klassendetails
     </h4>
     <div class="container">
@@ -51,11 +53,14 @@
 
   <div class="col m-3 p-3 background-red">
     <h4>
-      <img alt="Icon Materialien & Geräte" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg' %}" height="50px">
+      <img alt="Icon Materialien & Geräte"
+            src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg' %}"
+            height="50px">
       Materialien
     </h4>
 
-    <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube" gehören.</p>
+    <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube"
+      gehören.</p>
     {{ main_track.materials_text|safe }}
     {% for track in sub_tracks %}
     {{ track.materials_text|safe }}
@@ -69,42 +74,55 @@
   <div class="col m-3 p-3 background-yellow">
     <h4>Test-Teilnahme</h4>
     <p class="ff-non-serif">
-      Mit dem Testlink können Sie den Fragebogen und die Datenspende ausprobieren.
+      Mit dem Testlink können Sie den Fragebogen und die Datenspende
+      ausprobieren.
     </p>
     <p class="ff-non-serif">
-      Am besten <b>öffnen Sie den Link in einem privaten Browser-Fenster</b>, ansonsten können Sie den Testdurchlauf nur einmal durchführen.
+      Am besten <b>öffnen Sie den Link in einem privaten Browser-Fenster</b>,
+      ansonsten können Sie den Testdurchlauf nur einmal durchführen.
     </p>
     <p class="ff-non-serif">
-      Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen werden automatisch am Ende eines Tages gelöscht und fliessen
+      Ihre Antworten und Daten, die Sie im Testdurchlauf geben bzw. hochladen
+      werden automatisch am Ende eines Tages gelöscht und fliessen
       nicht in die Klassenauswertung mit ein.
     </p>
 
-    <p><a href="{{ object.track.ddm_path }}?class=testlink" target="_blank"><button class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">zur Test-Teilnahme &#8594</button></a></p>
+    <p><a href="{{ object.track.ddm_path }}?class=testlink"
+            target="_blank"><button
+              class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">zur
+          Test-Teilnahme &#8594</button></a></p>
   </div>
 
   <div class="col m-3 p-3 background-orange">
     <h4>Link für Schüler:innen</h4>
     <p class="ff-non-serif">
-      Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen werden fliessen in die Klassenauswertung mit ein
-      (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu geben).
+      Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen
+      werden fliessen in die Klassenauswertung mit ein
+      (wenn die Schüler:innen während dem Ausfüllen ihre Einwilligung dazu
+      geben).
     </p>
 
-    <div class="text-center position-relative" onclick="copyLinkToClipboard()" style="cursor: pointer;">
-      {% with object.class_id|stringformat:"s" as class_id %}
-        {% with object.pk|stringformat:"s" as class_pk %}
-          {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id|add:"&class_pk="|add:class_pk %}
-            <img src="{% qr_url_from_text participation_url %}" alt="Participation URL" style="max-height: 400px;" class="w-100">
-            <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
-          {% endwith %}
-        {% endwith %}
+    <div class="text-center position-relative" onclick="copyLinkToClipboard()"
+          style="cursor: pointer;">
+      {% with object.url_id|stringformat:"s" as class_id %}
+      {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
+      <img src="{% qr_url_from_text participation_url %}"
+            alt="Participation URL" style="max-height: 400px;" class="w-100">
+      <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
       {% endwith %}
-      <div id="copydisclaimer" class="text-center w-100 position-absolute top-50" style="display: none;">
-        <span class="p-1 ps-3 pe-3 fw-bold background-green fs-5 text-black rounded">Link kopiert</span>
+      {% endwith %}
+      <div id="copydisclaimer"
+            class="text-center w-100 position-absolute top-50"
+            style="display: none;">
+        <span
+              class="p-1 ps-3 pe-3 fw-bold background-green fs-5 text-black rounded">Link
+          kopiert</span>
       </div>
     </div>
 
     <p class="text-center">
-      <i>Mit einem Klick auf den QR-Code wird der Teilnahmelink in die Zwischenablage kopiert (bspw. um ihn via E-Mail zu teilen).</i>
+      <i>Mit einem Klick auf den QR-Code wird der Teilnahmelink in die
+        Zwischenablage kopiert (bspw. um ihn via E-Mail zu teilen).</i>
     </p>
 
   </div>
@@ -120,19 +138,21 @@
 
     <table>
       <tbody>
-      <tr>
-        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Laufende Teilnahmen:</td>
-        <td>{% firstof n_not_finished "0" %}</td>
-      </tr>
-      <tr>
-        <td class="ps-3 pe-3"><span class="pe-2">▪</span> Abgeschlossene Teilnahmen:</td>
-        <td>{% firstof n_finished "0" %}</td>
-      </tr>
-      <tr>
-        <td class="pt-2">Anzahl hochgeladene Datensätze</td>
-        <td></td>
-      </tr>
-      {% if n_donations %}
+        <tr>
+          <td class="ps-3 pe-3"><span class="pe-2">▪</span> Laufende Teilnahmen:
+          </td>
+          <td>{% firstof n_not_finished "0" %}</td>
+        </tr>
+        <tr>
+          <td class="ps-3 pe-3"><span class="pe-2">▪</span> Abgeschlossene
+            Teilnahmen:</td>
+          <td>{% firstof n_finished "0" %}</td>
+        </tr>
+        <tr>
+          <td class="pt-2">Anzahl hochgeladene Datensätze</td>
+          <td></td>
+        </tr>
+        {% if n_donations %}
 
         {% for key, value in n_donations.items %}
         <tr>
@@ -140,11 +160,11 @@
           <td>{{ value }}</td>
         </tr>
         {% endfor %}
-      {% else %}
-      <tr>
-        <td class="ps-3"><i>Keine Datensätze hochgeladen</i></td>
-      </tr>
-      {% endif %}
+        {% else %}
+        <tr>
+          <td class="ps-3"><i>Keine Datensätze hochgeladen</i></td>
+        </tr>
+        {% endif %}
 
       </tbody>
     </table>
@@ -152,13 +172,16 @@
 
   <div class="col m-3 p-3 background-purple">
     <h4>
-      <img alt="Icon Datenauswertung" src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}" height="50px">
+      <img alt="Icon Datenauswertung"
+            src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}"
+            height="50px">
       Report
     </h4>
 
     <p class="ff-non-serif">
       Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
-      des Reports kann anschliessend einige Sekunden dauern - bitte aktualisieren
+      des Reports kann anschliessend einige Sekunden dauern - bitte
+      aktualisieren
       Sie die Webseite während des Ladens nicht.
     </p>
     <p class="ff-non-serif">
@@ -166,7 +189,9 @@
       wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
     </p>
 
-    <p><a href="{% url 'class_report' object.url_id %}" target="_blank"><button class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport öffnen &#8594</button></a></p>
+    <p><a href="{% url 'class_report' object.url_id %}" target="_blank"><button
+              class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport öffnen
+          &#8594</button></a></p>
   </div>
 
 </div>
