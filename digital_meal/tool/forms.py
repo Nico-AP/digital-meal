@@ -1,38 +1,39 @@
 from allauth.account.forms import SignupForm
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import SwissCantons, Teacher, Classroom
 
 
 cantons = SwissCantons.choices
-cantons.insert(0, ('', 'bitte auswählen'))
+cantons.insert(0, ('', _('bitte auswählen')))
 
 
 class SimpleSignupForm(SignupForm):
     name = forms.CharField(
         max_length=50,
-        label='Nachname',
+        label=_('Nachname'),
         widget=forms.TextInput(
-            attrs={'placeholder': 'Ihr Nachname'}
+            attrs={'placeholder': _('Ihr Nachname')}
         )
     )
     first_name = forms.CharField(
         max_length=50,
-        label='Vorname',
+        label=_('Vorname'),
         widget=forms.TextInput(
-            attrs={'placeholder': 'Ihr Vorname'}
+            attrs={'placeholder': _('Ihr Vorname')}
         )
     )
     canton = forms.ChoiceField(
         choices=cantons,
-        label='Kanton',
-        help_text='Kanton, in dem Sie hauptsächlich unterrichten'
+        label=_('Kanton'),
+        help_text=_('Kanton, in dem Sie hauptsächlich unterrichten')
     )
     school_name = forms.CharField(
         max_length=100,
-        label='Schule',
+        label=_('Schule'),
         widget=forms.TextInput(
-            attrs={'placeholder': 'Name der Schule, an der Sie unterrichten'}
+            attrs={'placeholder': _('Name der Schule, an der Sie unterrichten')}
         )
     )
 
@@ -73,22 +74,24 @@ class ClassroomCreateForm(forms.ModelForm):
             'instruction_format', 'agb_agree'
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': 'Name/Bezeichnung der Klasse'}),
+            'name': forms.TextInput(attrs={'placeholder': _('Name/Bezeichnung der Klasse')}),
             'track': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'school_level': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'subject': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'instruction_format': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
         }
         labels = {
-            'school_level': 'Zu welcher Schulstufe gehört die Klasse?',
-            'school_year': 'In welchem Schuljahr befindet sich die Klasse aktuell?',
-            'subject': 'In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?',
-            'instruction_format': 'In welchem Format unterrichten Sie die Klasse?'
+            'school_level': _('Zu welcher Schulstufe gehört die Klasse?'),
+            'school_year': _('In welchem Schuljahr befindet sich die Klasse aktuell?'),
+            'subject': _('In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?'),
+            'instruction_format': _('In welchem Format unterrichten Sie die Klasse?')
         }
         help_texts = {
-            'agb_agree': 'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
-                         'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die '
-                         '<a href="/tool/datenschutz" target="_blank">Datenschutzerklärung</a> gelesen habe und damit einverstanden bin.'
+            'agb_agree': _(
+                'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
+                'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die '
+                '<a href="/agb" target="_blank">allgemeinen Geschäftsbedingungen</a> gelesen habe und damit einverstanden bin.'
+            )
         }
 
     def clean(self):
@@ -97,8 +100,8 @@ class ClassroomCreateForm(forms.ModelForm):
         if not agb_agreed:
             self.add_error(
                 'agb_agree',
-                'Sie müssen bestätigen, dass Sie die Nutzungsbedingungen '
-                'gelesen haben und mit ihnen einverstanden sind.'
+                _('Sie müssen bestätigen, dass Sie die Nutzungsbedingungen '
+                  'gelesen haben und mit ihnen einverstanden sind.')
             )
 
 
