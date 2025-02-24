@@ -84,7 +84,8 @@ class ClassroomCreateForm(forms.ModelForm):
             'school_level': _('Zu welcher Schulstufe gehört die Klasse?'),
             'school_year': _('In welchem Schuljahr befindet sich die Klasse aktuell?'),
             'subject': _('In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?'),
-            'instruction_format': _('In welchem Format unterrichten Sie die Klasse?')
+            'instruction_format': _('In welchem Format unterrichten Sie die Klasse?'),
+            'agb_agree': _('Bitte bestätigen Sie, dass Sie unsere Allgemeinen Geschäftsbedingungen (AGB) gelesen haben und ihnen zustimmen:')
         }
         help_texts = {
             'agb_agree': _(

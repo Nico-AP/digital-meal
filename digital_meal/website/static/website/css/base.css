@@ -57,9 +57,6 @@
     justify-content: center;
     display: flex;
 }
-.nav-active {
-    /* box-shadow: 0px 10px 0px -5px #F5E165; */
-}
 
 #collapseNav div {
     padding-top: 10px;
@@ -226,7 +223,6 @@ form .select-items {
 
 form .helptext {
     font-size: 0.9rem;
-    padding-left: 5px;
     font-family: Open Sans, sans-serif;
 }
 

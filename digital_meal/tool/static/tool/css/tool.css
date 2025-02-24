@@ -48,3 +48,18 @@
 .sub-track-bg-4 {
     background: #D6E297;
 }
+
+.dm-form p {
+    padding-bottom: 20px;
+}
+
+.dm-form input[type=checkbox] {
+    display: inline-block;
+    transform: scale(1.4);
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.dm-form input[type=checkbox]:hover {
+    cursor: pointer;
+}
