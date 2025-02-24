@@ -1,7 +1,7 @@
 {% extends "reports/base_report.html" %}
 {% load static %}
 
-{% block page_title %}Report{% endblock %}
+{% block page_title %}Report konnte nicht {% endblock %}
 
 {% block report_intro_title %}Etwas ist schiefgegangen{% endblock %}
 
@@ -31,15 +31,22 @@
       </p>
 
       <p>
-        <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen von Forschenden der Universität Zürich.
-        Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
+        <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen
+        von Forschenden der Universität Zürich.
+        Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind
+        nur aggregierte
         Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
       </p>
 
       <div class="text-center">
-        <img alt="Digital Meal Logo" src="{% static 'website/img/DigitalMeal_logo.svg' %}" height="70px">
-        <img alt="Data Donation Lab Logo" src="{% static 'website/img/DataDonationLab_logo.svg' %}" height="70px">
-        <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}" height="70px">
+        <img alt="Digital Meal Logo"
+              src="{% static 'website/img/DigitalMeal_logo.svg' %}"
+              height="70px">
+        <img alt="Data Donation Lab Logo"
+              src="{% static 'website/img/DataDonationLab_logo.svg' %}"
+              height="70px">
+        <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}"
+              height="70px">
       </div>
     </div>
   </div>
