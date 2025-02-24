@@ -57,7 +57,13 @@
     justify-content: center;
     display: flex;
 }
-
+.nav-element a:hover {
+    background: none !important;
+    text-decoration: underline;
+    text-decoration-color: #00213f;
+    text-decoration-thickness: 3px;
+    color: black;
+}
 #collapseNav div {
     padding-top: 10px;
     padding-bottom: 10px;
