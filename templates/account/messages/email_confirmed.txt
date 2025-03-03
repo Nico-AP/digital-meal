@@ -1,0 +1,2 @@
+{% load i18n %}
+Sie haben die E-Mail-Adresse {{email}} erfolgreich bestätigt. Sie können sich nun mit dieser Adresse anmelden.
