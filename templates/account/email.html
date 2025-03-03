@@ -2,12 +2,30 @@
 
 {% load i18n %}
 
-{% block head_title %}{% trans "E-mail Addresses" %}{% endblock %}
+{% block head_title %}E-Mail-Adressen{% endblock %}
 
 {% block content %}
-<h1>{% trans "E-mail Addresses" %}</h1>
+
+  {% if can_add_email %}
+<h1>E-Mail-Adresse ändern</h1>
+
+<p class="ff-non-serif">
+  Um Ihre E-Mail-Adresse zu ändern, fügen Sie erst eine neue E-Mail-Adresse hinzu, bestätigen Sie die neue E-Mail-Adresse und legen Sie
+  unten die neu hinzugefügte Adresse als primäre Adresse fest.
+</p>
+
+<form method="post" action="{% url 'account_email' %}" class="add_email">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button name="action_add" type="submit">E-Mail-Adresse hinzufügen</button>
+</form>
+{% endif %}
+
+
 {% if user.emailaddress_set.all %}
-<p class="ff-non-serif">{% trans 'The following e-mail addresses are associated with your account:' %}</p>
+<p class="ff-non-serif pt-5">
+  Die folgende E-Mail-Adresse ist mit Ihrem Account verküpft:
+</p>
 
 <form action="{% url 'account_email' %}" class="email_list ff-non-serif" method="post">
   {% csrf_token %}
@@ -53,9 +71,13 @@
     <div class="buttonHolder mt-4">
       <p><b>Ausgewählte Adresse...</b></p>
       <p>
-        <span class="pe-2"><button class="btn-dark ff-non-serif" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></span>
-        <span class="pe-2"><button class="btn-secondary ff-non-serif" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></span>
-        <span><button class="btn-danger ff-non-serif" type="submit" name="action_remove" >{% trans 'Remove' %}</button></span>
+        <span class="pe-2 fs-6"><button class="btn-dark ff-non-serif" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></span>
+      </p>
+      <p>
+        <span class="pe-2 fs-6"><button class="btn-secondary ff-non-serif" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></span>
+      </p>
+      <p>
+        <span><button class="btn-danger ff-non-serif fs-6" type="submit" name="action_remove" >{% trans 'Remove' %}</button></span>
       </p>
     </div>
 
@@ -65,21 +87,6 @@
 {% else %}
 <p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
 
-{% endif %}
-
-{% if can_add_email %}
-<h2 class="mt-4">E-Mail-Adresse ändern</h2>
-
-<p class="ff-non-serif">
-  Um die E-Mail-Adresse zu ändern, fügen Sie erst eine neue E-Mail-Adresse hinzu, bestätigen Sie die neue E-Mail-Adresse und legen Sie
-  oben die neu hinzugefügte Adresse als primäre Adresse fest.
-</p>
-
-<form method="post" action="{% url 'account_email' %}" class="add_email">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button name="action_add" type="submit">{% trans "Add E-mail" %}</button>
-</form>
 {% endif %}
 
 {% endblock %}

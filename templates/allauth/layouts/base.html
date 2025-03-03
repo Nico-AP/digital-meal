@@ -1,0 +1,13 @@
+{% extends "website/base.html" %}
+{% load i18n %}
+
+{% block main_content %}
+  <div class="ff-non-serif">
+  {% block body %}
+    {% block content %}
+    {% endblock content %}
+  {% endblock body %}
+  {% block extra_body %}
+  {% endblock extra_body %}
+  </div>
+{% endblock %}
