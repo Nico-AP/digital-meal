@@ -199,6 +199,10 @@ def get_weekday_use_plot(data):
     ), 'right')
     p.border_fill_color = None
 
+    # Disable touch controls
+    p.toolbar.active_drag = None
+    p.toolbar.active_scroll = None
+
     script, div = components(p)
     return {'script': script, 'div': div}
 
@@ -262,6 +266,10 @@ def get_day_usetime_plot(data):
         background_fill_color=None,
         padding=5
     ), 'right')
+
+    # Disable touch controls
+    p.toolbar.active_drag = None
+    p.toolbar.active_scroll = None
 
     script, div = components(p)
     return {'script': script, 'div': div}
