@@ -64,39 +64,74 @@
 
   <!-- FOOTER -->
   {% block footer %}
-  <div class="section-container">
+    <div class="section-container">
 
-    <div class="report-section">
-      <div class="report-content">
-        <h3>Über diesen Report</h3>
+      <div class="report-section save-report-section pb-0">
+        <div class="report-content about-section">
+          <h3>Über diesen Report</h3>
 
-        <p>
-          Dieser Report ist Teil des Lernmoduls "Digital Meal".
-        </p>
+          <p>
+            Dieser Report ist Teil des Lernmoduls <i>Digital Meal</i>.
+          </p>
 
-        <p>
-          Mit einem Klick auf den folgenden Button können Sie sich den Link
-          zu diesem Report an eine E-Mail-Adresse senden lassen:
-          <button data-bs-toggle="modal" data-bs-target="#send-link">
-            Link zum Report per E-Mail senden
-          </button>
-        </p>
+          <p>
+            Digital Meal ist eine Initiative von Forschenden der Universität Zürich.
+            Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
+            Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
+          </p>
 
-        <p>
-          <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen von Forschenden der Universität Zürich.
-          Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
-          Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
-        </p>
+        </div>
+      </div>
 
-        <div class="text-center">
-          <img alt="Digital Meal Logo" src="{% static 'website/img/DigitalMeal_logo.svg' %}" height="70px">
-          <img alt="Data Donation Lab Logo" src="{% static 'website/img/DataDonationLab_logo.svg' %}" height="70px">
-          <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}" height="70px">
+    </div>
+    <div id="footer" class="background-blue">
+      <div class="container">
+        <div class="row">
+          <div>
+            <div
+                  class="d-flex flex-wrap justify-content-between align-items-xl-stretch footer-container">
+
+              <div>
+                <a href="https://www.uzh.ch/de.html" target="_blank">
+                  <img alt="Logo Universität Zürich"
+                        src="{% static 'website/img/UZH_logo.svg' %}" height="110px"
+                        class="pe-3 pb-3">
+                </a>
+                <a href="https://www.ikmz.uzh.ch/de/research/divisions/media-use-and-effects.html"
+                      target="_blank">
+                  <img alt="Media Use and Effects Research Group"
+                        src="{% static 'website/img/muse_rg_logo.svg' %}" height="65px"
+                        class="pe-3 pb-3">
+                </a>
+                <a href="https://www.citizenscience.uzh.ch/de.html" target="_blank">
+                  <img alt="Citizen Science Zürich"
+                        src="{% static 'website/img/CitizenScience_logo.svg' %}"
+                        height="80px" class="pe-3 pb-3">
+                </a>
+              </div>
+
+              <div class="text-small dm-footer-linksection pt-3 ps-3 pb-3">
+                <div class="d-flex flex-row flex-wrap align-items-start">
+                  <div class="pe-4 text-start">
+                    <p class="text-small"><b>Digital Meal</b></p>
+                    <p class="text-small">▪ <a href="/agb" target="_blank">AGB</a></p>
+                    <p class="text-small">▪ <a href="/dsb" target="_blank">Datenschutzerklärung</a></p>
+                    <p class="text-small">▪ <a href="/about">Impressum</a></p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+            <div class="text-center">
+              <p class="text-08">
+                © 2025 Digital Meal / Media Use and Effects Research
+                Group, Universität Zürich
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-
-  </div>
   {% endblock %}
 
 </div>
