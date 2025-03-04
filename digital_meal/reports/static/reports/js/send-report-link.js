@@ -1,32 +1,55 @@
-function sendLinkToReport(postUrl, csrfToken) {
-  let emailAddress = $('#email-input').val();
+document.addEventListener("DOMContentLoaded", function () {
+    document.getElementById("send-email-button").addEventListener("click", function () {
+        let emailInput = document.getElementById("email-input");
+        let emailAddress = emailInput.value;
 
-  let mailFormat = /\S+@\S+\.\S+/;
-  if (emailAddress.match(mailFormat)) {
-    $('#email-input-error').hide();
-  } else {
-    $('#email-input-error').show();
-    $('#send-link').modal('toggle');
-    return false;
-  }
+        let mailFormat = /\S+@\S+\.\S+/;
+        if (emailAddress.match(mailFormat)) {
+            document.getElementById("email-input-error").style.display = "none";
+        } else {
+            document.getElementById("email-input-error").style.display = "block";
+            let sendLinkModal = new bootstrap.Modal(document.getElementById("send-link"));
+            sendLinkModal.hide();
+            return false;
+        }
 
-  let reportUrl = window.location.href;
-  $.ajax({
-    type: 'POST',
-    data: {'email': emailAddress, 'link': reportUrl},
-    url: postUrl,
-    headers: {
-      'X-CSRFToken': csrfToken
-    },
-    success: function (data, status, result) {
-      $('#send-mail-success').show();
-      $('#send-mail-error').hide();
-      $('#send-link-message').modal('toggle');
-    },
-    error: function (request, status, error) {
-      $('#send-mail-success').hide();
-      $('#send-mail-error').show();
-      $('#send-link-message').modal('toggle');
-    },
-  });
+        // Extract values from data attributes
+        let emailDataDiv = document.getElementById("email-data");
+        let postUrl = emailDataDiv.getAttribute("data-post-url");
+        let csrfToken = emailDataDiv.getAttribute("data-csrf-token");
+        sendLinkToReport(postUrl, csrfToken, emailAddress);
+    });
+});
+
+function sendLinkToReport(postUrl, csrfToken, toAddress) {
+    let reportUrl = window.location.href;
+
+    fetch(postUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ email: toAddress, link: reportUrl })
+    })
+    .then(response => {
+        if (response.ok) {
+            document.getElementById("send-mail-success").style.display = "block";
+            document.getElementById("send-mail-error").style.display = "none";
+        } else {
+            document.getElementById("send-mail-success").style.display = "none";
+            document.getElementById("send-mail-error").style.display = "block";
+        }
+
+        let messageModal = new bootstrap.Modal(document.getElementById("send-link-message"));
+        messageModal.show();
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        document.getElementById("send-mail-success").style.display = "none";
+        document.getElementById("send-mail-error").style.display = "block";
+
+        let messageModal = new bootstrap.Modal(document.getElementById("send-link-message"));
+        messageModal.show();
+    });
 }

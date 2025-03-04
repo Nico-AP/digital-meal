@@ -1,3 +1,5 @@
+import json
+
 import pandas as pd
 
 from ddm.datadonation.models import DonationBlueprint
@@ -5,6 +7,7 @@ from ddm.datadonation.serializers import DonationSerializer
 from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
+from django.conf import settings
 from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -545,21 +548,21 @@ class SendReportLink(View):
     """Sends the link to the open report to a given e-mail address."""
 
     def post(self, request, *args, **kwargs):
-        email_address = request.POST.get('email', None)
-        report_link = request.POST.get('link', None)
-
+        post_data = json.loads(request.body)
+        email_address = post_data.get('email', None)
+        report_link = post_data.get('link', None)
         if email_address and report_link:
             try:
                 send_mail(
                     subject='Link zum Digital Meal Report',
                     message=f'Link zum Report: {report_link}',
-                    from_email='contact@digital-meal.ch',
+                    from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email_address],
                     fail_silently=False
                 )
                 return JsonResponse({'status': 'success'})
             except SMTPException:
-                return JsonResponse({'status': 'error'})
+                return JsonResponse({'status': 'error'}, status=400)
 
         else:
-            return JsonResponse({'status': 'error'})
+            return JsonResponse({'status': 'error'}, status=400)
