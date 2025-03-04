@@ -6,6 +6,8 @@ django-cookie-consent==0.6.0
 django-ddm==2.0b11
 django-qr-code==4.1.0
 mysqlclient==2.2.6
+pandas~=2.2.3
+python-dateutil~=2.9.0.post0
 python-dotenv==1.0.1
 requests==2.32.3
 wagtail==6.3.1

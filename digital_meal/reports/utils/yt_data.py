@@ -56,26 +56,50 @@ def exclude_google_ads_videos(watch_history):
     """
     Excludes all videos shown through Google Ads from the watch history.
     """
+    ad_identifiers = [
+        'from google ads',
+        'von google anzeigen',
+        'da programmi pubblicitari google',
+        'des annonces google',
+    ]
     watched_videos = []
     for video in watch_history:
-        if 'details' in video and len(video['details']) > 0:
-            if video['details'][0]['name'] == 'From Google Ads':
-                continue
-            else:
-                watched_videos.append(video)
+        if 'details' not in video:
+            watched_videos.append(video)
+            continue
+
+        if len(video['details']) == 0:
+            watched_videos.append(video)
+            continue
+
+        if 'name' not in video['details'][0]:
+            watched_videos.append(video)
+            continue
+
+        if video['details'][0]['name'].lower() in ad_identifiers:
+            # Do not add video to watched videos.
+            continue
         else:
             watched_videos.append(video)
+            continue
+
     return watched_videos
 
 
 def exclude_ads_from_search_history(search_history):
     """ Excludes all ads from search history. """
+    ad_identifiers = [
+        'web & app activity',
+        'web- & app-aktivitäten',
+        'attività web e app',
+        'activité sur le web et les applications'
+    ]
     history = []
     for entry in search_history:
         if 'activityControls' not in entry:
             continue
 
-        if 'Web & App Activity' in entry['activityControls']:
+        if any(item.lower() in ad_identifiers for item in entry['activityControls']):
             continue
 
         history.append(entry)
@@ -93,7 +117,6 @@ def clean_search_titles(search_history):
     prefix_it = '^Hai cercato '
     prefix_fr = '^Vous avez recherché '
     r = '|'.join([prefix_en, prefix_de, prefix_it, prefix_fr])
-
     clean_searches = []
     for entry in search_history:
         if 'title' in entry:
@@ -112,9 +135,9 @@ def clean_video_title(video_title):
     :return: Cleaned video title (string).
     """
     prefix_en = '^Watched '
+    postfix_de = ' angesehen$'
     prefix_it = '^Hai guardato '
     prefix_fr = '^Vous avez regardé '
-    postfix_de = ' angesehen$'
     r = '|'.join([prefix_en, prefix_it, prefix_fr, postfix_de])
     clean_title = re.sub(r, '', video_title)
     return clean_title

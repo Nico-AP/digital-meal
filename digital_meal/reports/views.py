@@ -286,7 +286,7 @@ class YouTubeReportIndividual(BaseIndividualReport, BaseYouTubeReport):
         # Add search history (sh) data to context.
         sh_data = data['donations'].get('Suchverlauf')
         if sh_data is not None:
-            context.update(self.get_search_context(sh_data))
+            context.update(self.get_search_context(sh_data['data']))
 
         return context
 
