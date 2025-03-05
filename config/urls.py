@@ -30,7 +30,7 @@ custom_ddm_patterns = [
         include('ddm.datadonation.urls', namespace='ddm_datadonation')
     ),
     path(
-        r'ddm/',
+        r'logs/',
         include('ddm.logging.urls', namespace='ddm_logging')
     ),
     path(
