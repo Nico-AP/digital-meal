@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 
 import pandas as pd
 
@@ -12,11 +13,13 @@ from django.core.mail import send_mail
 from django.http import JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
-from django.views.generic import DetailView, ListView
+from django.views.generic import DetailView, ListView, TemplateView
 from smtplib import SMTPException
 
 from .utils import yt_data, yt_plots
+from .utils.yt_example_data import generate_synthetic_watch_history
 from ..tool.models import Classroom
 
 
@@ -202,10 +205,16 @@ class BaseYouTubeReport:
         return context
 
     def add_wh_statistics_to_context(self, context, watch_history,
-                                     video_ids, n_donations=1):
+                                     video_ids, n_donations=1, example=False):
         """Add watch history statistics to the context."""
         n_vids_per_day = len(watch_history) / context['wh_date_range'].days
-        interval_min, interval_max = self.classroom.get_reference_interval()
+        if not example:
+            interval_min, interval_max = self.classroom.get_reference_interval()
+        else:
+            interval_min, interval_max = datetime.now() - timedelta(days=30), datetime.now()
+
+        interval_length = (interval_max - interval_min).days
+
         wh_interval = yt_data.get_entries_in_date_range(
             watch_history, interval_min, interval_max)
         wh_interval_ids = yt_data.get_video_ids(wh_interval)
@@ -221,7 +230,8 @@ class BaseYouTubeReport:
             'wh_int_max_date': interval_max,
             'n_vids_interval': len(wh_interval),
             'n_vids_unique_interval': len(set(wh_interval_ids)),
-            'n_vids_mean_interval': len(wh_interval) / n_donations
+            'n_vids_mean_interval': len(wh_interval) / n_donations,
+            'n_vids_per_interval': len(wh_interval_ids) / interval_length,
         })
         return context
 
@@ -278,6 +288,9 @@ class YouTubeReportIndividual(BaseIndividualReport, BaseYouTubeReport):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         data = self.get_data()
+
+        context['wh_example'] = data['donations'].get('Angesehene Videos')
+        context['sh_example'] = data['donations'].get('Suchverlauf')
 
         # TODO: Add checks for data availability.
         # Add watch history (wh) data to context.
@@ -541,6 +554,74 @@ class YouTubeReportClassroom(BaseClassroomReport, BaseYouTubeReport):
             'n_subs_multiple': len(n_subs_multiple),
             'most_popular_channels': subs_counts.nlargest(10).to_dict()
         })
+        return context
+
+
+class YouTubeExampleReport(BaseYouTubeReport, TemplateView):
+    template_name = 'reports/youtube/example_report.html'
+
+    def get_data(self):
+        """ Generate synthetic data for example report. """
+        start_date = timezone.now().date() - timedelta(days=5)
+        return generate_synthetic_watch_history(start_date)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        wh_data = self.get_data()
+
+        # Add watch history (wh) data to context.
+        if wh_data is not None:
+            context.update(self.get_watch_context(wh_data['data']))
+
+        # Add search history (sh) data to context.
+        sh_data = None  # data['donations'].get('Suchverlauf')
+        if sh_data is not None:
+            context.update(self.get_search_context(sh_data['data']))
+
+        return context
+
+    def get_watch_context(self, data):
+        """Add watch history related statistics and plots to the context."""
+        context = {}
+        if data is None:
+            context['wh_available'] = False
+            return context
+        context['wh_available'] = True
+
+        # Create list of watched videos and separate lists for ids and dates
+        # of watched videos.
+        wh = yt_data.exclude_google_ads_videos(data)
+        wh_ids = yt_data.get_video_ids(wh)
+        wh_dates = yt_data.get_date_list(wh)
+
+        # Add video-related plots and statistics to the context.
+        self.add_wh_date_infos_to_context(context, wh_dates)
+        self.add_wh_statistics_to_context(context, wh, wh_ids, example=True)
+        self.add_favorite_videos_to_context(context, wh, wh_ids)
+        self.add_wh_timeseries_plots_to_context(
+            context, [wh_dates],
+            context['wh_dates_min'], context['wh_dates_max'])
+        self.add_wh_heatmap_plots_to_context(context, wh_dates)
+
+        # Add channel-releated information to the context.
+        channels = yt_data.get_channels_from_history(wh)
+        self.add_wh_channel_info_to_context(context, channels)
+        return context
+
+    def get_search_context(self, data):
+        """Add search history related statistics and plots to the context."""
+        context = {}
+        if data is None:
+            context['search_available'] = False
+            return context
+        context['search_available'] = True
+
+        sh = yt_data.exclude_ads_from_search_history(data)
+        sh = yt_data.clean_search_titles(sh)
+        search_terms = [t['title'] for t in sh]
+
+        self.add_sh_statistics_to_context(context, sh)
+        self.add_sh_plot_to_context(context, search_terms)
         return context
 
 

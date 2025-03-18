@@ -3,13 +3,13 @@
 
 {% block page_title %}YouTube Report{% endblock %}
 
-{% block report_intro_title %}Die personalisierte Auswertung deiner YouTube-Nutzung{% endblock %}
+{% block report_intro_title %}Beispielreport für die personalisierte Auswertung der YouTube-Nutzung{% endblock %}
 
 {% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
 
 {% block report_intro_text %}
-<p>In dieser persönlichen Auswertung findest Du Informationen, wie Du YouTube in der Vergangenheit genutzt hast.
-  Die von Dir hochgeladenen Daten beinhalten <b>Deinen Wiedergabeverlauf</b> und <b>Deinen Suchverlauf</b>
+<p>In dieser Auswertung findest Du Informationen, wie eine fiktive Person YouTube in der Vergangenheit genutzt hat.
+  Die Daten beinhalten den <b>Wiedergabeverlauf</b> und den <b>Suchverlauf</b>
   zwischen dem {{ wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
   {{ wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
 </p>

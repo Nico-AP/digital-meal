@@ -15,6 +15,11 @@ urlpatterns = [
         name='individual_report'
     ),  # slug:url_id relates to Classroom.url_id.
     path(
+        'youtube-example',
+        views.YouTubeExampleReport.as_view(),
+        name='youtube_example_report'
+    ),
+    path(
         'send-report-link',
         views.SendReportLink.as_view(),
         name='send_report_link'
