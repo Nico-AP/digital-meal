@@ -168,3 +168,10 @@ class TestReports(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response, 'reports/youtube/individual_report.html')
+
+    def test_example_report(self):
+        url = reverse('youtube_example_report')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, 'reports/youtube/example_report.html')
