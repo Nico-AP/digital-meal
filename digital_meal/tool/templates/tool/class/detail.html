@@ -134,8 +134,6 @@
   <div class="col m-3 p-3 background-blue ff-non-serif">
     <h4>Teilnahmeübersicht</h4>
 
-
-
     <table>
       <tbody>
         <tr>
@@ -175,8 +173,18 @@
       <img alt="Icon Datenauswertung"
             src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}"
             height="50px">
-      Report
+      Reports
     </h4>
+
+    <h5>Individuelle Reports</h5>
+
+    <p class="ff-non-serif">
+      Die Schüler:innen erhalten nach der Teilnahme einen Link zu einem personalisierten
+      Report ihrer YouTube-Nutzung. Mit dem folgenden Link können Sie einen individuellen Beispielreport
+      aufrufen: <a href="{% url 'youtube_example_report' %}" target="_blank">{{ request.scheme }}://{{ request.get_host }}{% url 'youtube_example_report' %}</a>
+    </p>
+
+    <h5>Klassenreport</h5>
 
     <p class="ff-non-serif">
       Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
