@@ -5,13 +5,12 @@ import numpy as np
 from django.utils import timezone
 
 
-def generate_synthetic_watch_history(start_date, days=500, num_entries_per_day=(5, 50)):
+def generate_synthetic_watch_history(start_date, days=500):
     """
     Generate a synthetic YouTube watch history dataset.
 
     :param start_date: The end date for the dataset (most recent day).
     :param days: Number of days to go back.
-    :param num_entries_per_day: Tuple specifying the range of video entries per day.
     :return: A dictionary mimicking the YouTube watch history JSON format.
     """
 
@@ -70,6 +69,44 @@ def generate_synthetic_watch_history(start_date, days=500, num_entries_per_day=(
                            "url": f"https://www.youtube.com/channel/@uzhch"}]
         }
         history_data.append(entry)
+
+    return {
+        "time_submitted": timezone.now().isoformat() + "Z",
+        "consent": True,
+        "status": "success",
+        "data": history_data
+    }
+
+
+def generate_synthetic_search_history(start_date, days=500):
+    """
+    Generate a synthetic YouTube search history dataset.
+
+    :param start_date: The end date for the dataset (most recent day).
+    :param days: Number of days to go back.
+    :return: A dictionary mimicking the YouTube search history JSON format.
+    """
+    history_data = []
+    current_date = start_date
+
+    for _ in range(days):
+        n_searches = random.randint(0, 5)
+        search_times = [random_time_in_range(0, 0, 23, 59) for _ in range(n_searches)]
+
+        # Generate entries for the day
+        for search_time in sorted(search_times):
+            search_datetime = timezone.datetime.combine(current_date, search_time)
+            entry = {
+                "title": generate_random_channel_name(),
+                "titleUrl": f"https://www.youtube.com/watch?v={random_string(11)}",
+                "time": search_datetime.isoformat(),
+                "activityControls": ["YouTube-Suchverlauf"]
+            }
+
+            history_data.append(entry)
+
+        # Move to the previous day
+        current_date -= timedelta(days=1)
 
     return {
         "time_submitted": timezone.now().isoformat() + "Z",

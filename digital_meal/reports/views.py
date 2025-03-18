@@ -19,7 +19,7 @@ from django.views.generic import DetailView, ListView, TemplateView
 from smtplib import SMTPException
 
 from .utils import yt_data, yt_plots
-from .utils.yt_example_data import generate_synthetic_watch_history
+from .utils.yt_example_data import generate_synthetic_watch_history, generate_synthetic_search_history
 from ..tool.models import Classroom
 
 
@@ -257,9 +257,13 @@ class BaseYouTubeReport:
         return context
 
     def add_sh_statistics_to_context(self, context,
-                                     search_history, n_donations=1):
+                                     search_history, n_donations=1, example=False):
         """Add search history statistics to the context."""
-        interval_min, interval_max = self.classroom.get_reference_interval()
+        if not example:
+            interval_min, interval_max = self.classroom.get_reference_interval()
+        else:
+            interval_min, interval_max = datetime.now() - timedelta(days=30), datetime.now()
+
         sh_interval = yt_data.get_entries_in_date_range(
             search_history, interval_min, interval_max)
         context.update({
@@ -288,9 +292,6 @@ class YouTubeReportIndividual(BaseIndividualReport, BaseYouTubeReport):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         data = self.get_data()
-
-        context['wh_example'] = data['donations'].get('Angesehene Videos')
-        context['sh_example'] = data['donations'].get('Suchverlauf')
 
         # TODO: Add checks for data availability.
         # Add watch history (wh) data to context.
@@ -562,21 +563,21 @@ class YouTubeExampleReport(BaseYouTubeReport, TemplateView):
 
     def get_data(self):
         """ Generate synthetic data for example report. """
-        start_date = timezone.now().date() - timedelta(days=5)
-        return generate_synthetic_watch_history(start_date)
+        return
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        wh_data = self.get_data()
+
+        # Generate synthetic data.
+        start_date = timezone.now().date() - timedelta(days=5)
+        wh_data = generate_synthetic_watch_history(start_date)
+        sh_data = generate_synthetic_search_history(start_date)
 
         # Add watch history (wh) data to context.
-        if wh_data is not None:
-            context.update(self.get_watch_context(wh_data['data']))
+        context.update(self.get_watch_context(wh_data['data']))
 
         # Add search history (sh) data to context.
-        sh_data = None  # data['donations'].get('Suchverlauf')
-        if sh_data is not None:
-            context.update(self.get_search_context(sh_data['data']))
+        context.update(self.get_search_context(sh_data['data']))
 
         return context
 
@@ -620,7 +621,7 @@ class YouTubeExampleReport(BaseYouTubeReport, TemplateView):
         sh = yt_data.clean_search_titles(sh)
         search_terms = [t['title'] for t in sh]
 
-        self.add_sh_statistics_to_context(context, sh)
+        self.add_sh_statistics_to_context(context, sh, example=True)
         self.add_sh_plot_to_context(context, search_terms)
         return context
 
