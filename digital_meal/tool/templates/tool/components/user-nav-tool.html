@@ -3,8 +3,8 @@
     <div class="row">
       <div class="d-flex justify-content-between user-nav-content">
         <div>
-          <button><a href="/"><b>Zur Webseite</b></a></button>
-          <span class="ps-3"><a href="{% url 'tool_main_page' %}" class="text-white" style="text-decoration: none;"><b>Meine Klassen</b></a></span>
+          <button class="me-3"><a href="/"><b>Zur Webseite</b></a></button>
+          <span><a href="{% url 'tool_main_page' %}" class="text-white" style="text-decoration: none;"><b>Meine&nbsp;Klassen</b></a></span>
         </div>
         <div class="ps-3" >
           {% if user.is_authenticated %}
