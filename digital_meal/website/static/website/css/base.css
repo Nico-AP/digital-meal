@@ -281,3 +281,10 @@ form .helptext {
     max-width: 90% !important;
     height: 100%;
 }
+
+.intro-text p {
+    font-family: Space Grotesk, sans-serif;
+    font-size: 1.2rem;
+    line-height: 2.1rem;
+    padding-bottom: 14px;
+}

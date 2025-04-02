@@ -5,6 +5,14 @@ from wagtail.admin.panels import FieldPanel
 from wagtail.images.blocks import ImageChooserBlock
 
 
+class IntroTextBlock(blocks.StructBlock):
+    text = blocks.RichTextBlock(features=['bold', 'italic', 'link'])
+
+    class Meta:
+        icon = 'edit'
+        label = 'Intro Text'
+
+
 class DigitalMealContentPage(Page):
     """
     Default page model used for pages created in the wagtail CMS.
@@ -12,6 +20,7 @@ class DigitalMealContentPage(Page):
     template = 'website/wagtail_content.html'
 
     body = StreamField([
+        ('intro_text', IntroTextBlock()),
         ('heading', blocks.CharBlock(form_classname='full title', icon='title')),
         ('paragraph', blocks.RichTextBlock(icon='pilcrow')),
         ('list', blocks.ListBlock(blocks.CharBlock(label='List'), icon='list-ul')),

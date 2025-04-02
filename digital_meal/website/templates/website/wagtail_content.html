@@ -7,18 +7,27 @@
 
       {% if block.block_type == "heading" %}
       <h1>{{ block.value }}</h1>
+
+      {% elif block.block_type == "intro_text" %}
+      <div class="intro-text">
+        {{ block.value.text|richtext }}
+      </div>
+
       {% elif block.block_type == "paragraph" %}
       <div class="paragraph-block content">
         {{ block.value }}
       </div>
+
       {% elif block.block_type == "list" %}
       <div class="list-block">
         {% include_block block %}
       </div>
+
       {% elif block.block_type == "image" %}
       <div class="image-block w-100 text-center">
         {% picture block.value width-800 class="wagtail-image" %}
       </div>
+
       {% elif block.block_type == "highlight" %}
       {% include_block block %}
       {% endif %}
