@@ -57,7 +57,8 @@ class TestReports(TestCase):
             name='module-name',
             active=True,
             ddm_path='https://127.0.0.1:8000/',
-            ddm_project_id=cls.project.url_id
+            ddm_project_id=cls.project.url_id,
+            report_prefix='youtube_'
         )
 
         # Create Classroom - not expired
@@ -94,7 +95,7 @@ class TestReports(TestCase):
 
     def test_expired_classroom_does_not_show_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_expired.url_id}
         )
         expired_url = reverse(
@@ -107,7 +108,7 @@ class TestReports(TestCase):
 
     def test_report_with_less_than_five_donations_does_not_show_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_regular.url_id}
         )
         response = self.client.get(report_url)
@@ -116,7 +117,7 @@ class TestReports(TestCase):
 
     def test_report_with_five_or_more_donations_shows_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_regular.url_id}
         )
         # Create 5 donations
@@ -158,7 +159,7 @@ class TestReports(TestCase):
             status='success'
         )
         report_url = reverse(
-            'individual_report',
+            'youtube_individual_report',
             kwargs={
                 'url_id': self.classroom_regular.url_id,
                 'participant_id': participant.external_id

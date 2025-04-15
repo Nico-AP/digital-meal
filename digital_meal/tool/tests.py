@@ -23,7 +23,8 @@ class TestViews(TestCase):
         # Crate a module
         cls.base_module = BaseModule.objects.create(
             name='module-name',
-            active=True
+            active=True,
+            report_prefix='youtube'
         )
 
         # Create Classroom - not expired

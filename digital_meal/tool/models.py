@@ -219,6 +219,7 @@ class Classroom(models.Model):
             donation_dates = self.get_donation_dates()
 
             # Calculate reference date
+            # TODO: Fallback if no donation_dates are available
             date_min = min(donation_dates)
             if date_min.month == 1:
                 end_date = date_min.replace(day=31, month=12)
