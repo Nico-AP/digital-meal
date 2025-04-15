@@ -176,8 +176,8 @@
 
     <p class="ff-non-serif">
       Die Schüler:innen erhalten nach der Teilnahme einen Link zu einem personalisierten
-      Report ihrer YouTube-Nutzung. Mit dem folgenden Link können Sie einen individuellen Beispielreport
-      aufrufen: <a href="{% url 'youtube_example_report' %}" target="_blank">{{ request.scheme }}://{{ request.get_host }}{% url 'youtube_example_report' %}</a>
+      Report ihrer Nutzungsdaten. {% if example_report_url %}Mit dem folgenden Link können Sie einen individuellen Beispielreport
+      aufrufen: <a href="{{ example_report_url }}" target="_blank">{{ request.scheme }}://{{ request.get_host }}{{  example_report_url }}</a>{% endif %}
     </p>
 
     <h5>Klassenreport</h5>

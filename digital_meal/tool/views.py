@@ -3,7 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
 from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse, NoReverseMatch
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -90,6 +90,14 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
     def get_report_view_name(self):
         return self.object.base_module.report_prefix + '_class_report'
 
+    def get_example_report_url(self):
+        view_name = self.object.base_module.report_prefix + '_example_report'
+        try:
+            url = reverse(view_name)
+        except NoReverseMatch:
+            url = None
+        return url
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_overview_data())
@@ -97,6 +105,7 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
         context['sub_modules'] = self.object.sub_modules.all()
         context['participation_url'] = self.get_participation_url()
         context['report_view_name'] = self.get_report_view_name()
+        context['example_report_url'] = self.get_example_report_url()
         return context
 
     def get_overview_data(self):
