@@ -121,7 +121,7 @@ class ClassroomModuleForm(forms.ModelForm):
         sub_modules = []
         for sub_module in cleaned_data['sub_modules']:
             if sub_module in allowed_sub_modules:
-                sub_module.append(sub_module)
+                sub_modules.append(sub_module)
 
         cleaned_data['sub_modules'] = sub_modules
         return cleaned_data

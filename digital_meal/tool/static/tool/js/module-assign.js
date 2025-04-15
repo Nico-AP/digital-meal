@@ -1,12 +1,12 @@
 function showHideSubModules(item) {
   let idToShow = '#'.concat($(item).attr('for'), '-sub-modules');
   $('#sub-module-placeholder').hide();
-  $('.mt-submodule-container').hide();
+  $('.mt-sub-module-container').hide();
   $(idToShow).show();
 }
 
 function selectModule(moduleId) {
-  let selectId = '#id_module';
+  let selectId = '#id_base_module';
   $(selectId).val(moduleId).change();
 }
 
