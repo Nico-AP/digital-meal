@@ -13,14 +13,29 @@ class TeacherAdmin(admin.ModelAdmin):
 
 
 @admin.register(BaseModule)
-class ModuleAdmin(admin.ModelAdmin):
+class BaseModuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'date_created', 'id', 'active',
                     'ddm_path', 'ddm_project_id']
+    fields = (
+        'name',
+        'materials_text',
+        'ddm_path',
+        'ddm_project_id',
+        'active'
+    )
 
 
 @admin.register(SubModule)
-class ModuleAdmin(admin.ModelAdmin):
+class SubModuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'url_parameter', 'active']
+    fields = (
+        'base_module',
+        'name',
+        'description',
+        'materials_text',
+        'url_parameter',
+        'active'
+    )
 
 
 @admin.register(Classroom)

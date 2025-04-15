@@ -105,6 +105,9 @@ class Teacher(models.Model):
         choices=SwissCantons.choices, verbose_name=_('Kanton'))
     school_name = models.CharField(max_length=100, null=True, blank=True)
 
+    class Meta:
+         verbose_name = 'Teacher'
+
     def __str__(self):
         return f'{self.first_name} {self.name}'
 
@@ -167,6 +170,9 @@ class Classroom(models.Model):
     )
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
+
+    class Meta:
+         verbose_name = 'Classroom'
 
     def __str__(self):
         return self.name
@@ -248,8 +254,14 @@ class BaseModule(models.Model):
 
     materials_text = CKEditor5Field()
 
-    ddm_path = models.URLField()
-    ddm_project_id = models.CharField(max_length=255)  # external ID
+    ddm_path = models.URLField(verbose_name='DDM path')
+    ddm_project_id = models.CharField(
+        max_length=255,
+        verbose_name='DDM project id'
+    )  # external ID
+
+    class Meta:
+         verbose_name = 'Base Module'
 
     def __str__(self):
         return self.name
@@ -263,11 +275,19 @@ class SubModule(models.Model):
         'tool.BaseModule', on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=50, blank=False, null=False)
-    url_parameter = models.SlugField(max_length=5, blank=False, null=False)
+    url_parameter = models.SlugField(
+        max_length=5,
+        blank=False,
+        null=False,
+        verbose_name='URL parameter'
+    )
     description = models.TextField()
     materials_text = CKEditor5Field()
 
     active = models.BooleanField(default=False)
+
+    class Meta:
+         verbose_name = 'Sub Module'
 
     def __str__(self):
         return self.name
