@@ -20,9 +20,9 @@ urlpatterns = [
         name='class_detail'
     ),
     path(
-        'class/<slug:url_id>/track',
-        views.ClassroomAssignTrack.as_view(),
-        name='class_assign_track'
+        'class/<slug:url_id>/module',
+        views.ClassroomAssignModule.as_view(),
+        name='class_assign_module'
     ),
     path(
         'class/<slug:url_id>/expired',

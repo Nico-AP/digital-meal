@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Classroom, User, Teacher, MainTrack, SubTrack
+from .models import Classroom, User, Teacher, BaseModule, SubModule
 
 
 @admin.register(User)
@@ -12,13 +12,13 @@ class TeacherAdmin(admin.ModelAdmin):
     list_display = ['user', 'name', 'first_name', 'canton', 'school_name']
 
 
-@admin.register(MainTrack)
+@admin.register(BaseModule)
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'date_created', 'id', 'active',
                     'ddm_path', 'ddm_project_id']
 
 
-@admin.register(SubTrack)
+@admin.register(SubModule)
 class ModuleAdmin(admin.ModelAdmin):
     list_display = ['name', 'url_parameter', 'active']
 
@@ -28,4 +28,4 @@ class ClassroomAdmin(admin.ModelAdmin):
     """
     Provides an overview of all Pooled Donation Projects.
     """
-    list_display = ['name', 'class_id', 'date_created', 'owner', 'track']
+    list_display = ['name', 'class_id', 'date_created', 'owner', 'base_module']

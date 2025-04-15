@@ -1,4 +1,4 @@
-.main-track-label {
+.base-module-label {
     cursor: pointer;
     height: 200px;
     width: 200px;
@@ -7,45 +7,45 @@
     color: #575757;
     filter: brightness(110%);
 }
-#main-track-container input[type=radio]:checked + .main-track-label{
+#base-module-container input[type=radio]:checked + .base-module-label{
     filter: brightness(100%) !important;
     border: 6px solid black;
     color: black;
 }
 
-.main-track-bg-1 {
+.base-module-bg-1 {
     background: #f99;
 }
-.main-track-bg-2 {
+.base-module-bg-2 {
     background: #F7B17B;
 }
-.main-track-bg-3 {
+.base-module-bg-3 {
     background: #C8C1E1;
 }
 
-.sub-track-label {
+.sub-module-label {
     cursor: pointer;
     min-height: 150px;
     border: 6px solid white;
     background: #F5E165;
     color: #575757;
 }
-#sub-track-container input[type=checkbox]:checked + .sub-track-label{
+#sub-module-container input[type=checkbox]:checked + .sub-module-label{
     filter: none !important;
     border: 6px solid black;
     color: black;
 }
 
-.sub-track-bg-1 {
+.sub-module-bg-1 {
     background: #F5E165;
 }
-.sub-track-bg-2 {
+.sub-module-bg-2 {
     background: #9BCEA4;
 }
-.sub-track-bg-3 {
+.sub-module-bg-3 {
     background: #BFE2E0;
 }
-.sub-track-bg-4 {
+.sub-module-bg-4 {
     background: #D6E297;
 }
 

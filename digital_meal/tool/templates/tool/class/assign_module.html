@@ -22,13 +22,13 @@
   Plattform anfordern und herunterladen.
 </p>
 
-<div id="main-track-container" class="main-track-container row ff-no-serif justify-content-center">
-  {% for track in active_main_tracks %}
+<div id="base-module-container" class="base-module-container row ff-no-serif justify-content-center">
+  {% for module in active_base_modules %}
   <div class="p-3 col">
     <div>
-      <input type="radio" name="main-tracks" value="{{ track.id }}" id="mt-{{ forloop.counter }}" class="d-none" autocomplete="off"/>
-      <label onclick="showHideSubTracks(this); selectTrack('{{ track.id }}')" class="m-auto d-flex flex-column justify-content-center align-items-center main-track-label main-track-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
-        <div>{{ track.name }}</div>
+      <input type="radio" name="base-modules" value="{{ module.id }}" id="mt-{{ forloop.counter }}" class="d-none" autocomplete="off"/>
+      <label onclick="showHideSubModules(this); selectModule('{{ module.id }}')" class="m-auto d-flex flex-column justify-content-center align-items-center base-module-label base-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
+        <div>{{ module.name }}</div>
       </label>
     </div>
   </div>
@@ -47,26 +47,26 @@
   </p>
 </div>
 
-<div id="sub-task-placeholder" class="ff-non-serif bg-secondary text-white rounded p-2 m-1">
+<div id="sub-module-placeholder" class="ff-non-serif bg-secondary text-white rounded p-2 m-1">
   Um die Vertiefungsmodule anzuzeigen, müssen Sie zunächst ein Basismodul auswählen.
 </div>
 
-<div id="sub-track-container" class="pb-5">
-  {% for track in active_main_tracks %}
+<div id="sub-module-container" class="pb-5">
+  {% for module in active_base_modules %}
   {% with mt=forloop.counter %}
 
-  <div id="mt-{{ mt }}-subtracks" class="mt-subtrack-container" style="display: none;">
-    {% for sub_track in track.get_active_sub_tracks %}
+  <div id="mt-{{ mt }}-sub-modules" class="mt-sub-module-container" style="display: none;">
+    {% for sub_module in module.get_active_sub_modules %}
 
     {% if forloop.first %}
-    <p>Anzahl ausgewählte Module: <span id="modul-counter-{{ mt }}">0</span></p>
+    <p>Anzahl ausgewählte Module: <span id="module-counter-{{ mt }}">0</span></p>
     {% endif %}
 
     <div class="pb-3">
-      <input type="checkbox" name="sub-tracks-{{ mt }}" value="{{ track.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
-      <label onclick="selectSubTrack('{{ sub_track.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-track-label sub-track-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
-        <div>{{ sub_track.name }}</div>
-        <div class="ff-non-serif fs-6 fw-normal">{{ sub_track.description }}</div>
+      <input type="checkbox" name="sub-modules-{{ mt }}" value="{{ module.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
+      <label onclick="selectSubModule('{{ sub_module.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-module-label sub-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
+        <div>{{ sub_module.name }}</div>
+        <div class="ff-non-serif fs-6 fw-normal">{{ sub_module.description }}</div>
       </label>
     </div>
 
@@ -95,5 +95,5 @@
 
 {% block site_js %}
 {{ block.super }}
-<script src="{% static 'tool/js/track-assign.js' %}"></script>
+<script src="{% static 'tool/js/module-assign.js' %}"></script>
 {% endblock site_js %}

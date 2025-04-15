@@ -46,7 +46,7 @@ class BaseReport:
 
     def register_project(self):
         """Register project object."""
-        project_id = self.classroom.track.ddm_project_id
+        project_id = self.classroom.base_module.ddm_project_id
         self.project = DonationProject.objects.get(url_id=project_id)
 
 
