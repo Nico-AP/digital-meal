@@ -76,12 +76,19 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_participation_url(self):
+        participation_url = self.object.base_module.ddm_path
+        participation_url += f'?class={self.object.url_id}'
+        for sub_module in self.object.sub_modules.all():
+            participation_url += f'&{sub_module.url_parameter}=1'
+        return participation_url
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_overview_data())
         context['base_module'] = self.object.base_module
         context['sub_modules'] = self.object.sub_modules.all()
-        # TODO: Add participation URL including submodule url parameter
+        context['participation_url'] = self.get_participation_url()
         return context
 
     def get_overview_data(self):
