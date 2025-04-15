@@ -105,6 +105,9 @@ class Teacher(models.Model):
         choices=SwissCantons.choices, verbose_name=_('Kanton'))
     school_name = models.CharField(max_length=100, null=True, blank=True)
 
+    class Meta:
+         verbose_name = 'Teacher'
+
     def __str__(self):
         return f'{self.first_name} {self.name}'
 
@@ -124,14 +127,14 @@ class Classroom(models.Model):
     )
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
-    track = models.ForeignKey(
-        'tool.MainTrack',
+    base_module = models.ForeignKey(
+        'tool.BaseModule',
         on_delete=models.CASCADE,
-        verbose_name='Main Track',
+        verbose_name='Base Module',
         null=True
     )
 
-    sub_tracks = models.ManyToManyField('tool.SubTrack', blank=True)
+    sub_modules = models.ManyToManyField('tool.SubModule', blank=True)
 
     school_level = models.CharField(
         max_length=20,
@@ -168,6 +171,9 @@ class Classroom(models.Model):
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
 
+    class Meta:
+         verbose_name = 'Classroom'
+
     def __str__(self):
         return self.name
 
@@ -183,7 +189,7 @@ class Classroom(models.Model):
 
     def get_related_donation_project(self):
         """Returns Donation Project if it exists, None otherwise."""
-        project_id = self.track.ddm_project_id
+        project_id = self.base_module.ddm_project_id
         return DonationProject.objects.filter(url_id=project_id).first()
 
     def get_classroom_participants(self):
@@ -213,6 +219,7 @@ class Classroom(models.Model):
             donation_dates = self.get_donation_dates()
 
             # Calculate reference date
+            # TODO: Fallback if no donation_dates are available
             date_min = min(donation_dates)
             if date_min.month == 1:
                 end_date = date_min.replace(day=31, month=12)
@@ -226,10 +233,9 @@ class Classroom(models.Model):
         return start_date, self.report_ref_end_date
 
 
-class MainTrack(models.Model):
+class BaseModule(models.Model):
     """
-    A Track corresponds to a 'teaching path' within a Module
-    (e.g., small, medium etc.).
+    A Base Module corresponds to a 'teaching path'.
     """
     id = models.UUIDField(
         primary_key=True,
@@ -246,37 +252,45 @@ class MainTrack(models.Model):
         null=False
     )
     active = models.BooleanField(default=False)
-    image = models.ImageField(
-        null=True,
-        blank=True,
-        upload_to='uploads/images/%Y/%m/'
-    )
 
     materials_text = CKEditor5Field()
 
-    ddm_path = models.URLField()
-    ddm_project_id = models.CharField(max_length=255)  # external ID
-    data_endpoint = models.URLField()
-    overview_endpoint = models.URLField()
-    ddm_api_token = models.CharField(max_length=40)
+    ddm_path = models.URLField(verbose_name='DDM path')
+    ddm_project_id = models.CharField(
+        max_length=255,
+        verbose_name='DDM project id'
+    )  # external ID
+
+    report_prefix = models.SlugField()
+
+    class Meta:
+         verbose_name = 'Base Module'
 
     def __str__(self):
         return self.name
 
-    def get_active_sub_tracks(self):
-        return self.subtrack_set.filter(active=True)
+    def get_active_sub_modules(self):
+        return self.submodule_set.filter(active=True)
 
 
-class SubTrack(models.Model):
-    main_track = models.ForeignKey(
-        'tool.MainTrack', on_delete=models.SET_NULL, null=True)
+class SubModule(models.Model):
+    base_module = models.ForeignKey(
+        'tool.BaseModule', on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=50, blank=False, null=False)
-    url_parameter = models.SlugField(max_length=5, blank=False, null=False)
+    url_parameter = models.SlugField(
+        max_length=5,
+        blank=False,
+        null=False,
+        verbose_name='URL parameter'
+    )
     description = models.TextField()
     materials_text = CKEditor5Field()
 
     active = models.BooleanField(default=False)
+
+    class Meta:
+         verbose_name = 'Sub Module'
 
     def __str__(self):
         return self.name

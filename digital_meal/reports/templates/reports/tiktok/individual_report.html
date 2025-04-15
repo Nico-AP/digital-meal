@@ -1,0 +1,189 @@
+{% extends "reports/base_report.html" %}
+{% load static %}
+
+{% block page_title %}TikTok Report{% endblock %}
+
+{% block report_intro_title %}Die personalisierte Auswertung deiner TikTok-Nutzung{% endblock %}
+
+{% block report_intro_image_path %}{% static 'reports/img/TikTok_logo-sketch.png' %}{% endblock %}
+
+{% block report_intro_text %}
+<p>In dieser persönlichen Auswertung findest Du Informationen, wie Du TikTok in der Vergangenheit genutzt hast.
+  Die von Dir hochgeladenen Daten beinhalten <b>Deinen Wiedergabeverlauf</b> und <b>Deinen Suchverlauf</b>
+  zwischen dem {{ wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
+  {{ wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
+</p>
+{% endblock %}
+
+{% block report_body %}
+
+<!-- NUTZUNGSINTENSITÄT -->
+<div class="section-container">
+  <div class="report-section position-relative bg-darkyellow">
+
+    <div class="report-content">
+      <h2>Wie viele Videos hast du dir auf TikTok angesehen?</h2>
+      <p>
+        Seit dem {{ wh_dates_min|date:"d. F Y" }} hast du dir <b class="font-size-highlight text-color-royalblue">insgesamt {{ n_vids_overall }}&nbsp;Videos angesehen</b>.</br>
+      </p>
+      <p>
+        Unten findest du einige Zahlen zu deiner TikTok-Nutzung.
+        Links siehst du die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
+      </p>
+      <div class="row justify-content-center pt-5">
+        <div class="col-11 col-md-6 pt-4 pb-4 p-2 p-md-5  bg-royalblue text-white">
+          <div style="height: 90px;">
+            <h3>Insgesamt<br><span class="fs-6">{{ wh_dates_min|date:"d.m.Y" }} bis {{ wh_dates_max|date:"d.m.Y" }}</span></h3>
+          </div>
+          <p>Angeschaute Videos: {{ n_vids_overall }}</p>
+          <p>Unterschiedliche Videos: {{ n_vids_unique_overall }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_overall|floatformat:1 }}</p>
+        </div>
+
+        <div class="col-11 col-md-6 pt-4 pb-4 p-2 p-md-5  bg-darkpurple text-white">
+          <div style="height: 90px;">
+            <h3>Im letzten Monat<br><span class="fs-6">{{ wh_int_min_date|date:"d.m.Y" }} bis {{ wh_int_max_date|date:"d.m.Y" }}</span></h3>
+          </div>
+          <p>Angeschaute Videos: {{ n_vids_interval }}</p>
+          <p>Unterschiedliche Videos: {{ n_vids_unique_interval }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ n_vids_mean_interval|floatformat:1 }}</p>
+        </div>
+      </div>
+      <!-- TODO(optimization): Add CH-Vergleich, wenn verfügbar. -->
+
+    </div>
+
+  </div>
+</div>
+
+<!-- YEARLY USE -->
+<!-- TODO(optimization): Add comparison line for class -->
+{% if dates_plot_days %}
+<div class="section-container">
+
+  <div class="report-section bg-yellow position-relative">
+    <div class="report-content">
+      <h2>Wie hat sich deine TikTok-Nutzung im Zeitverlauf verändert?</h2>
+      <div>
+        <p>
+          Unten siehst du, wie sich die Anzahl Videos, die du dir angeschaut hast, über die Zeit verändert.
+          Du kannst dir die Zahlen pro Tag, Woche, Monat oder Jahr anzeigen lassen. Im violetten Balken unten kannst du
+          den Zeitraum verändern, der oben angezeigt wird.
+        </p>
+      </div>
+      <div class="row pb-2 pb-lg-0">
+        <div id="date_plot_toggles" class="col-xl-2 col-lg-3 justify-content-evenly align-items-lg-stretch pe-lg-5">
+          <div class="row d-flex justify-content-around g-1 g-lg-4 pt-lg-5 pb-4">
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">pro Tag</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">pro Woche</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">pro Monat</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_years')">pro Jahr</button></div>
+          </div>
+        </div>
+        <div id="date_plot_container" class="col justify-content-center border-bottom-2 w-100">
+          <div id="dates_plot_days" class="collapse-dates-plots w-100">{{ dates_plot_days.div | safe }}</div>
+          <div id="dates_plot_weeks" class="collapse-dates-plots d-none w-100">{{ dates_plot_weeks.div | safe }}</div>
+          <div id="dates_plot_months" class="collapse-dates-plots d-none w-100">{{ dates_plot_months.div | safe }}</div>
+          <div id="dates_plot_years" class="collapse-dates-plots d-none w-100">{{ dates_plot_years.div | safe }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- DAILY USE -->
+{% if weekday_use_plot %}
+<div class="section-container">
+  <div class="report-section bg-melrose">
+    <div class="report-content row">
+      <div class="col-12 col-lg-5 pe-lg-5">
+        <h2>Wann nutzt du TikTok in einer durch&shy;schnittlichen Woche am intensivsten?</h2>
+        <p class="text-start">
+          Die folgende Grafik veranschaulicht die Intensität deiner durchschnittlichen TikTok-Nutzung
+          über den Verlauf einer typischen Woche.
+        </p>
+        <p class="text-start">Oben ist ersichtlich, wie sich die Anzahl angesehener Videos prozentual auf die Wochentage verteilt.</p>
+        <p class="text-start">
+          Unten siehst du die durchschnittliche Nutzung pro Tag pro Stunde.
+          <span class="fw-bold bg-yellow" style="border-bottom: 2px solid #ffda3c; padding-left: 5px; padding-right: 5px;">Je dunkler das Feld, desto mehr Videos hast du dir in dieser Zeitperiode angeschaut.</span>
+        </p>
+      </div>
+      <div class="col-12 col-lg-7 detailed-use-plot p-0">
+        <!-- TODO(optimization): Berechnungsgrundlage Mean -->
+        <div class="d-flex justify-content-center">{{ weekday_use_plot.div | safe }}</div>
+        <div class="d-flex justify-content-center">{{ hours_plot.div | safe }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+
+<!-- FAVORITE VIDEO -->
+{% if fav_vids_top_ten %}
+<div class="section-container">
+
+  <div class="report-section bg-pastelgreen overflow-hidden">
+
+    <div class="report-content d-flex flex-row pb-lg-5 align-content-stretch pt-lg-5">
+      <div class="ps-5 pe-5 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+        <h2>Dein Lieblingsvideo</h2>
+        {% if fav_vids_top_ten.0.channel %}
+          <p class="text-center">
+          Dein Lieblingsvideo<br> ist von <b class="font-size-highlight" style="color: #001310; background: #d0c3ff; padding-left: 15px; padding-right: 10px;">{{ fav_vids_top_ten.0.channel }}</b><br> und du hast es dir im gesamten Zeitraum <b class="font-size-highlight" style="color: #001310; border-bottom: 3px solid #d0c3ff;">{{ fav_vids_top_ten.0.count }} mal</b> angesehen.
+          </p>
+        {% else %}
+          <p class="text-center">
+          Ein Video hast du dir insgesamt <b class="font-size-highlight" style="color: #001310; border-bottom: 3px solid #d0c3ff;">{{ fav_vids_top_ten.0.count }} mal</b> angesehen.
+          </p>
+          <p class="text-center">Leider scheint es nicht mehr online zu sein.</p>
+        {% endif %}
+        </p>
+      </div>
+      {% if fav_vids_top_ten.0.thumbnail %}
+      <div class="ps-5 pe-5 flex-grow-1 d-flex justify-content-center align-items-center fav-video-teaser">
+        <div style="background-color: #001310; padding: 20px; transform: rotate(135deg);">
+          <div style="background-color: #389583; padding: 20px; transform: rotate(15deg);">
+            <div style="background-color: #8de4af; padding: 20px; transform: rotate(195deg);">
+              <img src="{{ fav_vids_top_ten.0.thumbnail }}" height="300px;" style="padding: 20px; transform: rotate(15deg);">
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+{% endif %}
+
+{% endblock report_body %}
+
+
+{% block scripts %}
+{{ block.super }}
+
+{{ dates_plot_days.script | safe }}
+{{ dates_plot_weeks.script | safe }}
+{{ dates_plot_months.script | safe }}
+{{ dates_plot_years.script | safe }}
+{{ weekday_use_plot.script | safe }}
+{{ hours_plot.script | safe }}
+{{ channel_plot.script | safe }}
+{{ search_plot.script | safe }}
+
+<script>
+  function toggleButton(button, target) {
+    $('.collapse-dates-plots').addClass('d-none');
+    $(target).removeClass('d-none');
+    $('.toggle-btn').removeClass('toggle-btn-active');
+    $(button).addClass('toggle-btn-active')
+  }
+</script>
+
+{% endblock %}

@@ -1,27 +1,39 @@
 from django.urls import path
 
-from . import views
+from .views import SendReportLink
+from .youtube import views as youtube_views
+from .tiktok import views as tiktok_views
 
 
 urlpatterns = [
     path(
-        'class/<slug:url_id>/overview',
-        views.YouTubeReportClassroom.as_view(),
-        name='class_report'
-    ),
+        'youtube/class/<slug:url_id>',
+        youtube_views.YouTubeReportClassroom.as_view(),
+        name='youtube_class_report'
+    ),  # slug:url_id relates to Classroom.url_id.
     path(
-        'class/<slug:url_id>/individual/<slug:participant_id>',
-        views.YouTubeReportIndividual.as_view(),
-        name='individual_report'
+        'youtube/class/<slug:url_id>/individual/<slug:participant_id>',
+        youtube_views.YouTubeReportIndividual.as_view(),
+        name='youtube_individual_report'
     ),  # slug:url_id relates to Classroom.url_id.
     path(
         'youtube-example',
-        views.YouTubeExampleReport.as_view(),
+        youtube_views.YouTubeExampleReport.as_view(),
         name='youtube_example_report'
     ),
     path(
+        'tiktok/class/<slug:url_id>/tiktok-report',
+        tiktok_views.TikTokReportClassroom.as_view(),
+        name='tiktok_class_report'
+    ),  # slug:url_id relates to Classroom.url_id.
+    path(
+        'tiktok/class/<slug:url_id>/individual/<slug:participant_id>',
+        tiktok_views.TikTokReportIndividual.as_view(),
+        name='tiktok_individual_report'
+    ),  # slug:url_id relates to Classroom.url_id.
+    path(
         'send-report-link',
-        views.SendReportLink.as_view(),
+        SendReportLink.as_view(),
         name='send_report_link'
     )
 ]

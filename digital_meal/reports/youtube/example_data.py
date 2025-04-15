@@ -31,7 +31,6 @@ def generate_synthetic_watch_history(start_date, days=500):
             num_entries = max(5, np.random.poisson(lam=40))
             hourly_shares = generate_hourly_shares(weekend=True)
 
-
         # Normalize hourly shares so they sum up to 1 for weighted sampling
         total_share = sum(hourly_shares.values())
         normalized_shares = {hour: share / total_share for hour, share in hourly_shares.items()}

@@ -9,7 +9,7 @@ from ddm.datadonation.models import (
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject, ResearchProfile
 
-from digital_meal.tool.models import Classroom, MainTrack
+from digital_meal.tool.models import Classroom, BaseModule
 
 User = get_user_model()
 
@@ -52,19 +52,20 @@ class TestReports(TestCase):
             file_uploader=cls.uploader,
         )
 
-        # Crate a track
-        cls.track = MainTrack.objects.create(
-            name='trackname',
+        # Crate a module
+        cls.module = BaseModule.objects.create(
+            name='module-name',
             active=True,
             ddm_path='https://127.0.0.1:8000/',
-            ddm_project_id=cls.project.url_id
+            ddm_project_id=cls.project.url_id,
+            report_prefix='youtube_'
         )
 
         # Create Classroom - not expired
         cls.classroom_regular = Classroom.objects.create(
             owner=cls.user,
             name='regular class',
-            track=cls.track,
+            base_module=cls.module,
             school_level='primary',
             school_year=10,
             subject='languages',
@@ -76,7 +77,7 @@ class TestReports(TestCase):
             owner=cls.user,
             name='regular class',
             expiry_date=timezone.now(),
-            track=cls.track,
+            base_module=cls.module,
             school_level='primary',
             school_year=10,
             subject='languages',
@@ -92,9 +93,9 @@ class TestReports(TestCase):
             'profile': reverse('profile'),
         }
 
-    def test_expired_clasroom_does_not_show_report(self):
+    def test_expired_classroom_does_not_show_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_expired.url_id}
         )
         expired_url = reverse(
@@ -107,7 +108,7 @@ class TestReports(TestCase):
 
     def test_report_with_less_than_five_donations_does_not_show_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_regular.url_id}
         )
         response = self.client.get(report_url)
@@ -116,7 +117,7 @@ class TestReports(TestCase):
 
     def test_report_with_five_or_more_donations_shows_report(self):
         report_url = reverse(
-            'class_report',
+            'youtube_class_report',
             kwargs={'url_id': self.classroom_regular.url_id}
         )
         # Create 5 donations
@@ -158,7 +159,7 @@ class TestReports(TestCase):
             status='success'
         )
         report_url = reverse(
-            'individual_report',
+            'youtube_individual_report',
             kwargs={
                 'url_id': self.classroom_regular.url_id,
                 'participant_id': participant.external_id

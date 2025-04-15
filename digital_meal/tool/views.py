@@ -7,8 +7,8 @@ from django.urls import reverse_lazy
 from django.views.generic import TemplateView, ListView, DetailView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import ClassroomCreateForm, ClassroomTrackForm
-from .models import Classroom, Teacher, MainTrack
+from .forms import ClassroomCreateForm, ClassroomModuleForm
+from .models import Classroom, Teacher, BaseModule
 
 
 class OwnershipRequiredMixin:
@@ -66,8 +66,8 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
-        if not obj.track:
-            return redirect(reverse_lazy('class_assign_track',
+        if not obj.base_module:
+            return redirect(reverse_lazy('class_assign_module',
                                          kwargs={'url_id': obj.url_id}))
 
         if not obj.is_active:
@@ -76,11 +76,27 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
 
         return super().dispatch(request, *args, **kwargs)
 
+    def get_participation_url(self):
+        """
+        Constructs the participation url be adding the class id and
+        sub module identifiers as URL parameters.
+        """
+        participation_url = self.object.base_module.ddm_path
+        participation_url += f'?class={self.object.url_id}'
+        for sub_module in self.object.sub_modules.all():
+            participation_url += f'&{sub_module.url_parameter}=1'
+        return participation_url
+
+    def get_report_view_name(self):
+        return self.object.base_module.report_prefix + '_class_report'
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_overview_data())
-        context['main_track'] = self.object.track
-        context['sub_tracks'] = self.object.sub_tracks.all()
+        context['base_module'] = self.object.base_module
+        context['sub_modules'] = self.object.sub_modules.all()
+        context['participation_url'] = self.get_participation_url()
+        context['report_view_name'] = self.get_report_view_name()
         return context
 
     def get_overview_data(self):
@@ -136,22 +152,22 @@ class ClassroomCreate(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy(
-            'class_assign_track', kwargs={'url_id': self.object.url_id})
+            'class_assign_module', kwargs={'url_id': self.object.url_id})
 
 
-class ClassroomAssignTrack(LoginRequiredMixin, UpdateView):
-    """ Assign a track to a classroom. """
+class ClassroomAssignModule(LoginRequiredMixin, UpdateView):
+    """ Assign a module to a classroom. """
     model = Classroom
     lookup_field = 'url_id'
     slug_field = 'url_id'
     slug_url_kwarg = 'url_id'
-    template_name = 'tool/class/assign_track.html'
-    form_class = ClassroomTrackForm
+    template_name = 'tool/class/assign_module.html'
+    form_class = ClassroomModuleForm
 
     def dispatch(self, request, *args, **kwargs):
-        # If classroom has track already assigned, redirect to overview
+        # If classroom has module already assigned, redirect to overview
         obj = self.get_object()
-        if obj.track:
+        if obj.base_module:
             return redirect(reverse_lazy('class_detail',
                                          kwargs={'url_id': obj.url_id}))
         return super().dispatch(request, *args, **kwargs)
@@ -162,8 +178,8 @@ class ClassroomAssignTrack(LoginRequiredMixin, UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        active_main_tracks = MainTrack.objects.filter(active=True)
-        context['active_main_tracks'] = active_main_tracks
+        active_base_modules = BaseModule.objects.filter(active=True)
+        context['active_base_modules'] = active_base_modules
         return context
 
 

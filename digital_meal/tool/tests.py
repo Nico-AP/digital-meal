@@ -3,7 +3,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.urls import reverse
 
-from .models import Classroom, MainTrack
+from .models import Classroom, BaseModule
 
 User = get_user_model()
 
@@ -20,17 +20,18 @@ class TestViews(TestCase):
         }
         cls.user = User.objects.create_user(**cls.base_creds)
 
-        # Crate a track
-        cls.track = MainTrack.objects.create(
-            name='trackname',
-            active=True
+        # Crate a module
+        cls.base_module = BaseModule.objects.create(
+            name='module-name',
+            active=True,
+            report_prefix='youtube'
         )
 
         # Create Classroom - not expired
         cls.classroom_regular = Classroom.objects.create(
             owner=cls.user,
             name='regular class',
-            track=cls.track,
+            base_module=cls.base_module,
             school_level='primary',
             school_year=10,
             subject='languages',
@@ -42,7 +43,7 @@ class TestViews(TestCase):
             owner=cls.user,
             name='regular class',
             expiry_date=timezone.now(),
-            track=cls.track,
+            base_module=cls.base_module,
             school_level='primary',
             school_year=10,
             subject='languages',

@@ -20,32 +20,32 @@
     <div class="container">
       <div class="row">
         <div class="pe-3 fw-bold">Klassenbezeichnung</div>
-        <div class="pb-2">{{ object.name }}</div>
+        <div class="pb-2">{{ classroom.name }}</div>
       </div>
 
       <div class="row">
         <div class="pe-3 fw-bold">Erstellt am</div>
-        <div class="pb-2">{{ object.date_created }}</div>
+        <div class="pb-2">{{ classroom.date_created }}</div>
       </div>
 
       <div class="row">
         <div class="pe-3 fw-bold">Schulstufe</div>
-        <div class="pb-2">{{ object.get_school_level_display }}</div>
+        <div class="pb-2">{{ classroom.get_school_level_display }}</div>
       </div>
 
       <div class="row">
         <div class="pe-3 fw-bold">Schuljahr</div>
-        <div class="pb-2">{{ object.school_year }}</div>
+        <div class="pb-2">{{ classroom.school_year }}</div>
       </div>
 
       <div class="row">
         <div class="pe-3 fw-bold">Unterrichtsfach</div>
-        <div class="pb-2">{{ object.get_subject_display }}</div>
+        <div class="pb-2">{{ classroom.get_subject_display }}</div>
       </div>
 
       <div class="row">
         <div class="pe-3 fw-bold">Unterrichtsformat</div>
-        <div class="pb-2">{{ object.get_instruction_format_display }}</div>
+        <div class="pb-2">{{ classroom.get_instruction_format_display }}</div>
       </div>
     </div>
 
@@ -61,9 +61,9 @@
 
     <p>Hier finden Sie alle Materialien, die zum ausgewählten Modul "YouTube"
       gehören.</p>
-    {{ main_track.materials_text|safe }}
-    {% for track in sub_tracks %}
-    {{ track.materials_text|safe }}
+    {{ base_module.materials_text|safe }}
+    {% for sub_module in sub_modules %}
+    {{ sub_module.materials_text|safe }}
     {% endfor %}
   </div>
 </div>
@@ -87,7 +87,7 @@
       nicht in die Klassenauswertung mit ein.
     </p>
 
-    <p><a href="{{ object.track.ddm_path }}?class=testlink"
+    <p><a href="{{ classroom.base_module.ddm_path }}?class=testlink"
             target="_blank"><button
               class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">zur
           Test-Teilnahme &#8594</button></a></p>
@@ -104,13 +104,9 @@
 
     <div class="text-center position-relative" onclick="copyLinkToClipboard()"
           style="cursor: pointer;">
-      {% with object.url_id|stringformat:"s" as class_id %}
-      {% with participation_url=""|add:object.track.ddm_path|add:"?class="|add:class_id %}
       <img src="{% qr_url_from_text participation_url %}"
             alt="Participation URL" style="max-height: 400px;" class="w-100">
       <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
-      {% endwith %}
-      {% endwith %}
       <div id="copydisclaimer"
             class="text-center w-100 position-absolute top-50"
             style="display: none;">
@@ -197,7 +193,7 @@
       wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
     </p>
 
-    <p><a href="{% url 'class_report' object.url_id %}" target="_blank"><button
+    <p><a href="{% url report_view_name classroom.url_id %}" target="_blank"><button
               class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport öffnen
           &#8594</button></a></p>
   </div>

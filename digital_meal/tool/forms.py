@@ -75,7 +75,7 @@ class ClassroomCreateForm(forms.ModelForm):
         ]
         widgets = {
             'name': forms.TextInput(attrs={'placeholder': _('Name/Bezeichnung der Klasse')}),
-            'track': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
+            'base_module': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'school_level': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'subject': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
             'instruction_format': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
@@ -106,22 +106,22 @@ class ClassroomCreateForm(forms.ModelForm):
             )
 
 
-class ClassroomTrackForm(forms.ModelForm):
+class ClassroomModuleForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = [
-            'track',
-            'sub_tracks'
+            'base_module',
+            'sub_modules'
         ]
 
     def clean(self):
         cleaned_data = super().clean()
-        main_track = cleaned_data.get('track')
-        allowed_sub_tracks = main_track.get_active_sub_tracks()
-        sub_tracks = []
-        for sub_track in cleaned_data['sub_tracks']:
-            if sub_track in allowed_sub_tracks:
-                sub_tracks.append(sub_track)
+        base_module = cleaned_data.get('base_module')
+        allowed_sub_modules = base_module.get_active_sub_modules()
+        sub_modules = []
+        for sub_module in cleaned_data['sub_modules']:
+            if sub_module in allowed_sub_modules:
+                sub_modules.append(sub_module)
 
-        cleaned_data['sub_tracks'] = sub_tracks
+        cleaned_data['sub_modules'] = sub_modules
         return cleaned_data
