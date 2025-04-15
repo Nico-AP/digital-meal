@@ -260,6 +260,8 @@ class BaseModule(models.Model):
         verbose_name='DDM project id'
     )  # external ID
 
+    report_prefix = models.SlugField()
+
     class Meta:
          verbose_name = 'Base Module'
 

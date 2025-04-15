@@ -21,6 +21,7 @@ class BaseModuleAdmin(admin.ModelAdmin):
         'materials_text',
         'ddm_path',
         'ddm_project_id',
+        'report_prefix',
         'active'
     )
 
