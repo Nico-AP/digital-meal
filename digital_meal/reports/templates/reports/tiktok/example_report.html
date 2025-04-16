@@ -1,0 +1,16 @@
+{% extends "reports/tiktok/individual_report.html" %}
+{% load static %}
+
+{% block page_title %}TikTok Report{% endblock %}
+
+{% block report_intro_title %}Die personalisierte Auswertung deiner TikTok-Nutzung{% endblock %}
+
+{% block report_intro_image_path %}{% static 'reports/img/TikTok_logo-sketch.png' %}{% endblock %}
+
+{% block report_intro_text %}
+<p>In dieser Auswertung ist ersichtlich, wie eine fiktive Person TikTok in der Vergangenheit genutzt hat.
+  Die Daten beinhalten den <b>Wiedergabeverlauf</b>
+  zwischen dem {{ dates.wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
+  {{ dates.wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
+</p>
+{% endblock %}

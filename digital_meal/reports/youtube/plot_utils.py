@@ -4,6 +4,8 @@ import pandas as pd
 from bokeh.embed import components
 from bokeh.plotting import figure
 
+from digital_meal.website.constants import COLORS
+
 
 def get_channel_plot(channel_list, n_channels=10):
     channels = pd.Series(channel_list)
@@ -22,31 +24,33 @@ def get_channel_plot(channel_list, n_channels=10):
         top=y_values[:n_channels],
         width=0.1,
         line_color=None,
-        fill_color='#1f2833'
+        fill_color=COLORS['PURPLE_DARKEST']
     )
     p.xgrid.grid_line_color = None
     p.y_range.start = 0
     p.yaxis.axis_label = 'Anzahl Videos'
+    p.yaxis.axis_label_text_font_size = '20px'
     p.yaxis.axis_label_text_font_style = 'normal'
     p.border_fill_color = None
     p.outline_line_color = None
     p.background_fill_color = None
-    p.circle(
+    p.scatter(
         x_labels,
         y_values,
+        marker='circle',
         size=12,
-        fill_color='#5cdb95',
+        fill_color=COLORS['LIGHTGREEN_DARKER'],
         line_color=None
     )
     p.yaxis.minor_tick_line_color = None
     p.axis.major_tick_line_color = None
     p.xaxis.major_label_orientation = math.pi/3
-    p.xaxis.axis_line_color = '#1f2833'
-    p.ygrid.grid_line_color = 'white'
+    p.xaxis.axis_line_color = COLORS['PURPLE_DARKER']
+    p.ygrid.grid_line_color = COLORS['PURPLE']
     p.yaxis.axis_line_color = None
-    p.yaxis.axis_label_text_color = 'white'
+    p.yaxis.axis_label_text_color = 'black'
     p.xaxis.major_label_text_font_size = '15px'
-    p.axis.major_label_text_color = 'white'
+    p.axis.major_label_text_color = 'black'
 
     script, div = components(p)
     return {'script': script, 'div': div}
@@ -81,30 +85,31 @@ def get_searches_plot(search_term_list):
         y=y_labels,
         right=x_values,
         height=0.15,
-        fill_color='#e83e3e',
+        fill_color=COLORS['ORANGE_DARKER'],
         line_color=None
     )
 
-    p.triangle(
+    p.scatter(
         x_values,
         y_labels,
+        marker='triangle',
         size=20,
-        fill_color='#3ee0e8',
-        line_color='#e83e3e',
+        fill_color=COLORS['GREEN_BRIGHTER'],
+        line_color=COLORS['ORANGE_DARKER'],
         line_width=2,
         angle=-1.5708
     )
 
-    p.axis.axis_label_text_color = 'white'
+    #p.axis.axis_label_text_color = 'white'
     p.axis.axis_line_color = None
     p.axis.major_tick_line_color = None
-    p.axis.major_label_text_color = 'white'
+    #p.axis.major_label_text_color = 'white'
     p.axis.major_label_text_font_size = '15px'
     p.axis.minor_tick_line_color = None
 
     p.x_range.start = 0
     p.xaxis.axis_label = 'Anzahl Suchen'
-    p.xaxis.axis_label_text_font_size = '15px'
+    p.xaxis.axis_label_text_font_size = '20px'
     p.xaxis.axis_label_text_font_style = 'normal'
 
     p.ygrid.grid_line_color = None

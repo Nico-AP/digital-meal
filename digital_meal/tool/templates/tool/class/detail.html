@@ -2,15 +2,15 @@
 
 {% load qr_code static %}
 
-{% block title %}Klassenübersicht "{{ object.name }}"{% endblock title %}
+{% block title %}Klassenübersicht "{{ classroom.name }}"{% endblock title %}
 
 {% block main_content %}
 
-<h1 class="mb-3">Klasse "{{ object.name }}"</h1>
+<h1 class="mb-3">Klasse "{{ classroom.name }}"</h1>
 
 <div class="row ff-non-serif d-flex flex-column flex-lg-row">
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-lightgreen">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-lightgreen">
     <h4>
       <img alt="Icon Datenauswertung" class="pe-1"
             src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Plenumfrontal.svg' %}"
@@ -51,7 +51,7 @@
 
   </div>
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-green">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-green">
     <h4>
       <img alt="Icon Materialien & Geräte"
             src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_MaterialienGeräte.svg' %}"
@@ -71,7 +71,7 @@
 <div class="mt-4 row d-flex flex-column flex-lg-row">
   <h3>Teilnahme</h3>
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-yellow">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-yellow">
     <h4>Test-Teilnahme</h4>
     <p class="ff-non-serif">
       Mit dem Testlink können Sie den Fragebogen und die Datenspende
@@ -93,7 +93,7 @@
           Test-Teilnahme &#8594</button></a></p>
   </div>
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-orange">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-orange">
     <h4>Link für Schüler:innen</h4>
     <p class="ff-non-serif">
       Alle Antworten und Daten, die über diesen Link gegeben bzw. hochgeladen
@@ -111,7 +111,7 @@
             class="text-center w-100 position-absolute top-50"
             style="display: none;">
         <span
-              class="p-1 ps-3 pe-3 fw-bold background-green fs-5 text-black rounded">Link
+              class="p-1 ps-3 pe-3 fw-bold bg-green fs-5 text-black rounded">Link
           kopiert</span>
       </div>
     </div>
@@ -127,7 +127,7 @@
 <div class="mt-4 row d-flex flex-column flex-lg-row">
   <h3>Statistiken & Reports</h3>
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-blue ff-non-serif">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-blue ff-non-serif">
     <h4>Teilnahmeübersicht</h4>
 
     <table>
@@ -164,7 +164,7 @@
     </table>
   </div>
 
-  <div class="col m-0 mb-4 m-lg-3 p-3 background-purple">
+  <div class="col m-0 mb-4 m-lg-3 p-3 bg-purple">
     <h4>
       <img alt="Icon Datenauswertung"
             src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}"

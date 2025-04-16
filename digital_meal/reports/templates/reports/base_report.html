@@ -62,6 +62,10 @@
   {% block report_body %}
   {% endblock %}
 
+  {% block send_report %}
+    {% include "reports/components/save_report_section.html" %}
+  {% endblock %}
+
   <!-- FOOTER -->
   {% block footer %}
     <div class="section-container">
@@ -84,7 +88,7 @@
       </div>
 
     </div>
-    <div id="footer" class="background-blue">
+    <div id="footer" class="bg-blue">
       <div class="container">
         <div class="row">
           <div>

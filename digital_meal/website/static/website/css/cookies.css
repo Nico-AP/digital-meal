@@ -3,7 +3,7 @@
     left: 0;
     bottom: 0;
     width: 100%;
-    background-color: #00213f;
+    background-color: var(--darkblue-accent);
     color: white;
     text-align: center;
 }

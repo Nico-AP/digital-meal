@@ -1,0 +1,41 @@
+<div class="section-container">
+  <div class="report-section bg-orange">
+    <div class="report-content row">
+      <div class="col-12 col-lg-5 pe-lg-5">
+        {% if target == "individual" %}
+        <h2>Wann nutzt du {{ platform }} in einer durch&shy;schnittlichen Woche am intensivsten?</h2>
+        <p class="text-start">
+          Die folgende Grafik veranschaulicht die Intensität deiner durchschnittlichen {{ platform }}-Nutzung
+          über den Verlauf einer typischen Woche.
+        </p>
+        <p class="text-start">Oben ist ersichtlich, wie sich die Anzahl angesehener Videos prozentual auf die Wochentage verteilt.</p>
+        <p class="text-start">
+          Unten siehst du die durchschnittliche Nutzung pro Tag pro Stunde.
+          <span class="fw-bold green-highlight">
+            Je dunkler das Feld, desto mehr Videos hast du dir in dieser Zeitperiode angeschaut.
+          </span>
+        </p>
+        {% elif target == "class" %}
+          <h2>Wann nutzt ihr {{ platform }} in einer durchschnittlichen Woche am intensivsten?</h2>
+          <p class="text-start">
+            Die folgende Grafik veranschaulicht die Intensität der durchschnittlichen {{ platform }}-Nutzung in eurer Klasse
+            über den Verlauf einer typischen Woche.
+          </p>
+          <p class="text-start">Oben ist ersichtlich, wie sich die Anzahl angesehener Videos prozentual auf die Wochentage verteilt.</p>
+          <p class="text-start">
+            Unten seht ihr die durchschnittliche Nutzung pro Tag pro Stunde.
+            <span class="fw-bold green-highlight">Je dunkler das Feld, desto mehr Videos wurden in dieser Zeitperiode angeschaut.</span>
+          </p>
+        {% else %}
+          <p>Komponente falsch initialisiert - target muss entweder "individual" oder "class" sein.</p>
+        {% endif %}
+      </div>
+      <div class="col-12 col-lg-7 detailed-use-plot p-0">
+        <!-- TODO(optimization): Berechnungsgrundlage Mean -->
+        <div class="d-flex justify-content-center">{{ weekday_use_plot_div | safe }}</div>
+        <div class="d-flex justify-content-center">{{ hours_plot_div | safe }}</div>
+      </div>
+    </div>
+  </div>
+
+</div>

@@ -1,38 +1,206 @@
-.font-blue {
-    color: #99b5b3;
+:root {
+    --purple: #C8C1E1;
+    --purple-darker: #8a7bbf;
+    --purple-darkest: #54448d;
+    --purple-brighter: #dad5eb;
+
+    --orange: #F7B17B;
+    --orange-darker: #f27d24;
+    --orange-darkest: #ae520b;
+    --orange-brighter: #facba7;
+
+    --yellow: #F5E165;
+    --yellow-darker: #f0d114;
+    --yellow-darkest: #A28D0B;
+    --yellow-brighter: #f8eb98;
+
+    --lightgreen: #D6E297;
+    --lightgreen-darker: #B9CD4D;
+    --lightgreen-darkest: #829329;
+    --lightgreen-brighter: #e4ecb9;
+
+    --green: #9BCEA4;
+    --green-darker: #5eb06d;
+    --green-darkest: #3b7946;
+    --green-brighter: #bcdec2;
+
+    --blue: #BFE2E0;
+    --blue-darker: #77c1bd;
+    --blue-darkest: #418f8b;
+    --blue-brighter: #d4ecea;
+
+    --darkblue-accent: #00213f;
 }
 
-.background-yellow {
-    background: #F5E165;
-}
-.background-green {
-    background: #9BCEA4;
-}
-.background-blue {
-    background: #BFE2E0;
-}
-.background-purple {
-    background: #C8C1E1;
-}
-.background-orange {
-    background: #F7B17B;
-}
-.background-lightgreen {
-    background: #D6E297;
+/* Font colors */
+.font-purple               { color: var(--purple); }
+.font-purple-darker        { color: var(--purple-darker); }
+.font-purple-darkest       { color: var(--purple-darkest); }
+.font-purple-brighter      { color: var(--purple-brighter); }
+
+.font-orange               { color: var(--orange); }
+.font-orange-darker        { color: var(--orange-darker); }
+.font-orange-darkest       { color: var(--orange-darkest); }
+.font-orange-brighter      { color: var(--orange-brighter); }
+
+.font-yellow               { color: var(--yellow); }
+.font-yellow-darker        { color: var(--yellow-darker); }
+.font-yellow-darkest       { color: var(--yellow-darkest); }
+.font-yellow-brighter      { color: var(--yellow-brighter); }
+
+.font-lightgreen           { color: var(--lightgreen); }
+.font-lightgreen-darker    { color: var(--lightgreen-darker); }
+.font-lightgreen-darkest   { color: var(--lightgreen-darkest); }
+.font-lightgreen-brighter  { color: var(--lightgreen-brighter); }
+
+.font-green                { color: var(--green); }
+.font-green-darker         { color: var(--green-darker); }
+.font-green-darkest        { color: var(--green-darkest); }
+.font-green-brighter       { color: var(--green-brighter); }
+
+.font-blue                 { color: var(--blue); }
+.font-blue-darker          { color: var(--blue-darker); }
+.font-blue-darkest         { color: var(--blue-darkest); }
+.font-blue-brighter        { color: var(--blue-brighter); }
+
+/* Backgrounds */
+.bg-purple               { background-color: var(--purple); }
+.bg-purple-darker        { background-color: var(--purple-darker); }
+.bg-purple-darkest       { background-color: var(--purple-darkest); }
+.bg-purple-brighter      { background-color: var(--purple-brighter); }
+
+.bg-orange               { background-color: var(--orange); }
+.bg-orange-darker        { background-color: var(--orange-darker); }
+.bg-orange-darkest       { background-color: var(--orange-darkest); }
+.bg-orange-brighter      { background-color: var(--orange-brighter); }
+
+.bg-yellow               { background-color: var(--yellow); }
+.bg-yellow-darker        { background-color: var(--yellow-darker); }
+.bg-yellow-darkest       { background-color: var(--yellow-darkest); }
+.bg-yellow-brighter      { background-color: var(--yellow-brighter); }
+
+.bg-lightgreen           { background-color: var(--lightgreen); }
+.bg-lightgreen-darker    { background-color: var(--lightgreen-darker); }
+.bg-lightgreen-darkest   { background-color: var(--lightgreen-darkest); }
+.bg-lightgreen-brighter  { background-color: var(--lightgreen-brighter); }
+
+.bg-green                { background-color: var(--green); }
+.bg-green-darker         { background-color: var(--green-darker); }
+.bg-green-darkest        { background-color: var(--green-darkest); }
+.bg-green-brighter       { background-color: var(--green-brighter); }
+
+.bg-blue                 { background-color: var(--blue); }
+.bg-blue-darker          { background-color: var(--blue-darker); }
+.bg-blue-darkest         { background-color: var(--blue-darkest); }
+.bg-blue-brighter        { background-color: var(--blue-brighter); }
+
+/* Highlights */
+.purple-highlight {
+    background: var(--purple);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--purple-darker);
+    padding-left: 5px; padding-right: 5px;
 }
 
-.background-red {
-    background: #f99;
+.orange-highlight {
+    background: var(--orange);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--orange-darker);
+    padding-left: 5px; padding-right: 5px;
 }
 
+.yellow-highlight {
+    background: var(--yellow);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--yellow-darker);
+    padding-left: 5px; padding-right: 5px;
+}
+
+.lightgreen-highlight {
+    background: var(--lightgreen);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--lightgreen-darker);
+    padding-left: 5px; padding-right: 5px;
+}
+
+.green-highlight {
+    background: var(--green);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--green-darker);
+    padding-left: 5px; padding-right: 5px;
+}
+
+.blue-highlight {
+    background: var(--blue);
+    text-decoration: underline;
+    text-decoration-thickness: 10px;
+    text-decoration-color: var(--blue-darker);
+    padding-left: 5px; padding-right: 5px;
+}
+
+/* Buttons */
 .orange-button {
-    background: #F7B17B;
-    text-decoration-color: #f99;
-    text-decoration-thickness: 5px;
+    background: var(--orange);
+    text-decoration: none;
 }
 
 .orange-button:hover {
-    filter: brightness(90%);
-    background: #F7B17B !important;
+    background: var(--orange) !important;
     text-decoration: none;
 }
+
+.purple-button {
+    background: var(--purple);
+    text-decoration: none;
+}
+
+.purple-button:hover {
+    background: var(--purple) !important;
+    text-decoration: none;
+}
+
+.yellow-button {
+    background: var(--yellow);
+    text-decoration: none;
+}
+
+.yellow-button:hover {
+    background: var(--yellow) !important;
+    text-decoration: none;
+}
+
+.lightgreen-button {
+    background: var(--lightgreen);
+    text-decoration: none;
+}
+
+.lightgreen-button:hover {
+    background: var(--lightgreen) !important;
+    text-decoration: none;
+}
+
+.green-button {
+    background: var(--green);
+    text-decoration: none;
+}
+
+.green-button:hover {
+    background: var(--green) !important;
+    text-decoration: none;
+}
+
+.blue-button {
+    background: var(--blue);
+    text-decoration: none;
+}
+
+.blue-button:hover {
+    background: var(--blue) !important;
+    text-decoration: none;
+}
+

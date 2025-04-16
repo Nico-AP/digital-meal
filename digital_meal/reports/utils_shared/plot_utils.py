@@ -3,12 +3,12 @@ import pandas as pd
 from bokeh.embed import components
 from bokeh.layouts import column
 from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter
-from bokeh.palettes import BuGn9
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
 
 from datetime import timedelta
 
+from digital_meal.website.constants import COLORS, COLOR_PALETTES
 
 days_de = [
     'Montag', 'Dienstag', 'Mittwoch', 'Donnerstag',
@@ -72,8 +72,8 @@ def get_timeseries_plot(date_series, bin_width=1,
     p.vbar(
         x=x_values,
         top=y_values,
-        fill_color='#465ad9',
-        line_color='#465ad9',
+        fill_color=COLORS['LIGHTGREEN'],
+        line_color=COLORS['LIGHTGREEN_DARKEST'],
         width=bin_width
     )
     p.background_fill_color = None
@@ -82,7 +82,7 @@ def get_timeseries_plot(date_series, bin_width=1,
     p.xgrid.grid_line_color = 'white'
     p.xgrid.grid_line_dash = [6, 4]
     p.ygrid.grid_line_color = None
-    p.ygrid.band_fill_color = 'orange'
+    p.ygrid.band_fill_color = COLORS['PURPLE_DARKER']
     p.ygrid.band_fill_alpha = 0.5
     p.yaxis.minor_tick_line_color = None
     p.yaxis.major_tick_line_color = None
@@ -96,7 +96,7 @@ def get_timeseries_plot(date_series, bin_width=1,
     p.yaxis.axis_label_text_font_size = '20px'
     p.yaxis.major_label_text_font_size = '15px'
     p.xaxis.major_label_text_font_size = '15px'
-    p.xaxis.axis_line_color = '#465ad9'
+    p.xaxis.axis_line_color = COLORS['LIGHTGREEN_DARKER']
     p.xaxis.major_tick_line_color = 'white'
     p.x_range.bounds = (date_min, date_max)
 
@@ -127,7 +127,7 @@ def get_timeseries_plot(date_series, bin_width=1,
     )
     select.ygrid.grid_line_color = None
     select.border_fill_alpha = 0
-    select.background_fill_color = '#465ad9'
+    select.background_fill_color = COLORS['LIGHTGREEN_DARKER']
     select.add_tools(range_tool)
 
     plot = column(p, select, sizing_mode='stretch_width')
@@ -137,6 +137,7 @@ def get_timeseries_plot(date_series, bin_width=1,
 
 
 def get_weekday_use_plot(data):
+
     dates = pd.Series([d.strftime('%A') for d in data])
     x_labels = dates.value_counts().keys().to_list()
     y_values_abs = dates.value_counts().values.tolist()
@@ -147,8 +148,8 @@ def get_weekday_use_plot(data):
                       columns=['Day', 'Count', 'Rate', 'Dummy'])
     df.replace({'Day': days_en_de}, inplace=True)
 
-    TOOLTIPS = """
-        <div style="font-size: 0.8rem; color: #00441B">
+    TOOLTIPS = f"""
+        <div style="font-size: 0.8rem; color: black">
             <div>
                 <span style="font-weight: bold;">Anzahl Videos: </span>
                 <span>@Count</span>
@@ -183,13 +184,13 @@ def get_weekday_use_plot(data):
         y='Dummy',
         source=df,
         width=1, height=1,
-        fill_color=linear_cmap('Rate', BuGn9[::-1], low=10, high=20),
+        fill_color=linear_cmap('Rate', COLOR_PALETTES['GREEN'][::-1], low=10, high=20),
         line_color=None
     )
 
     p.add_layout(r.construct_color_bar(
         major_label_text_font_size='9px',
-        ticker=BasicTicker(desired_num_ticks=len(BuGn9)),
+        ticker=BasicTicker(desired_num_ticks=len(COLOR_PALETTES['GREEN'])),
         formatter=PrintfTickFormatter(format='%d%%'),
         label_standoff=6,
         border_line_color=None,
@@ -216,8 +217,8 @@ def get_day_usetime_plot(data):
     df_grouped = df.groupby(['Day', 'Time']).count().reset_index()
 
     # Create figure.
-    TOOLTIPS = """
-        <div style="font-size: 0.8rem; color: #00441B">
+    TOOLTIPS = f"""
+        <div style="font-size: 0.8rem; color: black">
             <div>
                 <span style="font-weight: bold;">Anzahl Videos: </span>
                 <span>@Count</span>
@@ -240,7 +241,7 @@ def get_day_usetime_plot(data):
     p.grid.grid_line_color = None
     p.xaxis.major_label_text_font_style = 'bold'
     p.axis.axis_line_color = None
-    p.axis.axis_label_text_color = '#00441B'
+    p.axis.axis_label_text_color = COLORS['GREEN_DARKER']
     p.axis.major_tick_line_color = None
     p.axis.major_label_text_font_size = '15px'
 
@@ -249,7 +250,7 @@ def get_day_usetime_plot(data):
         y='Time',
         source=df_grouped,
         width=1, height=1,
-        fill_color=linear_cmap('Count', BuGn9[::-1],
+        fill_color=linear_cmap('Count', COLOR_PALETTES['GREEN'][::-1],
                                low=df_grouped.Count.min(),
                                high=df_grouped.Count.max()),
         line_color=None
@@ -257,7 +258,7 @@ def get_day_usetime_plot(data):
 
     p.add_layout(r.construct_color_bar(
         major_label_text_font_size='10px',
-        ticker=BasicTicker(desired_num_ticks=len(BuGn9)),
+        ticker=BasicTicker(desired_num_ticks=len(COLOR_PALETTES['GREEN'])),
         formatter=PrintfTickFormatter(format='%d'),
         label_standoff=6,
         border_line_color=None,

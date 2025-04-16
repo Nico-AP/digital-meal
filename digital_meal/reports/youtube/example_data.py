@@ -1,8 +1,11 @@
 import random
-from datetime import timedelta, time
+from datetime import timedelta
 
 import numpy as np
 from django.utils import timezone
+
+from digital_meal.reports.utils_shared.example_data import (
+    random_string, random_time_in_range, generate_hourly_shares)
 
 
 def generate_synthetic_watch_history(start_date, days=500):
@@ -17,7 +20,7 @@ def generate_synthetic_watch_history(start_date, days=500):
     history_data = []
     current_date = start_date
 
-    estimated_videos = days * 20  # Assume 40 videos max per day for estimation
+    estimated_videos = days * 20  # Assume 20 videos max per day for estimation
     title_pool = generate_repeating_titles(num_titles=estimated_videos, repeat_fraction=0.01)
 
     title_index = 0  # Track the title pool usage
@@ -115,52 +118,6 @@ def generate_synthetic_search_history(start_date, days=500):
     }
 
 
-def generate_hourly_shares(weekend=False):
-    """
-    Generate a dictionary with 24-hour time slots and their respective random share values,
-    based on different probability distributions for different times of the day.
-
-    :return: A dictionary mapping each hour (0-23) to a random share within its assigned range.
-    """
-    # Define custom share ranges for different periods of the day
-    if not weekend:
-        beta_ranges = {
-            "night": (2, 8),  # 00:00 - 05:59 Low viewing activity
-            "morning": (6, 4),  # 06:00 - 08:59 Morning commute
-            "afternoon": (3, 6),  # 09:00 - 16:59 Lower activity due to work/school
-            "evening_commute": (8, 3),  # 17:00 - 18:59 Evening commute
-            "evening": (10, 2),  # 19:00 - 22:59 Peak viewing hours
-            "late_night": (4, 5)  # 23:00 - 23:59
-        }
-    elif weekend:
-        beta_ranges = {
-            "night": (6, 8),  # 00:00 - 05:59 Low viewing activity
-            "morning": (2, 4),  # 06:00 - 08:59
-            "afternoon": (7, 2),  # 09:00 - 16:59
-            "evening_commute": (7, 3),  # 17:00 - 18:59
-            "evening": (10, 2),  # 19:00 - 22:59
-            "late_night": (5, 5)  # 23:00 - 23:59
-        }
-
-    # Assign share ranges based on the hour of the day
-    hourly_shares = {}
-    for hour in range(24):
-        if 0 <= hour < 6:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["night"])
-        elif 6 <= hour < 9:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["morning"])
-        elif 9 <= hour < 17:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["afternoon"])
-        elif 17 <= hour < 19:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["evening_commute"])
-        elif 19 <= hour < 23:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["evening"])
-        else:
-            hourly_shares[hour] = np.random.beta(*beta_ranges["late_night"])
-
-    return hourly_shares
-
-
 def generate_repeating_titles(num_titles=10000, repeat_fraction=0.01):
     """
     Generate a mix of unique and repeating video titles.
@@ -174,20 +131,6 @@ def generate_repeating_titles(num_titles=10000, repeat_fraction=0.01):
     all_titles = unique_titles + repeated_titles
     random.shuffle(all_titles)  # Mix them randomly
     return all_titles
-
-
-def random_time_in_range(hour_start, min_start, hour_end, min_end):
-    """Generate a random time object between the given range."""
-    return time(
-        hour=random.randint(hour_start, hour_end),
-        minute=random.randint(min_start, min_end),
-        second=random.randint(0, 59)
-    )
-
-
-def random_string(length):
-    """Generate a random alphanumeric string (e.g., YouTube video ID)."""
-    return ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=length))
 
 
 def generate_random_title():

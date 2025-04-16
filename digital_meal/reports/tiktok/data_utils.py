@@ -1,3 +1,5 @@
+import requests
+
 from dateutil.parser import parse
 
 
@@ -15,13 +17,15 @@ def get_date_list(watch_history):
     return dates
 
 def get_video_metadata(video_id):
+    """ Get TikTok video metadata from official embed API. """
     url = 'https://www.tiktok.com/oembed?url=https://www.tiktok.com/@/video/'
     url += (video_id + '/')
 
-    import requests
-
-    response = requests.get(url)
-    data = response.json()
+    try:
+        response = requests.get(url)
+        data = response.json()
+    except:
+        data = {}
     thumbnail = data.get('thumbnail_url', None)
     channel = data.get('author_name', None)
     return {'thumbnail': thumbnail, 'channel': channel}

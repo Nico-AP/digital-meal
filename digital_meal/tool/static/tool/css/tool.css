@@ -3,7 +3,6 @@
     height: 200px;
     width: 200px;
     border: 2px solid white;
-    background: #f99;
     color: #575757;
     filter: brightness(110%);
 }
@@ -14,20 +13,20 @@
 }
 
 .base-module-bg-1 {
-    background: #f99;
+    background: var(--blue);
 }
 .base-module-bg-2 {
-    background: #F7B17B;
+    background: var(--orange);
 }
 .base-module-bg-3 {
-    background: #C8C1E1;
+    background: var(--purple);
 }
 
 .sub-module-label {
     cursor: pointer;
     min-height: 150px;
     border: 6px solid white;
-    background: #F5E165;
+    background: var(--yellow);
     color: #575757;
 }
 #sub-module-container input[type=checkbox]:checked + .sub-module-label{
@@ -37,16 +36,16 @@
 }
 
 .sub-module-bg-1 {
-    background: #F5E165;
+    background: var(--yellow);
 }
 .sub-module-bg-2 {
-    background: #9BCEA4;
+    background: var(--green);
 }
 .sub-module-bg-3 {
-    background: #BFE2E0;
+    background: var(--blue);
 }
 .sub-module-bg-4 {
-    background: #D6E297;
+    background: var(--lightgreen);
 }
 
 .dm-form p {

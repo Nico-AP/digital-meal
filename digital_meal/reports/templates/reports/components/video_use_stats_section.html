@@ -1,0 +1,53 @@
+<div class="section-container">
+  <div class="report-section position-relative bg-blue">
+
+    <div class="report-content">
+
+      {% if target == "individual" %}
+        <h2>Wie viele Videos hast du dir auf {{ platform }} angesehen?</h2>
+        <p>
+          Seit dem {{ dates.wh_dates_min|date:"d. F Y" }} hast du dir <span class="fw-bold font-size-highlight yellow-highlight">insgesamt {{ stats.n_vids_overall }} Videos angesehen</span>.</br>
+        </p>
+        <p>
+          Unten findest du einige Zahlen zu deiner {{ platform }}-Nutzung.
+          Links siehst du die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
+        </p>
+      {% elif target == "class" %}
+        <h2>Wie viele Videos hat sich eure Klasse auf YouTube angesehen?</h2>
+        <p>
+          Seit dem {{ wh_dates_min|date:"d. F Y" }} habt ihr in der Klasse <span class="fw-bold font-size-highlight yellow-highlight">insgesamt&nbsp;{{ stats.n_vids_overall }}&nbsp;Videos&nbsp;angesehen</span>.</br>
+        </p>
+        <p>
+          Unten findet ihr einige Zahlen zur zusammengefassten YouTube-Nutzung eurer Klasse.
+          Links seht ihr die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
+        </p>
+      {% else %}
+        <p>Komponente falsch initialisiert - target muss entweder "individual" oder "class" sein.</p>
+      {% endif %}
+
+      <div class="row justify-content-center pt-5">
+        <div class="col-11 col-md-6 pt-4 pb-4 p-2 p-md-5  bg-yellow">
+          <div style="height: 90px;">
+            <h3>Insgesamt<br><span class="fs-6">{{ dates.wh_dates_min|date:"d.m.Y" }} bis {{ dates.wh_dates_max|date:"d.m.Y" }}</span></h3>
+          </div>
+          <!-- TODO(optimization): Separate shorts from regular videos. -->
+          <p>Angeschaute Videos: {{ stats.n_vids_overall }}</p>
+          <p>Unterschiedliche Videos: {{ stats.n_vids_unique_overall }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ stats.n_vids_per_day|floatformat:1 }}</p>
+        </div>
+
+        <div class="col-11 col-md-6 pt-4 pb-4 p-2 p-md-5 bg-yellow-darker">
+          <div style="height: 90px;">
+            <h3>Im letzten Monat<br><span class="fs-6">{{ dates.wh_int_min_date|date:"d.m.Y" }} bis {{ dates.wh_int_max_date|date:"d.m.Y" }}</span></h3>
+          </div>
+          <p>Angeschaute Videos: {{ stats.n_vids_interval }}</p>
+          <p>Unterschiedliche Videos: {{ stats.n_vids_unique_interval }}</p>
+          <p>Durchschnittliche Anzahl Videos: {{ stats.n_vids_per_interval|floatformat:1 }}</p>
+        </div>
+      </div>
+      <!-- TODO(optimization): Add CH-Vergleich, wenn verfügbar. -->
+
+    </div>
+
+  </div>
+</div>

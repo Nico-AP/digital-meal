@@ -1,0 +1,47 @@
+<div class="section-container">
+
+  <div class="report-section bg-purple position-relative">
+    <div class="report-content">
+
+      {% if target == "individual" %}
+        <h2>Wie hat sich deine {{ platform }}-Nutzung im Zeitverlauf verändert?</h2>
+        <div>
+          <p>
+            Unten siehst du, wie sich die Anzahl Videos, die du dir angeschaut hast, über die Zeit verändert.
+            Du kannst dir die Zahlen pro Tag, Woche, Monat oder Jahr anzeigen lassen. Im violetten Balken unten kannst du
+            den Zeitraum verändern, der oben angezeigt wird.
+          </p>
+        </div>
+      {% elif target == "class" %}
+        <h2>Wie hat sich eure {{ platform }}-Nutzung im Zeitverlauf verändert?</h2>
+        <div>
+          <p>
+            Unten seht ihr, wie sich die Anzahl der durchschnittlich pro Person angeschauten Videos über die Zeit verändert.
+            Ihr könnt euch die Zahlen pro Tag, Woche, Monat oder Jahr anzeigen lassen.
+          </p>
+        </div>
+      {% else %}
+        <p>Komponente falsch initialisiert - target muss entweder "individual" oder "class" sein.</p>
+      {% endif %}
+
+      <div class="row pb-2 pb-lg-0">
+        <div id="date_plot_toggles" class="col-xl-2 col-lg-3 justify-content-evenly align-items-lg-stretch pe-lg-5">
+          <div class="row d-flex justify-content-around g-1 g-lg-4 pt-lg-5">
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn toggle-btn-active" onClick="toggleButton(this, '#dates_plot_days')">pro Tag</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_weeks')">pro Woche</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_months')">pro Monat</button></div>
+            <div class="col-12 col-sm-4 col-md-3 col-lg-12 "><button class="toggle-btn" onClick="toggleButton(this, '#dates_plot_years')">pro Jahr</button></div>
+          </div>
+        </div>
+        <div id="date_plot_container" class="col justify-content-center border-bottom-2 w-100">
+          <div id="dates_plot_days" class="collapse-dates-plots w-100">{{ dates_plot_days.div | safe }}</div>
+          <div id="dates_plot_weeks" class="collapse-dates-plots d-none w-100">{{ dates_plot_weeks.div | safe }}</div>
+          <div id="dates_plot_months" class="collapse-dates-plots d-none w-100">{{ dates_plot_months.div | safe }}</div>
+          <div id="dates_plot_years" class="collapse-dates-plots d-none w-100">{{ dates_plot_years.div | safe }}</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>

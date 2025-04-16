@@ -4,26 +4,35 @@ from datetime import datetime, timedelta
 from dateutil.parser import parse
 from statistics import mean, median
 
+from django.utils import timezone
 
-def get_entries_in_date_range(entries, date_min, date_max=datetime.now()):
+
+def get_entries_in_date_range(entries, date_min, date_max=datetime.now(), date_key='time'):
     """
-    Filter a series to only keep entries recorded in a given date range.
+    Filter a series to only keep entries recorded in the given date range.
+    date_key is used to look up the date field in the entries.
     """
-    if (date_min.tzinfo is not None and
-            date_min.tzinfo.utcoffset(date_min) is not None):
-        timezone = date_min.tzinfo
-        date_max = date_max.replace(tzinfo=timezone)
-    else:
-        date_max = date_max.replace(tzinfo=None)
+    date_min = make_tz_aware(date_min)
+    date_max = make_tz_aware(date_max)
 
     result = []
     for entry in entries:
-        if 'time' not in entry:
+        if date_key not in entry:
             continue
 
-        if date_min <= parse(entry['time']) <= date_max:
+        # Check whether date in entry is offset-aware
+        entry_date = parse(entry[date_key])
+        if date_min <= make_tz_aware(entry_date) <= date_max:
             result.append(entry)
     return result
+
+def make_tz_aware(date):
+    """Check if a date is timezone-aware. If not, add timezone.utc as default."""
+    if (date.tzinfo is not None and
+            date.tzinfo.utcoffset(date) is not None):
+        return date
+    else:
+        return date.replace(tzinfo=timezone.utc)
 
 def normalize_datetime(date, mode='d'):
     """

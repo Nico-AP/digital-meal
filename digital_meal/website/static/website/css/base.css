@@ -117,7 +117,7 @@
 button,
 .button,
 input[type="submit"] {
-    background: #bfe2e0;
+    background: var(--blue);
     border-radius: 2px;
     border: none;
     padding: 2px 7px 2px 7px;
@@ -128,7 +128,7 @@ button:hover,
 .button:hover,
 input[type="submit"]:hover {
     filter: brightness(90%);
-    background: #bfe2e0 !important;
+    background: var(--blue) !important;
     text-decoration: none;
 }
 
@@ -147,7 +147,7 @@ input[type="submit"]:hover {
 a,
 a:visited {
     color: black;
-    text-decoration-color: #BFE2E0;
+    text-decoration-color: var(--blue);
     text-decoration-thickness: 5px;
     font-family: Space Grotesk
 }
@@ -249,7 +249,7 @@ form .helptext {
 #user-nav-bar {
     padding-top: 5px;
     padding-bottom: 5px;
-    background-color: #00213f;
+    background-color: var(--darkblue-accent);
     color: white;
 }
 

@@ -4,13 +4,14 @@ import pandas as pd
 from django.utils import timezone
 from django.views.generic import TemplateView
 
-from . import data_utils
-from . import plot_utils
-from .example_data import generate_synthetic_watch_history, generate_synthetic_search_history
-from .. import shared_data_utils
-from .. import shared_plot_utils
-from ..views import BaseReportClassroom, BaseReportIndividual
-from ...tool.models import Classroom
+from digital_meal.reports.youtube import data_utils
+from digital_meal.reports.youtube import plot_utils
+from digital_meal.reports.youtube.example_data import (
+    generate_synthetic_watch_history, generate_synthetic_search_history)
+from digital_meal.reports.utils_shared import plot_utils as shared_plot_utils
+from digital_meal.reports.utils_shared import data_utils as shared_data_utils
+from digital_meal.reports.views import BaseReportClassroom, BaseReportIndividual
+from digital_meal.tool.models import Classroom
 
 
 class YouTubeBaseReport:
@@ -60,9 +61,11 @@ class YouTubeBaseReport:
     def add_wh_date_infos_to_context(context, date_list):
         """ Add watch history date information to the context. """
         context.update({
-            'wh_dates_min': min(date_list),
-            'wh_dates_max': max(date_list),
-            'wh_date_range': max(date_list) - min(date_list)
+            'dates': {
+                'wh_dates_min': min(date_list),
+                'wh_dates_max': max(date_list),
+                'wh_date_range': max(date_list) - min(date_list)
+            }
         })
         return context
 
@@ -84,7 +87,7 @@ class YouTubeBaseReport:
     def add_wh_statistics_to_context(self, context, watch_history,
                                      video_ids, n_donations=1, example=False):
         """Add watch history statistics to the context."""
-        n_vids_per_day = len(watch_history) / context['wh_date_range'].days
+        n_vids_per_day = len(watch_history) / context['dates']['wh_date_range'].days
 
         if not example:
             interval_min, interval_max = self.classroom.get_reference_interval()
@@ -96,19 +99,22 @@ class YouTubeBaseReport:
             watch_history, interval_min, interval_max)
         wh_interval_ids = data_utils.get_video_ids(wh_interval)
 
-        context.update({
+        context.setdefault('watch_stats', {}).update({
             # Statistics overall
             'n_vids_overall': len(watch_history),
             'n_vids_unique_overall': len(set(video_ids)),
             'n_vids_mean_overall': len(watch_history) / n_donations,
             'n_vids_per_day': round(n_vids_per_day, 2),
             # Statistics interval
-            'wh_int_min_date': interval_min,
-            'wh_int_max_date': interval_max,
             'n_vids_interval': len(wh_interval),
             'n_vids_unique_interval': len(set(wh_interval_ids)),
             'n_vids_mean_interval': len(wh_interval) / n_donations,
             'n_vids_per_interval': len(wh_interval_ids) / interval_length,
+        })
+
+        context.setdefault('dates', {}).update({
+            'wh_int_min_date': interval_min,
+            'wh_int_max_date': interval_max,
         })
         return context
 
@@ -204,7 +210,7 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
         self.add_favorite_videos_to_context(context, wh, wh_ids)
         self.add_wh_timeseries_plots_to_context(
             context, [wh_dates],
-            context['wh_dates_min'], context['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_dates)
 
         # Add channel-releated information to the context.
@@ -319,7 +325,7 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
             data_utils.get_date_list(wh) for wh in whs_individual]
         self.add_wh_timeseries_plots_to_context(
             context, whs_individual_dates,
-            context['wh_dates_min'], context['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_combined_dates)
 
         # Get the channels that have been watched by at least 2 people in
@@ -418,7 +424,7 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         sc_combined = clean_channel_list(sc_combined)
 
         # Add basic subscription statistics to the context.
-        context.update({
+        context.setdefault('sub_stats', {}).update({
             'n_subs': len(sc_combined),
             'n_subs_mean': len(sc_combined) / n_donations
         })
@@ -427,7 +433,7 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         sc_titles = [entry['title'] for entry in sc_combined]
         subs_counts = pd.Series(sc_titles).value_counts()
         n_subs_multiple = subs_counts[subs_counts > 1]
-        context.update({
+        context.setdefault('sub_stats', {}).update({
             'n_subs_unique': len(set(sc_titles)),
             'n_subs_multiple': len(n_subs_multiple),
             'most_popular_channels': subs_counts.nlargest(10).to_dict()
@@ -478,7 +484,7 @@ class YouTubeExampleReport(YouTubeBaseReport, TemplateView):
         self.add_favorite_videos_to_context(context, wh, wh_ids)
         self.add_wh_timeseries_plots_to_context(
             context, [wh_dates],
-            context['wh_dates_min'], context['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_dates)
 
         # Add channel-releated information to the context.

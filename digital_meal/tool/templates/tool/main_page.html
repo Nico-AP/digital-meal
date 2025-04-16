@@ -12,7 +12,7 @@
       finden weitere Informationsmaterialien.
     </p>
   </div>
-  <div class="col ms-4 m-3 p-3 background-orange ff-non-serif">
+  <div class="col ms-4 m-3 p-3 bg-orange ff-non-serif">
     <h3>Materialien</h3>
 
     <p>
@@ -32,7 +32,7 @@
 <div class="mt-4 row">
   <h3>Meine Klassen</h3>
 
-  <div class="col m-3 p-3 background-green">
+  <div class="col m-3 p-3 bg-green">
     <h4>Aktive Klassen</h4>
     <p>Dies sind Ihre aktiven Klassen:</p>
     {% if active_classes %}
@@ -40,7 +40,7 @@
       {% for class in active_classes %}
       <div class="col p-2">
         <a href="{{ class.get_absolute_url }}" class="link-card">
-          <div class="p-3 background-yellow">
+          <div class="p-3 bg-yellow">
             <b>{{ class.name }}</b><br>
             Erstellt am {{ class.date_created|date:"d.m.Y" }}
           </div>
@@ -54,7 +54,7 @@
     {% endif %}
   </div>
 
-  <div class="col m-3 p-3 background-purple">
+  <div class="col m-3 p-3 bg-purple">
     <h4>Archiv</h4>
     <p>
       Klassen werden 180 Tage nach ihrer Erstellung automatisch archiviert.

@@ -1,0 +1,61 @@
+<div class="section-container">
+
+  <div class="report-section bg-blue">
+    <div class="report-content">
+      <h2>Die meist abonnierten YouTube-Kanäle eurer Klasse</h2>
+
+      <div class="text-start ms-5 me-5 row">
+        <div class="d-none d-lg-block col-2"></div>
+        <div class="col-12 col-lg-8 p-3 bg-blue-darker">
+          <p><span class="subs-bullet-point">⦁</span>Insgesamt habt ihr in eurer Klasse <span class="fw-bold">{{ stats.n_subs_unique }} unterschiedliche Kanäle</span> abonniert.</p>
+          <p><span class="subs-bullet-point">⦁</span><b>Im Schnitt</b> folgt ihr <b>{{ stats.n_subs_mean|floatformat:"0" }} Kanälen</b>.</p>
+          <p><span class="subs-bullet-point">⦁</span><b>{{ stats.n_subs_multiple }}</b> Kanäle sind <b>von mehr als einer Person</b> abonniert.</p>
+        </div>
+        <div class="d-none d-lg-block col-2"></div>
+      </div>
+
+      <p class="pt-5 mb-0"><span class="text-black fw-bold font-size-highlight bg-blue-brighter blue-highlight p-2">Die folgenden Kanäle wurden in eurer Klasse am meisten abonniert:</span></p>
+
+      <div class="row bg-blue-brighter align-items-end mt-0 p-3">
+        <div class="col-12 col-lg-8 d-flex align-items-end ms-sm-2 ms-lg-0">
+          <div class="row align-items-end w-100 ps-1 pe-1">
+
+            {% for key, value in sub_stats.most_popular_channels.items %}
+            {% if forloop.counter == 2 %}
+            <div class="col-12 col-sm-4 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-yellow fw-bold fs-1" style="height: 160px;">2</div>
+            </div>
+
+            {% elif forloop.counter == 1 %}
+            <div class="col-12 col-sm-4 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-yellow-darker fw-bold fs-1" style="height: 200px;">1</div>
+            </div>
+
+            {% elif forloop.counter == 3 %}
+            <div class="col-12 col-sm-4 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+              <div class="podium-title">{{ key }}</div>
+              <div class="bg-yellow-brighter fw-bold fs-1" style="height: 120px;">3</div>
+            </div>
+            {% endif %}
+            {% endfor %}
+
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 text-start pt-lg-0 pt-5" style="padding-left: 50px;">
+          <h4>Plätze 4 bis 10</h4>
+          {% for key, value in sub_stats.most_popular_channels.items %}
+          {% if forloop.counter > 3 %}
+          <p><span class="subs-list-prefix">{{ forloop.counter }}</span>{{ key }}</p>
+          {% endif %}
+          {% endfor %}
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

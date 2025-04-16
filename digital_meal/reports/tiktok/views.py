@@ -1,10 +1,16 @@
-import pandas as pd
+import time
+from datetime import timedelta
 
-from . import data_utils
-from .. import shared_data_utils
-from .. import shared_plot_utils as plot_utils
-from ..views import BaseReportClassroom, BaseReportIndividual
-from ...tool.models import Classroom
+import pandas as pd
+from django.utils import timezone
+from django.views.generic import TemplateView
+
+from digital_meal.reports.tiktok import data_utils
+from digital_meal.reports.tiktok.example_data import generate_synthetic_watch_history
+from digital_meal.reports.utils_shared import plot_utils
+from digital_meal.reports.utils_shared import data_utils as shared_data_utils
+from digital_meal.reports.views import BaseReportClassroom, BaseReportIndividual
+from digital_meal.tool.models import Classroom
 
 
 class TikTokBaseReport:
@@ -54,9 +60,11 @@ class TikTokBaseReport:
     def add_wh_date_infos_to_context(context, date_list):
         """ Add watch history date information to the context. """
         context.update({
-            'wh_dates_min': min(date_list),
-            'wh_dates_max': max(date_list),
-            'wh_date_range': max(date_list) - min(date_list)
+            'dates': {
+                'wh_dates_min': min(date_list),
+                'wh_dates_max': max(date_list),
+                'wh_date_range': max(date_list) - min(date_list)
+            }
         })
         return context
 
@@ -67,6 +75,7 @@ class TikTokBaseReport:
         vids_top_ten = []
         for key, value in most_popular_vids.items():
             metadata = data_utils.get_video_metadata(key)
+            time.sleep(0.1)
             vids_top_ten.append({
                 'id': key,
                 'count': value,
@@ -77,26 +86,36 @@ class TikTokBaseReport:
         return context
 
     def add_wh_statistics_to_context(self, context, watch_history,
-                                     video_ids, n_donations=1):
+                                     video_ids, n_donations=1, example=False):
         """Add watch history statistics to the context."""
-        n_vids_per_day = len(watch_history) / context['wh_date_range'].days
-        interval_min, interval_max = self.classroom.get_reference_interval()
+        n_vids_per_day = len(watch_history) / context['dates']['wh_date_range'].days
+
+        if not example:
+            interval_min, interval_max = self.classroom.get_reference_interval()
+        else:
+            interval_min, interval_max = timezone.now() - timedelta(days=30), timezone.now()
+
+        interval_length = (interval_max - interval_min).days
         wh_interval = shared_data_utils.get_entries_in_date_range(
-            watch_history, interval_min, interval_max)
+            watch_history, interval_min, interval_max, 'Date')
         wh_interval_ids = data_utils.get_video_ids(wh_interval)
 
-        context.update({
+        context.setdefault('watch_stats', {}).update({
             # Statistics overall
             'n_vids_overall': len(watch_history),
             'n_vids_unique_overall': len(set(video_ids)),
             'n_vids_mean_overall': len(watch_history) / n_donations,
             'n_vids_per_day': round(n_vids_per_day, 2),
             # Statistics interval
-            'wh_int_min_date': interval_min,
-            'wh_int_max_date': interval_max,
             'n_vids_interval': len(wh_interval),
             'n_vids_unique_interval': len(set(wh_interval_ids)),
-            'n_vids_mean_interval': len(wh_interval) / n_donations
+            'n_vids_mean_interval': len(wh_interval) / n_donations,
+            'n_vids_per_interval': len(wh_interval_ids) / interval_length,
+        })
+
+        context.setdefault('dates', {}).update({
+            'wh_int_min_date': interval_min,
+            'wh_int_max_date': interval_max,
         })
         return context
 
@@ -135,8 +154,8 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
         # Create list of watched videos and separate lists for ids and dates
         # of watched videos.
         watch_history = data
-        watched_video_ids = data_utils.get_video_ids(data)
-        watched_video_dates = data_utils.get_date_list(data)
+        watched_video_ids = data_utils.get_video_ids(watch_history)
+        watched_video_dates = data_utils.get_date_list(watch_history)
 
         # Add video-related plots and statistics to the context.
         self.add_wh_date_infos_to_context(context, watched_video_dates)
@@ -146,7 +165,7 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
             context, watched_video_ids)
         self.add_wh_timeseries_plots_to_context(
             context, [watched_video_dates],
-            context['wh_dates_min'], context['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, watched_video_dates)
         return context
 
@@ -224,6 +243,51 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
             data_utils.get_date_list(wh) for wh in whs_individual]
         self.add_wh_timeseries_plots_to_context(
             context, whs_individual_dates,
-            context['wh_dates_min'], context['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_combined_dates)
+        return context
+
+
+class TikTokExampleReport(TikTokBaseReport, TemplateView):
+    template_name = 'reports/tiktok/example_report.html'
+
+    def get_data(self):
+        """ Generate synthetic data for example report. """
+        return
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Generate synthetic data.
+        start_date = timezone.now().date() - timedelta(days=5)
+        wh_data = generate_synthetic_watch_history(start_date)
+
+        # Add watch history (wh) data to context.
+        context.update(self.get_watch_context(wh_data['data']))
+        return context
+
+    def get_watch_context(self, data):
+        """Add watch history related statistics and plots to the context."""
+        context = {}
+        if data is None:
+            context['wh_available'] = False
+            return context
+        context['wh_available'] = True
+
+        # Create list of watched videos and separate lists for ids and dates
+        # of watched videos.
+        watch_history = data
+        watched_video_ids = data_utils.get_video_ids(watch_history)
+        watched_video_dates = data_utils.get_date_list(watch_history)
+
+        # Add video-related plots and statistics to the context.
+        self.add_wh_date_infos_to_context(context, watched_video_dates)
+        self.add_wh_statistics_to_context(
+            context, watch_history, watched_video_ids, example=True)
+        self.add_favorite_videos_to_context(
+            context, watched_video_ids)
+        self.add_wh_timeseries_plots_to_context(
+            context, [watched_video_dates],
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
+        self.add_wh_heatmap_plots_to_context(context, watched_video_dates)
         return context

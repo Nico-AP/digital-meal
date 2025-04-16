@@ -1,0 +1,102 @@
+<div class="section-container">
+
+{% if target == "individual" %}
+  <div class="report-section bg-yellow overflow-hidden">
+    <div class="report-content d-flex flex-row pb-lg-5 align-content-stretch pt-lg-5">
+      <div class="ps-5 pe-5 flex-grow-1 d-flex flex-column justify-content-center align-items-center">
+        <h2>Dein Lieblingsvideo</h2>
+        {% if platform == "YouTube" %}
+          <p class="text-center">
+            Dein Lieblingsvideo<br><span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.title }}</span><br>hast du dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+          </p>
+        {% elif platform == "TikTok" %}
+          {% if fav_vid.0.channel %}
+            <p class="text-center">
+            Dein Lieblingsvideo<br> ist von <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.channel }}</span><br> und du hast es dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+            </p>
+            <p><a href="https://www.tiktok.com/@/video/{{ fav_vid.id }}/" target="_blank">Video auf TikTok ansehen</a></p>
+          {% else %}
+            <p class="text-center">
+            Ein Video hast du dir insgesamt <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+            </p>
+          {% endif %}
+        {% else %}
+          <p>Plattform muss entweder "YouTube" oder "TikTok" sein.</p>
+        {% endif %}
+      </div>
+      <div class="ps-5 pe-5 flex-grow-1 d-flex justify-content-center align-items-center fav-video-teaser">
+        <div class="bg-blue-darker" style="padding: 20px; transform: rotate(135deg);">
+          <div class="bg-yellow-darker" style="padding: 20px; transform: rotate(15deg);">
+            <div class="bg-yellow-brighter" style="padding: 20px; transform: rotate(195deg);">
+              {% if platform == "YouTube" %}
+                <img src="https://i.ytimg.com/vi/{{ fav_vid.id }}/mqdefault.jpg" height="300px;" style="padding: 20px; transform: rotate(15deg);">
+              {% elif platform == "TikTok" %}
+                {% if fav_vid.thumbnail %}
+                  <img src="{{ fav_vid.thumbnail }}" height="300px;" style="padding: 20px; transform: rotate(15deg);">
+                {% else %}
+                  <p class="text-center">Leider scheint das Video nicht mehr online zu sein</p>
+                {% endif %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% elif target == "class" %}
+  <div class="report-section flex-column bg-yellow overflow-hidden">
+
+    <div class="col pb-2 align-content-stretch">
+      <h2>Die beliebtesten Videos in eurer Klasse sind...</h2>
+    </div>
+
+    <div class="row justify-content-center">
+
+      {% if platform == "YouTube" %}
+      <div class="col-12 col-lg-3 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.1.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(-5deg);"></div>
+        <div class="podium-title">{{ fav_vid.1.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-blue-darker" style="min-height: 105px;">2</div>
+      </div>
+      <div class="col-12 col-lg-3 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.0.id }}/mqdefault.jpg" height="150px;"></div>
+        <div class="podium-title">{{ fav_vid.0.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-blue-darkest" style="min-height: 135px;">1</div>
+      </div>
+      <div class="col-12 col-lg-3 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+        <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.2.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(5deg);"></div>
+        <div class="podium-title">{{ fav_vid.2.title }}</div>
+        <div class="text-white fs-1 fw-bold bg-blue" style="min-height: 75px;">3</div>
+      </div>
+
+      {% elif platform == "TikTok" %}
+      <div class="col-12 col-lg-3 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
+        <div>{% if fav_vid.1.thumbnail %}<img class="p-3" src="{{ fav_vid.1.thumbnail }}" height="200px;" style="transform: rotate(-5deg);">{% endif %}</div>
+        <div class="podium-title">{% if fav_vid.1.channel %}von {{ fav_vid.1.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+        <div class="text-white fs-1 fw-bold bg-blue-darker" style="min-height: 105px;">2</div>
+        <p>{% if fav_vid.1.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.1.id }}/" target="_blank">Video auf TikTok ansehen</a>{% endif %}</p>
+      </div>
+      <div class="col-12 col-lg-3 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
+        <div>{% if fav_vid.0.thumbnail %}<img class="p-3" src="{{ fav_vid.0.thumbnail }}" height="200px;">{% endif %}</div>
+        <div class="podium-title">{% if fav_vid.0.channel %}von {{ fav_vid.0.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+        <div class="text-white fs-1 fw-bold bg-blue-darkest" style="min-height: 135px;">1</div>
+        <p>{% if fav_vid.0.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.0.id }}/" target="_blank">Video auf TikTok ansehen</a>{% endif %}</p>
+      </div>
+      <div class="col-12 col-lg-3 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
+        <div>{% if fav_vid.2.thumbnail %}<img class="p-3" src="{{ fav_vid.2.thumbnail }}" height="200px;" style="transform: rotate(5deg);">{% endif %}</div>
+        <div class="podium-title">{% if fav_vid.2.channel %}von {{ fav_vid.2.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+        <div class="text-white fs-1 fw-bold bg-blue" style="min-height: 75px;">3</div>
+        <p>{% if fav_vid.2.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.2.id }}/" target="_blank">Video auf TikTok ansehen</a>{% else %}&nbsp;{% endif %}</p>
+      </div>
+
+      {% endif %}
+
+    </div>
+
+    <p class="report-explanation pt-5 mb-0 font-blue-darkest">Es werden diejenigen Videos angezeigt, welche bei den meisten von euch im Wiedergabeverlauf erscheinen.</p>
+
+  </div>
+{% endif %}
+
+</div>
