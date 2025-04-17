@@ -186,7 +186,7 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
         # Add search history (sh) data to context.
         sh_data = data['donations'].get('Suchverlauf')
         if sh_data is not None:
-            context.update(self.get_search_context(sh_data))
+            context.update(self.get_search_context(sh_data['data']))
 
         return context
 
@@ -225,7 +225,6 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
             context['search_available'] = False
             return context
         context['search_available'] = True
-
         sh = data_utils.exclude_ads_from_search_history(data)
         sh = data_utils.clean_search_titles(sh)
         search_terms = [t['title'] for t in sh]
