@@ -1,0 +1,12 @@
+{% extends "wagtailadmin/login.html" %}
+{% load static %}
+
+{% block branding_login %}
+<img
+    alt="Digital Meal Logo"
+    class="custom-brand"
+    id="header-brand-full"
+    src="{% static 'website/img/DigitalMeal_logo.svg' %}"
+    style="background: white; background: white; border-radius: 10px; margin-bottom: 25px;">
+Content Management
+{% endblock %}
