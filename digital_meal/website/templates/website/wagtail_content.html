@@ -28,6 +28,9 @@
         {% picture block.value width-800 class="wagtail-image" %}
       </div>
 
+      {% elif block.block_type == "call_to_action" %}
+      {% include_block block %}
+
       {% elif block.block_type == "highlight" %}
       {% include_block block %}
       {% endif %}

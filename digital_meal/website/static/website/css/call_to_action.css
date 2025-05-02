@@ -1,0 +1,31 @@
+.cta-section {
+	max-width: 100vw;
+	width: 100vw;
+	position: relative;
+	left: 50%;
+	right: 50%;
+	margin-left: -50vw;
+	margin-right: -50vw;
+	padding: 0 0 30px 0;
+}
+
+.cta-container {
+	height: 100%;
+}
+
+.cta-left {
+  	padding-bottom: 30px;
+}
+
+.cta-btn {
+  	border: none !important;
+}
+
+.cta-btn:hover {
+	background-color: var(--darkblue-accent) !important;
+	filter: brightness(85%);
+}
+.cta-btn:focus, .cta-btn:active {
+   outline: none !important;
+   box-shadow: none;
+}

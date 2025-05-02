@@ -1,0 +1,22 @@
+<div class="cta-wrapper">
+  <div class="cta-section" style="background: {{ block.value.background_color }} !important; color: {{ block.value.text_color }} !important;">
+      <div class="cta-container container main-content">
+          <div class="cta-row row align-items-center">
+              <div class="cta-left col-lg-8 mb-4 mb-lg-0 text-center text-lg-start">
+                  <h2 class="cta-title display-4 fw-bold mb-3">{{ block.value.title }}</h2>
+                  <p class="cta-text lead mb-0">{{ block.value.text }}</p>
+              </div>
+              <div class="cta-right col-lg-4 text-center text-lg-end">
+                  <a
+                      href="{{ block.value.cta_link }}"
+                      target="_blank"
+                      class="cta-btn btn btn-primary btn-lg px-4 me-2"
+                      style="background: {{ block.value.button_background_color }} !important; color: {{ block.value.button_text_color }} !important"
+                  >
+                    {{ block.value.cta_linktext }}
+                  </a>
+              </div>
+          </div>
+      </div>
+  </div>
+</div>
