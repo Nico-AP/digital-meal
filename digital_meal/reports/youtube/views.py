@@ -1,3 +1,4 @@
+from collections import Counter
 from datetime import datetime, timedelta
 
 import pandas as pd
@@ -310,7 +311,7 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
 
         # Create a list of the sets of video ids for each individual.
         # Used to determine which videos have been watched at least once
-        # by the most invidiuals.
+        # by the most individuals.
         wh_combined_ids_sets = []
         for wh in whs_individual:
             wh_ids = data_utils.get_video_ids(wh)
@@ -341,6 +342,19 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         ]
         self.add_wh_channel_info_to_context(
             context, combined_channels, channels_for_plot)
+        # TODO: Redo this with the old template for most subscribed channels:
+        """
+        # TODO: DEPRECATED
+        # Compute statistics about channel prevalence in the class.
+        sc_titles = [entry['title'] for entry in sc_combined]
+        subs_counts = pd.Series(sc_titles).value_counts()
+        n_subs_multiple = subs_counts[subs_counts > 1]
+        context.setdefault('sub_stats', {}).update({
+            'n_subs_unique': len(set(sc_titles)),
+            'n_subs_multiple': len(n_subs_multiple),
+            'most_popular_channels': subs_counts.nlargest(10).to_dict()
+        })
+        """
         return context
 
     def get_search_context(self, data):
@@ -421,21 +435,24 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         for entry in data:
             sc_combined += entry['data']
         sc_combined = clean_channel_list(sc_combined)
+        sc_titles = [entry['title'] for entry in sc_combined]
+
+        # Get number of unique subscribed channels in class.
+        n_subs_distinct = len(set(sc_titles))
+
+        # Get list of channels with min. 2 subscribers in the class.
+        counter = Counter(sc_titles)
+        subs_more_than_one_person = [item for item in sc_titles if counter[item] > 1]
+        n_subs_more_than_one = len(subs_more_than_one_person)
+
+        # Create graph.
+        subs_plot = plot_utils.get_subscription_plot(subs_more_than_one_person)
 
         # Add basic subscription statistics to the context.
-        context.setdefault('sub_stats', {}).update({
-            'n_subs': len(sc_combined),
-            'n_subs_mean': len(sc_combined) / n_donations
-        })
-
-        # Compute statistics about channel prevalence in the class.
-        sc_titles = [entry['title'] for entry in sc_combined]
-        subs_counts = pd.Series(sc_titles).value_counts()
-        n_subs_multiple = subs_counts[subs_counts > 1]
-        context.setdefault('sub_stats', {}).update({
-            'n_subs_unique': len(set(sc_titles)),
-            'n_subs_multiple': len(n_subs_multiple),
-            'most_popular_channels': subs_counts.nlargest(10).to_dict()
+        context.setdefault('subscriptions', {}).update({
+            'plot': subs_plot,
+            'n_distinct': n_subs_distinct,
+            'n_more_than_one': n_subs_more_than_one
         })
         return context
 

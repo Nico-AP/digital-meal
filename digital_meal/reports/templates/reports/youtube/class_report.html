@@ -33,13 +33,14 @@
 {% endif %}
 
 <!-- CHANNELS -->
+  <!-- TODO! -->
 {% if channel_plot %}
-  {% include "reports/components/channel_section.html" with channel_plot_div=channel_plot.div n_distinct=n_distinct_channels target="class" %}
+  {% include "reports/components/channel_section_class.html" with channel_plot_div=channel_plot.div n_distinct=n_distinct_channels target="class" %}
 {% endif %}
 
 <!-- SUBSCRIBED CHANNELS -->
-{% if sub_stats.n_subs_unique %}
-  {% include "reports/components/subscribed_channels_section.html" with stats=sub_stats %}
+{% if subscriptions %}
+  {% include "reports/components/subscribed_channels_section.html" with n_distinct=subscriptions.n_distinct plot_div=subscriptions.plot.div %}
 {% endif %}
 
 <!-- SEARCHES -->
@@ -59,8 +60,9 @@
 {{ dates_plot_years.script | safe }}
 {{ weekday_use_plot.script | safe }}
 {{ hours_plot.script | safe }}
-{{ channel_plot.script | safe }}
+{{ channel_plot.script | safe }} <!-- TODO: DEPRECATE -->
 {{ search_plot.script | safe }}
+{{ subscriptions.plot.script | safe }}
 <script src="{% static 'reports/js/report-functions.js' %}"></script>
 
 {% endblock %}
