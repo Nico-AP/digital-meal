@@ -89,19 +89,25 @@ Edit `.env` to set your local environment variables.
 python manage.py migrate
 ```
 
-6. **Create a superuser (admin account)**
+6. **Add necessary settings to settings.py.**
+
+```python
+DAYS_TO_DONATION_DELETION = 180  # Defines the timespan after which donations are deleted if no consent was given.
+```
+
+7. **Create a superuser (admin account)**
 
 ```bash
 python manage.py createsuperuser
 ```
 
-7. **Run the development server**
+8. **Run the development server**
 
 ```bash
 python manage.py runserver
 ```
 
-8. **Access the application**
+9. **Access the application**
 
 Open your browser and navigate to: http://127.0.0.1:8000/
 

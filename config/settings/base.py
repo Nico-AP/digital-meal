@@ -418,7 +418,7 @@ DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
-# NON_DONATION_DELETION_TIME = 6 * 30 * 24 * 60  # In minutes.
+DAYS_TO_DONATION_DELETION = 180
 
 
 # DDM SETTINGS
