@@ -33,14 +33,31 @@ class ColorChoiceBlock(blocks.ChoiceBlock):
         icon = 'pick'
 
 
+class LinkTargetChoiceBlock(blocks.ChoiceBlock):
+    """
+    Choices for how a link should open the new page.
+    """
+    choices = [
+        ('_self', 'Same tab'),
+        ('_blank', 'New tab')
+    ]
+
+    class Meta:
+        icon = 'pick'
+
+
 class CallToActionBlock(blocks.StructBlock):
     """
     A page-spanning block that can be used to highlight certain information.
     """
-    title = blocks.TextBlock()
-    text = blocks.RichTextBlock(features=['bold', 'italic', 'document-link', 'link', 'ol', 'ul'])
-    cta_linktext = blocks.TextBlock()
-    cta_link = blocks.URLBlock()
+    title = blocks.TextBlock(required=False)
+    text = blocks.RichTextBlock(
+        features=['bold', 'italic', 'document-link', 'link', 'ol', 'ul'],
+        required=False
+    )
+    cta_linktext = blocks.TextBlock(label='Link text')
+    cta_link = blocks.URLBlock(label='Link URL')
+    cta_link_target = LinkTargetChoiceBlock(label='Link target', default='_blank')
     background_color = ColorChoiceBlock(default='#F5E165')
     text_color = ColorChoiceBlock(default='#212529')
     button_background_color = ColorChoiceBlock(default='#F7B17B')
