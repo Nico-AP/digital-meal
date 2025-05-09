@@ -1,3 +1,5 @@
+{% load digitalmeal_tags %}
+
 <div class="section-container">
 
   <div class="report-section bg-green">
@@ -18,7 +20,7 @@
             Ihr habt im Schnitt
           {% endif %}
           <span class="orange-highlight">
-            {{ n_searches|floatformat:"0" }}&nbsp;Suchen
+            {{ n_searches|floatformat:"0"|format_number }}&nbsp;Suchen
           </span>
           durchgeführt
         </span>

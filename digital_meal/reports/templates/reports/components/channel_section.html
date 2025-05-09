@@ -1,3 +1,5 @@
+{% load digitalmeal_tags %}
+
 <div class="section-container">
 
   <div class="report-section bg-lightgreen">
@@ -18,7 +20,7 @@
               {% elif target == "class" %}
                 Ihr habt euch Videos von
               {% endif %}
-              <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">{{ n_distinct }}</span> verschiedenen
+              <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">{{ n_distinct|format_number }}</span> verschiedenen
               <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">YouTube&#8209;Kanälen</span> angeschaut.
             </span>
         </p>
