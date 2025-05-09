@@ -7,17 +7,17 @@
         <h2>Dein Lieblingsvideo</h2>
         {% if platform == "YouTube" %}
           <p class="text-center">
-            Dein Lieblingsvideo<br><span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.title }}</span><br>hast du dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+            Dein Lieblingsvideo<br><span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.title }}</span><br>hast du dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }}&nbsp;mal</span> angesehen.
           </p>
         {% elif platform == "TikTok" %}
           {% if fav_vid.0.channel %}
             <p class="text-center">
-            Dein Lieblingsvideo<br> ist von <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.channel }}</span><br> und du hast es dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+            Dein Lieblingsvideo<br> ist von <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.channel }}</span><br> und du hast es dir im gesamten Zeitraum <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }}&nbsp;mal</span> angesehen.
             </p>
             <p><a href="https://www.tiktok.com/@/video/{{ fav_vid.id }}/" target="_blank">Video auf TikTok ansehen</a></p>
           {% else %}
             <p class="text-center">
-            Ein Video hast du dir insgesamt <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }} mal</span> angesehen.
+            Ein Video hast du dir insgesamt <span class="fw-bold font-size-highlight blue-highlight">{{ fav_vid.count }}&nbsp;mal</span> angesehen.
             </p>
           {% endif %}
         {% else %}

@@ -4,9 +4,9 @@
     <div class="report-content">
       <h2>
         {% if target == "individual" %}
-          Deine beliebtesten YouTube-Kanäle
+          Deine beliebtesten YouTube&#8209;Kanäle
         {% elif target == "class" %}
-          Die beliebtesten YouTube-Kanäle
+          Die beliebtesten YouTube&#8209;Kanäle
         {% endif %}
       </h2>
 
@@ -19,22 +19,22 @@
                 Ihr habt euch Videos von
               {% endif %}
               <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">{{ n_distinct }}</span> verschiedenen
-              <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">YouTube-Kanälen</span> angeschaut.
+              <span class="fw-bold font-size-highlight purple-highlight ms-1 me-1">YouTube&#8209;Kanälen</span> angeschaut.
             </span>
         </p>
 
         <p>
             <span class="bg-purple-darkest ps-2 pe-2 pb-1 text-white">
               {% if target == "individual" %}
-                In dieser Grafik siehst du die 10 Kanäle, von denen du dir am meisten Videos angesehen hast.
+                In dieser Grafik siehst du die 10&nbsp;Kanäle, von denen du dir am meisten Videos angesehen hast.
               {% elif target == "class" %}
-                In dieser Grafik seht ihr die 20 Kanäle, von denen ihr euch am meisten Videos angesehen habt.
+                In dieser Grafik seht ihr die 20&nbsp;Kanäle, von denen ihr euch am meisten Videos angesehen habt.
               {% endif %}
             </span>
         </p>
 
       {% if target == "class" %}
-        <p class="report-explanation"><i>Es werden nur Kanäle berücksichtigt, die von mindestens 2 Personen in der Klasse angeschaut wurden.</i></p>
+        <p class="report-explanation"><i>Es werden nur Kanäle berücksichtigt, die von mindestens 2&nbsp;Personen in der Klasse angeschaut wurden.</i></p>
       {% endif %}
 
       </div>
