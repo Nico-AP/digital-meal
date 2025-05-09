@@ -1,6 +1,6 @@
 <div class="cta-wrapper">
   <div
-      class="cta-section pb-3 pb-lg-2"
+      class="cta-section pb-3 pb-lg-2 pt-lg-2"
       style="background: {{ block.value.background_color }} !important; color: {{ block.value.text_color }} !important;"
   >
 
@@ -15,7 +15,7 @@
               <div class="cta-right col-lg-4 mb-4 mb-sm-2 mb-lg-0 text-center text-lg-end">
                   <a
                       href="{{ block.value.cta_link }}"
-                      target="_blank"
+                      target="{{ block.value.cta_link_target }}"
                       class="cta-btn btn btn-primary btn-lg px-4"
                       style="background: {{ block.value.button_background_color }} !important; color: {{ block.value.button_text_color }} !important"
                   >
