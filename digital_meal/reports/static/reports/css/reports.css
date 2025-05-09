@@ -154,12 +154,14 @@
     border: 1px solid #d2d2d2;
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
-    padding: 5px 15px 5px 15px;
+    padding: 10px 15px 10px 15px;
     font-size:inherit;
+    line-height: 2rem;
+    font-size: 1.8rem;
 }
 @media screen and (max-width: 992px) {
     .searchbar {
-        font-size: 3.4vw !important;
+        font-size: 3.2vw !important;
     }
 }
 .searchbar-icon-container {
@@ -167,7 +169,7 @@
     border-top-right-radius: 40px;
     border-bottom-right-radius: 40px;
     border: 1px solid #d2d2d2;
-    padding: 5px 22px 5px 20px;
+    padding: 0 22px 0 20px;
 }
 @media screen and (max-width: 992px) {
     .searchbar-icon-container {
