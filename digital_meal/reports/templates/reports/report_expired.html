@@ -1,0 +1,44 @@
+{% extends "reports/base_report.html" %}
+{% load static %}
+
+{% block page_title %}Report nicht verfügbar{% endblock %}
+
+{% block report_intro_title %}Report nicht verfügbar{% endblock %}
+
+{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
+
+{% block report_intro_text %}
+<p class="fs-4 mt-0 ff-space-grotesk">
+  Dieser Report ist nicht mehr verfügbar. Reports von Digital Meal sind nur für eine begrenzte Zeit nach der
+  Teilnahme am Modul verfügbar (höchstens 180 Tage).
+</p>
+{% endblock %}
+
+{% block footer %}
+<div class="section-container">
+
+  <div class="report-section">
+    <div class="report-content">
+      <p>
+        <b>Digital Meal</b> und das <b>Data Donation Lab</b> sind Initiativen
+        von Forschenden der Universität Zürich.
+        Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind
+        nur aggregierte
+        Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
+      </p>
+
+      <div class="text-center">
+        <img alt="Digital Meal Logo"
+              src="{% static 'website/img/DigitalMeal_logo.svg' %}"
+              height="70px">
+        <img alt="Data Donation Lab Logo"
+              src="{% static 'website/img/DataDonationLab_logo.svg' %}"
+              height="70px">
+        <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}"
+              height="70px">
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

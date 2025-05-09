@@ -84,10 +84,17 @@
             Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
           </p>
 
+          <p class="text-08">
+            {% if class_name %}Klassenname: "{{  class_name }}" | {% endif %}
+            {% if class_id %}Klassen-ID: {{  class_id }} | {% endif %}
+            {% if participation_date %}Teilgenommen am: {{ participation_date }} | {% endif %}
+            {% if expiration_date %}Report verfügbar bis: {{ expiration_date }}{% endif %}
+          </p>
         </div>
-      </div>
 
+      </div>
     </div>
+
     <div id="footer" class="bg-blue">
       <div class="container">
         <div class="row">
@@ -130,6 +137,7 @@
               </div>
 
             </div>
+
             <div class="text-center">
               <p class="text-08">
                 © 2025 Digital Meal / Media Use and Effects Research

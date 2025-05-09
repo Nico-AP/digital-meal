@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import SendReportLink
+from .views import SendReportLink, ReportExpired
 from .youtube import views as youtube_views
 from .tiktok import views as tiktok_views
 
@@ -35,6 +35,11 @@ urlpatterns = [
         'tiktok-example',
         tiktok_views.TikTokExampleReport.as_view(),
         name='tiktok_example_report'
+    ),
+    path(
+        'report-expired',
+        ReportExpired.as_view(),
+        name='report_expired'
     ),
     path(
         'send-report-link',

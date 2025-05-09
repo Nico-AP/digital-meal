@@ -149,6 +149,7 @@ class TestReports(TestCase):
                 'url_param': {'class': self.classroom_regular.url_id}
             },
             start_time=timezone.now(),
+            end_time=timezone.now()
         )
         DataDonation.objects.create(
             project=self.project,

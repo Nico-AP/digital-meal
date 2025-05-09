@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 
 from ddm.datadonation.models import DonationBlueprint
 from ddm.datadonation.serializers import DonationSerializer
@@ -7,9 +8,10 @@ from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.mail import send_mail
-from django.http import JsonResponse
+from django.http import JsonResponse, Http404
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 from smtplib import SMTPException
@@ -53,6 +55,11 @@ class BaseReport:
 class BaseReportClassroom(BaseReport, ListView):
     model = Participant
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['class_name'] = self.classroom.name
+        return context
+
     def get_queryset(self):
         return Participant.objects.filter(
             project__url_id=self.project.url_id,
@@ -94,6 +101,45 @@ class BaseReportIndividual(BaseReport, DetailView):
     lookup_field = 'external_id'
     slug_field = 'external_id'
     slug_url_kwarg = 'participant_id'
+
+    def get_object(self, queryset=None):
+        participant = Participant.objects.filter(
+            external_id=self.kwargs.get('participant_id')
+        ).first()
+        if not participant:
+            raise Http404
+
+        participant_url_param = participant.extra_data.get('url_param')
+        if not participant_url_param:
+            raise Http404
+
+        participant_class_id = participant_url_param.get('class')
+        if participant_class_id != self.classroom.url_id:
+            raise Http404
+
+        return participant
+
+    def get_context_data(self, **kwargs):
+        """
+        Check if participation was longer ago then the expiration date
+        (calculated using the DAYS_TO_DONATION_DELETION setting).
+
+        If it was longer ago, render the report_expired view.
+        If not, add expiration_date to context.
+        """
+        start_date = self.object.start_time.date()
+        expiration_date = timezone.now() - timedelta(days=settings.DAYS_TO_DONATION_DELETION - 1)
+
+        if expiration_date.date() > start_date:
+            redirect_url = reverse_lazy('report_expired')
+            return redirect(redirect_url)
+
+        context = super().get_context_data(**kwargs)
+        context['participation_date'] = self.object.end_time.date()
+        context['expiration_date'] = expiration_date.date()
+        context['class_id'] = self.get_class_id()
+        context['class_name'] = self.classroom.name
+        return context
 
     def get_donations(self):
         """
@@ -152,3 +198,7 @@ class SendReportLink(View):
 
         else:
             return JsonResponse({'status': 'error'}, status=400)
+
+
+class ReportExpired(TemplateView):
+    template_name = 'reports/report_expired.html'
