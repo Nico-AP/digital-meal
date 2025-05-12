@@ -1,3 +1,5 @@
+import datetime
+
 import pandas as pd
 import random
 import re
@@ -5,8 +7,17 @@ import re
 from dateutil.parser import parse
 
 
-def get_video_ids(watch_history):
-    """ Get a list containing only the video ids from the watch history. """
+def get_video_ids(watch_history: list[dict]) -> list[str]:
+    """
+    Get a list containing only the video ids from the watch history.
+
+    Args:
+        watch_history (list[dict]): List of watch history data.
+
+    Returns:
+        list[str]: A list of video ids extracted from the 'titleUrl' key
+        of watch history entries.
+    """
     video_ids = [
         d['titleUrl'].replace('https://www.youtube.com/watch?v=', '')
         for d in watch_history if 'titleUrl' in d
@@ -14,22 +25,29 @@ def get_video_ids(watch_history):
     return video_ids
 
 
-def get_date_list(watch_history):
-    """ Get a list containing the dates of all watched videos. """
+def get_date_list(watch_history: list[dict]) -> list[datetime.datetime]:
+    """
+    Get a list containing the dates of all watched videos.
+
+    Args:
+        watch_history (list[dict]): List of watch history data.
+
+    Returns:
+        list[dict]: A list of dates as datetime objects extracted from the 'time' key.
+    """
     dates = [parse(d['time']) for d in watch_history if 'time' in d]
     return dates
 
 
-def get_watched_video_urls(watch_history):
-    """ Get a list containing the titleUrls of all watched videos. """
-    video_urls = [d['titleUrl'].replace('https://www.youtube.com/watch?v=', '')
-                  for d in watch_history if 'titleUrl' in d]
-    return video_urls
-
-
-def exclude_google_ads_videos(watch_history):
+def exclude_google_ads_videos(watch_history: list[dict]) -> list[dict]:
     """
     Excludes all videos shown through Google Ads from the watch history.
+
+    Args:
+        watch_history (list[dict]): List of watch history data.
+
+    Returns:
+        list[dict]: The watch history excluding videos shown through Google Ads.
     """
     ad_identifiers = [
         'from google ads',
@@ -61,8 +79,16 @@ def exclude_google_ads_videos(watch_history):
     return watched_videos
 
 
-def exclude_ads_from_search_history(search_history):
-    """ Excludes all ads from search history. """
+def exclude_ads_from_search_history(search_history: list[dict]) -> list[dict]:
+    """
+    Excludes all ads from search history.
+
+    Args:
+        search_history (list[dict]): List of search history data.
+
+    Returns:
+        list[dict]: The search history excluding videos shown through Google Ads.
+    """
     ad_identifiers = [
         'web & app activity',
         'web- & app-aktivitäten',
@@ -82,10 +108,16 @@ def exclude_ads_from_search_history(search_history):
     return history
 
 
-def clean_search_titles(search_history):
+def clean_search_titles(search_history: list[dict]) -> list[dict]:
     """
     Delete pre- and postfixes from search titles.
     Supports takeouts in German, English, Italian, and French.
+
+    Args:
+        search_history (list): List of search history data.
+
+    Returns:
+        list: The search history with cleaned titles.
     """
     prefix_en = '^Searched for '
     prefix_de = '^Gesucht nach: '
@@ -101,13 +133,17 @@ def clean_search_titles(search_history):
     return clean_searches
 
 
-def clean_video_title(video_title):
+def clean_video_title(video_title: str) -> str:
     """
     Delete pre- and postfixes from video titles as exported from Google
     Takeout.
     Supports takeouts in German, English, Italian, and French.
-    :param video_title: String with video title as exported by Google.
-    :return: Cleaned video title (string).
+
+    Args:
+        video_title (str): Video title.
+
+    Returns:
+        str: The cleaned video title.
     """
     prefix_en = '^Watched '
     postfix_de = ' angesehen$'
@@ -118,10 +154,16 @@ def clean_video_title(video_title):
     return clean_title
 
 
-def get_video_title_dict(watch_history):
+def get_video_title_dict(watch_history: list[dict]) -> dict:
     """
-    Create a dict with Video IDs as keys and video title as value.
-    returns {'video_id': 'video_title', ...}
+    Create a dict with Video IDs as keys and video title as value
+    (e.g., {'video_id': 'video_title', ...}).
+
+    Args:
+        watch_history (list[dict]): List of watch history data.
+
+    Returns:
+        dict: Dict with Video IDs as keys and video title as value
     """
     titles = {}
     generic_url = 'https://www.youtube.com/watch?v='
@@ -133,24 +175,34 @@ def get_video_title_dict(watch_history):
     return titles
 
 
-def get_most_watched_video(watch_history):
-    """ Get ID and watch count of the most watched video in watch history. """
-    video_urls = pd.Series(get_watched_video_urls(watch_history))
+def get_most_watched_video(watch_history: list[dict]) -> dict:
+    """
+    Get ID and watch count of the most watched video in watch history (as dict).
+
+    Args:
+        watch_history (list[dict]): List of watch history data.
+
+    Returns:
+        dict: A dict of form:
+            {'id': <id of fav video>, 'n_watched': <times video occurred>}
+    """
+    video_ids = pd.Series(get_video_ids(watch_history))
     # TODO: Make sure, the chosen favorite video is still available,
     # i.e. has not been deleted.
-    max_count = video_urls.value_counts().max()
-    video_counts = video_urls.value_counts()
-    most_watched_urls = video_counts[video_counts == max_count]
-    favorite_video = random.choice(most_watched_urls.keys().to_list())
+    max_count = video_ids.value_counts().max()
+    video_counts = video_ids.value_counts()
+    most_watched_ids = video_counts[video_counts == max_count]
+    favorite_video = random.choice(most_watched_ids.keys().to_list())
     return {'id': favorite_video, 'n_watched': max_count}
 
 
-def get_channel_names_from_history(watch_history: list) -> list:
+def get_channel_names_from_history(watch_history: list[dict]) -> list:
     """
     Get a list of the channel names of watched videos.
 
     Args:
-        watch_history: A list of dictionaries representing a watch history.
+        watch_history (list[dict]): A list of dictionaries representing
+            a watch history.
 
     Returns:
         list: A list of the channel names of watched videos.
@@ -169,8 +221,21 @@ def get_channel_names_from_history(watch_history: list) -> list:
     return channels
 
 
-def get_search_term_frequency(search_history, n_terms=None):
-    """ Get a dict with search term and counts. """
+def get_search_term_frequency(
+        search_history: list[dict],
+        n_terms: int | None = None
+) -> list[dict]:
+    """
+    Get holding information on how often a search term was used.
+
+    Args:
+        search_history (list[dict]): List of search history data.
+        n_terms (int | None): Number of top search terms to include
+
+    Returns:
+        dict: A list of dictionaries representing a search term frequency,
+            each containing the keys 'term' and 'count'.
+    """
     search_terms = pd.Series([t['title'] for t in search_history])
     x_labels = search_terms.value_counts().keys().to_list()
     y_values = search_terms.value_counts().values.tolist()
