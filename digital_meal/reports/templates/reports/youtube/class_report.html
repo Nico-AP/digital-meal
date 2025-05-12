@@ -33,9 +33,8 @@
 {% endif %}
 
 <!-- CHANNELS -->
-  <!-- TODO! -->
-{% if channel_plot %}
-  {% include "reports/components/channel_section_class.html" with channel_plot_div=channel_plot.div n_distinct=n_distinct_channels target="class" %}
+{% if most_watched_channels %}
+  {% include "reports/components/most_watched_channels_section_class.html" with n_unique=most_watched_channels.n_unique n_multiple=most_watched_channels.n_multiple share_multiple=most_watched_channels.share_multiple channel_list=most_watched_channels.channel_list_top_10 %}
 {% endif %}
 
 <!-- SUBSCRIBED CHANNELS -->

@@ -214,8 +214,8 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
             context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_dates)
 
-        # Add channel-releated information to the context.
-        channels = data_utils.get_channels_from_history(wh)
+        # Add channel-related information to the context.
+        channels = data_utils.get_channel_names_from_history(wh)
         self.add_wh_channel_info_to_context(context, channels)
         return context
 
@@ -328,33 +328,64 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
             context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_combined_dates)
 
-        # Get the channels that have been watched by at least 2 people in
-        # the class to add the channel plot to the context.
+        self.add_most_watched_channels_context(context, whs_individual)
+        return context
+
+    def add_most_watched_channels_context(self, context, watch_histories):
+        """
+        Takes the view context and adds variables needed to render the
+        'most_watched_channels_section_class.html' report section.
+
+        Adds the following variables to the context:
+        - most_watched_channels['n_unique']
+        - most_watched_channels['n_multiple']
+        - most_watched_channels['share_multiple']
+        - most_watched_channels['channel_list_top_10']
+
+        Args:
+            context (dict): Template context.
+            watch_histories (list): List of lists containing the watch history
+                data for each person as a list.
+
+        Returns:
+            dict: The updated context.
+        """
+        combined_channel_history = []
         channel_sets = []
-        for wh in whs_individual:
-            channel_sets += list(set(data_utils.get_channels_from_history(wh)))
+        for watch_history in watch_histories:
+            channel_history = data_utils.get_channel_names_from_history(watch_history)
+            combined_channel_history += channel_history
+            channel_sets += list(set(channel_history))
+
+        # Get the names of channels viewed by more than one person.
         channel_counts = pd.Series(channel_sets).value_counts()
-        allowed_channels = channel_counts[channel_counts > 1].index.tolist()
-        combined_channels = data_utils.get_channels_from_history(wh_combined)
-        channels_for_plot = [
-            c for c in combined_channels
-            if c in allowed_channels
+        multi_viewer_channel_names = channel_counts[channel_counts > 1].index.tolist()
+
+        # Get a list of all videos watched by channels viewed by more than one person.
+        considered_channels = [
+            channel for channel in combined_channel_history
+            if channel in multi_viewer_channel_names
         ]
-        self.add_wh_channel_info_to_context(
-            context, combined_channels, channels_for_plot)
-        # TODO: Redo this with the old template for most subscribed channels:
-        """
-        # TODO: DEPRECATED
-        # Compute statistics about channel prevalence in the class.
-        sc_titles = [entry['title'] for entry in sc_combined]
-        subs_counts = pd.Series(sc_titles).value_counts()
-        n_subs_multiple = subs_counts[subs_counts > 1]
-        context.setdefault('sub_stats', {}).update({
-            'n_subs_unique': len(set(sc_titles)),
-            'n_subs_multiple': len(n_subs_multiple),
-            'most_popular_channels': subs_counts.nlargest(10).to_dict()
+
+        # Identify most watched channels.
+        considered_channel_counts = pd.Series(considered_channels).value_counts()
+        top_ten_channels = considered_channel_counts[:10]
+
+        # Compute context variables
+        n_unique = len(set(combined_channel_history))
+        n_multiple = len(multi_viewer_channel_names)
+
+        if n_unique and n_unique > 0:
+            share_multiple = round((n_multiple / n_unique), 2)
+        else:
+            share_multiple = 0
+
+        context.setdefault('most_watched_channels', {}).update({
+            'n_unique': n_unique,
+            'n_multiple': n_multiple,
+            'share_multiple': share_multiple,
+            'channel_list_top_10': top_ten_channels
         })
-        """
         return context
 
     def get_search_context(self, data):
@@ -427,8 +458,6 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
             context['sc_available'] = False
             return context
         context['sc_available'] = True
-
-        n_donations = len(data)
 
         # Combine the subscription data of all individuals in one list.
         sc_combined = []
@@ -503,8 +532,8 @@ class YouTubeExampleReport(YouTubeBaseReport, TemplateView):
             context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
         self.add_wh_heatmap_plots_to_context(context, wh_dates)
 
-        # Add channel-releated information to the context.
-        channels = data_utils.get_channels_from_history(wh)
+        # Add channel-related information to the context.
+        channels = data_utils.get_channel_names_from_history(wh)
         self.add_wh_channel_info_to_context(context, channels)
         return context
 

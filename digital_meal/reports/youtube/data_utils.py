@@ -145,8 +145,16 @@ def get_most_watched_video(watch_history):
     return {'id': favorite_video, 'n_watched': max_count}
 
 
-def get_channels_from_history(watch_history):
-    """ Get a list of the channel names of watched videos. """
+def get_channel_names_from_history(watch_history: list) -> list:
+    """
+    Get a list of the channel names of watched videos.
+
+    Args:
+        watch_history: A list of dictionaries representing a watch history.
+
+    Returns:
+        list: A list of the channel names of watched videos.
+    """
     channels = []
     for video in watch_history:
         if 'subtitles' in video:
