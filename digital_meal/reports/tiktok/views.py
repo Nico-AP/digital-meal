@@ -13,6 +13,11 @@ from digital_meal.reports.views import BaseReportClassroom, BaseReportIndividual
 from digital_meal.tool.models import Classroom
 
 
+BLUEPRINT_NAMES = {
+    'WATCH_HISTORY': 'Angesehene Videos'
+}
+
+
 class TikTokBaseReport:
     """
     Implements shared methods for the generation of TikTok reports.
@@ -135,9 +140,9 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        data = self.get_data()
+        donated_data = self.get_donations()
 
-        wh_data = data['donations'].get('Angesehene Videos')
+        wh_data = donated_data.get(BLUEPRINT_NAMES['WATCH_HISTORY'])
         if wh_data is not None:
             context.update(self.get_watch_context(wh_data['data']))
 
@@ -177,10 +182,9 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        data = self.get_data()
+        donated_data = self.get_donations()
 
-
-        if all(v is None for k, v in data.get('donations', {}).items()):
+        if all(v is None for k, v in donated_data.items()):
             self.template_name = 'reports/report_exception.html'
             context['exception_message'] = (
                 'Es haben weniger als 5 Personen aus der Klasse ihre Daten '
@@ -189,13 +193,12 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
             return context
 
         # Watch history (wh).
-        watch_history_id = 'Angesehene Videos'
-        if watch_history_id in data['donations'].keys():
-            watch_history_data = data['donations'][watch_history_id]
+        watch_history_data = donated_data.get(BLUEPRINT_NAMES['WATCH_HISTORY'])
+        if watch_history_data is not None:
             context.update(self.get_watch_context(watch_history_data))
 
         n_donations = [
-            len(v) for k, v in data['donations'].items()
+            len(v) for k, v in donated_data.items()
             if v is not None
         ]
         context['n_participants'] = max(n_donations)

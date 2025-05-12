@@ -250,3 +250,31 @@ def get_search_term_frequency(
         searches.append({'term': x_labels[term], 'count': y_values[term]})
 
     return searches
+
+
+def clean_channel_list(channel_list):
+    """
+    Cleans and standardizes a list of channel dictionaries by
+    renaming keys.
+
+    Args:
+        channel_list (list): A list of dictionaries, each
+        representing a channel.
+
+    Returns:
+        list: A new list of dictionaries with standardized keys.
+    """
+    ddm_id_key = 'Channel ID|Kanal-ID|ID des cha.*|ID canale'
+    ddm_title_key = (
+        'Channel title|Kanaltitel|Titres des cha.*|Titolo canale'
+    )
+    keys = {
+        f'{ddm_id_key}': 'id',
+        f'{ddm_title_key}': 'title',
+    }
+    channels = []
+    for channel in channel_list:
+        for key, value in keys.items():
+            channel[value] = channel.pop(key, None)
+        channels.append(channel)
+    return channels

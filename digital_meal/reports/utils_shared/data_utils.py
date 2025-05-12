@@ -94,23 +94,30 @@ def summarize_list(li, n=1, mode='sum'):
         print('Invalid mode.')
         return None
 
-def get_summary_counts_per_date(data, ref='d', base='sum'):
+def get_summary_counts_per_date(
+        data: list[list[datetime]],
+        ref: str = 'd',
+        base: str = 'sum'
+) -> dict:
     """
     Summarizes date occurrences across dates and persons.
 
-    :param data: A list of lists where the inner lists hold the data related to
-        one person ([[{P1, e1}, {p1, e2}], [{P2, e1}, {P2, e2}]]).
-    :param ref: Defines the reference of the date counts:
-        'd' - counts per day (default)
-        'w' - counts per week (attributed to the date of the first day of
-            the week)
-        'm' - counts per month (attributed to the 15th of the month)
-        'y' - counts per year (attributed to the 1st of July of the year)
-    :param base: Defines how the counts will be summarized:
-        'sum' - Sum over all persons
-        'mean' - Mean over all persons
-        'median' - Median over all persons
-    :return: Dictionary containing summary counts per date ({'date': count})
+    Args:
+        data (list[list[datetime]]): A list of lists where the inner lists hold the data
+            related to one person ([[{P1, e1}, {p1, e2}], [{P2, e1}, {P2, e2}]]).
+        ref (str): Defines the reference of the date counts:
+            'd' - counts per day (default)
+            'w' - counts per week (attributed to the date of the first day of
+                the week)
+            'm' - counts per month (attributed to the 15th of the month)
+            'y' - counts per year (attributed to the 1st of July of the year)
+        base (str): Defines how the counts will be summarized:
+            'sum' - Sum over all persons
+            'mean' - Mean over all persons
+            'median' - Median over all persons
+
+    Returns:
+        dict: Dictionary containing summary counts per date ({'date': count})
     """
     n_cases = len(data)
     dates_combined = []

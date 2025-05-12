@@ -15,21 +15,21 @@
 {% block report_body %}
 
 <!-- VIDEO USE STATS -->
-{% include "reports/components/video_use_stats_section.html" with platform="TikTok" stats=watch_stats dates=dates target="class" %}
+{% include "reports/components/watch_history_stats_section.html" with platform="TikTok" stats=watch_stats dates=dates target="class" %}
 
 <!-- VIDEO USE TIMESERIES -->
 {% if dates_plot_days %}
-  {% include "reports/components/video_use_timeseries_section.html" with platform="TikTok" day_plot_div=dates_plot_days.div week_plot_div=dates_plot_weeks.div month_plot_div=dates_plot_months.div year_plot_div=dates_plot_years.div target="class"%}
+  {% include "reports/components/watch_history_timeseries_section.html" with platform="TikTok" day_plot_div=dates_plot_days.div week_plot_div=dates_plot_weeks.div month_plot_div=dates_plot_months.div year_plot_div=dates_plot_years.div target="class"%}
 {% endif %}
 
 <!-- DAILY USE -->
 {% if weekday_use_plot %}
-  {% include "reports/components/daily_video_use_section.html" with platform="TikTok" weekday_use_plot_div=weekday_use_plot.div hours_plot_div=hours_plot.div target="class"  %}
+  {% include "reports/components/watch_history_daily_heatmap_section.html" with platform="TikTok" weekday_use_plot_div=weekday_use_plot.div hours_plot_div=hours_plot.div target="class"  %}
 {% endif %}
 
 <!-- FAVORITE VIDEO -->
  {% if fav_vids_top_ten %}
-  {% include "reports/components/favorite_video_section.html" with platform="TikTok" fav_vid=fav_vids_top_ten target="class" %}
+  {% include "reports/components/watch_history_fav_video_section.html" with platform="TikTok" fav_vid=fav_videos_top_ten target="class" %}
 {% endif %}
 
 {% endblock report_body %}

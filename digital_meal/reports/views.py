@@ -1,5 +1,5 @@
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from ddm.datadonation.models import DonationBlueprint
 from ddm.datadonation.serializers import DonationSerializer
@@ -32,11 +32,17 @@ class BaseReport:
         self.register_project()
 
     def dispatch(self, request, *args, **kwargs):
-        if not self.classroom.is_active:
+        if not self.check_classroom_active():
             redirect_url = reverse_lazy(
                 'class_expired', kwargs={'url_id': self.classroom.url_id})
             return redirect(redirect_url)
         return super().dispatch(request, *args, **kwargs)
+
+    def check_classroom_active(self):
+        if not self.classroom.is_active:
+            return False
+        else:
+            return True
 
     def get_class_id(self):
         """Get the class ID from the URL."""
@@ -66,8 +72,14 @@ class BaseReportClassroom(BaseReport, ListView):
             extra_data__url_param__class=self.classroom.url_id
         )
 
-    def get_donations(self):
-        """Get the donations for the report."""
+    def get_donations(self) -> dict:
+        """
+        Get the donations for the report.
+
+        Returns:
+            dict: A dictionary holding <blueprint.name>: [list of blueprint
+            <donation.data>] pairs.
+        """
         blueprints = DonationBlueprint.objects.filter(project=self.project)
         decryptor = Decryption(self.project.secret, self.project.get_salt())
 
@@ -83,17 +95,16 @@ class BaseReportClassroom(BaseReport, ListView):
                 donations[blueprint.name] = None
         return donations
 
-    def get_responses(self):
-        """Get the responses for the report."""
-        # TODO: Implement this once the questionnaire is implemented.
-        pass
+    def get_responses(self) -> dict:
+        """
+        Get the participant's responses from the database.
 
-    def get_data(self):
-        """Get the data for the report."""
-        return {
-            'donations': self.get_donations(),
-            'responses': self.get_responses()
-        }
+        Still needs to be implemented.
+
+        Returns:
+            dict: Returns an empty dictionary until implemented.
+        """
+        return {}
 
 
 class BaseReportIndividual(BaseReport, DetailView):
@@ -135,18 +146,42 @@ class BaseReportIndividual(BaseReport, DetailView):
             return redirect(redirect_url)
 
         context = super().get_context_data(**kwargs)
+        self.add_meta_info_to_context(context, expiration_date)
+        return context
+
+    def add_meta_info_to_context(
+            self,
+            context: dict,
+            expiration_date: datetime | None = None
+    ) -> dict:
+        """
+        Adds the following meta information to the context:
+        - 'participation_date'
+        - 'expiration_date'
+        - 'class_id'
+        - 'class_name'
+
+        Args:
+            context (dict):  The template context.
+            expiration_date (datetime.datetime): The date until which the report
+                is available.
+
+        Returns:
+            dict: The updated context.
+        """
         context['participation_date'] = self.object.end_time.date()
-        context['expiration_date'] = expiration_date.date()
+        context['expiration_date'] = expiration_date
         context['class_id'] = self.get_class_id()
         context['class_name'] = self.classroom.name
         return context
 
-    def get_donations(self):
+    def get_donations(self) -> dict:
         """
         Get the participant's donations from the database.
 
-        Returns a dictionary with the blueprint name as the key and the
-        corresponding donation data as the value.
+        Returns:
+            dict: A dictionary with the blueprint name as the key and the
+                corresponding donation data as the value.
         """
         blueprints = DonationBlueprint.objects.filter(project=self.project)
         decryptor = Decryption(self.project.secret, self.project.get_salt())
@@ -160,20 +195,16 @@ class BaseReportIndividual(BaseReport, DetailView):
                     blueprint_donation, decryptor=decryptor).data
         return donations
 
-    def get_responses(self):
+    def get_responses(self) -> dict:
         """
         Get the participant's responses from the database.
-        """
-        # TODO: Implement this once the questionnaire is implemented.
-        return {}
 
-    def get_data(self):
-        """Get the participant's data from the database."""
-        data = {
-            'donations': self.get_donations(),
-            'responses': self.get_responses()
-        }
-        return data
+        Still needs to be implemented.
+
+        Returns:
+            dict: Returns an empty dictionary until implemented.
+        """
+        return {}
 
 
 class SendReportLink(View):
