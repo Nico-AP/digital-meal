@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import numpy as np
 from django.utils import timezone
@@ -8,17 +8,24 @@ from digital_meal.reports.utils_shared.example_data import (
     random_string, random_time_in_range, generate_hourly_shares)
 
 
-def generate_synthetic_watch_history(start_date, days=500):
+def generate_synthetic_watch_history(
+        latest_date: datetime,
+        days: int = 500
+) -> dict:
     """
     Generate a synthetic YouTube watch history dataset.
 
-    :param start_date: The end date for the dataset (most recent day).
-    :param days: Number of days to go back.
-    :return: A dictionary mimicking the YouTube watch history JSON format.
+    Args:
+        latest_date (datetime.datetime): The end date for the dataset (most recent day).
+        days (int): Number of days to go back.
+
+    Returns:
+        A dictionary mimicking the YouTube watch history JSON format. Contains
+        the following fields: "time_submitted", "consent", "status", "data".
     """
 
     history_data = []
-    current_date = start_date
+    current_date = latest_date
 
     estimated_videos = days * 20  # Assume 20 videos max per day for estimation
     title_pool = generate_repeating_titles(num_titles=estimated_videos, repeat_fraction=0.01)
@@ -80,16 +87,23 @@ def generate_synthetic_watch_history(start_date, days=500):
     }
 
 
-def generate_synthetic_search_history(start_date, days=500):
+def generate_synthetic_search_history(
+        latest_date: datetime,
+        days: int = 500
+) -> dict:
     """
     Generate a synthetic YouTube search history dataset.
 
-    :param start_date: The end date for the dataset (most recent day).
-    :param days: Number of days to go back.
-    :return: A dictionary mimicking the YouTube search history JSON format.
+    Args:
+        latest_date (datetime.datetime): The end date for the dataset (most recent day).
+        days (int): Number of days to go back.
+
+    Returns:
+        A dictionary mimicking the YouTube search history JSON format. Contains
+        the following fields: "time_submitted", "consent", "status", "data".
     """
     history_data = []
-    current_date = start_date
+    current_date = latest_date
 
     for _ in range(days):
         n_searches = random.randint(0, 5)
@@ -118,13 +132,20 @@ def generate_synthetic_search_history(start_date, days=500):
     }
 
 
-def generate_repeating_titles(num_titles=10000, repeat_fraction=0.01):
+def generate_repeating_titles(
+        num_titles: int = 10000,
+        repeat_fraction: float = 0.01
+) -> list:
     """
     Generate a mix of unique and repeating video titles.
 
-    :param num_titles: Total number of titles to generate.
-    :param repeat_fraction: Fraction of titles that should be reused (e.g., 0.01 = 1% repeating).
-    :return: A list of generated titles with some repetition.
+    Args:
+        num_titles (int): Number of titles to generate.
+        repeat_fraction (float): Fraction of titles that should be reused
+            (e.g., 0.01 = 1% repeating).
+
+    Returns:
+        list: A list of generated titles with some repetition.
     """
     unique_titles = [generate_random_title() for _ in range(int(num_titles * (1 - repeat_fraction)))]
     repeated_titles = random.choices(unique_titles, k=int(num_titles * repeat_fraction))  # Choose some titles to repeat
@@ -133,15 +154,25 @@ def generate_repeating_titles(num_titles=10000, repeat_fraction=0.01):
     return all_titles
 
 
-def generate_random_title():
-    """Generate a random video title using a mix of words and numbers."""
+def generate_random_title() -> str:
+    """
+    Generate a random video title using a mix of words and numbers.
+
+    Returns:
+        str: A random video title.
+    """
     words = ["Epic", "Crazy", "Ultimate", "Weird", "Amazing", "Unbelievable", "Funny", "Super", "Mega", "Best", "Worst",
              "Insane"]
     return f"{random.choice(words)} {random_string(5)} {random.randint(1, 1000)}"
 
 
-def generate_random_channel_name():
-    """Generate a random YouTube channel name."""
+def generate_random_channel_name() -> str:
+    """
+    Generate a random YouTube channel name.
+
+    Returns:
+        str: A random YouTube channel name.
+    """
     prefixes = ["Tech", "Gaming", "Vlogs", "Music", "Epic", "NextGen", "Daily", "Mega", "Future", "Weird"]
     suffixes = ["World", "Stream", "Nation", "Explorer", "Insider", "Central", "Uncut", "Vision", "Channel"]
     return f"{random.choice(prefixes)} {random.choice(suffixes)}"
