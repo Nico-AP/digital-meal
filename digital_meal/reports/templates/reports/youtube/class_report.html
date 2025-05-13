@@ -42,9 +42,9 @@
   {% include "reports/components/subscribed_channels_section.html" with n_distinct=subscriptions.n_distinct plot_div=subscriptions.plot.div %}
 {% endif %}
 
-<!-- SEARCHES -->
-{% if n_searches_overall > 0 %}
-  {% include "reports/components/searches_section.html" with search_plot_div=search_plot.div n_searches=n_searches_mean_overall target="class" %}
+<!-- SEARCHES WORDCLOUD -->
+{% if search_wordcloud %}
+  {% include "reports/components/search_history_wordcloud.html" with wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="class" %}
 {% endif %}
 
 {% endblock report_body %}
@@ -59,7 +59,6 @@
 {{ dates_plot_years.script | safe }}
 {{ weekday_use_plot.script | safe }}
 {{ hours_plot.script | safe }}
-{{ channel_plot.script | safe }} <!-- TODO: DEPRECATE -->
 {{ search_plot.script | safe }}
 {{ subscriptions.plot.script | safe }}
 <script src="{% static 'reports/js/report-functions.js' %}"></script>

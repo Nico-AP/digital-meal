@@ -39,6 +39,24 @@ def get_date_list(watch_history: list[dict]) -> list[datetime.datetime]:
     return dates
 
 
+def get_title_list(history: list[dict]) -> list:
+    """
+    Extracts the 'title' from a list of watch/search history events.
+
+    Args:
+        history: A list of history events dictionaries.
+
+    Returns:
+        list: A list of search terms.
+    """
+    titles = []
+    for event in history:
+        title = event.get('title', None)
+        if title:
+            titles.append(title)
+    return titles
+
+
 def exclude_google_ads_videos(watch_history: list[dict]) -> list[dict]:
     """
     Excludes all videos shown through Google Ads from the watch history.

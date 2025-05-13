@@ -5,6 +5,7 @@ import pandas as pd
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from digital_meal.reports.utils_shared.data_utils import normalize_texts
 from digital_meal.reports.youtube import data_utils
 from digital_meal.reports.youtube import plot_utils
 from digital_meal.reports.youtube.example_data import (
@@ -299,6 +300,24 @@ class YouTubeBaseReport:
         context['search_plot'] = plot_utils.get_searches_plot(search_terms)
         return context
 
+    @staticmethod
+    def add_sh_wordcloud_to_context(
+            context: dict,
+            search_terms: list[str]
+    ) -> dict:
+        """
+        Add search wordcloud to the context (as 'search_wordcloud').
+
+        Args:
+            context (dict): The template context.
+            search_terms (list[str]): The list of search terms.
+
+        Returns:
+            dict: The updated context.
+        """
+        context['search_wordcloud'] = shared_plot_utils.create_word_cloud(search_terms)
+        return context
+
 
 class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
     """Base class to generate an individual report for the YouTube data."""
@@ -396,11 +415,14 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
 
         sh_without_ads = data_utils.exclude_ads_from_search_history(search_history)
         sh_without_ads = data_utils.clean_search_titles(sh_without_ads)
-        search_terms = [t['title'] for t in sh_without_ads]
+        search_terms = data_utils.get_title_list(sh_without_ads)
+        normalized_terms = normalize_texts(search_terms)
 
         self.add_sh_statistics_to_context(context, sh_without_ads, example=is_example)
 
         self.add_sh_plot_to_context(context, search_terms)
+
+        self.add_sh_wordcloud_to_context(context, normalized_terms)
 
         return context
 
@@ -600,17 +622,25 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         self.add_sh_statistics_to_context(
             context, sh_combined, len(search_histories))
 
-        # Get the search terms that have been used by at least 2 people in
-        # the class to add the search term plot to the context.
-        terms_combined = [t['title'] for t in sh_combined]
-        terms_individual = [[t['title'] for t in sh] for sh in shs_individual]
-        sh_sets = []
-        for sh in terms_individual:
-            sh_sets += list(set(sh))
-        sh_vc = pd.Series(sh_sets).value_counts()
-        allowed_terms = sh_vc[sh_vc > 1].index.tolist()
-        terms_for_plot = [t for t in terms_combined if t in allowed_terms]
-        self.add_sh_plot_to_context(context, terms_for_plot)
+        # Extract search terms from search histories.
+        search_terms_combined = data_utils.get_title_list(sh_combined)
+        search_terms_individual = []
+        for sh in shs_individual:
+            sh_terms = data_utils.get_title_list(sh)
+            if sh_terms:
+                search_terms_individual += list(set(sh_terms))
+
+        # Normalize search terms.
+        normalized_terms_combined = normalize_texts(search_terms_combined)
+        normalized_terms_individual = normalize_texts(search_terms_individual)
+
+        # Identify terms used by at least 2 people.
+        term_counter = Counter(normalized_terms_individual)
+        allowed_search_terms = {term for term, count in term_counter.items() if count > 1}
+        terms_for_plot = [t for t in normalized_terms_combined if t in allowed_search_terms]
+
+        # Add wordcloud.
+        self.add_sh_wordcloud_to_context(context, terms_for_plot)
 
         return context
 

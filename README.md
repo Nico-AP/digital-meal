@@ -71,6 +71,10 @@ source venv/bin/activate   # On Windows use: venv\Scripts\activate
 
 ```bash
 pip install -r requirements.txt
+
+# For the wordcloud pre-processing, we also need:
+python -m spacy download en_core_web_sm
+python -m spacy download de_core_news_sm
 ```
 
 4. **Configure environment variables**

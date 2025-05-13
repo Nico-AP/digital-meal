@@ -40,9 +40,9 @@
   {% include "reports/components/watch_history_fav_channels_section_individual.html" with channel_plot_div=channel_plot.div n_distinct=n_distinct_channels target="individual" %}
 {% endif %}
 
-<!-- SEARCHES -->
-{% if n_searches_overall > 0 %}
-  {% include "reports/components/searches_section.html" with search_plot_div=search_plot.div n_searches=n_searches_mean_overall target="individual" %}
+<!-- SEARCHES WORDCLOUD -->
+{% if search_wordcloud %}
+  {% include "reports/components/search_history_wordcloud.html" with wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="individual" %}
 {% endif %}
 
 {% endblock report_body %}

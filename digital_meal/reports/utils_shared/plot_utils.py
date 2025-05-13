@@ -1,3 +1,7 @@
+import colorsys
+import re
+from collections import Counter
+
 import pandas as pd
 
 from bokeh.embed import components
@@ -7,6 +11,8 @@ from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
 
 from datetime import timedelta
+
+from wordcloud import WordCloud
 
 from digital_meal.website.constants import COLORS, COLOR_PALETTES
 
@@ -272,3 +278,51 @@ def get_day_usetime_plot(data):
 
     script, div = components(p)
     return {'script': script, 'div': div}
+
+
+def create_word_cloud(words: list[str]) -> str:
+    """
+    Creates a wordcloud from a given list of words.
+
+    Args:
+        words (list[str]): A list of words to be included in the wordcloud.
+
+    Returns:
+        str: The wordcloud as svg to include in html.
+    """
+
+    def get_word_color(word, font_size, position, orientation, random_state=None,
+                       **kwargs):
+        """
+        Get color dependent on font size of a word. Smaller word (i.e., less
+        frequent words) have lower opacity.
+        """
+        min_font_size = 14
+        max_font_size = 100
+        font_steps = max_font_size - min_font_size
+
+        light_min = 0.5
+        light_max = 1.0
+
+        light_steps = (light_max - light_min) / font_steps
+        light_adjustment = (light_max - light_min) - ((font_size - min_font_size) * light_steps)
+
+        return f'rgba(242, 125, 36, {1 - light_adjustment})'
+
+    wordcloud = WordCloud(
+        font_path='digital_meal/website/static/website/fonts/space_grotesk/SpaceGrotesk-VariableFont_wght.ttf',
+        width=450,
+        height=700,
+        background_color=None,
+        color_func=get_word_color,
+        max_words=100,
+        prefer_horizontal=0.7,
+        min_font_size=14,
+        max_font_size=100,
+        include_numbers=True,
+        regexp=r"\w+[\w'-]*",
+        relative_scaling=0.7,
+        scale=1
+    ).generate_from_frequencies(Counter(words))
+    wordcloud_svg = wordcloud.to_svg(embed_font=False)
+    return wordcloud_svg
