@@ -263,9 +263,8 @@ class BaseModule(models.Model):
         verbose_name='DDM project id'
     )  # external ID
 
-    test_class_url_id = models.ForeignKey(
-        'tool.Classroom',
-        on_delete=models.CASCADE,
+    test_class_url_id = models.CharField(
+        max_length=10,
         null=True,
         blank=True,
         help_text=(
