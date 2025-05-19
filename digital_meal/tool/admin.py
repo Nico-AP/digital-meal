@@ -22,7 +22,8 @@ class BaseModuleAdmin(admin.ModelAdmin):
         'ddm_path',
         'ddm_project_id',
         'report_prefix',
-        'active'
+        'active',
+        'test_class_url_id'
     )
 
 
