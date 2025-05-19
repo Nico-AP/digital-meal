@@ -84,13 +84,15 @@ def initialize_cleaning_stats() -> dict:
     return cleaning_stats
 
 
+# TODO: Differentiate between donations and responses.
+# TODO: Handle test cases (delete 30 days after participation).
 class Command(BaseCommand):
     """
     Deletes donations of participants that have started participation over x days
     ago (defined in a DAYS_TO_DONATION_DELETION setting) and did not explicitly
     consent to donating their data for academic research.
 
-    It is expected that explicitly consent is recorded in the questionnaire in
+    It is expected that explicit consent is recorded in the questionnaire in
     a variable called "dd_consent" that equals 1 if consent is given.
 
     This function is intended to be called daily as a cron job.

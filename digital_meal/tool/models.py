@@ -116,6 +116,7 @@ def now_plus_six_months():
     return timezone.now() + timedelta(days=180)
 
 
+# TODO: Add Classroom.is_test_participation_class attribute. Adjust checks in methods for these cases where necessary).
 class Classroom(models.Model):
     owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
@@ -201,6 +202,7 @@ class Classroom(models.Model):
         """
         Get list of donation dates for current classroom.
         """
+        # TODO: Potential bottleneck for test participations.
         project = self.get_related_donation_project()
         dates = DataDonation.objects.filter(
             project=project,

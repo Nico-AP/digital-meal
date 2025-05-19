@@ -58,6 +58,7 @@ class BaseReport:
         self.project = DonationProject.objects.get(url_id=project_id)
 
 
+# TODO: Move behind login of Classroom owner.
 class BaseReportClassroom(BaseReport, ListView):
     model = Participant
 
