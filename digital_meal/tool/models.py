@@ -261,6 +261,18 @@ class BaseModule(models.Model):
         verbose_name='DDM project id'
     )  # external ID
 
+    test_class_url_id = models.ForeignKey(
+        'tool.Classroom',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        help_text=(
+            'The url_id of the class that is used to collect the test cases '
+            'for this module (needed for the individual report to work in the '
+            'test participation).'
+        )
+    )
+
     report_prefix = models.SlugField()
 
     class Meta:
