@@ -174,10 +174,22 @@ class YouTubeBaseReport:
         """
         n_videos_per_day = len(watch_history) / context['dates']['wh_date_range'].days
 
+        # Add overall statistics.
+        context.setdefault('watch_stats', {}).update({
+            'n_videos_overall': len(watch_history),
+            'n_videos_unique_overall': len(set(video_ids)),
+            'n_videos_mean_overall': len(watch_history) / n_donations,
+            'n_videos_per_day': round(n_videos_per_day, 2)
+        })
+
+        # Add interval statistics
         if not example:
             interval_min, interval_max = self.classroom.get_reference_interval()
         else:
             interval_min, interval_max = datetime.now() - timedelta(days=30), datetime.now()
+
+        if interval_min is None and interval_max is None:
+            return context
 
         interval_length = (interval_max - interval_min).days
         wh_interval = shared_data_utils.get_entries_in_date_range(
@@ -185,12 +197,6 @@ class YouTubeBaseReport:
         wh_interval_ids = data_utils.get_video_ids(wh_interval)
 
         context.setdefault('watch_stats', {}).update({
-            # Statistics overall
-            'n_videos_overall': len(watch_history),
-            'n_videos_unique_overall': len(set(video_ids)),
-            'n_videos_mean_overall': len(watch_history) / n_donations,
-            'n_videos_per_day': round(n_videos_per_day, 2),
-            # Statistics interval
             'n_videos_interval': len(wh_interval),
             'n_videos_unique_interval': len(set(wh_interval_ids)),
             'n_videos_mean_interval': len(wh_interval) / n_donations,

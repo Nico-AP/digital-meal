@@ -168,14 +168,15 @@ class Classroom(models.Model):
         default=generate_unique_classroom_id,
     )
     date_created = models.DateTimeField(auto_now_add=True, null=False)
+
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
+
     base_module = models.ForeignKey(
         'tool.BaseModule',
         on_delete=models.CASCADE,
         verbose_name='Base Module',
         null=True
     )
-
     sub_modules = models.ManyToManyField('tool.SubModule', blank=True)
 
     school_level = models.CharField(
@@ -204,6 +205,7 @@ class Classroom(models.Model):
         choices=InstructionFormats.choices,
         verbose_name=_('Unterrichtsformat')
     )
+
     agb_agree = models.BooleanField(
         null=False,
         blank=False,
@@ -239,17 +241,26 @@ class Classroom(models.Model):
         return Participant.objects.filter(
             project=project, extra_data__url_param__class=self.url_id)
 
-    def get_donation_dates(self):
+    def get_donation_dates(self) -> list:
         """
         Get list of donation dates for current classroom.
+
+        Returns:
+            list: List of donation dates if any donations exist,
+                empty list otherwise.
         """
-        # TODO: Potential bottleneck for test participations.
+
         project = self.get_related_donation_project()
         dates = DataDonation.objects.filter(
             project=project,
             participant__extra_data__url_param__class=self.url_id
-        ).values_list('time_submitted', flat=True)
-        return dates
+        )
+
+        if dates.exists():
+            return dates.values_list('time_submitted', flat=True)
+
+        else:
+            return []
 
     def get_reference_interval(self) -> (datetime, datetime):
         """
@@ -266,23 +277,27 @@ class Classroom(models.Model):
         March 31 2025).
 
         Returns:
-            (datetime, datetime): A tuple containing the start date and the
+            (datetime, datetime) | (None, None): A tuple containing the start date and the
                 end date of the reference timespan ('start_date', 'end_date').
         """
 
-        if not self.report_ref_end_date:
-            donation_dates = self.get_donation_dates()
+        if self.report_ref_end_date:
+            start_date = self.report_ref_end_date.replace(day=1)
+            return start_date, self.report_ref_end_date
 
-            # Calculate reference date
-            # TODO: Fallback if no donation_dates are available
-            date_min = min(donation_dates)
-            if date_min.month == 1:
-                end_date = date_min.replace(day=31, month=12)
-            else:
-                end_date = date_min.replace(day=1) - timedelta(days=1)
+        donation_dates = self.get_donation_dates()
+        if not donation_dates:
+            return None, None
 
-            self.report_ref_end_date = end_date
-            self.save()
+        # Calculate reference date
+        date_min = min(donation_dates)
+        if date_min.month == 1:
+            end_date = date_min.replace(day=31, month=12)
+        else:
+            end_date = date_min.replace(day=1) - timedelta(days=1)
+
+        self.report_ref_end_date = end_date
+        self.save()
 
         start_date = self.report_ref_end_date.replace(day=1)
         return start_date, self.report_ref_end_date
