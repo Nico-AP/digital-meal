@@ -42,7 +42,4 @@ class SubModuleAdmin(admin.ModelAdmin):
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
-    """
-    Provides an overview of all Pooled Donation Projects.
-    """
-    list_display = ['name', 'class_id', 'date_created', 'owner', 'base_module']
+    list_display = ['name', 'url_id', 'date_created', 'owner', 'base_module']

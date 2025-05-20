@@ -78,6 +78,8 @@ class BaseReportClassroom(BaseReport, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['class_name'] = self.classroom.name
+        context['class_id'] = self.classroom.url_id
+        context['expiration_date'] = self.classroom.expiry_date
         return context
 
     def get_queryset(self):

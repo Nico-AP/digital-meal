@@ -7,7 +7,7 @@ from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django_ckeditor_5.fields import CKEditor5Field
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -101,8 +101,11 @@ class Teacher(models.Model):
     name = models.CharField(max_length=50, null=False)
     first_name = models.CharField(max_length=50, null=False)
     canton = models.CharField(
-        max_length=2, null=False,
-        choices=SwissCantons.choices, verbose_name=_('Kanton'))
+        max_length=2,
+        null=False,
+        choices=SwissCantons.choices,
+        verbose_name=_('Kanton')
+    )
     school_name = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
@@ -118,9 +121,47 @@ def now_plus_six_months():
 
 # TODO: Add Classroom.is_test_participation_class attribute. Adjust checks in methods for these cases where necessary).
 class Classroom(models.Model):
+    """
+    A Classroom ties participations belonging to one class together (i.e., they
+    can be linked with the Classroom.class_id).
+
+    A Classroom always belongs to a specific BaseModule (i.e., a class is
+    focused on one BaseModule).
+
+    Attributes:
+        owner (tool.User): The user that has created the Classroom.
+        name (str): The name of the Classroom as given by the owner on creation.
+
+        url_id (str): A random 10-digit string used as class id in urls and to
+            connect participants with ddm (by passing the url_id as url
+            parameter to the DonationProject).
+
+        date_created (datetime): Date when the Classroom was created.
+        expiry_date (datetime): Date until when the Classroom is accessible
+            (i.e., until when the related reports are accessible).
+
+        base_module (BaseModule): The BaseModul for which this Classroom was created.
+        sub_modules (SubModule): The SubModules selected for this Classroom.
+
+        school_level (str): The school level of the class with which this
+            Classroom is used.
+        school_year (int): The school year of the class with which this
+            Classroom is used.
+        subject (str): The subject of the class with which this
+            Classroom is used.
+        instruction_format (str): The instruction format of the class with which this
+            Classroom is used.
+
+        agb_agree (bool): Whether the AGBs have been accepted by the user on
+            creation of the Classroom (should always be True as the creation
+            should only be possible when this has been selected).
+        report_ref_end_date (datetime): The end date of the reference timeframe
+            used in parts of the reports (is set after the first donation for
+            this class has been received).
+    """
+
     owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
-    class_id = models.UUIDField(default=uuid.uuid4, editable=False)
     url_id = models.SlugField(
         max_length=10,
         unique=True,
@@ -210,13 +251,25 @@ class Classroom(models.Model):
         ).values_list('time_submitted', flat=True)
         return dates
 
-    def get_reference_interval(self):
+    def get_reference_interval(self) -> (datetime, datetime):
         """
-        Computes the date interval of the reference timespan for the usage
-        reports.
-        Returns a tuple containing the start date and the end date of the
-        reference timespan ('start_date', 'end_date').
+        Computes a reference timespan to be used in parts of the usage reports.
+        Classroom.report_ref_end_date is used to store the end date of this
+        timespan.
+
+        When a classroom is created, its report_ref_end_date is set to None.
+        It will only be set, once the classroom report is requested and at least
+        one donation has been recieved for this class.
+        The reference end date is then set to span the last full month previous
+        to the submission date of the first donation (i.e., when the donation
+        was submitted on April 4 2025, the timespan is set to cover March 1 to
+        March 31 2025).
+
+        Returns:
+            (datetime, datetime): A tuple containing the start date and the
+                end date of the reference timespan ('start_date', 'end_date').
         """
+
         if not self.report_ref_end_date:
             donation_dates = self.get_donation_dates()
 
@@ -237,8 +290,38 @@ class Classroom(models.Model):
 
 class BaseModule(models.Model):
     """
-    A Base Module corresponds to a 'teaching path'.
+    A BaseModule corresponds to a 'teaching path' and is usually related to
+    one platform of interest. It ties the data donation, teaching materials,
+    reports, and submodules together.
+
+    A BaseModule must always be accompanied by a DonationProject created in DDM.
+
+    Attributes:
+        id (str): UUID used as the primary key.
+        name (str): Name of the Module as displayed in the UI.
+        date_created (datetime): Date when module was created (automatically added).
+        active (boolean): If a module is active or not (used to show/hide the
+            module in the UI).
+        materials_text (str): Textfield to list information and link material
+            belonging to this module (included in the UI).
+        ddm_project_id (str): The public project ID of the linked
+            DDM DonationProject (also see internal documentation).
+        ddm_path (str): The participation link of the linked
+            DDM DonationProject.
+        test_class_url_id (str): The public (URL) ID of the
+            DigitalMeal.Tool.Classroom that is used to collect the test
+            participations for this module (also see internal documentation).
+        report_prefix (str): The prefix used in the url path names to link
+            reports to this module (also see internal documentation).
+
+    Note:
+        The DDM DonationProject is implicitly linked so that the donation project
+            could be hosted on another server.
+        The test_class (i.e., the Classroom used to collect test participations)
+            is implicitly linked, because it must be created after the module
+            has been created. Creation could be automated in a future iteration.
     """
+
     id = models.UUIDField(
         primary_key=True,
         default=uuid.uuid4,
@@ -257,11 +340,11 @@ class BaseModule(models.Model):
 
     materials_text = CKEditor5Field()
 
-    ddm_path = models.URLField(verbose_name='DDM path')
     ddm_project_id = models.CharField(
         max_length=255,
         verbose_name='DDM project id'
     )  # external ID
+    ddm_path = models.URLField(verbose_name='DDM path')
 
     test_class_url_id = models.CharField(
         max_length=10,
@@ -287,18 +370,38 @@ class BaseModule(models.Model):
 
 
 class SubModule(models.Model):
+    """
+    A SubModule is a thematic extension of a BaseModule. It can be used to
+    make further teaching materials accessible and potentially additional DDM
+    components.
+
+    Attributes:
+        base_module (BaseModule): The parent BaseModule.
+        name (str): Name of the Module to be displayed in the UI.
+        description (str): A description of the Module to be displayed in the UI.
+            materials_text (str): Textfield to list information and link material
+            belonging to this module (included in the UI).
+        url_parameter (str): A url parameter specific to this module (used to
+            append to DDM participation links with 1 indicating module is selected
+            and 0 indicating module is not selected).
+        active (boolean): If a module is active or not (used to show/hide the
+            module in the UI).
+    """
+
     base_module = models.ForeignKey(
         'tool.BaseModule', on_delete=models.SET_NULL, null=True)
 
     name = models.CharField(max_length=50, blank=False, null=False)
+    description = models.TextField()
+
+    materials_text = CKEditor5Field()
+
     url_parameter = models.SlugField(
         max_length=5,
         blank=False,
         null=False,
         verbose_name='URL parameter'
     )
-    description = models.TextField()
-    materials_text = CKEditor5Field()
 
     active = models.BooleanField(default=False)
 
