@@ -93,6 +93,9 @@ class TestReports(TestCase):
             'profile': reverse('profile'),
         }
 
+    def setUp(self):
+        self.client.login(**self.base_creds)
+
     def test_expired_classroom_does_not_show_report(self):
         report_url = reverse(
             'youtube_class_report',
@@ -105,6 +108,41 @@ class TestReports(TestCase):
         response = self.client.get(report_url)
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, expired_url)
+
+    def test_class_report_is_accessible_by_owner(self):
+        report_url = reverse(
+            'youtube_class_report',
+            kwargs={'url_id': self.classroom_regular.url_id}
+        )
+        response = self.client.get(report_url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_class_report_is_not_accessible_when_logged_out(self):
+        self.client.logout()
+        login_url = reverse('account_login')
+        report_url = reverse(
+            'youtube_class_report',
+            kwargs={'url_id': self.classroom_regular.url_id}
+        )
+        response = self.client.get(report_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, login_url + f'?next={report_url}')
+
+    def test_class_report_is_not_accessible_to_non_owner(self):
+        self.client.logout()
+        test_creds = {
+            'username': 'test_user',
+            'password': '123',
+            'email': 'testuser@mail.com'
+        }
+        User.objects.create_user(**test_creds)
+        self.client.login(**test_creds)
+        report_url = reverse(
+            'youtube_class_report',
+            kwargs={'url_id': self.classroom_regular.url_id}
+        )
+        response = self.client.get(report_url)
+        self.assertEqual(response.status_code, 403)
 
     def test_report_with_less_than_five_donations_does_not_show_report(self):
         report_url = reverse(

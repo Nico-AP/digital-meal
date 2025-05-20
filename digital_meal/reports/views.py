@@ -7,8 +7,9 @@ from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.core.mail import send_mail
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponseForbidden
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -58,9 +59,21 @@ class BaseReport:
         self.project = DonationProject.objects.get(url_id=project_id)
 
 
-# TODO: Move behind login of Classroom owner.
 class BaseReportClassroom(BaseReport, ListView):
     model = Participant
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Checks that the client requesting the report is the owner of
+        the classroom for which the report is requested (or a superuser).
+        """
+        if not request.user.is_authenticated:
+            redirect_url = reverse_lazy('account_login')
+            return redirect(redirect_url + f'?next={request.path}')
+
+        if request.user != self.classroom.owner and not request.user.is_superuser:
+            raise PermissionDenied("Sie haben keinen Zugriff auf diese Klasse.")
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

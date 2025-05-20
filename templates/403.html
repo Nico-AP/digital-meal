@@ -1,0 +1,15 @@
+{% extends "website/base.html" %}
+
+{% block title %}Digital Meal | 403{% endblock %}
+
+{% block main_content %}
+<div>
+  <h1>Sie haben keinen Zugriff auf diese Seite</h1>
+  {% if exception %}
+    <p>{{ exception }}</p>
+  {% else %}
+    <p>Leider haben Sie keine Berechtigung auf die Seite, die Sie angefordert haben, zuzugreifen.</p>
+  {% endif %}
+  <p><button><a href="/">Zur Hauptseite</a></button></p>
+</div>
+{% endblock main_content %}
