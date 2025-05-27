@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'wagtail.locales',
     'wagtail.contrib.simple_translation',
     'wagtail',
+    'wagtailvideos',
+    'wagtail_modeladmin',
     'qr_code',
     # DDM
     'ddm',
@@ -440,3 +442,8 @@ DDM_SETTINGS = {
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = 'authenticated'
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 CKEDITOR_5_UPLOAD_FILE_TYPES = ['jpeg', 'pdf', 'png', 'mp4']
+
+
+# WAGTAIL-VIDEOS
+# ------------------------------------------------------------------------------
+WAGTAIL_VIDEOS_DISABLE_TRANSCODE = True

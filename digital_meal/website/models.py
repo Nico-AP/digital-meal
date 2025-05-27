@@ -3,6 +3,7 @@ from wagtail.fields import StreamField
 from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
 from wagtail.images.blocks import ImageChooserBlock
+from wagtailvideos.blocks import VideoChooserBlock
 
 
 class IntroTextBlock(blocks.StructBlock):
@@ -92,6 +93,7 @@ class DigitalMealContentPage(Page):
         ('paragraph', blocks.RichTextBlock(icon='pilcrow')),
         ('list', blocks.ListBlock(blocks.CharBlock(label='List'), icon='list-ul')),
         ('image', ImageChooserBlock()),
+        ('video', VideoChooserBlock()),
         ('call_to_action', CallToActionBlock()),
     ], use_json_field=True)
 
