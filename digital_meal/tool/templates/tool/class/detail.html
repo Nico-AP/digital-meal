@@ -87,10 +87,14 @@
       nicht in die Klassenauswertung mit ein.
     </p>
 
-    <p><a href="{{ classroom.base_module.ddm_path }}?class={{ classroom.base_module.test_class_url_id }}"
-            target="_blank"><button
-              class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">zur
-          Test-Teilnahme &#8594</button></a></p>
+    <p>
+      <a href="{{ test_participation_url }}"
+         target="_blank">
+        <button class="orange-button fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">
+          zur Test-Teilnahme &#8594
+        </button>
+      </a>
+    </p>
   </div>
 
   <div class="col m-0 mb-4 m-lg-3 p-3 bg-orange">
@@ -105,14 +109,20 @@
     <div class="text-center position-relative" onclick="copyLinkToClipboard()"
           style="cursor: pointer;">
       <img src="{% qr_url_from_text participation_url %}"
-            alt="Participation URL" style="max-height: 400px;" class="w-100">
-      <input type="hidden" id="teilnahmelink" value="{{ participation_url }}" />
+           alt="Participation URL"
+           style="max-height: 400px;"
+           class="w-100"
+      >
+      <input type="hidden"
+             id="teilnahmelink"
+             value="{{ participation_url }}"
+      />
       <div id="copydisclaimer"
-            class="text-center w-100 position-absolute top-50"
-            style="display: none;">
-        <span
-              class="p-1 ps-3 pe-3 fw-bold bg-green fs-5 text-black rounded">Link
-          kopiert</span>
+           class="text-center w-100 position-absolute top-50"
+           style="display: none;">
+        <span class="p-1 ps-3 pe-3 fw-bold bg-green fs-5 text-black rounded">
+          Link kopiert
+        </span>
       </div>
     </div>
 

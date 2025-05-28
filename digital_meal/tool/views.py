@@ -78,11 +78,30 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
 
     def get_participation_url(self):
         """
-        Constructs the participation url be adding the class id and
-        sub module identifiers as URL parameters.
+        Constructs the participation url by adding (a) the id of the test class
+        defined in the base module and (b) the identifiers of the chose
+        submodule(s) as URL parameters.
+
+        Returns:
+            str: The participation url.
         """
         participation_url = self.object.base_module.ddm_path
         participation_url += f'?class={self.object.url_id}'
+        for sub_module in self.object.sub_modules.all():
+            participation_url += f'&{sub_module.url_parameter}=1'
+        return participation_url
+
+    def get_test_participation_url(self):
+        """
+        Constructs the test participation url by adding (a) the id of the test
+        class defined in the base module and (b) the identifiers of the chosen
+        submodule(s) as URL parameters.
+
+        Returns:
+            str: The test participation url.
+        """
+        participation_url = self.object.base_module.ddm_path
+        participation_url += f'?class={self.object.base_module.test_class_url_id}'
         for sub_module in self.object.sub_modules.all():
             participation_url += f'&{sub_module.url_parameter}=1'
         return participation_url
@@ -103,6 +122,7 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
         context.update(self.get_overview_data())
         context['base_module'] = self.object.base_module
         context['sub_modules'] = self.object.sub_modules.all()
+        context['test_participation_url'] = self.get_test_participation_url()
         context['participation_url'] = self.get_participation_url()
         context['report_view_name'] = self.get_report_view_name()
         context['example_report_url'] = self.get_example_report_url()
