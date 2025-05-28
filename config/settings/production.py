@@ -1,9 +1,7 @@
 from .base import *
 import os
 
-ALLOWED_HOSTS = [
-    'digital-meal.ch', 'www.digital-meal.ch',
-]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 
 SITE_ID = 1
 
