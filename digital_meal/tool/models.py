@@ -119,7 +119,6 @@ def now_plus_six_months():
     return timezone.now() + timedelta(days=180)
 
 
-# TODO: Add Classroom.is_test_participation_class attribute. Adjust checks in methods for these cases where necessary).
 class Classroom(models.Model):
     """
     A Classroom ties participations belonging to one class together (i.e., they
@@ -158,6 +157,8 @@ class Classroom(models.Model):
         report_ref_end_date (datetime): The end date of the reference timeframe
             used in parts of the reports (is set after the first donation for
             this class has been received).
+        is_test_participation_class (bool): Whether the Classroom is used to
+            collect test participations.
     """
 
     owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
@@ -215,6 +216,13 @@ class Classroom(models.Model):
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
 
+    is_test_participation_class = models.BooleanField(
+        default=False,
+        help_text=(
+            'Select if this class is used to collect test participations.'
+        )
+    )
+
     class Meta:
          verbose_name = 'Classroom'
 
@@ -223,6 +231,9 @@ class Classroom(models.Model):
 
     @property
     def is_active(self):
+        if self.is_test_participation_class:
+            return True
+
         if self.expiry_date > timezone.now():
             return True
         else:
@@ -262,6 +273,29 @@ class Classroom(models.Model):
         else:
             return []
 
+    @staticmethod
+    def get_previous_month(date: datetime) -> (datetime, datetime):
+        """
+        Get the start and end date of the previous month relative to the given
+        date.
+
+        Args:
+            date: A datetime object relative to which the start and end date of
+                the previous month is calculated.
+
+        Returns:
+            (datetime, datetime): The start and end date of the interval.
+        """
+
+        if date.month == 1:
+            end_date = date.replace(day=31, month=12)
+        else:
+            end_date = date.replace(day=1) - timedelta(days=1)
+
+        start_date = end_date.replace(day=1)
+
+        return start_date, end_date
+
     def get_reference_interval(self) -> (datetime, datetime):
         """
         Computes a reference timespan to be used in parts of the usage reports.
@@ -270,16 +304,19 @@ class Classroom(models.Model):
 
         When a classroom is created, its report_ref_end_date is set to None.
         It will only be set, once the classroom report is requested and at least
-        one donation has been recieved for this class.
+        one donation has been received for this class.
         The reference end date is then set to span the last full month previous
         to the submission date of the first donation (i.e., when the donation
-        was submitted on April 4 2025, the timespan is set to cover March 1 to
-        March 31 2025).
+        was submitted on 4 April 2025, the timespan is set to cover 1 March to
+        31 March 2025).
 
         Returns:
             (datetime, datetime) | (None, None): A tuple containing the start date and the
                 end date of the reference timespan ('start_date', 'end_date').
         """
+        if self.is_test_participation_class:
+            ref_end_date = timezone.now()
+            return self.get_previous_month(ref_end_date)
 
         if self.report_ref_end_date:
             start_date = self.report_ref_end_date.replace(day=1)
@@ -289,17 +326,13 @@ class Classroom(models.Model):
         if not donation_dates:
             return None, None
 
-        # Calculate reference date
+        # Get interval dates
         date_min = min(donation_dates)
-        if date_min.month == 1:
-            end_date = date_min.replace(day=31, month=12)
-        else:
-            end_date = date_min.replace(day=1) - timedelta(days=1)
+        start_date, end_date = self.get_previous_month(date_min)
 
         self.report_ref_end_date = end_date
         self.save()
 
-        start_date = self.report_ref_end_date.replace(day=1)
         return start_date, self.report_ref_end_date
 
 
