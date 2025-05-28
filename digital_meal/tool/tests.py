@@ -91,25 +91,33 @@ class TestViews(TestCase):
                 redirect_url = response.url.split('?')[0]
                 self.assertEqual(redirect_url, reverse('account_login'))
 
-    def test_project_expiration(self):
+    def test_class_expiration(self):
         """
-        Test that expired projects cannot be accessed and redirect to the
-        "project expired" view.
+        Test that expired classrooms cannot be accessed and redirect to the
+        "class expired" view.
         """
         self.client.login(**self.base_creds)
 
-        # Test with regular project
+        # Test with active classroom.
         response = self.client.get(
             reverse('class_detail', args=[self.classroom_regular.url_id]))
         self.assertEqual(response.status_code, 200)
 
-        # Test with expired project
+        # Test with expired classroom.
         response = self.client.get(
             reverse('class_detail', args=[self.classroom_expired.url_id]))
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse(
             'class_expired', args=[self.classroom_expired.url_id]))
 
+        # Test with test participation classroom.
+        self.classroom_expired.is_test_participation_class = True
+        self.classroom_expired.save()
+        response = self.client.get(
+            reverse('class_detail', args=[self.classroom_expired.url_id]))
+        self.assertEqual(response.status_code, 200)
+        self.classroom_expired.is_test_participation_class = False
+        self.classroom_expired.save()
 
 
 @override_settings(DAYS_TO_DONATION_DELETION=180)
