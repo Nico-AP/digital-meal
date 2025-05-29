@@ -1,5 +1,6 @@
 from datetime import timedelta
 
+from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import ResearchProfile, DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
@@ -151,8 +152,10 @@ class TestCleanParticipantsManagementCommand(TestCase):
             completed=True
         )
 
-        cls.data_consent = {'dd_consent': 1}
-        cls.data_no_consent = {'dd_consent': 0}
+        cls.data_consent = {'usage_dd_consent': 1, 'quest_dd_consent': 1}
+        cls.data_no_consent = {'usage_dd_consent': 0, 'quest_dd_consent': 0}
+        cls.data_mixed_consent_a = {'usage_dd_consent': 1, 'quest_dd_consent': 0}
+        cls.data_mixed_consent_b = {'usage_dd_consent': 0, 'quest_dd_consent': 1}
         cls.data_consent_missing = {'other_var': 1}
 
     def setUp(self):
@@ -164,11 +167,21 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.expired_participant,
             data=self.data_consent
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
         self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
 
     def testCleanParticipantsExpiredNoConsent(self):
         QuestionnaireResponse.objects.create(
@@ -176,11 +189,65 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.expired_participant,
             data=self.data_no_consent
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
         self.assertEqual(n_responses_after, 0)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 0)
+
+    def testCleanParticipantsExpiredMixedConsentA(self):
+        QuestionnaireResponse.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=self.data_mixed_consent_a
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=[],
+            status=''
+        )
+        n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
+        call_command('clean_participants')
+        n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
+        self.assertEqual(n_responses_before, 1)
+        self.assertEqual(n_responses_after, 0)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
+
+    def testCleanParticipantsExpiredMixedConsentB(self):
+        QuestionnaireResponse.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=self.data_mixed_consent_b
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=[],
+            status=''
+        )
+        n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
+        call_command('clean_participants')
+        n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
+        self.assertEqual(n_responses_before, 1)
+        self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 0)
 
     def testCleanParticipantsExpiredMissingConsent(self):
         QuestionnaireResponse.objects.create(
@@ -188,11 +255,21 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.expired_participant,
             data=self.data_consent_missing
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
-        self.assertEqual(n_responses_after, 0)
+        self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
 
     def testCleanParticipantsNotExpiredWithConsent(self):
         QuestionnaireResponse.objects.create(
@@ -200,11 +277,21 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.non_expired_participant,
             data=self.data_consent
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.non_expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
         self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
 
     def testCleanParticipantsNotExpiredNoConsent(self):
         QuestionnaireResponse.objects.create(
@@ -212,11 +299,21 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.non_expired_participant,
             data=self.data_no_consent
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.non_expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
         self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
 
     def testCleanParticipantsNotExpiredMissingConsent(self):
         QuestionnaireResponse.objects.create(
@@ -224,8 +321,18 @@ class TestCleanParticipantsManagementCommand(TestCase):
             participant=self.non_expired_participant,
             data=self.data_consent_missing
         )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=self.non_expired_participant,
+            data=[],
+            status=''
+        )
         n_responses_before = QuestionnaireResponse.objects.all().count()
+        n_donations_before = DataDonation.objects.all().count()
         call_command('clean_participants')
         n_responses_after = QuestionnaireResponse.objects.all().count()
+        n_donations_after = DataDonation.objects.all().count()
         self.assertEqual(n_responses_before, 1)
         self.assertEqual(n_responses_after, 1)
+        self.assertEqual(n_donations_before, 1)
+        self.assertEqual(n_donations_after, 1)
