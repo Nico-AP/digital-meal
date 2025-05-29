@@ -17,7 +17,7 @@ urlpatterns = [
         name='youtube_individual_report'
     ),  # slug:url_id relates to Classroom.url_id.
     path(
-        'youtube-example',
+        'youtube/example',
         youtube_views.YouTubeExampleReport.as_view(),
         name='youtube_example_report'
     ),
@@ -32,7 +32,7 @@ urlpatterns = [
         name='tiktok_individual_report'
     ),  # slug:url_id relates to Classroom.url_id.
     path(
-        'tiktok-example',
+        'tiktok/example',
         tiktok_views.TikTokExampleReport.as_view(),
         name='tiktok_example_report'
     ),
