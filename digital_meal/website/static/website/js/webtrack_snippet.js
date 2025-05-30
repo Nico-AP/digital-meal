@@ -1,6 +1,7 @@
 var _paq = _paq || [];
 /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
 _paq.push(['setAPIUrl', "https://webstats.uzh.ch/"]); // overlay fix
+_paq.push(['disableCookies']);
 _paq.push(['trackPageView']);
 _paq.push(['enableLinkTracking']);
 (function() {

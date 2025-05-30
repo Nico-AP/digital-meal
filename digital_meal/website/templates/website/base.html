@@ -84,7 +84,9 @@
 {% include "website/components/cookie_info.html" %}
 
 {% block webtracker %}
-  <script src="{% static 'website/js/webtrack_snippet.js' %}"></script>
+  {% if "digital-meal.ch" in request.get_host %}
+    <script src="{% static 'website/js/webtrack_snippet.js' %}"></script>
+  {% endif %}
 {% endblock webtracker %}
 
 {% block site_js %}
