@@ -15,6 +15,21 @@ class WebsiteUrlTests(TestCase):
         response = self.client.get('/')
         self.assertEqual(response.status_code, 200)
 
+    def test_robots_txt(self):
+        """Test that robots.txt is accessible."""
+        response = self.client.get('/robots.txt')
+        self.assertEqual(response.status_code, 200)
+
+    def test_sitemap(self):
+        """Test that sitemap is accessible."""
+        response = self.client.get('/sitemap.xml')
+        self.assertEqual(response.status_code, 200)
+
+    def test_google_sc_verification(self):
+        """Test that google sc verification is accessible."""
+        url = reverse('google_sc_verification')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
 
 @override_settings(
     DDM_SETTINGS={'EMAIL_PERMISSION_CHECK':  r'.*(\.|@)test\.com$', }
