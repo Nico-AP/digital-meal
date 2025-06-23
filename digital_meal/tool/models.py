@@ -5,6 +5,7 @@ import string
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
+from django.db.models import Max
 from django_ckeditor_5.fields import CKEditor5Field
 
 from datetime import timedelta, datetime
@@ -251,6 +252,52 @@ class Classroom(models.Model):
         project = self.get_related_donation_project()
         return Participant.objects.filter(
             project=project, extra_data__url_param__class=self.url_id)
+
+    def get_participation_stats(self):
+        """
+        Computes basic participation statistics for this classroom:
+        - 'n_started'
+        - 'n_finished'
+        - 'completion_rate'
+        - 'last_started'
+        - 'last_completed'
+
+        Returns:
+            dict: Contains participation stats
+        """
+        if self.base_module is None:
+            return {
+                'n_started': 0,
+                'n_finished': 0,
+                'completion_rate': 0,
+                'last_started': None,
+                'last_completed': None
+            }
+
+        participants = self.get_classroom_participants()
+
+        n_started = len(participants)
+        n_finished = len(participants.filter(completed=True))
+        if n_started and n_started > 0:
+            completion_rate = round(n_finished / n_started, 1)
+        else:
+            completion_rate = 0
+
+        date_stats = participants.aggregate(
+            last_started=Max('start_time'),
+            last_completed=Max('end_time')
+        )
+        date_last_started = date_stats['last_started']
+        date_last_completed = date_stats['last_completed']
+
+        result = {
+            'n_started': n_started,
+            'n_finished': n_finished,
+            'completion_rate': completion_rate,
+            'last_started': date_last_started,
+            'last_completed': date_last_completed
+        }
+        return result
 
     def get_donation_dates(self) -> list:
         """
