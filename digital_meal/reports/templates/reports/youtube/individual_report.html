@@ -36,7 +36,7 @@
 {% endif %}
 
 <!-- CHANNELS -->
-{% if channel_plot %}
+{% if channel_plot and not n_distinct_channels == 0 %}
   {% include "reports/components/watch_history_fav_channels_section_individual.html" with channel_plot_div=channel_plot.div n_distinct=n_distinct_channels target="individual" %}
 {% endif %}
 
