@@ -97,10 +97,10 @@ class TikTokBaseReport:
 
         # Add overall statistics.
         context.setdefault('watch_stats', {}).update({
-            'n_vids_overall': len(watch_history),
-            'n_vids_unique_overall': len(set(video_ids)),
-            'n_vids_mean_overall': len(watch_history) / n_donations,
-            'n_vids_per_day': round(n_vids_per_day, 2)
+            'n_videos_overall': len(watch_history),
+            'n_videos_unique_overall': len(set(video_ids)),
+            'n_videos_mean_overall': len(watch_history) / n_donations,
+            'n_videos_per_day': round(n_vids_per_day, 2)
         })
 
         # Add interval statistics
@@ -118,10 +118,10 @@ class TikTokBaseReport:
         wh_interval_ids = data_utils.get_video_ids(wh_interval)
 
         context.setdefault('watch_stats', {}).update({
-            'n_vids_interval': len(wh_interval),
-            'n_vids_unique_interval': len(set(wh_interval_ids)),
-            'n_vids_mean_interval': len(wh_interval) / n_donations,
-            'n_vids_per_interval': len(wh_interval_ids) / interval_length,
+            'n_videos_interval': len(wh_interval),
+            'n_videos_unique_interval': len(set(wh_interval_ids)),
+            'n_videos_mean_interval': len(wh_interval) / n_donations,
+            'n_videos_per_interval': len(wh_interval_ids) / interval_length,
         })
 
         context.setdefault('dates', {}).update({
