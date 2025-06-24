@@ -43,6 +43,13 @@ LOGGING = {
             'maxBytes': 1024*1024*15,
             'formatter': 'verbose'
         },
+        'file_root': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'digitalmeal_root.log'),
+            'maxBytes': 1024 * 1024 * 15,
+            'formatter': 'verbose'
+        }
     },
     'loggers': {
         'django': {
@@ -50,6 +57,10 @@ LOGGING = {
             'propagate': True,
             'level': 'DEBUG',
         },
+        'root': {
+            'handlers': ['file_root'],
+            'level': 'WARNING'
+        }
     }
 }
 
