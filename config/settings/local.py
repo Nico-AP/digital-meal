@@ -31,15 +31,27 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # DDM SETTINGS
 # ------------------------------------------------------------------------------
 WEBPACK_LOADER = {
-    'DEFAULT': {
-        'CACHE': not DEBUG,
-        'BUNDLE_DIR_NAME': 'core/vue/',
+    'DDM_UPLOADER': {
+        'CACHE': True,
+        'BUNDLE_DIR_NAME': 'ddm_core/frontend/uploader/',
         'STATS_FILE': os.path.join(
             os.path.dirname(ddm.core.__file__),
-            'static/ddm_core/vue/webpack-stats.json'
+            'static/ddm_core/frontend/uploader/webpack-stats.json'
         ),
-        'POLL_INTERVAL': 0.1,  # Adjust as needed
-        'IGNORE': [r'.+\.hot-update.js', r'.+\.map'],
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
+    },
+    'DDM_QUESTIONNAIRE': {
+        'CACHE': True,
+        'BUNDLE_DIR_NAME': 'ddm_core/frontend/questionnaire/',
+        'STATS_FILE': os.path.join(
+            os.path.dirname(ddm.core.__file__),
+            'static/ddm_core/frontend/questionnaire/webpack-stats.json'
+        ),
+        'POLL_INTERVAL': 0.1,
+        'TIMEOUT': None,
+        'IGNORE': [r'.+\.hot-update.js', r'.+\.map']
     }
 }
 
