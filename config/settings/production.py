@@ -40,14 +40,14 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'django.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
             'maxBytes': 1024*1024*15,
             'formatter': 'verbose'
         },
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'errors.log'),
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
             'maxBytes': 1024 * 1024 * 15,
             'formatter': 'verbose'
         }
