@@ -63,6 +63,9 @@
 .font-blue-darkest         { color: var(--blue-darkest); }
 .font-blue-brighter        { color: var(--blue-brighter); }
 
+.font-white                { color: white }
+.font-darkblue             { color: var(--darkblue-accent); }
+
 /* Backgrounds */
 .bg-purple               { background-color: var(--purple); }
 .bg-purple-darker        { background-color: var(--purple-darker); }
@@ -93,6 +96,8 @@
 .bg-blue-darker          { background-color: var(--blue-darker); }
 .bg-blue-darkest         { background-color: var(--blue-darkest); }
 .bg-blue-brighter        { background-color: var(--blue-brighter); }
+
+.bg-darkblue             { background-color: var(--darkblue-accent); }
 
 /* Highlights */
 .purple-highlight {
@@ -204,3 +209,14 @@
     text-decoration: none;
 }
 
+.darkblue-button {
+    background: var(--darkblue-accent);
+    text-decoration: none;
+    color: white;
+}
+
+.darkblue-button:hover {
+    background: var(--darkblue-accent) !important;
+    text-decoration: none;
+    color: white;
+}

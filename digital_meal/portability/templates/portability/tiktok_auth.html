@@ -1,0 +1,70 @@
+{% extends "tool/base.html" %}
+
+{% load static %}
+
+{% block user_nav %}{% endblock user_nav %}
+
+{% block add_dm_content_class %}d-flex flex-column justify-content-center{% endblock %}
+
+{% block main_content %}
+  <div>
+    <h1 class="mb-4">Erfahre mehr über deine TikTok-Nutzung</h1>
+    <div class="mb-2">
+      Damit du am Modul teilnehmen und mehr über deine TikTok-Nutzung erfahren kannst, brauchen wir dein Einverständnis für die
+      Verarbeitung deiner TikTok-Daten.
+    </div>
+
+    <div class="mb-2">
+      Mit einem Klick auf den untenstehenden Button kannst du Digital Meal Zugang zu deinen TikTok-Nutzungsdaten gewähren.
+    </div>
+
+    <div class="mb-2 mt-4">
+      <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        <img alt="Continue with TikTok"
+             src="{% static 'portability/img/tiktok/TikTok_Button_Black.svg' %}"
+             width="350px">
+      </button>
+    </div>
+  </div>
+
+  <div class="modal" tabindex="-1" id="exampleModal">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-darkblue border-0 font-white text-center">
+          <h3 class="modal-title text-center">Verbindung zu deinem TikTok&#8209;Account</h3>
+        </div>
+        <div class="modal-body">
+          <div class="text-center mt-2">
+            <h4>Wie es funktioniert</h4>
+            <p class="mb-1">Wenn du auf "Mit TikTok verbinden" klickst, wirst du zu TikTok weitergeleitet.</p>
+            <p>Dort kannst du dich mit deinem TikTok-Account einloggen und bestimmen, auf welche Daten Digital Meal zugreifen darf.</p>
+          </div>
+
+          <div class="text-center mt-4">
+            <h4>Welche Daten du teilst</h4>
+            <p>Damit Digital Meal Reports für deine persönlichen Nutzungsdaten erstellen kann, brauchen wir Zugriff auf die folgenden Daten:</p>
+            <div class="text-start mx-auto text-small">
+              <ul class="text-small">
+                <li>Welche Effekte, Hashtags, Sounds und Videos du zu deinen Favoriten hinzugefügt hast.</li>
+                <li>Welche Videos dir auf TikTok angezeigt wurden.</li>
+                <li>Nach welchen Begriffen du auf TikTok gesucht hast.</li>
+                <li>Wie oft du selbst auf TikTok postest.</li>
+                <li>Wie häufig du Inhalte von TikTok teilst.</li>
+              </ul>
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer text-center justify-content-center bg-blue border-0">
+          <div class="mb-2 mt-4">
+
+            <div><a href="{{ tt_auth_url }}" class="btn darkblue-button">Mit TikTok verbinden</a></div>
+            <div><button type="button" class="btn blue-button" data-bs-dismiss="modal">Abbrechen</button></div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}
