@@ -1,4 +1,5 @@
 from .base import *
+from .ckeditor_configs import CKEDITOR_5_CONFIGS
 import os
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
@@ -37,29 +38,29 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'digitalmeal.log'),
+            'filename': os.path.join(BASE_DIR, 'django.log'),
             'maxBytes': 1024*1024*15,
             'formatter': 'verbose'
         },
-        'file_root': {
-            'level': 'WARNING',
+        'error_file': {
+            'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'digitalmeal_root.log'),
+            'filename': os.path.join(BASE_DIR, 'errors.log'),
             'maxBytes': 1024 * 1024 * 15,
             'formatter': 'verbose'
         }
     },
     'loggers': {
         'django': {
-            'handlers': ['file'],
+            'handlers': ['file', 'error_file'],
             'propagate': True,
-            'level': 'DEBUG',
+            'level': 'INFO',
         },
         'root': {
-            'handlers': ['file_root'],
-            'level': 'WARNING'
+            'handlers': ['file', 'error_file'],
+            'level': 'INFO'
         }
     }
 }
