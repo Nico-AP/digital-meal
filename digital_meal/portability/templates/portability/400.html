@@ -1,0 +1,13 @@
+{% extends "tool/base.html" %}
+
+{% block title %}Digital Meal | Fehler aufgetreten{% endblock %}
+
+{% block user_nav %}{% endblock user_nav %}
+
+{% block main_content %}
+<div>
+  <h1>Es ist ein Fehler aufgetreten</h1>
+  <p>{{ error_message }}</p>
+  <p><button><a href="{% url 'tiktok_auth' %}">Nochmals versuchen</a></button></p>
+</div>
+{% endblock main_content %}

@@ -1,9 +1,10 @@
 from .base import *
+from .ckeditor_configs import CKEDITOR_5_CONFIGS
 import os
 import ddm.core
 
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
 
 
 # DEBUG
@@ -57,4 +58,48 @@ WEBPACK_LOADER = {
 
 DDM_SETTINGS = {
     'EMAIL_PERMISSION_CHECK':  r'.*(\.|@).*\.ch$',
+}
+
+
+# LOGGING
+# ------------------------------------------------------------------------------
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            'datefmt': "%d/%b/%Y %H:%M:%S"
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
+            'maxBytes': 1024*1024*15,
+            'formatter': 'verbose'
+        },
+        'error_file': {
+            'level': 'ERROR',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
+            'maxBytes': 1024 * 1024 * 15,
+            'formatter': 'verbose'
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file', 'error_file'],
+            'propagate': True,
+            'level': 'DEBUG',
+        },
+        'root': {
+            'handlers': ['file', 'error_file'],
+            'level': 'WARNING'
+        }
+    }
 }

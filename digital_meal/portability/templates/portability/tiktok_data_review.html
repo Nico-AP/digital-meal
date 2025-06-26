@@ -1,0 +1,132 @@
+{% extends "tool/base.html" %}
+
+{% load static %}
+
+{% block user_nav %}{% endblock user_nav %}
+
+{% block main_content %}
+<div>
+  <h1>Deine TikTok Daten</h1>
+
+  {% if user_info_retrieved %}
+    <div class="mb-3">
+      Unten siehst du, welche Daten TikTok über die gespeichert hat.
+    </div>
+
+    <div class="mb-2">
+      <h3>User Daten</h3>
+
+      <table class="table table-sm text-small">
+        <thead>
+        <tr>
+          {% for var in user_info %}
+            <th>{{ var }}</th>
+          {% endfor %}
+        </tr>
+        </thead>
+
+        <tbody>
+          <tr>
+            {% for var, value in user_info.items %}
+              <th>{{ value }}</th>
+            {% endfor %}
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+
+    <div class="mb-2 mt-5">
+      <h3>Aktivitätsdaten</h3>
+
+      <p>Hier siehst du deine Aktivitätsdaten nach Kategorien aufgelistet.</p>
+
+      <h4 class="mt-2">Angesehene Videos (Example)</h4>
+
+      <table class="table table-sm text-small">
+        <thead>
+        <tr>
+          <th>Date</th>
+          <th>Link</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td>2024-03-06 07:56:05</td>
+          <td>https://www.tiktokv.com/share/video/7338746385732455682/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:08</td>
+          <td>https://www.tiktokv.com/share/video/7325830217979727137/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:11</td>
+          <td>https://www.tiktokv.com/share/video/7316945514392522014/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:11</td>
+          <td>https://www.tiktokv.com/share/video/7325830217979727137/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:17</td>
+          <td>https://www.tiktokv.com/share/video/7316945514392522014/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:50</td>
+          <td>https://www.tiktokv.com/share/video/7342698753348062510/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:57</td>
+          <td>https://www.tiktokv.com/share/video/7339470614622702880/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:56:57</td>
+          <td>https://www.tiktokv.com/share/video/7342698753348062510/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:57:21</td>
+          <td>https://www.tiktokv.com/share/video/7339470614622702880/</td>
+        </tr>
+        <tr>
+          <td>2024-03-06 07:57:36</td>
+          <td>https://www.tiktokv.com/share/video/7340574443439131905/</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <div class="data-table-navigation">
+        <div class="pb-2">
+          <span class="btn-pagination btn-sm me-2 btn-light text-muted user-select-none btn-muted">vorherige Seite</span>
+          <span class="btn-pagination btn-sm btn-light text-muted user-select-none btn-muted">nächste Seite</span>
+        </div>
+        <div class="pb-3">
+          <p class="pb-3">Es werden die Zeilen 1 bis 10 von insgesamt X ausgelesenen Einträgen angezeigt.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <div>
+      <p class="mb-2 fst-italic bg-yellow-brighter">Additional data retrieved through the portability API will be displayed here.</p>
+    </div>
+
+    <div class="mt-5 fw-bold">
+      Bist du damit einverstanden, dass wir diese Daten für die Generierung deines persönlichen Nutzungsreports verwenden?
+    </div>
+
+    <div class="mt-4">
+      <a class="btn darkblue-button text-white w-25" href="{% url 'tiktok_example_report' %}">Ja</a>
+      <a class="btn orange-button w-25" href="">Nein</a>
+    </div>
+
+  {% else %}
+  <div>
+    <p>Leider konnten wir deine Daten nicht von TikTok abrufen.</p>
+    <p><a href="{% url 'tiktok_auth' %}">Nochmals versuchen</a></p>
+  </div>
+
+  {% endif %}
+
+</div>
+{% endblock %}

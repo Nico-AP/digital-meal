@@ -1,4 +1,3 @@
-
 from django.urls import path, include
 from django.views.generic import TemplateView
 from wagtail.contrib.sitemaps.views import sitemap
