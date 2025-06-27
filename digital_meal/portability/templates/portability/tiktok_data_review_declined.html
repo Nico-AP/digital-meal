@@ -1,0 +1,31 @@
+{% extends "tool/base.html" %}
+
+{% load static %}
+
+{% block user_nav %}{% endblock user_nav %}
+
+{% block add_dm_content_class %}d-flex flex-column justify-content-center{% endblock %}
+
+{% block main_content %}
+<div>
+  <h1>Alles klar, deine Daten wurden gelöscht</h1>
+
+
+  <div class="mb-3">
+    Du hast dich gegen die Erstellung deines personalisierten Reports entschieden.
+    Die Daten, die TikTok uns zur Verfügung gestellt hat, wurden dementsprechend direkt wieder gelöscht.
+  </div>
+
+  <div class="mb-3">
+    Solltest du dich umentscheiden und möchtest doch einen personalisierten Report erstellen, kannst du es gerne
+    nochmals versuchen:
+  </div>
+
+  <div>
+    <a class="btn darkblue-button text-white" href="{% url 'tiktok_auth' %}">
+      Report neu erstellen
+    </a>
+  </div>
+
+</div>
+{% endblock %}

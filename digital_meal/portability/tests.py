@@ -374,3 +374,14 @@ class TestTikTokCallbackView(TestCase):
 
         # Check response.
         self.assertEqual(response.status_code, 400)
+
+
+class TestTikTokDataReviewDeclinedView(TestCase):
+
+    def setUp(self):
+        self.client = Client()
+        self.view_url = reverse('tiktok_declined')
+
+    def test_data_review_declined_view_reachable(self):
+        response = self.client.get(self.view_url)
+        self.assertEqual(response.status_code, 200)
