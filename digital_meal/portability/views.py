@@ -480,11 +480,7 @@ class TikTokDataReviewView(AccessTokenMixin, TemplateView):
         url = settings.TIKTOK_USER_INFO_URL
         fields = [
             'union_id',
-            'display_name',
-            'follower_count',
-            'following_count',
-            'likes_count',
-            'video_count'
+            'display_name'
         ]
         params = {'fields': ','.join(fields)}
         headers = {'Authorization': f'Bearer {self.token}'}
