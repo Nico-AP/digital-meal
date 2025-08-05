@@ -230,7 +230,7 @@ class TikTokAuthView(StateTokenMixin, TemplateView):
         """
         auth_url = settings.TIKTOK_AUTH_URL
         client_key = settings.TIKTOK_CLIENT_KEY
-        scope = 'user.info.basic,user.info.stats'
+        scope = 'user.info.basic'
         redirect_uri = settings.TIKTOK_REDIRECT_URL
         state = self.state_token
         response_type = 'code'
