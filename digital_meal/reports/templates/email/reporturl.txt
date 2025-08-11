@@ -1,0 +1,7 @@
+
+{% block content %}{% autoescape off %}Du hast an Digital Meal teilgenommen und hast deine Social-Media-Nutzungsdaten in unser Onlinetool hochgeladen.
+
+Über diesen Link kannst du auf deine persönliche Auswertung zugreifen: {{ report_link }} 
+
+Hast du Fragen oder Rückmeldungen die du gerne mit uns teilen möchtest?
+Dann sende uns eine E-Mail an kontakt@digital-meal.ch{% endautoescape %}{% endblock %}
