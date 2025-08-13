@@ -3,5 +3,5 @@
 
 Über diesen Link kannst du auf deine persönliche Auswertung zugreifen: {{ report_link }} 
 
-Hast du Fragen oder Rückmeldungen die du gerne mit uns teilen möchtest?
+Hast du Fragen oder Rückmeldungen, die du gerne mit uns teilen möchtest?
 Dann sende uns eine E-Mail an kontakt@digital-meal.ch{% endautoescape %}{% endblock %}
