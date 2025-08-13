@@ -97,6 +97,7 @@ python manage.py migrate
 
 ```python
 DAYS_TO_DONATION_DELETION = 180  # Defines the timespan after which donations are deleted if no consent was given.
+ALLOWED_REPORT_DOMAINS = ['some-domain.com']  # Is used to verify the report link domain when sending it via automated emails.
 ```
 
 7. **Create a superuser (admin account)**

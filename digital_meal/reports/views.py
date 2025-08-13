@@ -9,7 +9,9 @@ from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
-from django.http import JsonResponse, Http404
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.http import JsonResponse, Http404, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -17,8 +19,13 @@ from django.views import View
 from django.views.generic import DetailView, ListView, TemplateView
 from django.template.loader import render_to_string
 from smtplib import SMTPException
+from urllib.parse import urlparse
 
 from ..tool.models import Classroom
+
+
+import logging
+logger = logging.getLogger(__name__)
 
 
 class BaseReport:
@@ -227,35 +234,91 @@ class BaseReportIndividual(BaseReport, DetailView):
 class SendReportLink(View):
     """Sends the link to the open report to a given e-mail address."""
 
+    def get(self, request, *args, **kwargs):
+        return HttpResponseNotAllowed(['POST'])
+
     def post(self, request, *args, **kwargs):
-        post_data = json.loads(request.body)
+        try:
+            post_data = json.loads(request.body)
+        except json.JSONDecodeError:
+            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+
         email_address = post_data.get('email', None)
         report_link = post_data.get('link', None)
-        if email_address and report_link:
-            context = {
-                'report_link': report_link
-            }
 
-            text_content=render_to_string('email/reporturl.txt', context)
-            html_content=render_to_string('email/reporturl.html', context)
+        if not email_address:
+            return JsonResponse({'status': 'error', 'message': 'Email required'}, status=400)
 
-            try:
-                msg = EmailMultiAlternatives(
-                    subject='Digital Meal: Link zur persönlichen Auswertung',
-                    body=text_content,
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    to=[email_address]
-                )
+        if not self.validate_email(email_address):
+            return JsonResponse({'status': 'error', 'message': 'Invalid email address'}, status=422)
 
-                msg.attach_alternative(html_content, "text/html")
-                msg.send()
-            except SMTPException:
-                return JsonResponse({'status': 'error'}, status=400)
+        if not report_link:
+            return JsonResponse({'status': 'error', 'message': 'Link required'}, status=400)
 
-            return JsonResponse({'status': 'success'})
+        if not self.validate_link(report_link):
+            return JsonResponse({'status': 'error', 'message': 'Invalid link'}, status=403)
 
-        else:
-            return JsonResponse({'status': 'error'}, status=400)
+        context = {
+            'report_link': report_link
+        }
+
+        text_content = render_to_string('email/reporturl.txt', context)
+        html_content = render_to_string('email/reporturl.html', context)
+
+        try:
+            msg = EmailMultiAlternatives(
+                subject='Digital Meal: Link zur persönlichen Auswertung',
+                body=text_content,
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                to=[email_address]
+            )
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+        except SMTPException as e:
+            logger.error(f'Failed to send email to {email_address}: {e}')
+            return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
+
+        return JsonResponse({'status': 'success'})
+
+    def validate_link(self, link):
+        """Check if the link follows an allowed structure.
+        
+        Link must follow the https protocol and its main domain must be listed
+        in settings.ALLOWED_REPORT_DOMAINS.
+        
+        Args:
+            link (str): The link to check.
+
+        Returns:
+            bool: True if the link is allowed, False otherwise.
+        """
+        allowed_scheme = ['https']
+        allowed_domains = settings.ALLOWED_REPORT_DOMAINS
+
+        parsed_link = urlparse(link)
+        
+        if parsed_link.scheme not in allowed_scheme:
+            return False
+        
+        if parsed_link.netloc not in allowed_domains:
+            return False
+        
+        return True
+
+    def validate_email(self, email):
+        """Check if a string represents a valid email address.
+
+        Args:
+            email (str): The email address to check.
+
+        Returns:
+            bool: True if the email is valid, False otherwise.
+        """
+        try:
+            validate_email(email)
+            return True
+        except ValidationError:
+            return False
 
 
 class ReportExpired(TemplateView):

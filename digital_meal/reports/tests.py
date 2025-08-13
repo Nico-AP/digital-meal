@@ -1,7 +1,7 @@
 import json
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse
 
@@ -226,13 +226,48 @@ class TestReports(TestCase):
             response, 'reports/tiktok/example_report.html')
 
 
+@override_settings(ALLOWED_REPORT_DOMAINS=['test.dev'])
 class TestSendReportLinkEmail(TestCase):
 
+    @classmethod
+    def setUpTestData(cls):
+        cls.url = reverse('send_report_link')
+
     def test_send_report_link(self):
-        url = reverse('send_report_link')
         payload = json.dumps({
-            'email': 'example@mail.com', 'link': 'link-to.example'
+            'email': 'example@mail.com',
+            'link': 'https://test.dev'
         })
         response = self.client.post(
-            url, payload, content_type='application/json')
+            self.url, payload, content_type='application/json')
         self.assertEqual(response.status_code, 200)
+
+    def test_send_report_link_missing_email(self):
+        payload = json.dumps({'link': 'https://test.dev'})
+        response = self.client.post(
+            self.url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_send_report_link_missing_link(self):
+        payload = json.dumps({'email': 'example@mail.com'})
+        response = self.client.post(
+            self.url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 400)
+
+    def test_send_report_link_invalid_email(self):
+        payload = json.dumps({
+            'email': 'example@mail',
+            'link': 'https://test.dev'
+        })
+        response = self.client.post(
+            self.url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 422)
+
+    def test_send_report_link_invalid_link(self):
+        payload = json.dumps({
+            'email': 'example@mail.com',
+            'link': 'https://test.somethingelse'
+        })
+        response = self.client.post(
+            self.url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 403)
