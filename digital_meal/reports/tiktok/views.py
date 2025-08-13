@@ -5,16 +5,19 @@ import pandas as pd
 from django.utils import timezone
 from django.views.generic import TemplateView
 
+from digital_meal.reports.utils_shared.data_utils import normalize_texts
 from digital_meal.reports.tiktok import data_utils
-from digital_meal.reports.tiktok.example_data import generate_synthetic_watch_history
-from digital_meal.reports.utils_shared import plot_utils
+#from digital_meal.reports.tiktok.example_data import (generate_synthetic_watch_history, generate_synthetic_search_history)
+from digital_meal.reports.utils_shared import plot_utils as shared_plot_utils
+from digital_meal.reports.utils_shared import plot_utils as plot_utils
 from digital_meal.reports.utils_shared import data_utils as shared_data_utils
 from digital_meal.reports.views import BaseReportClassroom, BaseReportIndividual
 from digital_meal.tool.models import Classroom
 
 
 BLUEPRINT_NAMES = {
-    'WATCH_HISTORY': 'Angesehene Videos'
+    'WATCH_HISTORY': 'Angesehene Videos',
+    'SEARCH_HISTORY': 'Durchgeführte Suchen'
 }
 
 
@@ -139,6 +142,78 @@ class TikTokBaseReport:
         })
         return context
 
+    def add_sh_statistics_to_context(
+            self,
+            context: dict,
+            search_history: list[dict],
+            n_donations: int = 1,
+            example: bool = False
+    ) -> dict:
+        """
+        Add search history statistics for both overall activities and activities
+        in a classroom reference interval to the context.
+
+        Args:
+            context (dict): The template context.
+            search_history (list[dict]): The list of searches.
+            n_donations (int): The number of donations the statistics are based on.
+            example (bool): Whether it is an example report.
+
+        Returns:
+            dict: The updated context.
+        """
+        if not example:
+            interval_min, interval_max = self.classroom.get_reference_interval()
+        else:
+            interval_min, interval_max = datetime.now() - timedelta(days=30), datetime.now()
+
+        sh_interval = shared_data_utils.get_entries_in_date_range(
+            search_history, interval_min, interval_max)
+        context.update({
+            # Statistics overall.
+            'n_searches_overall': len(search_history),
+            'n_searches_mean_overall': len(search_history) / n_donations,
+            # Statistics interval
+            'sh_int_min_date': interval_min,
+            'sh_int_max_date': interval_max,
+            'n_search_interval': len(sh_interval),
+            'n_search_mean_interval': len(sh_interval) / n_donations
+        })
+        return context
+
+    @staticmethod
+    def add_sh_plot_to_context(context: dict, search_terms: list[str]):
+        """
+        Add search history plot to the context (as 'search_plot').
+
+        Args:
+            context (dict): The template context.
+            search_terms (list[str]): The list of search terms.
+
+        Returns:
+            dict: The updated context.
+        """
+        context['search_plot'] = plot_utils.get_searches_plot(search_terms)
+        return context
+
+    @staticmethod
+    def add_sh_wordcloud_to_context(
+            context: dict,
+            search_terms: list[str]
+    ) -> dict:
+        """
+        Add search wordcloud to the context (as 'search_wordcloud').
+
+        Args:
+            context (dict): The template context.
+            search_terms (list[str]): The list of search terms.
+
+        Returns:
+            dict: The updated context.
+        """
+        context['search_wordcloud'] = shared_plot_utils.create_word_cloud(search_terms)
+        return context
+
 
 class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
     """Base class to generate an individual report for the YouTube data."""
@@ -148,9 +223,15 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
         context = super().get_context_data(**kwargs)
         donated_data = self.get_donations()
 
+        # Add watch history (wh) data to context.
         wh_data = donated_data.get(BLUEPRINT_NAMES['WATCH_HISTORY'])
         if wh_data is not None:
             context.update(self.get_watch_context(wh_data['data']))
+
+        # Add search history (sh) data to context.
+        sh_data = donated_data.get(BLUEPRINT_NAMES['SEARCH_HISTORY'])
+        if sh_data is not None:
+            context.update(self.get_search_context(sh_data['data']))
 
         return context
 
@@ -180,6 +261,39 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
         self.add_wh_heatmap_plots_to_context(context, watched_video_dates)
         return context
 
+    def get_search_context(
+            self,
+            search_history: list[dict],
+            is_example: bool = False
+    ) -> dict:
+        """
+        Add search history related statistics and plots to the context.
+
+        Args:
+            search_history (list[dict]): The list of searches.
+            is_example (bool): Indicates whether report is using example
+                (= synthetic) or actual data.
+
+        Returns:
+            dict: A dictionary containing the template variables related to
+                the search history.
+        """
+        context = {}
+        if search_history is None:
+            context['search_available'] = False
+            return context
+        context['search_available'] = True
+
+        search_terms = pd.Series([t['SearchTerm'] for t in search_history])
+        normalized_terms = normalize_texts(search_terms)
+
+        self.add_sh_statistics_to_context(context, search_history, example=is_example)
+
+        self.add_sh_plot_to_context(context, search_terms)
+
+        self.add_sh_wordcloud_to_context(context, normalized_terms)
+
+        return context
 
 class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
     """Generates the classroom report for the YouTube data."""
@@ -202,6 +316,11 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
         watch_history_data = donated_data.get(BLUEPRINT_NAMES['WATCH_HISTORY'])
         if watch_history_data is not None:
             context.update(self.get_watch_context(watch_history_data))
+
+        # Search history (sh).
+        sh_data = donated_data.get(BLUEPRINT_NAMES['SEARCH_HISTORY'])
+        if sh_data is not None:
+           context.update(self.get_search_context(sh_data))
 
         n_donations = [
             len(v) for k, v in donated_data.items()
@@ -256,6 +375,54 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
         self.add_wh_heatmap_plots_to_context(context, wh_combined_dates)
         return context
 
+    def get_search_context(self, search_histories: list[dict]) -> dict:
+        """
+        Add search history related statistics and plots to the context.
+
+        Args:
+            search_histories (list[dict]): A list of search history donations.
+
+        Returns:
+            dict: A dictionary containing the template variables related to
+                the search histories.
+        """
+        context = {}
+        if search_histories is None:
+            context['sh_available'] = False
+            return context
+        context['sh_available'] = True
+
+        # Combine the histories of all individuals in one list.
+        sh_combined = []
+        shs_individual = []
+        for sh in search_histories:
+            sh_combined += sh
+            shs_individual.append(sh)
+
+        self.add_sh_statistics_to_context(
+            context, sh_combined, len(search_histories))
+
+        # Extract search terms from search histories.
+        search_terms_combined = pd.Series([t['SearchTerm'] for t in sh_combined])
+        search_terms_individual = []
+        for sh in shs_individual:
+            sh_terms = sh
+            if sh_terms:
+                search_terms_individual += list(set(sh_terms))
+
+        # Normalize search terms.
+        normalized_terms_combined = normalize_texts(search_terms_combined)
+        normalized_terms_individual = normalize_texts(search_terms_individual)
+
+        # Identify terms used by at least 2 people.
+        term_counter = Counter(normalized_terms_individual)
+        allowed_search_terms = {term for term, count in term_counter.items() if count > 1}
+        terms_for_plot = [t for t in normalized_terms_combined if t in allowed_search_terms]
+
+        # Add wordcloud.
+        self.add_sh_wordcloud_to_context(context, terms_for_plot)
+
+        return context
 
 class TikTokExampleReport(TikTokBaseReport, TemplateView):
     template_name = 'reports/tiktok/example_report.html'

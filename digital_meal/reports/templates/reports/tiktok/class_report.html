@@ -32,6 +32,11 @@
   {% include "reports/components/watch_history_fav_video_section.html" with platform="TikTok" fav_vid=fav_videos_top_ten target="class" %}
 {% endif %}
 
+<!-- SEARCHES WORDCLOUD -->
+{% if search_wordcloud %}
+  {% include "reports/components/search_history_wordcloud.html" with platform="TikTok" wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="class" %}
+{% endif %}
+
 {% endblock report_body %}
 
 
@@ -44,6 +49,7 @@
 {{ dates_plot_years.script | safe }}
 {{ weekday_use_plot.script | safe }}
 {{ hours_plot.script | safe }}
+{{ search_plot.script | safe }}
 <script src="{% static 'reports/js/report-functions.js' %}"></script>
 
 {% endblock %}

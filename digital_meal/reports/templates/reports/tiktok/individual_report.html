@@ -36,6 +36,11 @@
   {% include "reports/components/watch_history_fav_video_section.html" with platform="TikTok" fav_vid=fav_vids_top_ten.0 target="individual" %}
 {% endif %}
 
+<!-- SEARCHES WORDCLOUD -->
+{% if search_wordcloud %}
+  {% include "reports/components/search_history_wordcloud.html" with platform="TikTok" wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="individual" %}
+{% endif %}
+
 {% endblock report_body %}
 
 {% block scripts %}
@@ -47,6 +52,7 @@
 {{ dates_plot_years.script | safe }}
 {{ weekday_use_plot.script | safe }}
 {{ hours_plot.script | safe }}
+{{ search_plot.script | safe }}
 
 <script>
   function toggleButton(button, target) {
