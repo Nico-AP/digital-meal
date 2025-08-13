@@ -233,7 +233,6 @@ class SendReportLink(View):
         email_address = post_data.get('email', None)
         report_link = post_data.get('link', None)
         if email_address and report_link:
-            try:
                 context = {
                     'report_link': report_link
                 }
@@ -252,10 +251,10 @@ class SendReportLink(View):
                     
                     msg.attach_alternative(html_content, "text/html")
                     msg.send()
+                except SMTPException:
+                    return JsonResponse({'status': 'error'}, status=400)
                 
                 return JsonResponse({'status': 'success'})
-            except SMTPException:
-                return JsonResponse({'status': 'error'}, status=400)
 
         else:
             return JsonResponse({'status': 'error'}, status=400)
