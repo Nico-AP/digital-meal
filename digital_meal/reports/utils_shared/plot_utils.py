@@ -1,5 +1,3 @@
-import colorsys
-import re
 from collections import Counter
 
 import pandas as pd
@@ -42,14 +40,18 @@ def get_timeseries_plot(date_series, bin_width=1,
                         date_min=None, date_max=None):
     """
     Create timeseries bar plot.
-    :param date_series: Pandas Series of datetime objects and counts.
-    :param bin_width: Width of bin in bar plot.
-    :param date_min: Minimum date of date range on x-axis - if None
-        is provided, minimum of data_series is used.
-    :param date_max: Maximum date of date range on x-axis - if None
-        is provided, maximum of data_series is used.
-    :return: Dictionary containing bokeh script and bokeh plot
-        ({'script': script, 'div': div}).
+
+    Args:
+        date_series: Pandas Series of datetime objects and counts.
+            bin_width: Width of bin in bar plot.
+        date_min: Minimum date of date range on x-axis - if None
+            is provided, minimum of data_series is used.
+        date_max: Maximum date of date range on x-axis - if None
+            is provided, maximum of data_series is used.
+
+    Returns:
+        dict: Dictionary containing bokeh script and bokeh plot
+            ({'script': script, 'div': div}).
     """
     x_values = date_series.keys().to_list()
     y_values = date_series.values.tolist()
