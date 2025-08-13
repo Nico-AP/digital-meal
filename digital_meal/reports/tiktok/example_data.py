@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 import numpy as np
 from django.utils import timezone
@@ -8,13 +8,16 @@ from digital_meal.reports.utils_shared.example_data import (
     generate_hourly_shares, random_string, random_time_in_range)
 
 
-def generate_synthetic_watch_history(start_date, days=500):
+def generate_synthetic_watch_history(start_date: datetime, days: int = 500):
     """
     Generate a synthetic TikTok watch history dataset.
 
-    :param start_date: The end date for the dataset (most recent day).
-    :param days: Number of days to go back.
-    :return: A dictionary mimicking the YouTube watch history JSON format.
+    Args:
+        start_date (datetime): The end date for the dataset (most recent day).
+        days (int, optional): Number of days to go back.
+
+    Returns:
+        dict: A dictionary mimicking the YouTube watch history JSON format.
     """
 
     history_data = []
@@ -67,3 +70,58 @@ def generate_synthetic_watch_history(start_date, days=500):
         "status": "success",
         "data": history_data
     }
+
+
+def generate_synthetic_search_history(
+        latest_date: datetime,
+        days: int = 500
+) -> dict:
+    """
+    Generate a synthetic TikTok search history dataset.
+
+    Args:
+        latest_date (datetime.datetime): The end date for the dataset (most recent day).
+        days (int, optional): Number of days to go back.
+
+    Returns:
+        A dictionary mimicking the TikTok search history JSON format. Contains
+        the following fields: "SearchTerm", "Date".
+    """
+    history_data = []
+    current_date = latest_date
+
+    for _ in range(days):
+        n_searches = random.randint(0, 5)
+        search_times = [random_time_in_range(0, 0, 23, 59) for _ in range(n_searches)]
+
+        # Generate entries for the day
+        for search_time in sorted(search_times):
+            search_datetime = timezone.datetime.combine(current_date, search_time)
+            entry = {
+                "SearchTerm": generate_random_search_term(),
+                "Date": search_datetime.isoformat(),
+            }
+
+            history_data.append(entry)
+
+        # Move to the previous day
+        current_date -= timedelta(days=1)
+
+    return {
+        "time_submitted": timezone.now().isoformat() + "Z",
+        "consent": True,
+        "status": "success",
+        "data": history_data
+    }
+
+
+def generate_random_search_term() -> str:
+    """
+    Generate a random search term.
+
+    Returns:
+        str: A random search term.
+    """
+    prefixes = ["Tech", "Gaming", "Vlogs", "Music", "Epic", "NextGen", "Daily", "Mega", "Future", "Weird"]
+    suffixes = ["World", "Stream", "Nation", "Explorer", "Insider", "Central", "Uncut", "Vision", "Channel"]
+    return f"{random.choice(prefixes)} {random.choice(suffixes)}"

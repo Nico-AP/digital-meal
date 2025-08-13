@@ -8,7 +8,8 @@ from django.views.generic import TemplateView
 
 from digital_meal.reports.utils_shared.data_utils import normalize_texts
 from digital_meal.reports.tiktok import data_utils
-from digital_meal.reports.tiktok.example_data import generate_synthetic_watch_history
+from digital_meal.reports.tiktok.example_data import (
+    generate_synthetic_watch_history, generate_synthetic_search_history)
 from digital_meal.reports.utils_shared import plot_utils as shared_plot_utils
 from digital_meal.reports.utils_shared import plot_utils as plot_utils
 from digital_meal.reports.utils_shared import data_utils as shared_data_utils
@@ -425,22 +426,70 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
 
         return context
 
-class TikTokExampleReport(TikTokBaseReport, TemplateView):
+class TikTokExampleReport(TikTokReportIndividual, TemplateView):
     template_name = 'reports/tiktok/example_report.html'
+
+    def register_classroom(self):
+        """Register classroom object."""
+        self.classroom = None
+
+    def register_project(self):
+        """Register project object."""
+        self.project = None
+
+    def check_classroom_active(self):
+        return True
 
     def get_data(self):
         """ Generate synthetic data for example report. """
         return
 
+    def add_meta_info_to_context(
+            self,
+            context: dict,
+            expiration_date: datetime | None = None
+    ) -> dict:
+        """
+        Adds the following meta information to the context:
+        - 'participation_date'
+        - 'expiration_date'
+        - 'class_id'
+        - 'class_name'
+
+        Args:
+            context (dict):  The template context.
+            expiration_date (datetime.datetime): The date until which the report
+                is available.
+
+        Returns:
+            dict: The updated context.
+        """
+        context['participation_date'] = timezone.now().date()
+        context['expiration_date'] = 'This example report does not expire'
+        context['class_id'] = '1234567890'
+        context['class_name'] = 'Example class'
+        return context
+
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+        """
+        Load synthetic data for example report, generate plots and statistics
+        and add to context.
+        """
+        context = {}
 
         # Generate synthetic data.
         start_date = timezone.now().date() - timedelta(days=5)
         wh_data = generate_synthetic_watch_history(start_date)
+        sh_data = generate_synthetic_search_history(start_date)
 
         # Add watch history (wh) data to context.
         context.update(self.get_watch_context(wh_data['data']))
+
+        # Add search history (sh) data to context.
+        context.update(self.get_search_context(sh_data['data'], is_example=True))
+
+        # Add metadata to context.
+        context = self.add_meta_info_to_context(context)
         return context
 
     def get_watch_context(self, data):
