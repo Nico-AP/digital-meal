@@ -1,5 +1,6 @@
 import time
-from datetime import timedelta
+from collections import Counter
+from datetime import datetime, timedelta
 
 import pandas as pd
 from django.utils import timezone
@@ -7,7 +8,7 @@ from django.views.generic import TemplateView
 
 from digital_meal.reports.utils_shared.data_utils import normalize_texts
 from digital_meal.reports.tiktok import data_utils
-#from digital_meal.reports.tiktok.example_data import (generate_synthetic_watch_history, generate_synthetic_search_history)
+from digital_meal.reports.tiktok.example_data import generate_synthetic_watch_history
 from digital_meal.reports.utils_shared import plot_utils as shared_plot_utils
 from digital_meal.reports.utils_shared import plot_utils as plot_utils
 from digital_meal.reports.utils_shared import data_utils as shared_data_utils
