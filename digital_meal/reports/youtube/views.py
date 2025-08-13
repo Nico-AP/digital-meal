@@ -303,7 +303,7 @@ class YouTubeBaseReport:
         Returns:
             dict: The updated context.
         """
-        context['search_plot'] = plot_utils.get_searches_plot(search_terms)
+        context['search_plot'] = shared_plot_utils.get_searches_plot(search_terms)
         return context
 
     @staticmethod
