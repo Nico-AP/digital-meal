@@ -733,9 +733,9 @@ class YouTubeExampleReport(YouTubeReportIndividual, TemplateView):
             dict: The updated context.
         """
         context['participation_date'] = timezone.now().date()
-        context['expiration_date'] = 'This example report does not expire'
+        context['expiration_date'] = 'Dieser Beispielreport ist unbeschränkt verfügbar'
         context['class_id'] = '1234567890'
-        context['class_name'] = 'Example class'
+        context['class_name'] = 'Beispielklasse'
         return context
 
     def get_context_data(self, **kwargs):
@@ -756,4 +756,6 @@ class YouTubeExampleReport(YouTubeReportIndividual, TemplateView):
             self.get_search_context(sh_data['data'], is_example=True)
         )
 
+        # Add metadata to context.
+        context = self.add_meta_info_to_context(context)
         return context
