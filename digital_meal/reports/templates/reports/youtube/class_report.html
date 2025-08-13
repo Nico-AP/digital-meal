@@ -44,7 +44,7 @@
 
 <!-- SEARCHES WORDCLOUD -->
 {% if search_wordcloud %}
-  {% include "reports/components/search_history_wordcloud.html" with wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="class" %}
+  {% include "reports/components/search_history_wordcloud.html" with platform="YouTube" wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="class" %}
 {% endif %}
 
 {% endblock report_body %}

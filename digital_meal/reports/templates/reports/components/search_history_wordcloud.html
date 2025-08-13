@@ -6,9 +6,9 @@
     <div class="report-content">
       <h2>
         {% if target == "individual" %}
-          Nach was du auf YouTube gesucht hast
+          Nach was du auf {{ platform }} gesucht hast
         {% elif target == "class" %}
-          Nach was ihr in der Klasse gesucht habt
+          Nach was ihr in der Klasse auf {{ platform }} gesucht habt
         {% endif %}
       </h2>
 
@@ -55,8 +55,8 @@
       </div>
 
       <div class="fs-08 mt-4">
-        Die Abbildung zeigt die Grundformen der Hauptwörter an, die in den Suchbegriffen verwendet wurden.
-        Es werden also nicht die tatsächlich eingegebenen Suchanfragen angezeigt.
+        Die Abbildung zeigt die Grundformen der Hauptwörter an, die in den Suchanfragen verwendet wurden.
+        Es werden also nicht die vollständigen Suchanfragen angezeigt.
       </div>
 
     </div>
