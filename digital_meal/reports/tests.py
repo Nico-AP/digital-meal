@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.utils import timezone
@@ -222,3 +224,15 @@ class TestReports(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response, 'reports/tiktok/example_report.html')
+
+
+class TestSendReportLinkEmail(TestCase):
+
+    def test_send_report_link(self):
+        url = reverse('send_report_link')
+        payload = json.dumps({
+            'email': 'example@mail.com', 'link': 'link-to.example'
+        })
+        response = self.client.post(
+            url, payload, content_type='application/json')
+        self.assertEqual(response.status_code, 200)

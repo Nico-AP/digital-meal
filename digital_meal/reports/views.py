@@ -8,9 +8,8 @@ from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.core.mail import send_mail
 from django.core.mail import EmailMultiAlternatives
-from django.http import JsonResponse, Http404, HttpResponseForbidden
+from django.http import JsonResponse, Http404
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
 from django.utils import timezone
@@ -233,28 +232,27 @@ class SendReportLink(View):
         email_address = post_data.get('email', None)
         report_link = post_data.get('link', None)
         if email_address and report_link:
-                context = {
-                    'report_link': report_link
-                }
-                
-                text_content=render_to_string('email/reporturl.txt', context)
-                html_content=render_to_string('email/reporturl.html', context)
-                
-                try:
-                    msg = EmailMultiAlternatives(
-                        subject='Digital Meal: Link zur persönlichen Auswertung',
-                        body=text_content,
-                        from_email=settings.DEFAULT_FROM_EMAIL,
-                        recipient_list=[email_address],
-                        fail_silently=False
-                    )
-                    
-                    msg.attach_alternative(html_content, "text/html")
-                    msg.send()
-                except SMTPException:
-                    return JsonResponse({'status': 'error'}, status=400)
-                
-                return JsonResponse({'status': 'success'})
+            context = {
+                'report_link': report_link
+            }
+
+            text_content=render_to_string('email/reporturl.txt', context)
+            html_content=render_to_string('email/reporturl.html', context)
+
+            try:
+                msg = EmailMultiAlternatives(
+                    subject='Digital Meal: Link zur persönlichen Auswertung',
+                    body=text_content,
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    to=[email_address]
+                )
+
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+            except SMTPException:
+                return JsonResponse({'status': 'error'}, status=400)
+
+            return JsonResponse({'status': 'success'})
 
         else:
             return JsonResponse({'status': 'error'}, status=400)
