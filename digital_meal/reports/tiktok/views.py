@@ -92,7 +92,7 @@ class TikTokBaseReport:
                 'thumbnail': metadata['thumbnail'],
                 'channel': metadata['channel']
             })
-        context['fav_vids_top_ten'] = vids_top_ten
+        context['fav_videos_top_ten'] = vids_top_ten
         return context
 
     def add_wh_statistics_to_context(self, context, watch_history,
