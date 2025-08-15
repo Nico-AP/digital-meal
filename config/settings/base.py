@@ -202,7 +202,7 @@ DEFAULT_FROM_EMAIL = os.environ['DEFAULT_FROM_EMAIL']
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
 DAYS_TO_DONATION_DELETION = 180
-ALLOWED_REPORT_DOMAINS = ['digital-meal.ch']
+ALLOWED_REPORT_DOMAINS = os.environ.get('ALLOWED_REPORT_DOMAINS').split()
 
 # Portability
 TIKTOK_AUTH_URL = os.environ.get('TIKTOK_AUTH_URL', 'https://www.tiktok.com/v2/auth/authorize/')
