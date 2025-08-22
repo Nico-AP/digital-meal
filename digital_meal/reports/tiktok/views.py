@@ -170,7 +170,7 @@ class TikTokBaseReport:
             interval_min, interval_max = datetime.now() - timedelta(days=30), datetime.now()
 
         sh_interval = shared_data_utils.get_entries_in_date_range(
-            search_history, interval_min, interval_max)
+            search_history, interval_min, interval_max, 'Date')
         context.update({
             # Statistics overall.
             'n_searches_overall': len(search_history),
@@ -396,10 +396,9 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
 
         # Combine the histories of all individuals in one list.
         sh_combined = []
-        shs_individual = []
-        for sh in search_histories:
+        shs_individual = [e['data'] for e in search_histories]
+        for sh in shs_individual:
             sh_combined += sh
-            shs_individual.append(sh)
 
         self.add_sh_statistics_to_context(
             context, sh_combined, len(search_histories))
@@ -408,7 +407,7 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
         search_terms_combined = pd.Series([t['SearchTerm'] for t in sh_combined])
         search_terms_individual = []
         for sh in shs_individual:
-            sh_terms = sh
+            sh_terms = [t['SearchTerm'] for t in sh]
             if sh_terms:
                 search_terms_individual += list(set(sh_terms))
 
