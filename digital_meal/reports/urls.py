@@ -22,7 +22,7 @@ urlpatterns = [
         name='youtube_example_report'
     ),
     path(
-        'tiktok/class/<slug:url_id>/tiktok-report',
+        'tiktok/class/<slug:url_id>',
         tiktok_views.TikTokReportClassroom.as_view(),
         name='tiktok_class_report'
     ),  # slug:url_id relates to Classroom.url_id.
