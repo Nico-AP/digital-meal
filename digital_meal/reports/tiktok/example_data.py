@@ -8,7 +8,10 @@ from digital_meal.reports.utils_shared.example_data import (
     generate_hourly_shares, random_string, random_time_in_range)
 
 
-def generate_synthetic_watch_history(start_date: datetime, days: int = 500):
+def generate_synthetic_watch_history(
+        start_date: datetime,
+        days: int = 500
+) -> dict:
     """
     Generate a synthetic TikTok watch history dataset.
 
