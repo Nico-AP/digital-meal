@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -11,12 +12,21 @@ from ddm.datadonation.models import (
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject, ResearchProfile
 
+import digital_meal.reports.tiktok.example_data as tiktok_data
+import digital_meal.reports.youtube.example_data as youtube_data
 from digital_meal.tool.models import Classroom, BaseModule
 
 User = get_user_model()
 
 
-class TestReports(TestCase):
+class TestReportsGeneralFunctionality(TestCase):
+    """Tests for general report functionality.
+
+    Tests:
+    - Classroom expiration and related behavior
+    - Class report accessibility for (non-)users
+    - Class report rendering depending on number of participants.
+    """
 
     @classmethod
     def setUpTestData(cls):
@@ -153,7 +163,8 @@ class TestReports(TestCase):
         )
         response = self.client.get(report_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'reports/report_exception.html')
+        self.assertTemplateUsed(
+            response, 'reports/report_exception.html')
 
     def test_report_with_five_or_more_donations_shows_report(self):
         report_url = reverse(
@@ -179,14 +190,100 @@ class TestReports(TestCase):
             )
         response = self.client.get(report_url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'reports/youtube/class_report.html')
+        self.assertTemplateUsed(
+            response, 'reports/youtube/class_report.html')
+
+
+class TestYouTubeReports(TestCase):
+    """Tests YouTube reports.
+
+     Tests if class, individual, and example reports are rendered correctly.
+     """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create User
+        cls.base_creds = {
+            'username': 'username',
+            'password': '123',
+            'email': 'username@mail.com'
+        }
+        cls.user = User.objects.create_user(**cls.base_creds)
+        cls.research_profile = ResearchProfile.objects.create(user=cls.user)
+
+        # Initialize a data donation project
+        cls.project = DonationProject.objects.create(
+            name='youtube-test-project',
+            active=True,
+            owner=cls.research_profile,
+            contact_information='something',
+            data_protection_statement='something',
+            slug='slug'
+        )
+
+        cls.uploader = FileUploader.objects.create(
+            project=cls.project,
+            name='youtube uploader',
+            index=1,
+            upload_type='zip file',
+            combined_consent=True
+        )
+
+        cls.watched_videos_bp = DonationBlueprint.objects.create(
+            project=cls.project,
+            name='Angesehene Videos',
+            exp_file_format='json',
+            file_uploader=cls.uploader,
+        )
+
+        cls.searches_bp = DonationBlueprint.objects.create(
+            project=cls.project,
+            name='Suchverlauf',
+            exp_file_format='json',
+            file_uploader=cls.uploader,
+        )
+
+        cls.subscriptions_bp = DonationBlueprint.objects.create(
+            project=cls.project,
+            name='Abonnierte Kanäle',
+            exp_file_format='json',
+            file_uploader=cls.uploader,
+        )
+
+        # Crate a module
+        cls.module = BaseModule.objects.create(
+            name='module-name',
+            active=True,
+            ddm_path='https://127.0.0.1:8000/',
+            ddm_project_id=cls.project.url_id,
+            report_prefix='youtube_'
+        )
+
+        # Create Classroom - not expired
+        cls.classroom = Classroom.objects.create(
+            owner=cls.user,
+            name='regular class',
+            base_module=cls.module,
+            school_level='primary',
+            school_year=10,
+            subject='languages',
+            instruction_format='regular'
+        )
+
+        # Generate example data
+        cls.watch_history_data = youtube_data.generate_synthetic_watch_history(datetime.now(), 10)
+        cls.search_data = youtube_data.generate_synthetic_search_history(datetime.now(), 10)
+        cls.subscription_data = [
+            {'Channel ID|Kanal-ID|ID des cha.*|ID canale': 'UC1yNl2E10ZzKApQdRuTQ6tw'},
+            {'Channel ID|Kanal-ID|ID des cha.*|ID canale': 'CC1yNl2E10ZzKApQdRuTQ6tw'},
+        ]
 
     def test_individual_report(self):
         # Create donation
         participant = Participant.objects.create(
             project=self.project,
             extra_data={
-                'url_param': {'class': self.classroom_regular.url_id}
+                'url_param': {'class': self.classroom.url_id}
             },
             start_time=timezone.now(),
             end_time=timezone.now()
@@ -194,15 +291,31 @@ class TestReports(TestCase):
         DataDonation.objects.create(
             project=self.project,
             participant=participant,
-            blueprint=self.blueprint,
+            blueprint=self.watched_videos_bp,
             consent=True,
-            data='{"data": "somedata"}',
+            data=self.watch_history_data['data'],
+            status='success'
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=self.searches_bp,
+            consent=True,
+            data=self.search_data['data'],
+            status='success'
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=self.subscriptions_bp,
+            consent=True,
+            data=self.subscription_data,
             status='success'
         )
         report_url = reverse(
             'youtube_individual_report',
             kwargs={
-                'url_id': self.classroom_regular.url_id,
+                'url_id': self.classroom.url_id,
                 'participant_id': participant.external_id
             }
         )
@@ -211,6 +324,77 @@ class TestReports(TestCase):
         self.assertTemplateUsed(
             response, 'reports/youtube/individual_report.html')
 
+        required_templates = [
+            'reports/youtube/individual_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/watch_history_fav_channels_section_individual.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_classroom_report(self):
+        report_url = reverse(
+            'youtube_class_report',
+            kwargs={'url_id': self.classroom.url_id}
+        )
+        # Create 5 donations
+        for _ in range(5):
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={
+                    'url_param': {'class': self.classroom.url_id}
+                },
+                start_time=timezone.now(),
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.watched_videos_bp,
+                consent=True,
+                data=self.watch_history_data['data'],
+                status='success'
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.searches_bp,
+                consent=True,
+                data=self.search_data['data'],
+                status='success'
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.subscriptions_bp,
+                consent=True,
+                data=self.subscription_data,
+                status='success'
+            )
+
+        self.client.login(**self.base_creds)
+        response = self.client.get(report_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        required_templates = [
+            'reports/youtube/class_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/watch_history_fav_channels_section_class.html',
+            'reports/components/subscribed_channels_section.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
+
     def test_youtube_example_report(self):
         url = reverse('youtube_example_report')
         response = self.client.get(url)
@@ -218,12 +402,207 @@ class TestReports(TestCase):
         self.assertTemplateUsed(
             response, 'reports/youtube/example_report.html')
 
+        required_templates = [
+            'reports/youtube/individual_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/watch_history_fav_channels_section_individual.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
+
+
+class TestTikTokReports(TestCase):
+    """Tests TikTok reports.
+
+     Tests if class, individual, and example reports are rendered correctly.
+     """
+
+    @classmethod
+    def setUpTestData(cls):
+        # Create User
+        cls.base_creds = {
+            'username': 'username',
+            'password': '123',
+            'email': 'username@mail.com'
+        }
+        cls.user = User.objects.create_user(**cls.base_creds)
+        cls.research_profile = ResearchProfile.objects.create(user=cls.user)
+
+        # Initialize a data donation project
+        cls.project = DonationProject.objects.create(
+            name='tiktok-test-project',
+            active=True,
+            owner=cls.research_profile,
+            contact_information='something',
+            data_protection_statement='something',
+            slug='slug'
+        )
+
+        cls.uploader = FileUploader.objects.create(
+            project=cls.project,
+            name='tiktok uploader',
+            index=1,
+            upload_type='zip file',
+            combined_consent=True
+        )
+
+        cls.watched_videos_bp = DonationBlueprint.objects.create(
+            project=cls.project,
+            name='Angesehene Videos',
+            exp_file_format='json',
+            file_uploader=cls.uploader,
+        )
+
+        cls.searches_bp = DonationBlueprint.objects.create(
+            project=cls.project,
+            name='Durchgeführte Suchen',
+            exp_file_format='json',
+            file_uploader=cls.uploader,
+        )
+
+        # Crate a module
+        cls.module = BaseModule.objects.create(
+            name='module-name',
+            active=True,
+            ddm_path='https://127.0.0.1:8000/',
+            ddm_project_id=cls.project.url_id,
+            report_prefix='tiktok_'
+        )
+
+        # Create Classroom - not expired
+        cls.classroom = Classroom.objects.create(
+            owner=cls.user,
+            name='regular class',
+            base_module=cls.module,
+            school_level='primary',
+            school_year=10,
+            subject='languages',
+            instruction_format='regular'
+        )
+
+        # Generate example data
+        cls.watch_history_data = tiktok_data.generate_synthetic_watch_history(datetime.now(), 10)
+        cls.search_data = tiktok_data.generate_synthetic_search_history(datetime.now(), 10)
+
+    def test_individual_report(self):
+        # Create donation
+        participant = Participant.objects.create(
+            project=self.project,
+            extra_data={
+                'url_param': {'class': self.classroom.url_id}
+            },
+            start_time=timezone.now(),
+            end_time=timezone.now()
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=self.watched_videos_bp,
+            consent=True,
+            data=self.watch_history_data['data'],
+            status='success'
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=self.searches_bp,
+            consent=True,
+            data=self.search_data['data'],
+            status='success'
+        )
+        report_url = reverse(
+            'tiktok_individual_report',
+            kwargs={
+                'url_id': self.classroom.url_id,
+                'participant_id': participant.external_id
+            }
+        )
+        response = self.client.get(report_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, 'reports/tiktok/individual_report.html')
+
+        required_templates = [
+            'reports/tiktok/individual_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
+
+    def test_classroom_report(self):
+        report_url = reverse(
+            'tiktok_class_report',
+            kwargs={'url_id': self.classroom.url_id}
+        )
+        # Create 5 donations
+        for _ in range(5):
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={
+                    'url_param': {'class': self.classroom.url_id}
+                },
+                start_time=timezone.now(),
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.watched_videos_bp,
+                consent=True,
+                data=self.watch_history_data['data'],
+                status='success'
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.searches_bp,
+                consent=True,
+                data=self.search_data['data'],
+                status='success'
+            )
+
+        self.client.login(**self.base_creds)
+        response = self.client.get(report_url)
+
+        self.assertEqual(response.status_code, 200)
+
+        required_templates = [
+            'reports/tiktok/class_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
+
     def test_tiktok_example_report(self):
         url = reverse('tiktok_example_report')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response, 'reports/tiktok/example_report.html')
+
+        required_templates = [
+            'reports/tiktok/individual_report.html',
+            'reports/components/watch_history_stats_section.html',
+            'reports/components/watch_history_timeseries_section.html',
+            'reports/components/watch_history_daily_heatmap_section.html',
+            'reports/components/watch_history_fav_video_section.html',
+            'reports/components/search_history_wordcloud.html',
+        ]
+
+        for template in required_templates:
+            self.assertTemplateUsed(response, template)
 
 
 @override_settings(ALLOWED_REPORT_DOMAINS=['test.dev'])
