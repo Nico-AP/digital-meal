@@ -329,6 +329,7 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
             if v is not None
         ]
         context['n_participants'] = max(n_donations)
+        context['participation_date'] = None
         return context
 
     def get_watch_context(self, data):
