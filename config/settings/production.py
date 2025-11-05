@@ -42,14 +42,21 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
             'maxBytes': 1024*1024*15,
+            'backupCount': 5,
             'formatter': 'verbose'
         },
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
-            'maxBytes': 1024 * 1024 * 15,
+            'maxBytes': 1024*1024*15,
+            'backupCount': 5,
             'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': False,
         }
     },
     'loggers': {
@@ -58,9 +65,15 @@ LOGGING = {
             'propagate': True,
             'level': 'INFO',
         },
-        'root': {
-            'handlers': ['file', 'error_file'],
-            'level': 'INFO'
+        'django.request': {
+            'handlers': ['file', 'error_file', 'mail_admins'],
+            'propagate': False,
+            'level': 'ERROR',
+        },
+        'digital_meal' : {
+            'handlers': ['file', 'error_file', 'mail_admins'],
+            'propagate': False,
+            'level': 'ERROR',
         }
     }
 }
