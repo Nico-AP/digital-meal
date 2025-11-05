@@ -1,14 +1,66 @@
-{% extends "website/base.html" %}
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-{% block title %}Digital Meal | Etwas ist schiefgelaufen {% endblock %}
+  <title>{% block title %}Digital Meal | Home{% endblock %}</title>
+  <meta name="description" content="This is the Digital Meal website.">
 
-{% block main_content %}
-<div>
-  <h1>Da ist etwas schiefgelaufen</h1>
-  <p>Leider ist auf unseren Servern ein unerwarteter Fehler aufgetreten.</p>
-  <p>Sie können versuchen, die Seite erneut zu laden. Sollte der Fehler weiterhin auftreten, können Sie uns das Problem via
-  <a href="mailto:contact@digital-meal.ch">contact@digital-meal.ch</a> schildern.
-    Wir versuchen anschliessend schnellstmöglich eine Lösung zu finden.</p>
-  <p><button><a href="/">Zur Hauptseite</a></button></p>
+  <link rel="shortcut icon" type="image/x-icon" href="https://digital-meal.ch/static/website/img/DigitalMeal_favicon.svg">
+
+  {% block site_css %}
+  <link rel="stylesheet" href="https://digital-meal.ch/static/website/css/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" href="https://digital-meal.ch/static/website/css/base.css">
+  {% endblock site_css %}
+
+  {% block extra_head %}
+  {% endblock extra_head %}
+</head>
+
+<body>
+<div id="dm-body" style="display: flex; flex-direction: column">
+
+  <div id="header" class="bg-blue">
+    <div class="container">
+      <div class="row">
+        <div class="d-flex flex-column">
+          <div class="row flex-row align-items-stretch d-none d-lg-flex">
+            <div class="col">
+              <a href="/">
+                <img alt="Digital Meal Logo"
+                      src="https://digital-meal.ch/static/website/img/DigitalMeal_logo.svg"
+                      height="100px"
+                >
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="dm-content">
+    <div class="container">
+      <div id="main" class="row main-content">
+        <div>
+          <h1>Da ist etwas schiefgelaufen</h1>
+          <p>Leider ist auf unseren Servern ein unerwarteter Fehler aufgetreten.</p>
+          <p>Sie können versuchen, die Seite erneut zu laden. Sollte der Fehler weiterhin auftreten, können Sie uns das Problem via
+          <a href="mailto:contact@digital-meal.ch">contact@digital-meal.ch</a> schildern.
+            Wir versuchen anschliessend schnellstmöglich eine Lösung zu finden.</p>
+          <p><button><a href="/">Zur Hauptseite</a></button></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
-{% endblock main_content %}
+
+<script src="https://digital-meal.ch/static/website/js/jquery/jquery-3.6.2.min.js"></script>
+<script src="https://digital-meal.ch/static/website/js/bootstrap/bootstrap.bundle.min.js"></script>
+
+</body>
+
+</html>
