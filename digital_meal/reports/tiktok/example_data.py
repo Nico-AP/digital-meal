@@ -43,7 +43,7 @@ def generate_synthetic_watch_history(
         viewing_times = []
         for hour, share_weight in normalized_shares.items():
             num_videos_this_hour = max(0, int(num_entries * share_weight * random.uniform(0.9, 1.1)))  # Add slight randomness
-            viewing_times += [random_time_in_range(hour, 0, hour, 59) for _ in range(num_videos_this_hour)]
+            viewing_times.extend([random_time_in_range(hour, 0, hour, 59) for _ in range(num_videos_this_hour)])
 
         # Generate entries for the day
         for watch_time in sorted(viewing_times):

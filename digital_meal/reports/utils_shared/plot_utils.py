@@ -53,15 +53,16 @@ def get_timeseries_plot(date_series, bin_width=1,
         dict: Dictionary containing bokeh script and bokeh plot
             ({'script': script, 'div': div}).
     """
-    x_values = date_series.keys().to_list()
+    date_keys = date_series.keys()
+    x_values = date_keys.to_list()
     y_values = date_series.values.tolist()
 
     bin_width = timedelta(days=bin_width)
 
     if date_min is None:
-        date_min = min(date_series.keys())
+        date_min = date_keys.min()
     if date_max is None:
-        date_max = max(date_series.keys())
+        date_max = date_keys.max()
 
     x_range = date_max - date_min
     x_upper_bound = date_max + timedelta(days=30)
@@ -146,9 +147,12 @@ def get_timeseries_plot(date_series, bin_width=1,
 
 def get_weekday_use_plot(data):
 
-    dates = pd.Series([d.strftime('%A') for d in data])
-    x_labels = dates.value_counts().keys().to_list()
-    y_values_abs = dates.value_counts().values.tolist()
+    dates = pd.Series(data).dt.day_name()
+
+    value_counts = dates.value_counts()
+    x_labels = value_counts.keys().to_list()
+    y_values_abs = value_counts.values.tolist()
+
     y_values_rel = [v/sum(y_values_abs)*100 for v in y_values_abs]
 
     df = pd.DataFrame(list(zip(x_labels, y_values_abs, y_values_rel,
@@ -216,12 +220,15 @@ def get_weekday_use_plot(data):
 
 def get_day_usetime_plot(data):
     # Prepare data.
-    weekdays = [d.strftime('%A') for d in data]
-    hours = [d.strftime('%H:00') for d in data]
-    df = pd.DataFrame(list(zip(weekdays, hours)), columns=['Day', 'Time'])
-    df['Count'] = 1
-    times = df.Time.sort_values(ascending=False).unique().tolist()
+    date_series = pd.Series(data)
+    df = pd.DataFrame({
+        'Day': date_series.dt.day_name(),
+        'Time': date_series.dt.strftime('%H:00'),
+        'Count': 1
+    })
     df.replace({'Day': days_en_de_short}, inplace=True)
+
+    times = df.Time.sort_values(ascending=False).unique().tolist()
     df_grouped = df.groupby(['Day', 'Time']).count().reset_index()
 
     # Create figure.
@@ -283,8 +290,10 @@ def get_day_usetime_plot(data):
 
 def get_searches_plot(search_term_list):
     search_terms = pd.Series(search_term_list)
-    y_labels = search_terms.value_counts().keys().to_list()
-    x_values = search_terms.value_counts().values.tolist()
+    search_term_counts = search_terms.value_counts()
+
+    y_labels = search_term_counts.keys().to_list()
+    x_values = search_term_counts.values.tolist()
 
     if not y_labels:
         return None
@@ -325,10 +334,8 @@ def get_searches_plot(search_term_list):
         angle=-1.5708
     )
 
-    #p.axis.axis_label_text_color = 'white'
     p.axis.axis_line_color = None
     p.axis.major_tick_line_color = None
-    #p.axis.major_label_text_color = 'white'
     p.axis.major_label_text_font_size = '15px'
     p.axis.minor_tick_line_color = None
 

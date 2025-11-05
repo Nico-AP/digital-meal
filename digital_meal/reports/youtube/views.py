@@ -111,11 +111,13 @@ class YouTubeBaseReport:
         Returns:
             dict: The updated context
         """
+        min_date = min(date_list)
+        max_date = max(date_list)
         context.update({
             'dates': {
-                'wh_dates_min': min(date_list),
-                'wh_dates_max': max(date_list),
-                'wh_date_range': max(date_list) - min(date_list)
+                'wh_dates_min': min_date,
+                'wh_dates_max': max_date,
+                'wh_date_range': max_date - min_date
             }
         })
         return context
@@ -139,14 +141,17 @@ class YouTubeBaseReport:
             dict: The updated context
         """
         video_titles = data_utils.get_video_title_dict(watch_history)
-        most_popular_videos = pd.Series(video_ids).value_counts()[:10].to_dict()
-        videos_top_ten = []
-        for key, value in most_popular_videos.items():
-            videos_top_ten.append({
-                'id': key,
-                'count': value,
-                'title': data_utils.clean_video_title(video_titles.get(key))
-            })
+        most_popular_videos = pd.Series(video_ids).value_counts()[:10]
+
+        videos_top_ten = [
+            {
+                'id': video_id,
+                'count': count,
+                'title': data_utils.clean_video_title(video_titles.get(video_id))
+            }
+            for video_id, count in most_popular_videos.items()
+        ]
+
         context['fav_videos_top_ten'] = videos_top_ten
         return context
 
@@ -279,6 +284,7 @@ class YouTubeBaseReport:
 
         sh_interval = shared_data_utils.get_entries_in_date_range(
             search_history, interval_min, interval_max)
+
         context.update({
             # Statistics overall.
             'n_searches_overall': len(search_history),
@@ -424,11 +430,14 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
         search_terms = data_utils.get_title_list(sh_without_ads)
         normalized_terms = normalize_texts(search_terms)
 
-        self.add_sh_statistics_to_context(context, sh_without_ads, example=is_example)
+        self.add_sh_statistics_to_context(
+            context, sh_without_ads, example=is_example)
 
-        self.add_sh_plot_to_context(context, search_terms)
+        self.add_sh_plot_to_context(
+            context, search_terms)
 
-        self.add_sh_wordcloud_to_context(context, normalized_terms)
+        self.add_sh_wordcloud_to_context(
+            context, normalized_terms)
 
         return context
 
@@ -492,39 +501,36 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
             return context
         context['wh_available'] = True
 
-        # Combine the watch histories of all individuals into one list.
+        # Prepare data.
+        whs_individual = []
         wh_combined = []
-        whs_individual = [
-            data_utils.exclude_google_ads_videos(wh['data'])
-            for wh in watch_histories
-        ]
-        for wh in whs_individual:
-            wh_combined += wh
+        wh_combined_ids_sets = []
+        whs_individual_dates = []
 
-        # Get separate lists for the video ids and the dates.
+        for wh_dict in watch_histories:
+            wh_cleaned = data_utils.exclude_google_ads_videos(wh_dict['data'])
+            whs_individual.append(wh_cleaned)
+            wh_combined.extend(wh_cleaned)
+
+            # Extract IDs and dates
+            wh_ids = data_utils.get_video_ids(wh_cleaned)
+            wh_dates = data_utils.get_date_list(wh_cleaned)
+
+            wh_combined_ids_sets.extend(set(wh_ids))
+            whs_individual_dates.append(wh_dates)
+
         wh_combined_ids = data_utils.get_video_ids(wh_combined)
         wh_combined_dates = data_utils.get_date_list(wh_combined)
 
-        self.add_wh_date_infos_to_context(context, wh_combined_dates)
+        # Add information to context.
+        self.add_wh_date_infos_to_context(
+            context, wh_combined_dates)
 
         self.add_wh_statistics_to_context(
             context, wh_combined, wh_combined_ids, len(watch_histories))
 
-        # Create a list of the sets of video ids for each individual.
-        # Used to determine which videos have been watched at least once
-        # by the most individuals.
-        wh_combined_ids_sets = []
-        for wh in whs_individual:
-            wh_ids = data_utils.get_video_ids(wh)
-            wh_combined_ids_sets += list(set(wh_ids))
-
         self.add_favorite_videos_to_context(
             context, wh_combined, wh_combined_ids_sets)
-
-        # Create a list of lists of wh dates of each individual. Used to
-        # create the aggregated timeseries plot and the aggregated heatmap.
-        whs_individual_dates = [
-            data_utils.get_date_list(wh) for wh in whs_individual]
 
         self.add_wh_timeseries_plots_to_context(
             context,
@@ -561,16 +567,19 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         Returns:
             dict: The updated context.
         """
+        # Prepare data.
         combined_channel_history = []
         channel_sets = []
         for watch_history in watch_histories:
             channel_history = data_utils.get_channel_names_from_history(watch_history)
-            combined_channel_history += channel_history
-            channel_sets += list(set(channel_history))
+            combined_channel_history.extend(channel_history)
+            channel_sets.extend(set(channel_history))
 
         # Get the names of channels viewed by more than one person.
         channel_counts = pd.Series(channel_sets).value_counts()
-        multi_viewer_channel_names = channel_counts[channel_counts > 1].index.tolist()
+        multi_viewer_channel_names = set(
+            channel_counts[channel_counts > 1].index.tolist()
+        )
 
         # Get a list of all videos watched by channels viewed by more than one person.
         considered_channels = [
@@ -616,26 +625,23 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
             return context
         context['sh_available'] = True
 
-        # Remove Google Ads from search histories and combine the histories of
-        # all individuals in one list.
+        # Prepare data.
         sh_combined = []
         shs_individual = []
+        search_terms_individual = []
+
         for sh in search_histories:
             sh = data_utils.exclude_ads_from_search_history(sh['data'])
             cleaned_entry = data_utils.clean_search_titles(sh)
-            sh_combined += cleaned_entry
+            sh_combined.extend(cleaned_entry)
             shs_individual.append(cleaned_entry)
 
-        self.add_sh_statistics_to_context(
-            context, sh_combined, len(search_histories))
-
-        # Extract search terms from search histories.
-        search_terms_combined = data_utils.get_title_list(sh_combined)
-        search_terms_individual = []
-        for sh in shs_individual:
-            sh_terms = data_utils.get_title_list(sh)
+            # Extract search terms.
+            sh_terms = data_utils.get_title_list(cleaned_entry)
             if sh_terms:
-                search_terms_individual += list(set(sh_terms))
+                search_terms_individual.extend(set(sh_terms))
+
+        search_terms_combined = data_utils.get_title_list(sh_combined)
 
         # Normalize search terms.
         normalized_terms_combined = normalize_texts(search_terms_combined)
@@ -646,7 +652,10 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         allowed_search_terms = {term for term, count in term_counter.items() if count > 1}
         terms_for_plot = [t for t in normalized_terms_combined if t in allowed_search_terms]
 
-        # Add wordcloud.
+        # Add information to context.
+        self.add_sh_statistics_to_context(
+            context, sh_combined, len(search_histories))
+
         self.add_sh_wordcloud_to_context(context, terms_for_plot)
 
         return context
@@ -672,7 +681,8 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
         # Combine the subscription data of all individuals in one list.
         combined_subs = []
         for subscription_list in channel_subscriptions:
-            combined_subs += subscription_list['data']
+            combined_subs.extend(subscription_list['data'])
+
         combined_subs = data_utils.clean_channel_list(combined_subs)
         channel_titles = [entry['title'] for entry in combined_subs]
 

@@ -4,11 +4,9 @@ import pandas as pd
 import spacy
 
 from datetime import datetime, timedelta
-from dateutil.parser import parse
 from django.utils import timezone
 from langdetect import detect
 from spacy import Language
-from statistics import mean, median
 
 
 def get_entries_in_date_range(
@@ -34,19 +32,26 @@ def get_entries_in_date_range(
     date_min = make_tz_aware(date_min)
     date_max = make_tz_aware(date_max)
 
-    result = []
-    for entry in entries:
-        if date_key not in entry:
-            continue
+    # Convert to dataframe for optimized vectorized parsing and filtering
+    df = pd.DataFrame(entries)
+    if date_key not in df.columns:
+        return []
 
-        # Check whether date in entry is offset-aware
-        entry_date = parse(entry[date_key])
-        if date_min <= make_tz_aware(entry_date) <= date_max:
-            result.append(entry)
-    return result
+    df[date_key] = pd.to_datetime(df[date_key], errors='coerce')
+    df = df.dropna(subset=[date_key])
+
+    # Ensure that dates are timezone aware.
+    tz = date_min.tzinfo
+    if df[date_key].dt.tz is None:
+        df[date_key] = df[date_key].dt.tz_localize(tz)
+    else:
+        df[date_key] = df[date_key].dt.tz_convert(tz)
+
+    mask = (df[date_key] >= date_min) & (df[date_key] <= date_max)
+    return df[mask].to_dict('records')
 
 
-def make_tz_aware(date: datetime) -> datetime:
+def make_tz_aware(date: datetime) -> datetime:  # TODO: Check if timezone should be derived from server.
     """
     Check if a date is timezone-aware. If not, add timezone.utc as default.
 
@@ -103,43 +108,10 @@ def normalize_datetime(
         return datetime.combine(date, datetime.min.time())
 
 
-def summarize_list(
-        li: list[int | float],
-        n: int = 1,
-        mode: Literal['sum', 'median', 'mean'] ='sum'
-) -> int | float:
-    """
-    Summarizes a list of numbers as either sum, median, or mean.
-
-    Args:
-        li (list): List of numbers to be summarized.
-        n (int): The number of reference cases.
-        mode (Literal['sum', 'median', 'mean']): The summarization mode.
-            'sum' - Returns the sum over all list elements.
-            'median' - Returns the median of the list elements.
-            'mean' - Returns the mean of the list elements.
-
-    Returns:
-        float | int: The computed statistic.
-    """
-    while len(li) < n:
-        li.append(0)
-
-    if mode == 'sum':
-        return sum(li)
-    elif mode == 'median':
-        return median(li)
-    elif mode == 'mean':
-        return mean(li)
-    else:
-        print('Invalid mode.')
-        return 0
-
-
 def get_summary_counts_per_date(
         data: list[list[datetime]],
-        ref: str = 'd',
-        base: str = 'sum'
+        ref: Literal['d', 'w', 'm', 'y']  = 'd',
+        base: Literal['sum', 'median', 'mean'] = 'sum'
 ) -> dict:
     """
     Summarizes date occurrences across dates and persons.
@@ -161,26 +133,30 @@ def get_summary_counts_per_date(
     Returns:
         dict: Dictionary containing summary counts per date ({'date': count})
     """
-    n_cases = len(data)
-    dates_combined = []
-    for p in data:
-        dates_combined += p
+    all_dates = []
+    person_date_indices = []
 
-    date_list = [normalize_datetime(d, mode=ref) for d in dates_combined]
+    for person_idx, person_dates in enumerate(data):
+        normalized = [normalize_datetime(d, mode=ref) for d in person_dates]
+        all_dates.extend(normalized)
+        person_date_indices.extend([person_idx] * len(normalized))
 
-    # Prepare count dictionary.
-    counts = {d: [] for d in set(date_list)}
+    # Create DataFrame for vectorized operations
+    df = pd.DataFrame({
+        'date': all_dates,
+        'person': person_date_indices
+    })
 
-    # Add counts per person.
-    for p in data:
-        normalized_dates = [normalize_datetime(d, mode=ref) for d in p]
-        individual_date_list = pd.Series(normalized_dates).value_counts()
-        for index, value in individual_date_list.items():
-            counts[index].append(value)
+    person_counts = df.groupby(['person', 'date']).size().reset_index(name='count')
+    pivot = person_counts.pivot(index='date', columns='person', values='count').fillna(0)
 
-    # iterate over counts and sum/median/average (whatever)
-    for key, value in counts.items():
-        counts[key] = summarize_list(value, n=n_cases, mode=base)
+    # Apply summary function
+    if base == 'sum':
+        counts = pivot.sum(axis=1).to_dict()
+    elif base == 'mean':
+        counts = pivot.mean(axis=1).to_dict()
+    elif base == 'median':
+        counts = pivot.median(axis=1).to_dict()
 
     return counts
 
@@ -204,13 +180,11 @@ def normalize_texts(texts) -> list[str]:
     """
     valid_texts = []
     for text in texts:
-        text = text.lower().strip()
-        if text:
-            valid_texts.append(text.lower().strip())
+        cleaned = text.lower().strip()
+        if cleaned:
+            valid_texts.append(cleaned)
 
-    long_text = ''
-    for text in valid_texts:
-        long_text += text
+    long_text = ''.join(valid_texts)
 
     try:
         if detect(long_text) == 'de':

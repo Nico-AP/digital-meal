@@ -1,7 +1,7 @@
 import json
 from datetime import timedelta, datetime
 
-from ddm.datadonation.models import DonationBlueprint
+from ddm.datadonation.models import DonationBlueprint, DataDonation
 from ddm.datadonation.serializers import DonationSerializer
 from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant
@@ -11,6 +11,7 @@ from django.core.exceptions import PermissionDenied
 from django.core.mail import EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
+from django.db.models import Prefetch
 from django.http import JsonResponse, Http404, HttpResponseNotAllowed
 from django.shortcuts import redirect
 from django.urls import reverse_lazy
@@ -48,10 +49,7 @@ class BaseReport:
         return super().dispatch(request, *args, **kwargs)
 
     def check_classroom_active(self):
-        if not self.classroom.is_active:
-            return False
-        else:
-            return True
+        return self.classroom.is_active
 
     def get_class_id(self):
         """Get the class ID from the URL."""
@@ -104,13 +102,22 @@ class BaseReportClassroom(BaseReport, ListView):
             dict: A dictionary holding <blueprint.name>: [list of blueprint
             <donation.data>] pairs.
         """
-        blueprints = DonationBlueprint.objects.filter(project=self.project)
+        blueprints = DonationBlueprint.objects.filter(
+            project=self.project
+        ).prefetch_related(
+            Prefetch(
+              'datadonation_set',
+              queryset=DataDonation.objects.filter(
+                  participant__in=self.object_list,
+                  status='success'
+              )
+            )
+        )
         decryptor = Decryption(self.project.secret, self.project.get_salt())
 
         donations = {}
         for blueprint in blueprints:
-            blueprint_donations = blueprint.datadonation_set.filter(
-                participant__in=self.object_list, status='success')
+            blueprint_donations = blueprint.datadonation_set.all()
 
             if len(blueprint_donations) >= 5:
                 donations[blueprint.name] = DonationSerializer(
@@ -207,16 +214,25 @@ class BaseReportIndividual(BaseReport, DetailView):
             dict: A dictionary with the blueprint name as the key and the
                 corresponding donation data as the value.
         """
-        blueprints = DonationBlueprint.objects.filter(project=self.project)
+        blueprints = DonationBlueprint.objects.filter(
+            project=self.project
+        ).prefetch_related(
+            Prefetch(
+              'datadonation_set',
+              queryset=DataDonation.objects.filter(
+                  participant=self.object,
+                  status='success'
+              )
+            )
+        )
         decryptor = Decryption(self.project.secret, self.project.get_salt())
 
         donations = {}
         for blueprint in blueprints:
-            blueprint_donation = blueprint.datadonation_set.filter(
-                participant=self.object, status='success').first()
-            if blueprint_donation:
+            blueprint_donations = blueprint.datadonation_set.all()
+            if blueprint_donations:
                 donations[blueprint.name] = DonationSerializer(
-                    blueprint_donation, decryptor=decryptor).data
+                    blueprint_donations[0], decryptor=decryptor).data
         return donations
 
     def get_responses(self) -> dict:

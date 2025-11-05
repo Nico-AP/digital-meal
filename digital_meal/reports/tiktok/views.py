@@ -3,6 +3,7 @@ from collections import Counter
 from datetime import datetime, timedelta
 
 import pandas as pd
+import requests
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -69,11 +70,14 @@ class TikTokBaseReport:
     @staticmethod
     def add_wh_date_infos_to_context(context, date_list):
         """ Add watch history date information to the context. """
+        min_date = min(date_list)
+        max_date = max(date_list)
+
         context.update({
             'dates': {
-                'wh_dates_min': min(date_list),
-                'wh_dates_max': max(date_list),
-                'wh_date_range': max(date_list) - min(date_list)
+                'wh_dates_min': min_date,
+                'wh_dates_max': max_date,
+                'wh_date_range': max_date - min_date
             }
         })
         return context
@@ -81,17 +85,20 @@ class TikTokBaseReport:
     @staticmethod
     def add_favorite_videos_to_context(context, video_ids):
         """Add the 10 videos to the context that were watched most often."""
-        most_popular_vids = pd.Series(video_ids).value_counts()[:10].to_dict()
-        vids_top_ten = []
-        for key, value in most_popular_vids.items():
-            metadata = data_utils.get_video_metadata(key)
-            time.sleep(0.1)
-            vids_top_ten.append({
-                'id': key,
-                'count': value,
-                'thumbnail': metadata['thumbnail'],
-                'channel': metadata['channel']
-            })
+        most_popular_vids = pd.Series(video_ids).value_counts()[:10]
+
+        with requests.Session() as session:
+            vids_top_ten = []
+            for key, value in most_popular_vids.items():
+                metadata = data_utils.get_video_metadata(key, session)
+                time.sleep(0.1)
+                vids_top_ten.append({
+                    'id': key,
+                    'count': value,
+                    'thumbnail': metadata['thumbnail'],
+                    'channel': metadata['channel']
+                })
+
         context['fav_videos_top_ten'] = vids_top_ten
         return context
 
@@ -286,7 +293,7 @@ class TikTokReportIndividual(BaseReportIndividual, TikTokBaseReport):
             return context
         context['search_available'] = True
 
-        search_terms = pd.Series([t['SearchTerm'] for t in search_history])
+        search_terms = [t['SearchTerm'] for t in search_history]
         normalized_terms = normalize_texts(search_terms)
 
         self.add_sh_statistics_to_context(context, search_history, example=is_example)
@@ -334,47 +341,51 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
 
     def get_watch_context(self, data):
         """Add watch history related statistics and plots to the context."""
-        # optimize the times these statistics are computed.
+        # TODO: optimize the times these statistics are computed.
         context = {}
         if data is None:
             context['wh_available'] = False
             return context
         context['wh_available'] = True
 
+        # Prepare data.
         n_donations = len(data)
 
-        # Combine the watch histories of all individuals in one list.
+        whs_individual = []
         wh_combined = []
-        whs_individual = [e['data'] for e in data]
-        for wh in whs_individual:
-            wh_combined += wh
+        wh_combined_ids_sets = []
+        whs_individual_dates = []
 
-        # Get separate lists for the video ids and the dates.
+        for entry in data:
+            wh = entry['data']
+            whs_individual.append(wh)
+            wh_combined.extend(wh)
+
+            # Extract IDs and dates
+            wh_ids = data_utils.get_video_ids(wh)
+            wh_dates = data_utils.get_date_list(wh)
+
+            wh_combined_ids_sets.extend(set(wh_ids))
+            whs_individual_dates.append(wh_dates)
+
         wh_combined_ids = data_utils.get_video_ids(wh_combined)
         wh_combined_dates = data_utils.get_date_list(wh_combined)
 
-        # Add wh date information and wh statistics to the context.
-        self.add_wh_date_infos_to_context(context,  wh_combined_dates)
+        # Add information to context.
+        self.add_wh_date_infos_to_context(
+            context,  wh_combined_dates)
+
         self.add_wh_statistics_to_context(
             context, wh_combined, wh_combined_ids, n_donations)
 
-        # Create a list of the sets of video ids for each individual.
-        # Used to determine which videos have been watched at least once
-        # by the most individuals.
-        wh_combined_ids_sets = []
-        for wh in whs_individual:
-            wh_ids = data_utils.get_video_ids(wh)
-            wh_combined_ids_sets += list(set(wh_ids))
         self.add_favorite_videos_to_context(
             context, wh_combined_ids_sets)
 
-        # Create a list of lists of wh dates of each individual. Used to
-        # create the aggregated timeseries plot and the aggregated heatmap.
-        whs_individual_dates = [
-            data_utils.get_date_list(wh) for wh in whs_individual]
         self.add_wh_timeseries_plots_to_context(
             context, whs_individual_dates,
-            context['dates']['wh_dates_min'], context['dates']['wh_dates_max'])
+            context['dates']['wh_dates_min'], context['dates']['wh_dates_max']
+        )
+
         self.add_wh_heatmap_plots_to_context(context, wh_combined_dates)
         return context
 
@@ -395,22 +406,22 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
             return context
         context['sh_available'] = True
 
-        # Combine the histories of all individuals in one list.
+        # Prepare data.
         sh_combined = []
-        shs_individual = [e['data'] for e in search_histories]
-        for sh in shs_individual:
-            sh_combined += sh
-
-        self.add_sh_statistics_to_context(
-            context, sh_combined, len(search_histories))
-
-        # Extract search terms from search histories.
-        search_terms_combined = pd.Series([t['SearchTerm'] for t in sh_combined])
+        shs_individual = []
         search_terms_individual = []
-        for sh in shs_individual:
+
+        for entry in search_histories:
+            sh = entry['data']
+            sh_combined.extend(sh)
+            shs_individual.append(sh)
+
+            # Extract search terms.
             sh_terms = [t['SearchTerm'] for t in sh]
             if sh_terms:
-                search_terms_individual += list(set(sh_terms))
+                search_terms_individual.extend(set(sh_terms))
+
+        search_terms_combined = [t['SearchTerm'] for t in sh_combined]
 
         # Normalize search terms.
         normalized_terms_combined = normalize_texts(search_terms_combined)
@@ -420,6 +431,10 @@ class TikTokReportClassroom(BaseReportClassroom, TikTokBaseReport):
         term_counter = Counter(normalized_terms_individual)
         allowed_search_terms = {term for term, count in term_counter.items() if count > 1}
         terms_for_plot = [t for t in normalized_terms_combined if t in allowed_search_terms]
+
+        # Add information to context.
+        self.add_sh_statistics_to_context(
+            context, sh_combined, len(search_histories))
 
         # Add wordcloud.
         self.add_sh_wordcloud_to_context(context, terms_for_plot)

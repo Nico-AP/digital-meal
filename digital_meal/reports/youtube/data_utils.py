@@ -4,8 +4,6 @@ import pandas as pd
 import random
 import re
 
-from dateutil.parser import parse
-
 
 def get_video_ids(watch_history: list[dict]) -> list[str]:
     """
@@ -35,7 +33,11 @@ def get_date_list(watch_history: list[dict]) -> list[datetime.datetime]:
     Returns:
         list[dict]: A list of dates as datetime objects extracted from the 'time' key.
     """
-    dates = [parse(d['time']) for d in watch_history if 'time' in d]
+    dates_str = [d['time'] for d in watch_history if 'time' in d]
+    if not dates_str:
+        return []
+
+    dates = pd.to_datetime(dates_str, errors='coerce').dropna().tolist()
     return dates
 
 
@@ -49,11 +51,11 @@ def get_title_list(history: list[dict]) -> list:
     Returns:
         list: A list of search terms.
     """
-    titles = []
-    for event in history:
-        title = event.get('title', None)
-        if title:
-            titles.append(title)
+    titles = [
+        event['title']
+        for event in history
+        if 'title' in event and event['title']
+    ]
     return titles
 
 
@@ -67,32 +69,24 @@ def exclude_google_ads_videos(watch_history: list[dict]) -> list[dict]:
     Returns:
         list[dict]: The watch history excluding videos shown through Google Ads.
     """
-    ad_identifiers = [
+    ad_identifiers = {
         'from google ads',
         'von google anzeigen',
         'da programmi pubblicitari google',
         'des annonces google',
-    ]
+    }
+
     watched_videos = []
     for video in watch_history:
-        if 'details' not in video:
-            watched_videos.append(video)
-            continue
+        is_ad = (
+            'details' in video
+            and len(video['details']) > 0
+            and 'name' in video['details'][0]
+            and video['details'][0]['name'].lower() in ad_identifiers
+        )
 
-        if len(video['details']) == 0:
+        if not is_ad:
             watched_videos.append(video)
-            continue
-
-        if 'name' not in video['details'][0]:
-            watched_videos.append(video)
-            continue
-
-        if video['details'][0]['name'].lower() in ad_identifiers:
-            # Do not add video to watched videos.
-            continue
-        else:
-            watched_videos.append(video)
-            continue
 
     return watched_videos
 
@@ -107,23 +101,25 @@ def exclude_ads_from_search_history(search_history: list[dict]) -> list[dict]:
     Returns:
         list[dict]: The search history excluding videos shown through Google Ads.
     """
-    ad_identifiers = [
+    ad_identifiers = {
         'web & app activity',
         'web- & app-aktivitäten',
         'attività web e app',
         'activité sur le web et les applications'
+    }
+
+    history = [
+        entry for entry in search_history
+        if 'activityControls' in entry
+        and not any(item.lower() in ad_identifiers for item in entry['activityControls'])
     ]
-    history = []
-    for entry in search_history:
-        if 'activityControls' not in entry:
-            continue
-
-        if any(item.lower() in ad_identifiers for item in entry['activityControls']):
-            continue
-
-        history.append(entry)
-
     return history
+
+
+# Compile regex once at module level for reuse
+_SEARCH_PREFIX_PATTERN = re.compile(
+    r'^Searched for |^Gesucht nach: |^Hai cercato |^Vous avez recherché '
+)
 
 
 def clean_search_titles(search_history: list[dict]) -> list[dict]:
@@ -137,18 +133,20 @@ def clean_search_titles(search_history: list[dict]) -> list[dict]:
     Returns:
         list: The search history with cleaned titles.
     """
-    prefix_en = '^Searched for '
-    prefix_de = '^Gesucht nach: '
-    prefix_it = '^Hai cercato '
-    prefix_fr = '^Vous avez recherché '
-    r = '|'.join([prefix_en, prefix_de, prefix_it, prefix_fr])
     clean_searches = []
     for entry in search_history:
         if 'title' in entry:
-            entry['title'] = re.sub(r, '', entry['title'])
+            entry = entry.copy()
+            entry['title'] = _SEARCH_PREFIX_PATTERN.sub('', entry['title'])
         clean_searches.append(entry)
 
     return clean_searches
+
+
+# Compile regex once at module level for reuse
+_VIDEO_TITLE_PATTERN = re.compile(
+    r'^Watched |^Hai guardato |^Vous avez regardé | angesehen$'
+)
 
 
 def clean_video_title(video_title: str) -> str:
@@ -163,13 +161,7 @@ def clean_video_title(video_title: str) -> str:
     Returns:
         str: The cleaned video title.
     """
-    prefix_en = '^Watched '
-    postfix_de = ' angesehen$'
-    prefix_it = '^Hai guardato '
-    prefix_fr = '^Vous avez regardé '
-    r = '|'.join([prefix_en, prefix_it, prefix_fr, postfix_de])
-    clean_title = re.sub(r, '', video_title)
-    return clean_title
+    return _VIDEO_TITLE_PATTERN.sub('', video_title)
 
 
 def get_video_title_dict(watch_history: list[dict]) -> dict:
@@ -205,12 +197,13 @@ def get_most_watched_video(watch_history: list[dict]) -> dict:
             {'id': <id of fav video>, 'n_watched': <times video occurred>}
     """
     video_ids = pd.Series(get_video_ids(watch_history))
-    # TODO: Make sure, the chosen favorite video is still available,
-    # i.e. has not been deleted.
-    max_count = video_ids.value_counts().max()
+    # TODO: Make sure, the chosen favorite video is still available, i.e. has not been deleted.
+
     video_counts = video_ids.value_counts()
+    max_count = video_counts.max()
+
     most_watched_ids = video_counts[video_counts == max_count]
-    favorite_video = random.choice(most_watched_ids.keys().to_list())
+    favorite_video = random.choice(most_watched_ids.index.to_list())
     return {'id': favorite_video, 'n_watched': max_count}
 
 
@@ -255,18 +248,15 @@ def get_search_term_frequency(
             each containing the keys 'term' and 'count'.
     """
     search_terms = pd.Series([t['title'] for t in search_history])
-    x_labels = search_terms.value_counts().keys().to_list()
-    y_values = search_terms.value_counts().values.tolist()
+    term_counts = search_terms.value_counts()
 
-    if n_terms:
-        if len(x_labels) > n_terms:
-            x_labels = x_labels[:n_terms]
-            y_values = y_values[:n_terms]
+    if n_terms and len(term_counts) > n_terms:
+        term_counts = term_counts[:n_terms]
 
-    searches = []
-    for term in range(0, len(x_labels)):
-        searches.append({'term': x_labels[term], 'count': y_values[term]})
-
+    searches = [
+        {'term': term, 'count': count}
+        for term, count in term_counts.items()
+    ]
     return searches
 
 
