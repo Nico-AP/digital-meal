@@ -24,6 +24,9 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # LOGGING
 # ------------------------------------------------------------------------------
+LOG_DIR = os.path.join(BASE_DIR, 'logs')
+os.makedirs(LOG_DIR, exist_ok=True)
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -36,44 +39,68 @@ LOGGING = {
             'format': '%(levelname)s %(message)s'
         },
     },
+    'filters': {
+        'require_debug_false': {
+            'class': 'django.utils.log.RequireDebugFalse'
+        }
+    },
     'handlers': {
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
         'file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
-            'maxBytes': 1024*1024*15,
+            'filename': os.path.join(LOG_DIR, 'django.log'),
+            'maxBytes': 1024 * 1024 * 15,
             'backupCount': 5,
             'formatter': 'verbose'
         },
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
-            'maxBytes': 1024*1024*15,
+            'filename': os.path.join(LOG_DIR, 'errors.log'),
+            'maxBytes': 1024 * 1024 * 15,
             'backupCount': 5,
+            'formatter': 'verbose'
+        },
+        'security_file': {
+            'level': 'WARNING',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'security.log'),
+            'maxBytes': 1024 * 1024 * 10,
+            'backupCount': 10,
             'formatter': 'verbose'
         },
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': False,
+            'filters': ['require_debug_false'],
         }
     },
     'loggers': {
         'django': {
-            'handlers': ['file', 'error_file'],
-            'propagate': True,
+            'handlers': ['file', 'error_file', 'mail_admins', 'console'],
+            'propagate': False,
             'level': 'INFO',
         },
         'django.request': {
-            'handlers': ['file', 'error_file', 'mail_admins'],
+            'handlers': ['error_file', 'mail_admins', 'console'],
             'propagate': False,
             'level': 'ERROR',
         },
-        'digital_meal' : {
-            'handlers': ['file', 'error_file', 'mail_admins'],
+        'django.security': {
+            'handlers': ['security_file', 'mail_admins', 'console'],
             'propagate': False,
-            'level': 'ERROR',
+            'level': 'WARNING',
+        },
+        'digital_meal' : {
+            'handlers': ['file', 'error_file', 'mail_admins', 'console'],
+            'propagate': False,
+            'level': 'INFO',
         }
     }
 }
