@@ -13,7 +13,7 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.db.models import Prefetch
 from django.http import JsonResponse, Http404, HttpResponseNotAllowed
-from django.shortcuts import redirect
+from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils import timezone
 from django.views import View
@@ -57,7 +57,7 @@ class BaseReport:
 
     def register_classroom(self):
         """Register classroom object."""
-        self.classroom = Classroom.objects.get(url_id=self.get_class_id())
+        self.classroom = get_object_or_404(Classroom, url_id=self.get_class_id())
 
     def register_project(self):
         """Register project object."""
