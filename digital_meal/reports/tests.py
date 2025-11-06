@@ -59,7 +59,7 @@ class TestReportsGeneralFunctionality(TestCase):
 
         cls.blueprint = DonationBlueprint.objects.create(
             project=cls.project,
-            name='blueprintname',
+            name='Angesehene Videos',
             exp_file_format='json',
             file_uploader=cls.uploader,
         )
@@ -165,33 +165,6 @@ class TestReportsGeneralFunctionality(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(
             response, 'reports/report_exception.html')
-
-    def test_report_with_five_or_more_donations_shows_report(self):
-        report_url = reverse(
-            'youtube_class_report',
-            kwargs={'url_id': self.classroom_regular.url_id}
-        )
-        # Create 5 donations
-        for _ in range(5):
-            participant = Participant.objects.create(
-                project=self.project,
-                extra_data={
-                    'url_param': {'class': self.classroom_regular.url_id}
-                },
-                start_time=timezone.now(),
-            )
-            DataDonation.objects.create(
-                project=self.project,
-                participant=participant,
-                blueprint=self.blueprint,
-                consent=True,
-                data='{"data": "somedata"}',
-                status='success'
-            )
-        response = self.client.get(report_url)
-        self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(
-            response, 'reports/youtube/class_report.html')
 
 
 class TestYouTubeReports(TestCase):

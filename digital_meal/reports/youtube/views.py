@@ -339,7 +339,12 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        donated_data = self.get_donations()
+
+        blueprint_names = [
+            BLUEPRINT_NAMES['WATCH_HISTORY'],
+            BLUEPRINT_NAMES['SEARCH_HISTORY']
+        ]
+        donated_data = self.get_donations(blueprint_names)
 
         # Add watch history (wh) data to context.
         wh_data = donated_data.get(BLUEPRINT_NAMES['WATCH_HISTORY'])
@@ -462,7 +467,13 @@ class YouTubeReportClassroom(BaseReportClassroom, YouTubeBaseReport):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        donated_data = self.get_donations()
+
+        blueprint_names = [
+            BLUEPRINT_NAMES['WATCH_HISTORY'],
+            BLUEPRINT_NAMES['SEARCH_HISTORY'],
+            BLUEPRINT_NAMES['SUBSCRIPTIONS']
+        ]
+        donated_data = self.get_donations(blueprint_names)
 
         if all(v is None for k, v in donated_data.items()):
             self.template_name = 'reports/report_exception.html'

@@ -94,16 +94,20 @@ class BaseReportClassroom(BaseReport, ListView):
             extra_data__url_param__class=self.classroom.url_id
         )
 
-    def get_donations(self) -> dict:
+    def get_donations(self, blueprint_names: list[str]) -> dict:
         """
         Get the donations for the report.
+
+        Args:
+            blueprint_names: List of blueprint names to include
 
         Returns:
             dict: A dictionary holding <blueprint.name>: [list of blueprint
             <donation.data>] pairs.
         """
         blueprints = DonationBlueprint.objects.filter(
-            project=self.project
+            project=self.project,
+            name__in=blueprint_names
         ).prefetch_related(
             Prefetch(
               'datadonation_set',
@@ -206,16 +210,20 @@ class BaseReportIndividual(BaseReport, DetailView):
         context['class_name'] = self.classroom.name
         return context
 
-    def get_donations(self) -> dict:
+    def get_donations(self, blueprint_names: list[str]) -> dict:
         """
         Get the participant's donations from the database.
+
+        Args:
+            blueprint_names: List of blueprint names to include
 
         Returns:
             dict: A dictionary with the blueprint name as the key and the
                 corresponding donation data as the value.
         """
         blueprints = DonationBlueprint.objects.filter(
-            project=self.project
+            project=self.project,
+            name__in=blueprint_names
         ).prefetch_related(
             Prefetch(
               'datadonation_set',
