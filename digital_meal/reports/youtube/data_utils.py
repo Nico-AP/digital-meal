@@ -1,4 +1,5 @@
 import datetime
+from typing import TypedDict
 
 import pandas as pd
 import random
@@ -57,6 +58,216 @@ def get_title_list(history: list[dict]) -> list:
         if 'title' in event and event['title']
     ]
     return titles
+
+
+def is_ad(watch_entry: dict) -> bool:
+    """
+    Checks if a watch entry is an ad.
+
+    Args:
+        watch_entry: Watch entry dictionary.
+
+    Returns:
+        bool: True if it is an ad, False otherwise.
+    """
+    ad_identifiers = {
+        'from google ads',
+        'von google anzeigen',
+        'da programmi pubblicitari google',
+        'des annonces google',
+    }
+
+    entry_is_ad = (
+        'details' in watch_entry
+        and len(watch_entry['details']) > 0
+        and 'name' in watch_entry['details'][0]
+        and watch_entry['details'][0]['name'].lower() in ad_identifiers
+    )
+    return entry_is_ad
+
+
+def get_video_id(watch_entry: dict) -> str | None:
+    """
+    Extract the video ID from a watch entry.
+
+    Args:
+        watch_entry: Watch entry dictionary.
+
+    Returns:
+        str: The video ID if it is contained in the entry, None otherwise.
+    """
+    title_url = watch_entry.get('titleUrl')
+
+    if title_url:
+        return title_url.replace('https://www.youtube.com/watch?v=', '')
+    else:
+        return None
+
+
+def convert_date_strings_to_datetime(
+        date_strings: list[str]
+) -> list[datetime.datetime]:
+    """
+    Convert a list of date strings into a list of datetime objects.
+
+    Args:
+        date_strings: List of dates as strings.
+
+    Returns:
+        list[datetime.datetime]: List of datetime objects.
+    """
+    return pd.to_datetime(date_strings, errors='coerce').dropna().tolist()
+
+
+def get_channel_name(watch_entry: dict) -> str | None:
+    """
+    Extract the channels name from a watch entry.
+
+    Args:
+        watch_entry: Watch entry dictionary.
+
+    Returns:
+        str: The channel name. None if this information is missing.
+    """
+    subtitles = watch_entry.get('subtitles')
+
+    if subtitles is None:
+        return None
+
+    if len(subtitles) > 0:
+        if 'name' in subtitles[0]:
+            return subtitles[0]['name']
+
+    return None
+
+
+class WatchHistoryData(TypedDict):
+    without_ads: list[dict]
+    video_ids: list[str]
+    video_dates: list[datetime.datetime]
+    channels: list[str]
+
+
+def extract_watch_history_data(watch_history: list[dict]) -> WatchHistoryData:
+    """
+    Iterates once over the watch history to extract the following information:
+
+    - Clean watch history without ads
+    - List of video IDs
+    - List of video dates in datetime.datetime format
+    - List of channel names
+
+    Args:
+        watch_history: A YouTube watch history.
+
+    Returns:
+        dict: Returns a dictionary that contains this data in the following
+            keys: 'without_ads', 'video_ids', 'video_dates', 'channels'.
+    """
+    no_ads = []
+    ids = []
+    dates = []
+    channels = []
+
+    for entry in watch_history:
+        # Check if it is an ad
+        if is_ad(entry):
+            continue
+
+        no_ads.append(entry)
+
+        # Extract video id and title
+        video_id = get_video_id(entry)
+        if video_id is not None:
+            ids.append(video_id)
+
+        # Extract video date
+        video_date = entry.get('time')
+        if video_date is not None:
+            dates.append(video_date)
+
+        # Extract channel
+        channel = get_channel_name(entry)
+        if channel is not None:
+            channels.append(channel)
+
+    # Convert date strings to datetime objects
+    dates = convert_date_strings_to_datetime(dates)
+
+    return {
+        'without_ads': no_ads,
+        'video_ids': ids,
+        'video_dates': dates,
+        'channels': channels,
+    }
+
+
+def is_search_ad(search_entry: dict) -> bool:
+    """
+    Checks if a search entry is an ad.
+
+    Args:
+        search_entry: Search entry dictionary.
+
+    Returns:
+        bool: True if it is an ad, False otherwise.
+    """
+    ad_identifiers = {
+        'web & app activity',
+        'web- & app-aktivitäten',
+        'attività web e app',
+        'activité sur le web et les applications'
+    }
+
+    if 'activityControls' in search_entry:
+        if any(item.lower() in ad_identifiers
+               for item in search_entry['activityControls']):
+            return True
+
+    return False
+
+
+class SearchHistoryData(TypedDict):
+    without_ads: list[dict]
+    search_terms: list[str]
+
+
+def extract_search_history_data(search_history: list[dict]) -> SearchHistoryData:
+    """
+    Iterates once over the search history to extract the following information:
+
+    - Clean search history to exclude ads
+    - List of search terms
+
+    Args:
+        search_history: A YouTube search history.
+
+    Returns:
+        dict: Returns a dictionary that contains this data in the following
+            keys: 'without_ads', 'search_terms'.
+    """
+
+    no_ads = []
+    search_terms = []
+    for entry in search_history:
+        if is_search_ad(entry):
+            continue
+
+        # Clean search title
+        title = entry.get('title')
+        if title is not None:
+            clean_title = clean_search_title(title)
+            entry['title'] = clean_title
+
+            if clean_title:
+                search_terms.append(clean_title)
+
+        no_ads.append(entry)
+
+    return {
+        'without_ads': no_ads,
+        'search_terms': search_terms,
+    }
 
 
 def exclude_google_ads_videos(watch_history: list[dict]) -> list[dict]:
@@ -120,6 +331,20 @@ def exclude_ads_from_search_history(search_history: list[dict]) -> list[dict]:
 _SEARCH_PREFIX_PATTERN = re.compile(
     r'^Searched for |^Gesucht nach: |^Hai cercato |^Vous avez recherché '
 )
+
+
+def clean_search_title(search_title: str) -> str:
+    """
+    Delete pre- and postfixes from search title.
+    Supports takeouts in German, English, Italian, and French.
+
+    Args:
+        search_title: List of search history data.
+
+    Returns:
+        list: The search history with cleaned titles.
+    """
+    return _SEARCH_PREFIX_PATTERN.sub('', search_title)
 
 
 def clean_search_titles(search_history: list[dict]) -> list[dict]:

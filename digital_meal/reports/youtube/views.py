@@ -8,6 +8,8 @@ from django.views.generic import TemplateView
 from digital_meal.reports.utils_shared.data_utils import normalize_texts
 from digital_meal.reports.youtube import data_utils
 from digital_meal.reports.youtube import plot_utils
+from digital_meal.reports.youtube.data_utils import (
+    extract_watch_history_data, extract_search_history_data)
 from digital_meal.reports.youtube.example_data import (
     generate_synthetic_watch_history, generate_synthetic_search_history)
 from digital_meal.reports.utils_shared import plot_utils as shared_plot_utils
@@ -375,31 +377,43 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
             return context
         context['wh_available'] = True
 
-        # Create list of watched videos and separate lists for ids and dates
-        # of watched videos.
-        wh_without_ads = data_utils.exclude_google_ads_videos(watch_history)
-        wh_ids = data_utils.get_video_ids(wh_without_ads)
-        wh_dates = data_utils.get_date_list(wh_without_ads)
+        # Get watch history data
+        wh_data = extract_watch_history_data(watch_history)
 
-        self.add_wh_date_infos_to_context(context, wh_dates)
+        # Add information to context
+        self.add_wh_date_infos_to_context(
+            context,
+            wh_data['video_dates']
+        )
 
         self.add_wh_statistics_to_context(
-            context, wh_without_ads, wh_ids, example=is_example)
+            context, wh_data['without_ads'],
+            wh_data['video_ids'],
+            example=is_example
+        )
 
-        self.add_favorite_videos_to_context(context, wh_without_ads, wh_ids)
+        self.add_favorite_videos_to_context(
+            context,
+            wh_data['without_ads'],
+            wh_data['video_ids']
+        )
 
         self.add_wh_timeseries_plots_to_context(
             context,
-            [wh_dates],
+            [wh_data['video_dates']],
             context['dates']['wh_dates_min'],
             context['dates']['wh_dates_max']
         )
 
-        self.add_wh_heatmap_plots_to_context(context, wh_dates)
+        self.add_wh_heatmap_plots_to_context(
+            context,
+            wh_data['video_dates']
+        )
 
-        # Add channel-related information to the context.
-        channels = data_utils.get_channel_names_from_history(wh_without_ads)
-        self.add_wh_channel_info_to_context(context, channels)
+        self.add_wh_channel_info_to_context(
+            context,
+            wh_data['channels']
+        )
         return context
 
     def get_search_context(
@@ -425,16 +439,15 @@ class YouTubeReportIndividual(BaseReportIndividual, YouTubeBaseReport):
             return context
         context['search_available'] = True
 
-        sh_without_ads = data_utils.exclude_ads_from_search_history(search_history)
-        sh_without_ads = data_utils.clean_search_titles(sh_without_ads)
-        search_terms = data_utils.get_title_list(sh_without_ads)
-        normalized_terms = normalize_texts(search_terms)
+        # Prepare data.
+        sh_data = extract_search_history_data(search_history)
+        normalized_terms = normalize_texts(sh_data['search_terms'])
 
         self.add_sh_statistics_to_context(
-            context, sh_without_ads, example=is_example)
+            context, sh_data['without_ads'], example=is_example)
 
         self.add_sh_plot_to_context(
-            context, search_terms)
+            context, sh_data['search_terms'])
 
         self.add_sh_wordcloud_to_context(
             context, normalized_terms)
