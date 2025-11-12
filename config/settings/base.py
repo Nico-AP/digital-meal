@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'wagtailvideos',
     'wagtail_modeladmin',
     'qr_code',
+    'django_htmx',
     # DDM
     'ddm',
     'ddm.auth',
@@ -79,6 +80,7 @@ MIDDLEWARE = [
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'digital_meal.website.middleware.RestrictDDMMiddleware',
+    'django_htmx.middleware.HtmxMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'

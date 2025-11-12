@@ -1,0 +1,12 @@
+<div class="loaded-report-part">
+
+{% if subs_available %}
+  {% include "reports/components/subscribed_channels_section.html" with n_distinct=n_distinct plot_div=plot.div %}
+  {{ plot.script | safe }}
+
+{% else %}
+  {% include "reports/components/report_section_unavailable_class.html" with data_type="den abonnierten Kanälen" %}
+
+{% endif %}
+
+</div>

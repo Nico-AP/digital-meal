@@ -1,16 +1,39 @@
 {% extends "reports/youtube/individual_report.html" %}
-{% load static %}
+{% load static django_htmx %}
 
-{% block page_title %}YouTube Report{% endblock %}
+{% block page_title %}
+  YouTube Beispielreport
+{% endblock %}
 
-{% block report_intro_title %}Beispielreport für die personalisierte Auswertung der YouTube&#8209;Nutzung{% endblock %}
+{% block report_intro_title %}
+  Beispielreport für die personalisierte Auswertung der YouTube&#8209;Nutzung
+{% endblock %}
 
-{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
+{% block report_intro_image_path %}
+  {% static "reports/img/YouTube_logo-sketch.png" %}
+{% endblock %}
 
 {% block report_intro_text %}
-<p>In dieser Auswertung ist ersichtlich, wie eine fiktive Person YouTube in der Vergangenheit genutzt hat.
-  Die Daten beinhalten den <b>Wiedergabeverlauf</b> und den <b>Suchverlauf</b>
-  zwischen dem {{ dates.wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
-  {{ dates.wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
-</p>
+
+  Dieser Report basiert auf fiktiven Nutzungsdaten. Er zeigt exemplarisch,
+  wie der persönliche Report für Schüler:innen aussieht.
+
+{% endblock %}
+
+{% block report_body %}
+
+  <div id="watch-history-partials"
+       class="htmx-section"
+       hx-get="{% url 'youtube_example_report_wh_sections' %}"
+       hx-trigger="load delay:1s"
+       hx-swap="innerHTML swap:400ms settle:400ms">
+  </div>
+
+  <div id="search-history-partials"
+       class="htmx-section"
+       hx-get="{% url 'youtube_example_report_sh_sections' %}"
+       hx-trigger="load delay:3s"
+       hx-swap="innerHTML swap:400ms settle:400ms">
+  </div>
+
 {% endblock %}

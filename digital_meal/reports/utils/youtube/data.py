@@ -90,6 +90,9 @@ def get_video_id(watch_entry: dict) -> str | None:
     """
     Extract the video ID from a watch entry.
 
+    Expects the watch entry to have a 'titleUrl' key that contains the link to
+    the YouTube video.
+
     Args:
         watch_entry: Watch entry dictionary.
 
@@ -142,63 +145,104 @@ def get_channel_name(watch_entry: dict) -> str | None:
 
 
 class WatchHistoryData(TypedDict):
-    without_ads: list[dict]
+    videos: list[dict]
     video_ids: list[str]
-    video_dates: list[datetime.datetime]
+    watch_dates: list[datetime.datetime]
     channels: list[str]
+    videos_separate: list[list[dict]] | None
+    video_ids_separate: list[list[str]] | None
+    watch_dates_separate: list[list[datetime.datetime]] | None
+    channels_separate: list[list[str]] | None
+    n_participants: int
 
 
-def extract_watch_history_data(watch_history: list[dict]) -> WatchHistoryData:
-    """
-    Iterates once over the watch history to extract the following information:
+def extract_watch_history_data(
+        watch_histories: list[list[dict]],
+        keep_separate: bool = False
+) -> WatchHistoryData:
+    """Create a WatchHistoryData object from a list of watch histories.
 
-    - Clean watch history without ads
+    Iterates over the watch histories, excludes ads from the histories and
+    extracts the following information:
+
+    - List of video entries
     - List of video IDs
     - List of video dates in datetime.datetime format
     - List of channel names
+    - On how many participants the data is based
+
+    If keep_separate is True, the information is additionally kept separate for
+    each individual.
 
     Args:
-        watch_history: A YouTube watch history.
+        watch_histories: A list of YouTube watch histories.
+        keep_separate: A boolean indicating whether to keep information on
+            separate watch histories.
 
     Returns:
-        dict: Returns a dictionary that contains this data in the following
-            keys: 'without_ads', 'video_ids', 'video_dates', 'channels'.
+        dict: A WatchHistoryData object
     """
-    no_ads = []
-    ids = []
-    dates = []
-    channels = []
+    histories_combined = []
+    ids_combined = []
+    dates_combined = []
+    channels_combined = []
+    histories_separate = [] if keep_separate else None
+    dates_separate = [] if keep_separate else None
+    channels_separate = [] if keep_separate else None
 
-    for entry in watch_history:
-        # Check if it is an ad
-        if is_ad(entry):
-            continue
+    for history in watch_histories:
 
-        no_ads.append(entry)
+        watched_videos = []
+        ids = []
+        dates = []
+        channels = []
 
-        # Extract video id and title
-        video_id = get_video_id(entry)
-        if video_id is not None:
-            ids.append(video_id)
+        for entry in history:
+            # Check if it is an ad
+            if is_ad(entry):
+                continue
 
-        # Extract video date
-        video_date = entry.get('time')
-        if video_date is not None:
-            dates.append(video_date)
+            watched_videos.append(entry)
 
-        # Extract channel
-        channel = get_channel_name(entry)
-        if channel is not None:
-            channels.append(channel)
+            # Extract video id and title
+            video_id = get_video_id(entry)
+            if video_id is not None:
+                ids.append(video_id)
 
-    # Convert date strings to datetime objects
-    dates = convert_date_strings_to_datetime(dates)
+            # Extract video date
+            video_date = entry.get('time')
+            if video_date is not None:
+                dates.append(video_date)
+
+            # Extract channel
+            channel = get_channel_name(entry)
+            if channel is not None:
+                channels.append(channel)
+
+        dates = convert_date_strings_to_datetime(dates)
+
+        if keep_separate:
+            histories_separate.append(watched_videos)
+            dates_separate.append(dates)
+            channels_separate.append(channels)
+
+        histories_combined.extend(watched_videos)
+        ids_combined.extend(ids)
+        dates_combined.extend(dates)
+        channels_combined.extend(channels)
+
+    n_participants = len(watch_histories)
 
     return {
-        'without_ads': no_ads,
-        'video_ids': ids,
-        'video_dates': dates,
-        'channels': channels,
+        'videos': histories_combined,
+        'video_ids': ids_combined,
+        'watch_dates': dates_combined,
+        'channels': channels_combined,
+        'videos_separate': histories_separate,
+        'video_ids_separate': None,
+        'watch_dates_separate': dates_separate,
+        'channels_separate': channels_separate,
+        'n_participants': n_participants
     }
 
 
@@ -228,45 +272,75 @@ def is_search_ad(search_entry: dict) -> bool:
 
 
 class SearchHistoryData(TypedDict):
-    without_ads: list[dict]
+    searches: list[dict]
     search_terms: list[str]
+    search_terms_separate: list[list[str]] | None
+    n_participants: int
 
 
-def extract_search_history_data(search_history: list[dict]) -> SearchHistoryData:
-    """
-    Iterates once over the search history to extract the following information:
+def extract_search_history_data(
+        search_histories: list[list[dict]],
+        keep_separate: bool = False,
+) -> SearchHistoryData:
+    """Create a SearchHistoryData object from a list of search histories.
 
-    - Clean search history to exclude ads
+    Iterates over the search histories, excludes ads from the histories and
+    extracts the following information:
+
+    - List of search entries
     - List of search terms
+    - On how many participants the data is based
+
+    If keep_separate is True, the list of search terms is additionally kept
+    separate for each individual.
 
     Args:
-        search_history: A YouTube search history.
+        search_histories: A list of YouTube search histories.
+        keep_separate: A boolean indicating whether to keep information on
+            separate search histories.
 
     Returns:
-        dict: Returns a dictionary that contains this data in the following
-            keys: 'without_ads', 'search_terms'.
+        dict: A SearchHistoryData object
     """
 
-    no_ads = []
-    search_terms = []
-    for entry in search_history:
-        if is_search_ad(entry):
-            continue
+    searches_combined = []
+    search_terms_combined = []
 
-        # Clean search title
-        title = entry.get('title')
-        if title is not None:
-            clean_title = clean_search_title(title)
-            entry['title'] = clean_title
+    search_term_separate = [] if keep_separate else None
 
-            if clean_title:
-                search_terms.append(clean_title)
+    for history in search_histories:
 
-        no_ads.append(entry)
+        searches = []
+        search_terms = []
+
+        for entry in history:
+            if is_search_ad(entry):
+                continue
+
+            # Clean search title
+            title = entry.get('title')
+            if title is not None:
+                clean_title = clean_search_title(title)
+                entry['title'] = clean_title
+
+                if clean_title:
+                    search_terms.append(clean_title)
+
+            searches.append(entry)
+
+        if keep_separate:
+            search_term_separate.append(search_terms)
+
+        searches_combined.extend(searches)
+        search_terms_combined.extend(search_terms)
+
+    n_participants = len(search_histories)
 
     return {
-        'without_ads': no_ads,
-        'search_terms': search_terms,
+        'searches': searches_combined,
+        'search_terms': search_terms_combined,
+        'search_terms_separate': search_term_separate,
+        'n_participants': n_participants,
     }
 
 
@@ -485,14 +559,11 @@ def get_search_term_frequency(
     return searches
 
 
-def clean_channel_list(channel_list):
-    """
-    Cleans and standardizes a list of channel dictionaries by
-    renaming keys.
+def clean_channel_list(channel_list: list[dict]) -> list[dict]:
+    """Cleans and standardizes a list of channel dictionaries by renaming keys.
 
     Args:
-        channel_list (list): A list of dictionaries, each
-        representing a channel.
+        channel_list: A list of dictionaries, each representing a channel.
 
     Returns:
         list: A new list of dictionaries with standardized keys.

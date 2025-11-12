@@ -1,23 +1,25 @@
 import random
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, date
 
 import numpy as np
 from django.utils import timezone
 
-from digital_meal.reports.utils_shared.example_data import (
-    generate_hourly_shares, random_string, random_time_in_range)
+from digital_meal.reports.utils.shared.example_data import (
+    generate_hourly_shares,
+    random_string,
+    random_time_in_range
+)
 
 
 def generate_synthetic_watch_history(
-        start_date: datetime,
+        start_date: date,
         days: int = 500
 ) -> dict:
-    """
-    Generate a synthetic TikTok watch history dataset.
+    """Generate a synthetic TikTok watch history dataset.
 
     Args:
-        start_date (datetime): The end date for the dataset (most recent day).
-        days (int, optional): Number of days to go back.
+        start_date: The end date for the dataset (most recent day).
+        days: Number of days to go back.
 
     Returns:
         dict: A dictionary mimicking the YouTube watch history JSON format.
@@ -76,15 +78,14 @@ def generate_synthetic_watch_history(
 
 
 def generate_synthetic_search_history(
-        latest_date: datetime,
+        latest_date: date,
         days: int = 500
 ) -> dict:
-    """
-    Generate a synthetic TikTok search history dataset.
+    """Generate a synthetic TikTok search history dataset.
 
     Args:
-        latest_date (datetime.datetime): The end date for the dataset (most recent day).
-        days (int, optional): Number of days to go back.
+        latest_date: The end date for the dataset (most recent day).
+        days: Number of days to go back.
 
     Returns:
         A dictionary mimicking the TikTok search history JSON format. Contains
@@ -119,8 +120,7 @@ def generate_synthetic_search_history(
 
 
 def generate_random_search_term() -> str:
-    """
-    Generate a random search term.
+    """Generate a random search term.
 
     Returns:
         str: A random search term.

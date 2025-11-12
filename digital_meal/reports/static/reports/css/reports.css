@@ -1,3 +1,5 @@
+@import url("report-loader.css");
+
 #report {
     text-align: center;
 }
@@ -43,7 +45,6 @@
 #report .report-section {
     padding: 80px 10px 80px;
     scroll-snap-align: start;
-    min-height: 50vh;
     display: flex;
     justify-content: center;
 }
@@ -194,4 +195,23 @@
         margin-left: 12px;
         height: 300px;
     }
+}
+
+.htmx-section {
+    transition: opacity 400ms ease-in-out, max-height 400ms ease-in-out;
+    overflow: hidden;
+}
+
+.htmx-section.htmx-swapping {
+    opacity: 0;
+}
+
+.htmx-section.htmx-settling {
+    opacity: 0;
+    max-height: 0;
+}
+
+.htmx-section {
+    opacity: 1;
+    max-height: 100000px; /* Set higher than expected content height */
 }

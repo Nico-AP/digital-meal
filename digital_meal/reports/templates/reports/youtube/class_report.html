@@ -1,65 +1,46 @@
 {% extends "reports/base_report.html" %}
-{% load static %}
+{% load static django_htmx %}
 
-{% block page_title %}Klassenreport YouTube{% endblock %}
-
-{% block report_intro_title %}Klassenreport YouTube{% endblock %}
-
-{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
-
-{% block report_intro_text %}
-<p class="fs-4 ff-space-grotesk">In diesem Report erfahrt ihr mehr über die YouTube&#8209;Nutzung in eurer Klasse.</p>
-<p class="fs-4 mt-0 ff-space-grotesk">Der Report basiert aktuell auf den Daten von {{ n_participants }} Schüler:innen.</p>
+{% block page_title %}
+  YouTube Klassenreport
 {% endblock %}
 
+{% block report_intro_title %}
+  Klassenreport YouTube
+{% endblock %}
+
+{% block report_intro_image_path %}
+  {% static 'reports/img/YouTube_logo-sketch.png' %}
+{% endblock %}
+
+
+{% block report_intro_text %}
+  In diesem Report erfahrt ihr mehr über die YouTube&#8209;Nutzung in eurer Klasse.
+{% endblock %}
+
+
 {% block report_body %}
+  <div id="watch-history-partials"
+       hx-get="{% url 'youtube_class_report_wh_sections' url_id=class_id %}"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+  </div>
 
-<!-- VIDEO USE STATS -->
-{% include "reports/components/watch_history_stats_section.html" with platform="YouTube" stats=watch_stats dates=dates target="class" %}
+  <div id="search-history-partials"
+       hx-get="{% url 'youtube_class_report_sh_sections' url_id=class_id %}"
+       hx-trigger="load delay:3s"
+       hx-swap="innerHTML">
+  </div>
 
-<!-- VIDEO USE TIMESERIES -->
-{% if dates_plot_days %}
-  {% include "reports/components/watch_history_timeseries_section.html" with platform="YouTube" day_plot_div=dates_plot_days.div week_plot_div=dates_plot_weeks.div month_plot_div=dates_plot_months.div year_plot_div=dates_plot_years.div target="class"%}
-{% endif %}
-
-<!-- DAILY USE -->
-{% if weekday_use_plot %}
-  {% include "reports/components/watch_history_daily_heatmap_section.html" with platform="YouTube" weekday_use_plot_div=weekday_use_plot.div hours_plot_div=hours_plot.div target="class"  %}
-{% endif %}
-
-<!-- FAVORITE VIDEO -->
-{% if fav_videos_top_ten %}
-  {% include "reports/components/watch_history_fav_video_section.html" with platform="YouTube" fav_vid=fav_videos_top_ten target="class" %}
-{% endif %}
-
-<!-- CHANNELS -->
-{% if most_watched_channels %}
-  {% include "reports/components/watch_history_fav_channels_section_class.html" with n_unique=most_watched_channels.n_unique n_multiple=most_watched_channels.n_multiple share_multiple=most_watched_channels.share_multiple channel_list=most_watched_channels.channel_list_top_10 %}
-{% endif %}
-
-<!-- SUBSCRIBED CHANNELS -->
-{% if subscriptions %}
-  {% include "reports/components/subscribed_channels_section.html" with n_distinct=subscriptions.n_distinct plot_div=subscriptions.plot.div %}
-{% endif %}
-
-<!-- SEARCHES WORDCLOUD -->
-{% if search_wordcloud %}
-  {% include "reports/components/search_history_wordcloud.html" with platform="YouTube" wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="class" %}
-{% endif %}
-
+  <div id="subscriptions-partials"
+       hx-get="{% url 'youtube_class_report_sub_sections' url_id=class_id %}"
+       hx-trigger="load delay:5s"
+       hx-swap="innerHTML">
+  </div>
 {% endblock report_body %}
 
 
 {% block scripts %}
-{{ block.super }}
-
-{{ dates_plot_days.script | safe }}
-{{ dates_plot_weeks.script | safe }}
-{{ dates_plot_months.script | safe }}
-{{ dates_plot_years.script | safe }}
-{{ weekday_use_plot.script | safe }}
-{{ hours_plot.script | safe }}
-{{ subscriptions.plot.script | safe }}
-<script src="{% static 'reports/js/report-functions.js' %}"></script>
-
+  {{ block.super }}
+  {% htmx_script %}
 {% endblock %}

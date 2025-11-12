@@ -1,0 +1,14 @@
+<div class="loaded-report-part">
+
+{% if sh_available %}
+
+  {% if search_wordcloud %}
+    {% include "reports/components/search_history_wordcloud.html" with platform="YouTube" wordcloud=search_wordcloud n_searches=n_searches_mean target="class" %}
+  {% endif %}
+
+{% else %}
+    {% include "reports/components/report_section_unavailable_class.html" with data_type="den Suchverläufen" %}
+
+{% endif %}
+
+</div>

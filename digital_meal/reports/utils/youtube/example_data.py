@@ -1,23 +1,23 @@
 import random
-from datetime import timedelta, datetime
+from datetime import timedelta, date
 
 import numpy as np
 from django.utils import timezone
 
-from digital_meal.reports.utils_shared.example_data import (
+from digital_meal.reports.utils.shared.example_data import (
     random_string, random_time_in_range, generate_hourly_shares)
 
 
 def generate_synthetic_watch_history(
-        latest_date: datetime,
+        latest_date: date,
         days: int = 500
 ) -> dict:
     """
     Generate a synthetic YouTube watch history dataset.
 
     Args:
-        latest_date (datetime.datetime): The end date for the dataset (most recent day).
-        days (int): Number of days to go back.
+        latest_date: The end date for the dataset (most recent day).
+        days: Number of days to go back.
 
     Returns:
         A dictionary mimicking the YouTube watch history JSON format. Contains
@@ -88,11 +88,10 @@ def generate_synthetic_watch_history(
 
 
 def generate_synthetic_search_history(
-        latest_date: datetime,
+        latest_date: date,
         days: int = 500
 ) -> dict:
-    """
-    Generate a synthetic YouTube search history dataset.
+    """Generate a synthetic YouTube search history dataset.
 
     Args:
         latest_date (datetime.datetime): The end date for the dataset (most recent day).

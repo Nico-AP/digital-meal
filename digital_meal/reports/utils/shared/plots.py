@@ -8,7 +8,7 @@ from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from wordcloud import WordCloud
 
@@ -36,14 +36,18 @@ days_en_de_short = {
 }
 
 
-def get_timeseries_plot(date_series, bin_width=1,
-                        date_min=None, date_max=None):
+def get_timeseries_plot(
+        date_series: pd.Series,
+        bin_width: int = 1,
+        date_min: datetime | None = None,
+        date_max: datetime | None = None
+) -> dict:
     """
     Create timeseries bar plot.
 
     Args:
         date_series: Pandas Series of datetime objects and counts.
-            bin_width: Width of bin in bar plot.
+        bin_width: Width of bin in bar plot.
         date_min: Minimum date of date range on x-axis - if None
             is provided, minimum of data_series is used.
         date_max: Maximum date of date range on x-axis - if None
@@ -145,7 +149,7 @@ def get_timeseries_plot(date_series, bin_width=1,
     return {'script': script, 'div': div}
 
 
-def get_weekday_use_plot(data):
+def get_weekday_use_plot(data: list[datetime]) -> dict:
 
     dates = pd.Series(data).dt.day_name()
 
@@ -218,7 +222,7 @@ def get_weekday_use_plot(data):
     script, div = components(p)
     return {'script': script, 'div': div}
 
-def get_day_usetime_plot(data):
+def get_day_usetime_plot(data: list[datetime]) -> dict:
     # Prepare data.
     date_series = pd.Series(data)
     df = pd.DataFrame({
@@ -288,7 +292,7 @@ def get_day_usetime_plot(data):
     script, div = components(p)
     return {'script': script, 'div': div}
 
-def get_searches_plot(search_term_list):
+def get_searches_plot(search_term_list: list) -> dict | None:
     search_terms = pd.Series(search_term_list)
     search_term_counts = search_terms.value_counts()
 

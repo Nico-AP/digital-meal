@@ -1,66 +1,42 @@
 {% extends "reports/base_report.html" %}
-{% load static %}
+{% load static django_htmx %}
 
-{% block page_title %}TikTok Report{% endblock %}
+{% block page_title %}
+  TikTok Report
+{% endblock %}
 
-{% block report_intro_title %}Die personalisierte Auswertung deiner TikTok&#8209;Nutzung{% endblock %}
+{% block report_intro_title %}
+  Die personalisierte Auswertung deiner TikTok&#8209;Nutzung
+{% endblock %}
 
-{% block report_intro_image_path %}{% static 'reports/img/TikTok_logo-sketch.png' %}{% endblock %}
+{% block report_intro_image_path %}
+  {% static 'reports/img/TikTok_logo-sketch.png' %}
+{% endblock %}
 
 {% block report_intro_text %}
-<p>In dieser persönlichen Auswertung findest Du Informationen, wie Du TikTok in der Vergangenheit genutzt hast.
-  Die von Dir hochgeladenen Daten beinhalten <b>Deinen Wiedergabeverlauf</b>
-  zwischen dem {{ dates.wh_dates_min|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }} und dem
-  {{ dates.wh_dates_max|date:"j.\&\\n\b\s\p\;F\&\\n\b\s\p\;Y"|safe }}.
-</p>
+
+  Dieser persönliche Report zeigt, wie Du TikTok in der Vergangenheit genutzt hast.
+
 {% endblock %}
 
 
 {% block report_body %}
 
-<!-- VIDEO USE STATS -->
-{% include "reports/components/watch_history_stats_section.html" with platform="TikTok" stats=watch_stats dates=dates target="individual" %}
+  <div id="watch-history-partials"
+       hx-get="{% url 'tiktok_individual_report_wh_sections' url_id=class_id participant_id=participant_id %}"
+       hx-trigger="load"
+       hx-swap="innerHTML">
+  </div>
 
-<!-- VIDEO USE TIMESERIES -->
-{% if dates_plot_days %}
-  {% include "reports/components/watch_history_timeseries_section.html" with platform="TikTok" day_plot_div=dates_plot_days.div week_plot_div=dates_plot_weeks.div month_plot_div=dates_plot_months.div year_plot_div=dates_plot_years.div target="individual"%}
-{% endif %}
-
-<!-- DAILY USE -->
-{% if weekday_use_plot %}
-  {% include "reports/components/watch_history_daily_heatmap_section.html" with platform="TikTok" weekday_use_plot_div=weekday_use_plot.div hours_plot_div=hours_plot.div target="individual"  %}
-{% endif %}
-
-<!-- FAVORITE VIDEO -->
-{% if fav_videos_top_ten %}
-  {% include "reports/components/watch_history_fav_video_section.html" with platform="TikTok" fav_vid=fav_videos_top_ten.0 target="individual" %}
-{% endif %}
-
-<!-- SEARCHES WORDCLOUD -->
-{% if search_wordcloud %}
-  {% include "reports/components/search_history_wordcloud.html" with platform="TikTok" wordcloud=search_wordcloud n_searches=n_searches_mean_overall target="individual" %}
-{% endif %}
+  <div id="search-history-partials"
+       hx-get="{% url 'tiktok_individual_report_sh_sections' url_id=class_id participant_id=participant_id %}"
+       hx-trigger="load delay:2s"
+       hx-swap="innerHTML">
+  </div>
 
 {% endblock report_body %}
 
 {% block scripts %}
-{{ block.super }}
-
-{{ dates_plot_days.script | safe }}
-{{ dates_plot_weeks.script | safe }}
-{{ dates_plot_months.script | safe }}
-{{ dates_plot_years.script | safe }}
-{{ weekday_use_plot.script | safe }}
-{{ hours_plot.script | safe }}
-{{ search_plot.script | safe }}
-
-<script>
-  function toggleButton(button, target) {
-    $('.collapse-dates-plots').addClass('d-none');
-    $(target).removeClass('d-none');
-    $('.toggle-btn').removeClass('toggle-btn-active');
-    $(button).addClass('toggle-btn-active')
-  }
-</script>
-
+  {{ block.super }}
+  {% htmx_script %}
 {% endblock %}

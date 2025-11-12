@@ -1,0 +1,39 @@
+<div class="loaded-report-part">
+
+{% if wh_available %}
+
+  <!-- VIDEO USE STATS -->
+  {% include "reports/components/watch_history_stats_section.html" with platform="YouTube" stats_overall=stats_overall stats_interval=stats_interval n_participants=n_participants target="class" %}
+
+  <!-- VIDEO USE TIMESERIES -->
+  {% if dates_plots.days %}
+    {% include "reports/components/watch_history_timeseries_section.html" with platform="YouTube" day_plot_div=dates_plots.days.div week_plot_div=dates_plots.weeks.div month_plot_div=dates_plots.months.div year_plot_div=dates_plots.years.div target="class"%}
+  {% endif %}
+
+  <!-- DAILY USE -->
+  {% if weekday_use_plot %}
+    {% include "reports/components/watch_history_daily_heatmap_section.html" with platform="YouTube" weekday_use_plot_div=weekday_use_plot.div hours_plot_div=hours_plot.div target="class"  %}
+  {% endif %}
+
+  <!-- FAVORITE VIDEO -->
+  {% if fav_videos_top_ten %}
+    {% include "reports/components/watch_history_fav_video_section.html" with platform="YouTube" fav_vid=fav_videos_top_ten target="class" %}
+  {% endif %}
+
+  <!-- CHANNELS -->
+  {% if most_watched_channels %}
+    {% include "reports/components/watch_history_fav_channels_section_class.html" with n_unique=most_watched_channels.n_unique n_multiple=most_watched_channels.n_multiple share_multiple=most_watched_channels.share_multiple channel_list=most_watched_channels.channel_list_top_10 %}
+  {% endif %}
+
+  {{ dates_plots.days.script | safe }}
+  {{ dates_plots.weeks.script | safe }}
+  {{ dates_plots.months.script | safe }}
+  {{ dates_plots.years.script | safe }}
+  {{ weekday_use_plot.script | safe }}
+  {{ hours_plot.script | safe }}
+{% else %}
+  {% include "reports/components/report_section_unavailable_class.html" with data_type="den Wiedergabeverläufen" %}
+
+{% endif %}
+
+</div>

@@ -1,15 +1,23 @@
+import datetime
 import random
 from datetime import time
 
 import numpy as np
 
 
-def generate_hourly_shares(weekend=False):
-    """
-    Generate a dictionary with 24-hour time slots and their respective random share values,
-    based on different probability distributions for different times of the day.
+def generate_hourly_shares(weekend: bool = False) -> dict:
+    """Generate hourly shares.
 
-    :return: A dictionary mapping each hour (0-23) to a random share within its assigned range.
+    Generates a dictionary with 24-hour time slots and their respective random
+    share values, based on different probability distributions for different
+    times of the day.
+
+    Args:
+        weekend: If True, generate shares that are more evenly spread over a day.
+
+    Returns:
+        dict: A dictionary mapping each hour (0-23) to a random share within
+            its assigned range.
     """
     # Define custom share ranges for different periods of the day
     if not weekend:
@@ -49,7 +57,12 @@ def generate_hourly_shares(weekend=False):
 
     return hourly_shares
 
-def random_time_in_range(hour_start, min_start, hour_end, min_end):
+def random_time_in_range(
+        hour_start: int,
+        min_start: int,
+        hour_end: int,
+        min_end: int
+) -> datetime.time:
     """Generate a random time object between the given range."""
     return time(
         hour=random.randint(hour_start, hour_end),
@@ -57,6 +70,6 @@ def random_time_in_range(hour_start, min_start, hour_end, min_end):
         second=random.randint(0, 59)
     )
 
-def random_string(length):
+def random_string(length: int) -> str:
     """Generate a random alphanumeric string."""
     return ''.join(random.choices("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=length))

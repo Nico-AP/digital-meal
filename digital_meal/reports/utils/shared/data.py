@@ -4,8 +4,14 @@ import pandas as pd
 import spacy
 
 from datetime import datetime, timedelta
+
+from ddm.datadonation.models import DonationBlueprint, DataDonation
+from ddm.datadonation.serializers import DonationSerializer
+from ddm.encryption.models import Decryption
+from ddm.participation.models import Participant
+from ddm.projects.models import DonationProject
+from django.db.models import Prefetch
 from django.utils import timezone
-from langdetect import detect
 from spacy import Language
 
 
@@ -20,10 +26,10 @@ def get_entries_in_date_range(
     date_key is used to look up the date field in the entries.
 
     Args:
-        entries (list[dict]): List of entries to be filtered.
-        date_min (datetime): Entries with min this date are kept in the list.
-        date_max (datetime): Entries with max this date are kept in the list.
-        date_key (str): The identifier used to look up the date field
+        entries: List of entries to be filtered.
+        date_min: Entries with min this date are kept in the list.
+        date_max: Entries with max this date are kept in the list.
+        date_key: The identifier used to look up the date field
             in the entries.
 
     Returns:
@@ -56,7 +62,7 @@ def make_tz_aware(date: datetime) -> datetime:  # TODO: Check if timezone should
     Check if a date is timezone-aware. If not, add timezone.utc as default.
 
     Args:
-        date (datetime): Date to be checked.
+        date: Date to be checked.
 
     Returns:
         datetime: Timezone aware date.
@@ -76,8 +82,8 @@ def normalize_datetime(
     Normalizes a datetime object to a specific day, week, month, or year.
 
     Args:
-        date (datetime): Date to be normalized.
-        mode (Literal['d', 'w', 'm', 'y']): The normalization mode.
+        date: Date to be normalized.
+        mode: The normalization mode.
             'd' (daily): returns date.
             'w' (weekly): returns date of first day of the week to which date
                 belongs.
@@ -117,15 +123,15 @@ def get_summary_counts_per_date(
     Summarizes date occurrences across dates and persons.
 
     Args:
-        data (list[list[datetime]]): A list of lists where the inner lists hold the data
+        data: A list of lists where the inner lists hold the data
             related to one person ([[{P1, e1}, {p1, e2}], [{P2, e1}, {P2, e2}]]).
-        ref (str): Defines the reference of the date counts:
+        ref: Defines the reference of the date counts:
             'd' - counts per day (default)
             'w' - counts per week (attributed to the date of the first day of
                 the week)
             'm' - counts per month (attributed to the 15th of the month)
             'y' - counts per year (attributed to the 1st of July of the year)
-        base (str): Defines how the counts will be summarized:
+        base: Defines how the counts will be summarized:
             'sum' - Sum over all persons
             'mean' - Mean over all persons
             'median' - Median over all persons
@@ -162,18 +168,20 @@ def get_summary_counts_per_date(
 
 
 nlp_de = spacy.load('de_core_news_sm', disable=["parser", "ner"])
-nlp_en = spacy.load('en_core_web_sm', disable=["parser", "ner"])
 
-def normalize_texts(texts) -> list[str]:
-    """
-    This function organizes the normalization of a list of texts by first
-    applying a basic set of  preprocessing (lowercasing, stripping white
-    spaces), detecting whether a text is English or German
-    and then batch processing the English and German texts with
-    the appropriate nlp model.
+def normalize_texts(texts: list[str]) -> list[str]:
+    """Normalize a list of texts.
+
+    Normalizes the list of texts by
+
+    - first applying a basic set of  preprocessing (lowercasing, stripping white
+        spaces),
+    - detecting whether a text is English or German
+    - and then batch processing the English and German texts with
+        the appropriate nlp model.
 
     Args:
-        texts (list[str]): A list of text strings.
+        texts: A list of text strings.
 
     Returns:
         list[str]: A list containing the normalized string(s).
@@ -184,20 +192,9 @@ def normalize_texts(texts) -> list[str]:
         if cleaned:
             valid_texts.append(cleaned)
 
-    long_text = ''.join(valid_texts)
-
-    try:
-        if detect(long_text) == 'de':
-            nlp = nlp_de
-        else:
-            nlp = nlp_en
-    except:
-        nlp = nlp_en  # Default
-
     results = []
-
     if valid_texts:
-        results += normalize_batch(valid_texts, nlp)
+        results += normalize_batch(valid_texts, nlp_de)
     return results
 
 
@@ -215,9 +212,9 @@ def normalize_batch(
     - Lemmatization
 
     Args:
-        texts (list[str]): A list of text strings to be normalized.
-        nlp (Language): A spacy nlp object.
-        batch_size (int): The batch size.
+        texts: A list of text strings to be normalized.
+        nlp: A spacy nlp object.
+        batch_size: The batch size.
 
     Returns:
         list: A list containing the normalized texts.
@@ -230,3 +227,44 @@ def normalize_batch(
         results += normalized
 
     return results
+
+
+def get_donations(
+        blueprint_names: list[str],
+        project: DonationProject,
+        participants: list[Participant]
+) -> dict:
+    """
+    Retrieve the encrypted data donations related to the provided blueprints
+    that have been donated by the provided participants.
+
+    Args:
+        blueprint_names: List of blueprint names to include
+        project: DonationProject instance
+        participants: List of Participant instances
+
+    Returns:
+        dict: A dictionary with the blueprint name as the key and the
+            corresponding donation data as the value.
+    """
+    blueprints = DonationBlueprint.objects.filter(
+        project=project,
+        name__in=blueprint_names
+    ).prefetch_related(
+        Prefetch(
+          'datadonation_set',
+          queryset=DataDonation.objects.filter(
+              participant__in=participants,
+              status='success'
+          )
+        )
+    )
+    decryptor = Decryption(project.secret, project.get_salt())
+
+    donations = {}
+    for blueprint in blueprints:
+        blueprint_donations = blueprint.datadonation_set.all()
+        if blueprint_donations:
+            donations[blueprint.name] = DonationSerializer(
+                blueprint_donations[0], decryptor=decryptor).data
+    return donations

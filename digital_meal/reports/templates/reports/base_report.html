@@ -36,7 +36,7 @@
   {% endblock %}
 
   {% block report_intro %}
-  <div class="report-section position-relative" style="padding-top: 25px;">
+  <div class="report-section position-relative" style="padding-top: 25px; padding-bottom: 50px;">
 
     <div class="report-content container">
       <div class="row justify-content-center">
@@ -50,8 +50,21 @@
               <img alt="Symbolbild Report" src="{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}" height="180px">
             </div>
             <div class="col col-lg-8 d-flex flex-column justify-content-center text-center text-lg-start pt-3 pt-lg-0">
-              {% block report_intro_text %}
-              {% endblock %}
+              <div class="row justify-content-start">
+                <div class="col-auto ps-0">
+                  {% include "reports/components/loading_message.html" %}
+                </div>
+              </div>
+
+              <div id="intro-after-loading">
+                <p>
+                  Der Report ist bereit!
+                </p>
+                <p>
+                  {% block report_intro_text %}{% endblock %}
+                </p>
+              </div>
+
             </div>
           </div>
 
@@ -191,10 +204,12 @@
 <div id="email-data" data-post-url="{{ request.scheme }}://{{ request.get_host }}{% url 'send_report_link' %}" data-csrf-token="{{ csrf_token }}" hidden></div>
 
 {% block scripts %}
-<script src="{% static 'website/js/jquery/jquery-3.6.2.min.js' %}"></script>
-<script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
-<script src="{% static 'reports/js/bokeh/bokeh-3.6.1.min.js' %}"></script>
-<script src="{% static 'reports/js/send-report-link.js' %}"></script>
+  <script src="{% static 'website/js/jquery/jquery-3.6.2.min.js' %}"></script>
+  <script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'reports/js/bokeh/bokeh-3.6.1.min.js' %}"></script>
+  <script src="{% static 'reports/js/report-loader.js' %}"></script>
+  <script src="{% static 'reports/js/send-report-link.js' %}"></script>
+  <script src="{% static 'reports/js/report-functions.js' %}"></script>
 {% endblock %}
 
 </body>

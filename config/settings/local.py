@@ -76,6 +76,11 @@ LOGGING = {
         },
     },
     'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
         'file': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -100,6 +105,11 @@ LOGGING = {
         'root': {
             'handlers': ['file', 'error_file'],
             'level': 'WARNING'
+        },
+        'digital_meal': {
+            'handlers': ['file', 'error_file', 'console'],
+            'propagate': False,
+            'level': 'INFO',
         }
     }
 }

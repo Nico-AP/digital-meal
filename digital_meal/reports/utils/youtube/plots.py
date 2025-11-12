@@ -7,7 +7,11 @@ from bokeh.plotting import figure
 from digital_meal.website.constants import COLORS
 
 
-def _create_channel_plot(channel_list, n_channels, y_label):
+def _create_channel_plot(
+        channel_list: list[str],
+        n_channels: int,
+        y_label: str
+) -> dict:
     """Helper function to create channel plots with consistent styling."""
     channels = pd.Series(channel_list)
     value_counts = channels.value_counts()
@@ -62,9 +66,9 @@ def _create_channel_plot(channel_list, n_channels, y_label):
     return {'script': script, 'div': div}
 
 
-def get_channel_plot(channel_list, n_channels=10):
+def get_channel_plot(channel_list: list[str], n_channels: int = 10) -> dict:
     return _create_channel_plot(channel_list, n_channels, 'Anzahl Videos')
 
 
-def get_subscription_plot(channel_list, n_channels=10):
+def get_subscription_plot(channel_list: list[str], n_channels: int = 10) -> dict:
     return _create_channel_plot(channel_list, n_channels, 'Anzahl Abos')
