@@ -22,7 +22,7 @@
           Links siehst du die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
         </p>
       {% elif target == "class" %}
-        <h2>Wie viele Videos hat sich eure Klasse auf YouTube angesehen?</h2>
+        <h2>Wie viele Videos hat sich eure Klasse auf {{ platform }} angesehen?</h2>
         <p>
           Der Report basiert aktuell auf den Daten von {{ n_participants }} Schüler:innen.
         </p>
@@ -30,7 +30,7 @@
           Seit dem {{ stats_overall.dates_min|date:"d. F Y" }} habt ihr in der Klasse <span class="fw-bold font-size-highlight yellow-highlight">insgesamt {{ stats_overall.n_videos|format_number }}&nbsp;Videos angesehen</span>.
         </p>
         <p>
-          Unten findet ihr einige Zahlen zur zusammengefassten YouTube&#8209;Nutzung eurer Klasse.
+          Unten findet ihr einige Zahlen zur zusammengefassten {{ platform }}&#8209;Nutzung eurer Klasse.
           Links seht ihr die Zahlen für den gesamten Zeitraum der hochgeladenen Daten, rechts jene für den letzten Monat.
         </p>
       {% else %}
