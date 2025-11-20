@@ -148,12 +148,22 @@ class Command(BaseCommand):
             responses = QuestionnaireResponse.objects.filter(participant=participant)
 
             if len(responses) > 1:
-                logger.warning('Clean Participant Command: Found more than one response for participant: %s', participant.external_id)
+                logger.warning(
+                    'Clean Participant Command: Found more than one response for participant: %s',
+                    participant.external_id
+                )
                 continue
 
             response = responses.first()
             serialized_response = ResponseSerializer(response).data
-            response_data = serialized_response['response_data']
+
+            response_data = serialized_response.get('response_data')
+            if not response_data:
+                logger.warning(
+                    'Clean Participant Command: Encountered response with no response_data for participant: %s',
+                    participant.external_id
+                )
+                continue
 
             project = response.project
             cleaning_stats[project.pk]['n_checked'] += 1
@@ -162,6 +172,11 @@ class Command(BaseCommand):
             usage_dd_consent = response_data.get('usage_dd_consent')
             if usage_dd_consent is None:
                 cleaning_stats[project.pk]['n_miss_usage_consent_var'] += 1
+                logger.warning(
+                    'Clean Participant Command: Encountered response with missing "usage_dd_consent" variable '
+                    'for participant: %s',
+                    participant.external_id
+                )
             elif usage_dd_consent not in [1, '1']:
                 delete_donations(participant, project)
                 cleaning_stats[project.pk]['n_donations_deleted'] += 1
@@ -169,8 +184,12 @@ class Command(BaseCommand):
             # Check consent for questionnaire response donation.
             quest_consent = response_data.get('quest_dd_consent')
             if quest_consent is None:
-                cleaning_stats[project.pk]['n_miss_quest_consent_var'] += 1
-            elif quest_consent != 1:
+                logger.warning(
+                    'Clean Participant Command: Encountered response with missing "quest_dd_consent" variable '
+                    'for participant: %s',
+                    participant.external_id
+                )
+            elif quest_consent not in [1, '1']:
                 delete_response(participant, project)
                 cleaning_stats[project.pk]['n_responses_deleted'] += 1
 

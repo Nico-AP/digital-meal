@@ -3,7 +3,7 @@ from datetime import timedelta
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import ResearchProfile, DonationProject
-from ddm.questionnaire.models import QuestionnaireResponse
+from ddm.questionnaire.models import QuestionnaireResponse, SingleChoiceQuestion
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
@@ -136,6 +136,17 @@ class TestCleanParticipantsManagementCommand(TestCase):
         cls.project = DonationProject.objects.create(
             name='Base Project', slug='base', owner=cls.user_profile)
 
+        usage_consent_question = SingleChoiceQuestion.objects.create(
+            project=cls.project,
+            name='DD Consent Question',
+            variable_name='usage_dd_consent'
+        )
+        quest_consent_question = SingleChoiceQuestion.objects.create(
+            project=cls.project,
+            name='DD Consent Question',
+            variable_name='quest_dd_consent'
+        )
+
         cls.expired_date = timezone.now() - timedelta(days=settings.DAYS_TO_DONATION_DELETION)
         cls.expired_participant = Participant.objects.create(
             project=cls.project,
@@ -152,10 +163,13 @@ class TestCleanParticipantsManagementCommand(TestCase):
             completed=True
         )
 
-        cls.data_consent = {'usage_dd_consent': 1, 'quest_dd_consent': 1}
-        cls.data_no_consent = {'usage_dd_consent': 0, 'quest_dd_consent': 0}
-        cls.data_mixed_consent_a = {'usage_dd_consent': 1, 'quest_dd_consent': 0}
-        cls.data_mixed_consent_b = {'usage_dd_consent': 0, 'quest_dd_consent': 1}
+        usage_consent_key = usage_consent_question.get_response_keys()[0]
+        quest_consent_key = quest_consent_question.get_response_keys()[0]
+
+        cls.data_consent = {usage_consent_key: 1, quest_consent_key: 1}
+        cls.data_no_consent = {usage_consent_key: 0, quest_consent_key: 0}
+        cls.data_mixed_consent_a = {usage_consent_key: 1, quest_consent_key: 0}
+        cls.data_mixed_consent_b = {usage_consent_key: 0, quest_consent_key: 1}
         cls.data_consent_missing = {'other_var': 1}
 
     def setUp(self):
