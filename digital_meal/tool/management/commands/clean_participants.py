@@ -1,5 +1,7 @@
+import logging
 from datetime import timedelta
 
+from ddm.apis.serializers import ResponseSerializer
 from django.conf import settings
 from ddm.datadonation.models import DataDonation
 from ddm.logging.models import ExceptionLogEntry, ExceptionRaisers
@@ -8,6 +10,9 @@ from ddm.questionnaire.models import QuestionnaireResponse
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from ddm.participation.models import Participant
+
+
+logger = logging.getLogger(__name__)
 
 
 def delete_donations(participant: Participant, project: DonationProject) -> None:
@@ -112,6 +117,7 @@ def initialize_cleaning_stats() -> dict:
     return cleaning_stats
 
 
+# TODO: Test again thoroughly
 # TODO: Differentiate between donations and responses.
 # TODO: Handle test cases (delete 30 days after participation).
 class Command(BaseCommand):
@@ -139,29 +145,34 @@ class Command(BaseCommand):
         cleaning_stats = initialize_cleaning_stats()
 
         for participant in participants_to_check:
-            responses = QuestionnaireResponse.objects.filter()
+            responses = QuestionnaireResponse.objects.filter(participant=participant)
 
-            for response in responses:
-                project = response.project
-                cleaning_stats[project.pk]['n_checked'] += 1
-                response_data = response.get_decrypted_data(
-                    project.secret, project.get_salt())
+            if len(responses) > 1:
+                logger.warning('Clean Participant Command: Found more than one response for participant: %s', participant.external_id)
+                continue
 
-                # Check consent for usage data donation.
-                usage_dd_consent = response_data.get('usage_dd_consent')
-                if usage_dd_consent is None:
-                    cleaning_stats[project.pk]['n_miss_usage_consent_var'] += 1
-                elif usage_dd_consent != 1:
-                    delete_donations(participant, project)
-                    cleaning_stats[project.pk]['n_donations_deleted'] += 1
+            response = responses.first()
+            serialized_response = ResponseSerializer(response).data
+            response_data = serialized_response['response_data']
 
-                # Check consent for questionnaire response donation.
-                quest_consent = response_data.get('quest_dd_consent')
-                if quest_consent is None:
-                    cleaning_stats[project.pk]['n_miss_quest_consent_var'] += 1
-                elif quest_consent != 1:
-                    delete_response(participant, project)
-                    cleaning_stats[project.pk]['n_responses_deleted'] += 1
+            project = response.project
+            cleaning_stats[project.pk]['n_checked'] += 1
+
+            # Check consent for usage data donation.
+            usage_dd_consent = response_data.get('usage_dd_consent')
+            if usage_dd_consent is None:
+                cleaning_stats[project.pk]['n_miss_usage_consent_var'] += 1
+            elif usage_dd_consent not in [1, '1']:
+                delete_donations(participant, project)
+                cleaning_stats[project.pk]['n_donations_deleted'] += 1
+
+            # Check consent for questionnaire response donation.
+            quest_consent = response_data.get('quest_dd_consent')
+            if quest_consent is None:
+                cleaning_stats[project.pk]['n_miss_quest_consent_var'] += 1
+            elif quest_consent != 1:
+                delete_response(participant, project)
+                cleaning_stats[project.pk]['n_responses_deleted'] += 1
 
         # Create project logs in ddm.
         create_job_logs(cleaning_stats)
