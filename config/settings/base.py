@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'digital_meal.website',
     'digital_meal.reports',
     'digital_meal.portability',
+    'digital_meal.dashboard',
     'cookie_consent',
     'wagtail.contrib.forms',
     'wagtail.contrib.redirects',

@@ -1,0 +1,103 @@
+<div class="row mb-3">
+  <div class="col-md-3">
+    <div class="stat-box">
+      <div class="stat-label">Total Participants</div>
+      <div class="stat-value">{{ total_participants }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-box">
+      <div class="stat-label">Completed</div>
+      <div class="stat-value text-success">{{ total_completed }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-box">
+      <div class="stat-label">Completion Rate</div>
+      <div class="stat-value">{{ completion_rate|floatformat:1 }}%</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-box">
+      <div class="stat-label">Avg per Classroom</div>
+      <div class="stat-value">{{ avg_per_classroom|floatformat:1 }}</div>
+    </div>
+  </div>
+</div>
+
+{% if participants_by_module %}
+  {% for module_name, module_data in participants_by_module.items %}
+    <h5 class="mt-4">{{ module_name }}</h5>
+    <div class="card mb-3">
+      <div class="card-body border-bottom">
+
+        <h6 class="card-title">Overview</h6>
+        <div class="row">
+
+          <div class="col-md-2">
+            <small class="text-muted">Classrooms</small>
+            <div><strong>{{ module_data.classrooms }}</strong></div>
+          </div>
+
+          <div class="col-md-2">
+            <small class="text-muted">Participants</small>
+            <div><strong>{{ module_data.total }}</strong></div>
+          </div>
+
+          <div class="col-md-2">
+            <small class="text-muted">Completed</small>
+            <div><strong>{{ module_data.completed }}</strong></div>
+          </div>
+
+          <div class="col-md-3">
+            <small class="text-muted">Completion Rate</small>
+            <div><strong>{{ module_data.completion_rate|floatformat:1 }}%</strong></div>
+          </div>
+
+          <div class="col-md-3">
+            <small class="text-muted">Avg per Classroom</small>
+            <div><strong>{{ module_data.avg_per_classroom|floatformat:1 }}</strong></div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- TODO: Loop blueprints -->
+      {% for blueprint_name, blueprint_data in module_data.blueprints.items %}
+        <div class="card-body border-bottom">
+
+          <h6 class="card-title">{{ blueprint_name }}</h6>
+          <div class="row">
+
+            <div class="col-md-2">
+              <small class="text-muted">File submitted</small>
+              <div><strong>{{ blueprint_data.n_submitted }}</strong></div>
+            </div>
+
+            <div class="col-md-2">
+              <small class="text-muted">Donated</small>
+              <div><strong>{{ blueprint_data.n_donated }}</strong></div>
+            </div>
+
+            <div class="col-md-2">
+              <small class="text-muted">Donation Rate</small>
+              <div><strong>{{ blueprint_data.donation_rate|floatformat:2 }}%</strong></div>
+            </div>
+
+          </div>
+
+        </div>
+
+      {% empty %}
+        <div class="card-body">
+          No blueprint data found.
+        </div>
+      {% endfor %}
+
+    </div>
+
+  {% endfor %}
+{% else %}
+  <p class="text-muted">No participation data available yet</p>
+{% endif %}
