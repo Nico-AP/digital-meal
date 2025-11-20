@@ -204,7 +204,6 @@
 <div id="email-data" data-post-url="{{ request.scheme }}://{{ request.get_host }}{% url 'send_report_link' %}" data-csrf-token="{{ csrf_token }}" hidden></div>
 
 {% block scripts %}
-  <script src="{% static 'website/js/jquery/jquery-3.6.2.min.js' %}"></script>
   <script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
   <script src="{% static 'reports/js/bokeh/bokeh-3.8.1.min.js' %}"></script>
   <script src="{% static 'reports/js/report-loader.js' %}"></script>
