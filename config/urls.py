@@ -44,11 +44,13 @@ custom_ddm_patterns = [
     path(
         'login/',
         page_not_found,
+        kwargs={'exception': Exception('Page not Found')},
         name='ddm_login'
     ),
     path(
         'logout/',
         page_not_found,
+        kwargs={'exception': Exception('Page not Found')},
         name='ddm_logout'
     ),
 ]
