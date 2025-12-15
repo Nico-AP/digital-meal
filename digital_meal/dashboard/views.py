@@ -5,7 +5,8 @@ from ddm.projects.models import DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Value
+from django.db.models.functions import Concat
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -40,6 +41,7 @@ class ClassroomOverviewView(UserPassesTestMixin, TemplateView):
             Q(owner__is_staff=True)
         )
 
+        # Overview
         context['total_classrooms'] = classrooms.count()
         context['active_classrooms'] = classrooms.filter(
             expiry_date__gte=time_now
@@ -48,9 +50,20 @@ class ClassroomOverviewView(UserPassesTestMixin, TemplateView):
             expiry_date__lt=time_now
         ).count()
 
+        # By Module
         context['classrooms_by_module'] = classrooms.values(
             'base_module__name'
         ).annotate(
+            count=Count('id'),
+            n_active=Count('id', filter=Q(expiry_date__gte=time_now)),
+            n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),
+        ).order_by('-count')
+
+        # By Submodule
+        context['classrooms_by_submodule'] = classrooms.values(
+            'sub_modules__pk'
+        ).annotate(
+            name=Concat('base_module__name', Value(': '), 'sub_modules__name'),
             count=Count('id'),
             n_active=Count('id', filter=Q(expiry_date__gte=time_now)),
             n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),

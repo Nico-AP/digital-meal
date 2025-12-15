@@ -50,6 +50,36 @@
   </table>
 </div>
 
+<h5 class="mt-5">By Submodule</h5>
+<div>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Submodule</th>
+        <th scope="col">Total</th>
+        <th scope="col">Active</th>
+        <th scope="col">Expired</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for submodule in classrooms_by_submodule %}
+      <tr>
+        <td>{{ submodule.name }}</td>
+        <td>{{ submodule.count }}</td>
+        <td>{{ submodule.n_active }}</td>
+        <td>{{ submodule.n_expired }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td>No Modules Found</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  <div class="pb-1"><small class="text-muted">Note: One classroom can have multiple submodules.</small></div>
+</div>
+
 <h5 class="mt-5">Recently Created</h5>
 <div>
   <table class="table table-sm table-striped">
