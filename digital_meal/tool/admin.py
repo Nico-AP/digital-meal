@@ -10,7 +10,7 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'first_name', 'canton', 'school_name']
+    list_display = ['user', 'name', 'first_name', 'canton', 'school_name', 'date_created']
 
 
 @admin.register(BaseModule)
