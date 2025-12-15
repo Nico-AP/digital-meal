@@ -1,5 +1,5 @@
 from ddm.apis.serializers import ResponseSerializer
-from ddm.datadonation.models import DonationBlueprint
+from ddm.datadonation.models import DonationBlueprint, DataDonation
 from ddm.logging.models import ExceptionLogEntry
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
@@ -148,24 +148,24 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        # Get all base modules
+        base_modules = BaseModule.objects.all()
+
         # Get relevant classrooms
         classrooms = Classroom.objects.exclude(
             Q(is_test_participation_class=True) |
             Q(owner__is_staff=True)
         ).select_related('base_module').all()
 
-        # Get all base modules with aggregated classroom counts
-        base_modules = BaseModule.objects.annotate(
-            classroom_count=Count(
-                'classroom',
-                filter=Q(
-                    classroom__is_test_participation_class=False,
-                    classroom__owner__is_staff=False
-                )
-            )
-        )
+        # Pre-group classrooms by module
+        classrooms_by_module = {}
+        for classroom in classrooms:
+            module_id = classroom.base_module.id
+            if module_id not in classrooms_by_module:
+                classrooms_by_module[module_id] = []
+            classrooms_by_module[module_id].append(classroom.url_id)
 
-        # Fetch all projects with blueprints in one go
+        # Fetch all projects with blueprints
         project_ids = [m.ddm_project_id for m in base_modules if m.ddm_project_id]
         donation_projects = DonationProject.objects.filter(
             url_id__in=project_ids
@@ -174,60 +174,86 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         # Create a project lookup dict
         projects_by_url_id = {p.url_id: p for p in donation_projects}
 
+        # Get ALL participants for ALL projects at once
+        all_participants = list(
+            Participant.objects.filter(
+                project__in=donation_projects
+            ).select_related('project')
+        )
+
+        relevant_participants = [
+            p for p in all_participants
+            if p.extra_data.get('url_param', {}).get('class') in classrooms.values_list('url_id', flat=True)
+        ]
+
+        # Group participants by project (since no overlap, this is straightforward)
+        participants_by_project_id = {}
+        for participant in relevant_participants:
+            project_id = participant.project.url_id
+            if project_id not in participants_by_project_id:
+                participants_by_project_id[project_id] = []
+            participants_by_project_id[project_id].append(participant)
+
+        # Get ALL donations at once
+        donation_info = DataDonation.objects.filter(
+            project__in=donation_projects,
+            status='success',
+            consent=True,
+            participant__in=relevant_participants
+        ).values('blueprint_id', 'participant__external_id')
+
+        # Group donations by blueprint
+        donations_by_blueprint_id = {}
+        for donation in donation_info:
+            blueprint_id = donation['blueprint_id']
+            if blueprint_id not in donations_by_blueprint_id:
+                donations_by_blueprint_id[blueprint_id] = []
+            donations_by_blueprint_id[blueprint_id].append(donation['participant__external_id'])
+
+        # Get ALL responses for ALL participants at once - decryption operation only once
+        relevant_responses = QuestionnaireResponse.objects.filter(
+            participant__in=relevant_participants
+        )
+        response_data = ResponseSerializer(relevant_responses, many=True).data
+
+        # Build consent lookup by participant ID
+        consented_participant_ids = {
+            response['participant']
+            for response in response_data
+            if response['response_data'].get('usage_dd_consent') in [1, '1']
+        }
+
         info_per_module = {}
         for module in base_modules:
             module_name = module.name
 
             # Gather base information
-            classroom_ids = list(
-                classrooms.filter(base_module=module).values_list('url_id', flat=True)
-            )
+            classroom_ids = classrooms_by_module.get(module.id, [])
             donation_project = projects_by_url_id.get(module.ddm_project_id)
 
             if not donation_project:
                 continue
 
             # Single query for all participant stats
-            participant_stats = Participant.objects.filter(
-                project=donation_project,
-                extra_data__url_param__class__in=classroom_ids
-            ).aggregate(
-                total=Count('id'),
-                completed=Count('id', filter=Q(completed=True))
-            )
-
-            # Get all participants for relevant classroom
-            participants = Participant.objects.filter(
-                project=donation_project,
-                extra_data__url_param__class__in=classroom_ids
-            )
-
-            # Get responses
-            responses = QuestionnaireResponse.objects.filter(participant__in=participants)
-            response_data = ResponseSerializer(responses, many=True).data
-
-            # Set of participant IDs who consented to the donation
-            consented_participant_ids = {
-                response['participant']
-                for response in response_data
-                if response['response_data'].get('usage_dd_consent') in [1, '1']
-            }
+            project_participants = participants_by_project_id.get(donation_project.url_id, [])
+            relevant_participant_ids = {p.external_id for p in project_participants}
 
             # Process blueprints to gather blueprint specific stats
             blueprints_info = {}
             blueprints = donation_project.donationblueprint_set.all()
 
             for blueprint in blueprints:
-                uploaded_donations = blueprint.datadonation_set.filter(
-                    participant__in=participants,
-                    status='success'
-                ).values_list('participant__external_id', flat=True)
+                uploaded_participant_ids = set(
+                    donations_by_blueprint_id.get(blueprint.id, [])
+                )
+                uploaded_participant_ids = uploaded_participant_ids & relevant_participant_ids
 
-                uploaded_participant_ids = set(uploaded_donations)
                 n_uploaded = len(uploaded_participant_ids)
 
                 # Check donation consent
-                n_agreed_to_donate = len(uploaded_participant_ids & consented_participant_ids)
+                n_agreed_to_donate = len(
+                    uploaded_participant_ids & consented_participant_ids
+                )
 
                 donation_rate = (n_agreed_to_donate / n_uploaded) if n_uploaded > 0 else 0
 
@@ -239,8 +265,8 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
 
             # Get overall participation counts
             n_classrooms = len(classroom_ids)
-            n_started = participant_stats['total']
-            n_completed = participant_stats['completed']
+            n_started = len(project_participants)
+            n_completed = sum(1 for p in project_participants if p.completed)
 
             info_per_module[module_name] = {
                 'id': module.pk,
