@@ -1,0 +1,80 @@
+{% if exceptions_per_module %}
+  {% for module_name, module_data in exceptions_per_module.items %}
+    <div id="accordionExc{{ module_data.id }}" class="mb-5">
+      <div>
+        <h5>
+          <a type="button" class="tgl-btn" data-bs-toggle="collapse" data-bs-target="#collapseExc{{ module_data.id }}" aria-expanded="false" aria-controls="collapseExc{{ module_data.id }}">
+            <span class="triangle">▶</span>
+            {{  module_name|title }} Exceptions
+          </a>
+        </h5>
+        <div id="collapseExc{{ module_data.id }}" class="accordion-collapse collapse" data-bs-parent="#accordionExc{{ module_data.id }}">
+
+          <div class="mt-4">
+            <h6>General Exceptions</h6>
+            <table data-classes="table table-sm table-striped"
+                   data-toggle="table"
+                   data-sortable="true">
+              <thead>
+                <tr>
+                  {% for exception in general_exceptions %}
+                  <th scope="col" data-field="{{ exception }}" data-sortable="true">{{ exception }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+
+              {% for exception_name, exception_count in module_data.general.items %}
+                <tr>
+                  {% for exception in general_exceptions %}
+                  <td>{{ exception_count }}</td>
+                  {% endfor %}
+                </tr>
+              {% empty %}
+                <tr>
+                  <td>No Blueprints Found</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+          <div class="mt-4">
+            <h6>Blueprint Exceptions</h6>
+            <table data-classes="table table-sm table-striped"
+                   data-toggle="table"
+                   data-sortable="true">
+              <thead>
+                <tr>
+                  <th scope="col" data-field="bp_name" data-sortable="true">Blueprint Name</th>
+                  {% for exception in blueprint_exceptions %}
+                  <th scope="col" data-field="{{ exception }}" data-sortable="true">{{ exception }}</th>
+                  {% endfor %}
+                </tr>
+              </thead>
+              <tbody>
+
+              {% for blueprint_name, blueprint_data in module_data.blueprints.items %}
+                <tr>
+                  <td>{{ blueprint_name|title }}</td>
+                  {% for exception_name, exception_count in blueprint_data.items %}
+                  <td>{{ exception_count }}</td>
+                  {% endfor %}
+                </tr>
+              {% empty %}
+                <tr>
+                  <td>No Blueprints Found</td>
+                </tr>
+              {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  {% endfor %}
+
+{% else %}
+  <p class="text-muted">No exception data available yet</p>
+{% endif %}

@@ -23,4 +23,9 @@ urlpatterns = [
         views.ParticipationOverviewView.as_view(),
         name='dashboard_participation_overview'
     ),
+    path(
+        'exception-overview',
+        views.ExceptionOverviewView.as_view(),
+        name='dashboard_exception_overview'
+    ),
 ]

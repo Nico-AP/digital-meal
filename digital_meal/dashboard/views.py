@@ -1,5 +1,6 @@
 from ddm.apis.serializers import ResponseSerializer
 from ddm.datadonation.models import DonationBlueprint
+from ddm.logging.models import ExceptionLogEntry
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
@@ -232,5 +233,96 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         context['completion_rate'] = (total_completed / total_participants * 100) if total_participants > 0 else 0
         context['avg_per_classroom'] = total_participants / classrooms.count() if classrooms.count() > 0 else 0
         context['participants_by_module'] = dict(sorted(info_per_module.items()))
+
+        return context
+
+
+class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
+    """HTMX endpoint for loading exception statistics."""
+    template_name = 'dashboard/partials/exception_overview.html'
+
+    def test_func(self):
+        """Requesting user must pass this test to access view."""
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        BLUEPRINT_EXCEPTIONS = [
+            "NO_FILE_MATCH",
+            "PARSING_ERROR",
+            "STRING_CONVERSION_ERROR",
+            "MORE_THAN_ONE_KEY_MATCH"
+        ]
+        GENERAL_EXCEPTIONS = [
+            "ZIP_READ_FAIL",
+            "FILE_PROCESSING_FAIL_GENERAL",
+        ]
+        BLUEPRINT_EXCEPTIONS.sort()
+        GENERAL_EXCEPTIONS.sort()
+
+        exc_per_module = {}
+
+        # Only include classrooms belonging to actual users (not superusers)
+        classrooms = Classroom.objects.exclude(
+            Q(is_test_participation_class=True) |
+            Q(owner__is_staff=True)
+        ).select_related('base_module').all()
+
+        base_modules = BaseModule.objects.all()
+        for module in base_modules:
+            exc_per_module[module.name] = {}
+
+            # Gather general information.
+            classroom_ids = classrooms.filter(
+                base_module=module).values_list('url_id', flat=True)
+            donation_project = DonationProject.objects.filter(
+                url_id=module.ddm_project_id).first()
+            participants = Participant.objects.filter(
+                project=donation_project,
+                extra_data__url_param__class__in=classroom_ids
+            )
+
+            # Add module/uploader-level exceptions
+            general_exception_counts = {exc: 0 for exc in GENERAL_EXCEPTIONS}
+
+            general_actual_counts = ExceptionLogEntry.objects.filter(
+                exception_type__in=GENERAL_EXCEPTIONS,
+                participant__in=participants,
+                blueprint=None
+            ).values('exception_type').annotate(
+                count=Count('participant', distinct=True)
+            ).values_list('exception_type', 'count')
+
+            general_exception_counts.update(general_actual_counts)
+
+            exc_per_module[module.name]['general'] = general_exception_counts.copy()
+
+            # Add blueprint-level exceptions
+            blueprints = DonationBlueprint.objects.filter(
+                project=donation_project)
+
+            blueprint_exceptions = {}
+            for blueprint in blueprints:
+                bp_exception_counts = {exc: 0 for exc in BLUEPRINT_EXCEPTIONS}
+
+                bp_actual_counts = ExceptionLogEntry.objects.filter(
+                    exception_type__in=BLUEPRINT_EXCEPTIONS,
+                    participant__in=participants,
+                    blueprint=blueprint
+                ).values('exception_type').annotate(
+                    count=Count('participant', distinct=True)
+                ).values_list('exception_type', 'count')
+
+                bp_exception_counts.update(bp_actual_counts)
+
+                blueprint_exceptions[blueprint.name] = bp_exception_counts.copy()
+
+            exc_per_module[module.name]['blueprints'] = blueprint_exceptions
+            exc_per_module[module.name]['id'] = module.pk
+
+        context['blueprint_exceptions'] = BLUEPRINT_EXCEPTIONS
+        context['general_exceptions'] = GENERAL_EXCEPTIONS
+        context['exceptions_per_module'] = exc_per_module
 
         return context

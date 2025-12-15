@@ -82,13 +82,37 @@
           <div class="card-body">
             <div id="participation-overview"
                  hx-get="{% url 'dashboard_participation_overview' %}"
-                 hx-trigger="load delay:2s"
+                 hx-trigger="load delay:1s"
                  hx-swap="innerHTML">
               <div class="text-center py-4">
                 <div class="row justify-content-center">
                   <div class="col-auto">{% include "reports/components/loader.html" %}</div>
                 </div>
                 <p class="mt-2 text-muted">Loading participant statistics...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Exception Overview -->
+    <div class="row mb-5">
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header">
+            <h4 class="mb-0">Exception Overview</h4>
+          </div>
+          <div class="card-body">
+            <div id="exception-overview"
+                 hx-get="{% url 'dashboard_exception_overview' %}"
+                 hx-trigger="load delay:2s"
+                 hx-swap="innerHTML">
+              <div class="text-center py-4">
+                <div class="row justify-content-center">
+                  <div class="col-auto">{% include "reports/components/loader.html" %}</div>
+                </div>
+                <p class="mt-2 text-muted">Loading exception overview...</p>
               </div>
             </div>
           </div>
