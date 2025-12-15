@@ -159,6 +159,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         for module in base_modules:
             module_name = module.name
             info_per_module[module_name] = {}
+            info_per_module[module_name]['id'] = module.pk
 
             # Gather base information
             classroom_ids = classrooms.filter(base_module=module).values_list('url_id', flat=True)
@@ -179,7 +180,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
             info_per_module[module_name]['blueprints'] = {}
             blueprints = DonationBlueprint.objects.filter(project=donation_project)
             for blueprint in blueprints:
-                n_submitted = blueprint.datadonation_set.filter(
+                n_uploaded = blueprint.datadonation_set.filter(
                     participant__in=participants, status='success'
                 ).count()
 
@@ -192,13 +193,13 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
                     if usage_dd_consent in [1, '1']:
                         n_agreed_to_donate += 1
 
-                if n_submitted > 0:
-                    donation_rate = n_agreed_to_donate / n_submitted
+                if n_uploaded > 0:
+                    donation_rate = n_agreed_to_donate / n_uploaded
                 else:
                     donation_rate = 0
 
                 blueprint_stats = {
-                    'n_submitted': n_submitted,
+                    'n_uploaded': n_uploaded,
                     'n_donated': n_agreed_to_donate,
                     'donation_rate': donation_rate
                 }
@@ -230,6 +231,6 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         context['total_completed'] = total_completed
         context['completion_rate'] = (total_completed / total_participants * 100) if total_participants > 0 else 0
         context['avg_per_classroom'] = total_participants / classrooms.count() if classrooms.count() > 0 else 0
-        context['participants_by_module'] = info_per_module
+        context['participants_by_module'] = dict(sorted(info_per_module.items()))
 
         return context

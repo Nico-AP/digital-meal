@@ -25,79 +25,87 @@
   </div>
 </div>
 
+<h5 class="mt-5">By Module</h5>
+<div>
+  <table data-classes="table table-sm table-striped"
+         data-toggle="table"
+         data-sortable="true">
+    <thead>
+      <tr>
+        <th scope="col" data-field="module" data-sortable="true">Module</th>
+        <th scope="col" data-field="classrooms" data-sortable="true">Classrooms</th>
+        <th scope="col" data-field="participants" data-sortable="true">Participants</th>
+        <th scope="col" data-field="completed" data-sortable="true">Completed</th>
+        <th scope="col" data-field="completion_rate" data-sortable="true">Completion Rate</th>
+        <th scope="col" data-field="avg_participants" data-sortable="true">Avg Part./Classr.</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for module_name, module_data in participants_by_module.items %}
+      <tr>
+        <td>{{ module_name }}</td>
+        <td>{{ module_data.classrooms }}</td>
+        <td>{{ module_data.total }}</td>
+        <td>{{ module_data.completed }}</td>
+        <td>{{ module_data.completion_rate|floatformat:1 }}%</td>
+        <td>{{ module_data.avg_per_classroom|floatformat:1 }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td>No Modules Found</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
 {% if participants_by_module %}
   {% for module_name, module_data in participants_by_module.items %}
-    <h5 class="mt-4">{{ module_name }}</h5>
-    <div class="card mb-3">
-      <div class="card-body border-bottom">
+    <div id="accordion{{ module_data.id }}" class="mt-5">
+    <div>
+      <h5>
+        <a type="button" class="tgl-btn" data-bs-toggle="collapse" data-bs-target="#collapse{{ module_data.id }}" aria-expanded="false" aria-controls="collapse{{ module_data.id }}">
+          <span class="triangle">▶</span>
+          {{  module_name|title }} Blueprints
+        </a>
+      </h5>
+      <div id="collapse{{ module_data.id }}" class="accordion-collapse collapse" data-bs-parent="#accordion{{ module_data.id }}">
+        <div>
+          <table data-classes="table table-sm table-striped"
+                 data-toggle="table"
+                 data-sortable="true">
+            <thead>
+              <tr>
+                <th scope="col" data-field="bp_name" data-sortable="true">Blueprint Name</th>
+                <th scope="col" data-field="files" data-sortable="true">Files Uploaded</th>
+                <th scope="col" data-field="donated" data-sortable="true">Donated</th>
+                <th scope="col" data-field="donation_rate" data-sortable="true">Donation Rate</th>
+              </tr>
+            </thead>
+            <tbody>
 
-        <h6 class="card-title">Overview</h6>
-        <div class="row">
-
-          <div class="col-md-2">
-            <small class="text-muted">Classrooms</small>
-            <div><strong>{{ module_data.classrooms }}</strong></div>
-          </div>
-
-          <div class="col-md-2">
-            <small class="text-muted">Participants</small>
-            <div><strong>{{ module_data.total }}</strong></div>
-          </div>
-
-          <div class="col-md-2">
-            <small class="text-muted">Completed</small>
-            <div><strong>{{ module_data.completed }}</strong></div>
-          </div>
-
-          <div class="col-md-3">
-            <small class="text-muted">Completion Rate</small>
-            <div><strong>{{ module_data.completion_rate|floatformat:1 }}%</strong></div>
-          </div>
-
-          <div class="col-md-3">
-            <small class="text-muted">Avg per Classroom</small>
-            <div><strong>{{ module_data.avg_per_classroom|floatformat:1 }}</strong></div>
-          </div>
-
+            {% for blueprint_name, blueprint_data in module_data.blueprints.items %}
+              <tr>
+                <td>{{ blueprint_name|title }}</td>
+                <td>{{ blueprint_data.n_uploaded }}</td>
+                <td>{{ blueprint_data.n_donated }}</td>
+                <td>{{ blueprint_data.donation_rate|floatformat:2 }}</td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td>No Blueprints Found</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
         </div>
-
       </div>
-
-      <!-- TODO: Loop blueprints -->
-      {% for blueprint_name, blueprint_data in module_data.blueprints.items %}
-        <div class="card-body border-bottom">
-
-          <h6 class="card-title">{{ blueprint_name }}</h6>
-          <div class="row">
-
-            <div class="col-md-2">
-              <small class="text-muted">File submitted</small>
-              <div><strong>{{ blueprint_data.n_submitted }}</strong></div>
-            </div>
-
-            <div class="col-md-2">
-              <small class="text-muted">Donated</small>
-              <div><strong>{{ blueprint_data.n_donated }}</strong></div>
-            </div>
-
-            <div class="col-md-2">
-              <small class="text-muted">Donation Rate</small>
-              <div><strong>{{ blueprint_data.donation_rate|floatformat:2 }}%</strong></div>
-            </div>
-
-          </div>
-
-        </div>
-
-      {% empty %}
-        <div class="card-body">
-          No blueprint data found.
-        </div>
-      {% endfor %}
-
     </div>
+  </div>
 
   {% endfor %}
+
 {% else %}
   <p class="text-muted">No participation data available yet</p>
 {% endif %}
