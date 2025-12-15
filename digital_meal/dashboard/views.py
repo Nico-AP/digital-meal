@@ -160,6 +160,8 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         # Pre-group classrooms by module
         classrooms_by_module = {}
         for classroom in classrooms:
+            if classroom.base_module is None:
+                continue
             module_id = classroom.base_module.id
             if module_id not in classrooms_by_module:
                 classrooms_by_module[module_id] = []
