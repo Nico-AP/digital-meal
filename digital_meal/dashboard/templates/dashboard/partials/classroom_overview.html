@@ -23,13 +23,15 @@
 
 <h5 class="mt-5">By Module</h5>
 <div>
-  <table class="table table-sm table-striped">
+  <table data-classes="table table-sm table-striped"
+         data-toggle="table"
+         data-sortable="true">
     <thead>
       <tr>
-        <th scope="col">Module</th>
-        <th scope="col">Total</th>
-        <th scope="col">Active</th>
-        <th scope="col">Expired</th>
+        <th scope="col" data-field="module" data-sortable="true">Module</th>
+        <th scope="col" data-field="total" data-sortable="true">Total</th>
+        <th scope="col" data-field="active" data-sortable="true">Active</th>
+        <th scope="col" data-field="expired" data-sortable="true">Expired</th>
       </tr>
     </thead>
     <tbody>
@@ -52,13 +54,15 @@
 
 <h5 class="mt-5">By Submodule</h5>
 <div>
-  <table class="table table-sm table-striped">
+  <table data-classes="table table-sm table-striped"
+         data-toggle="table"
+         data-sortable="true">
     <thead>
       <tr>
-        <th scope="col">Submodule</th>
-        <th scope="col">Total</th>
-        <th scope="col">Active</th>
-        <th scope="col">Expired</th>
+        <th scope="col" data-field="submodule" data-sortable="true">Submodule</th>
+        <th scope="col" data-field="total" data-sortable="true">Total</th>
+        <th scope="col" data-field="active" data-sortable="true">Active</th>
+        <th scope="col" data-field="expired" data-sortable="true">Expired</th>
       </tr>
     </thead>
     <tbody>
@@ -110,3 +114,132 @@
     </tbody>
   </table>
 </div>
+
+
+<div id="accordionLevel" class="mt-5">
+  <div>
+    <h5>
+      <a type="button" class="tgl-btn" data-bs-toggle="collapse" data-bs-target="#collapseLevel" aria-expanded="false" aria-controls="collapseLevel">
+        <span class="triangle">▶</span>
+        By Level
+      </a>
+    </h5>
+    <div id="collapseLevel" class="accordion-collapse collapse" data-bs-parent="#accordionLevel">
+      <div>
+        <table data-classes="table table-sm table-striped"
+               data-toggle="table"
+               data-sortable="true">
+          <thead>
+            <tr>
+              <th scope="col" data-field="level" data-sortable="true">Level</th>
+              <th scope="col" data-field="total" data-sortable="true">Total</th>
+              <th scope="col" data-field="active" data-sortable="true">Active</th>
+              <th scope="col" data-field="expired" data-sortable="true">Expired</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for level in classrooms_by_level %}
+            <tr>
+              <td>{{ level.school_level|title }}</td>
+              <td>{{ level.count }}</td>
+              <td>{{ level.n_active }}</td>
+              <td>{{ level.n_expired }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td>No Modules Found</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="accordionSubject" class="mt-5">
+  <div>
+    <h5>
+      <a type="button" class="tgl-btn" data-bs-toggle="collapse" data-bs-target="#collapseSubject" aria-expanded="false" aria-controls="collapseSubject">
+        <span class="triangle">▶</span>
+        By Subject
+      </a>
+    </h5>
+    <div id="collapseSubject" class="accordion-collapse collapse" data-bs-parent="#accordionSubject">
+      <div>
+        <table data-classes="table table-sm table-striped"
+               data-toggle="table"
+               data-sortable="true">
+          <thead>
+            <tr>
+              <th scope="col" data-field="subject" data-sortable="true">Subject</th>
+              <th scope="col" data-field="total" data-sortable="true">Total</th>
+              <th scope="col" data-field="active" data-sortable="true">Active</th>
+              <th scope="col" data-field="expired" data-sortable="true">Expired</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for subject in classrooms_by_subject %}
+            <tr>
+              <td>{{ subject.subject|title }}</td>
+              <td>{{ subject.count }}</td>
+              <td>{{ subject.n_active }}</td>
+              <td>{{ subject.n_expired }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td>No Modules Found</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="accordionFormat" class="mt-5">
+  <div>
+    <h5>
+      <a type="button" class="tgl-btn" data-bs-toggle="collapse" data-bs-target="#collapseFormat" aria-expanded="false" aria-controls="collapseFormat">
+        <span class="triangle">▶</span>
+        By Instruction Format
+      </a>
+    </h5>
+    <div id="collapseFormat" class="accordion-collapse collapse" data-bs-parent="#accordionFormat">
+      <div>
+        <table data-classes="table table-sm table-striped"
+               data-toggle="table"
+               data-sortable="true">
+          <thead>
+            <tr>
+              <th scope="col" data-field="format" data-sortable="true">Format</th>
+              <th scope="col" data-field="total" data-sortable="true">Total</th>
+              <th scope="col" data-field="active" data-sortable="true">Active</th>
+              <th scope="col" data-field="expired" data-sortable="true">Expired</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          {% for format in classrooms_by_format %}
+            <tr>
+              <td>{{ format.instruction_format|title }}</td>
+              <td>{{ format.count }}</td>
+              <td>{{ format.n_active }}</td>
+              <td>{{ format.n_expired }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td>No Modules Found</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="pb-1 mt-2"><small class="text-muted">Note: Classes by staff accounts are excluded.</small></div>

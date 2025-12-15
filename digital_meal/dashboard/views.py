@@ -69,6 +69,33 @@ class ClassroomOverviewView(UserPassesTestMixin, TemplateView):
             n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),
         ).order_by('-count')
 
+        # By Level
+        context['classrooms_by_level'] = classrooms.values(
+            'school_level'
+        ).annotate(
+            count=Count('id'),
+            n_active=Count('id', filter=Q(expiry_date__gte=time_now)),
+            n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),
+        ).order_by('school_level')
+
+        # By Subject
+        context['classrooms_by_subject'] = classrooms.values(
+            'subject'
+        ).annotate(
+            count=Count('id'),
+            n_active=Count('id', filter=Q(expiry_date__gte=time_now)),
+            n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),
+        ).order_by('subject')
+
+        # By Instruction Format
+        context['classrooms_by_format'] = classrooms.values(
+            'instruction_format'
+        ).annotate(
+            count=Count('id'),
+            n_active=Count('id', filter=Q(expiry_date__gte=time_now)),
+            n_expired=Count('id', filter=Q(expiry_date__lt=time_now)),
+        ).order_by('instruction_format')
+
         context['recent_classrooms'] = classrooms.select_related(
             'owner', 'owner__teacher', 'base_module'
         ).order_by('-date_created')[:10]

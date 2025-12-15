@@ -9,7 +9,7 @@
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
   <link rel="stylesheet" href="{% static 'reports/css/reports.css' %}">
-
+  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap-table.min.css' %}">
 {% endblock site_css %}
 
 
@@ -106,4 +106,8 @@
 {% block site_js %}
   {{ block.super }}
   {% htmx_script %}
+  <script src="{% static 'website/js/jquery/jquery-3.7.1.min.js' %}"></script>
+  <script src="{% static 'website/js/bootstrap/bootstrap-table.min.js' %}"></script>
+  <script src="{% static 'website/js/bootstrap-tables-with-htmx.js' %}"></script>
+
 {% endblock %}

@@ -1,15 +1,36 @@
 .stat-box {
-  text-align: center;
-  padding: 1rem;
-  background-color: #f8f9fa;
-  border-radius: 0.375rem;
+    text-align: center;
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-radius: 0.375rem;
 }
 .stat-label {
-  font-size: 0.875rem;
-  color: #6c757d;
-  margin-bottom: 0.5rem;
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-bottom: 0.5rem;
 }
 .stat-value {
-  font-size: 2rem;
-  font-weight: bold;
+    font-size: 2rem;
+    font-weight: bold;
+}
+
+.tgl-btn {
+    background: none;
+    border: none;
+    text-decoration: none;
+}
+.tgl-btn:hover {
+    background: none;
+    text-decoration: none;
+    color: #3e3e3e;
+}
+.tgl-btn .triangle {
+    display: inline-block;
+    transition: transform 0.2s ease;
+    font-size: 0.6em;
+    vertical-align: middle;
+}
+
+.tgl-btn[aria-expanded="true"] .triangle {
+    transform: rotate(90deg);
 }
