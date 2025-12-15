@@ -21,12 +21,20 @@ class DashboardView(UserPassesTestMixin, TemplateView):
         """Requesting user must pass this test to access view."""
         return self.request.user.is_staff
 
+
+class ClassroomOverviewView(UserPassesTestMixin, TemplateView):
+    """HTMX endpoint for loading participant statistics."""
+    template_name = 'dashboard/partials/classroom_overview.html'
+
+    def test_func(self):
+        """Requesting user must pass this test to access view."""
+        return self.request.user.is_staff
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         time_now = timezone.now()
 
-        # Classroom statistics
         classrooms = Classroom.objects.exclude(
             Q(is_test_participation_class=True) |
             Q(owner__is_staff=True)
@@ -52,7 +60,20 @@ class DashboardView(UserPassesTestMixin, TemplateView):
             'owner', 'owner__teacher', 'base_module'
         ).order_by('-date_created')[:10]
 
-        # Teacher statistics
+        return context
+
+
+class TeacherOverviewView(UserPassesTestMixin, TemplateView):
+    """HTMX endpoint for loading participant statistics."""
+    template_name = 'dashboard/partials/teacher_overview.html'
+
+    def test_func(self):
+        """Requesting user must pass this test to access view."""
+        return self.request.user.is_staff
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
         teacher_users = User.objects.exclude(is_staff=True)
         teachers = Teacher.objects.filter(user__in=teacher_users)
 
@@ -75,9 +96,9 @@ class DashboardView(UserPassesTestMixin, TemplateView):
         return context
 
 
-class ParticipantStatsView(UserPassesTestMixin, TemplateView):
+class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
     """HTMX endpoint for loading participant statistics."""
-    template_name = 'dashboard/partials/participant_stats.html'
+    template_name = 'dashboard/partials/participation_overview.html'
 
     def test_func(self):
         """Requesting user must pass this test to access view."""

@@ -1,0 +1,82 @@
+<div class="row mb-3">
+  <div class="col-md-4">
+    <div class="stat-box">
+      <div class="stat-label">Total Classrooms</div>
+      <div class="stat-value">{{ total_classrooms }}</div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="stat-box">
+      <div class="stat-label">Active Classrooms</div>
+      <div class="stat-value text-success">{{ active_classrooms }}</div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="stat-box">
+      <div class="stat-label">Expired Classrooms</div>
+      <div class="stat-value text-muted">{{ expired_classrooms }}</div>
+    </div>
+  </div>
+</div>
+
+<h5 class="mt-5">By Module</h5>
+<div>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Module</th>
+        <th scope="col">Total</th>
+        <th scope="col">Active</th>
+        <th scope="col">Expired</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for module in classrooms_by_module %}
+      <tr>
+        <td>{{ module.base_module__name }}</td>
+        <td>{{ module.count }}</td>
+        <td>{{ module.n_active }}</td>
+        <td>{{ module.n_expired }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td>No Modules Found</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h5 class="mt-5">Recently Created</h5>
+<div>
+  <table class="table table-sm table-striped">
+    <thead>
+      <tr>
+        <th scope="col">Date</th>
+        <th scope="col">Class ID</th>
+        <th scope="col">Module</th>
+        <th scope="col">Class Name</th>
+        <th scope="col">Teacher</th>
+      </tr>
+    </thead>
+    <tbody>
+
+    {% for classroom in recent_classrooms %}
+      <tr>
+        <td>{{ classroom.date_created|date:"Y-m-d" }}</td>
+        <td>{{ classroom.url_id }}</td>
+        <td>{{ classroom.base_module.name }}</td>
+        <td>{{ classroom.name }}</td>
+        <td>{{ classroom.owner.email }}</td>
+      </tr>
+    {% empty %}
+      <tr>
+        <td>No Classrooms Found</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>

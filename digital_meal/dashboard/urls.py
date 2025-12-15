@@ -1,16 +1,26 @@
 from django.urls import path
 
-from digital_meal.dashboard.views import DashboardView, ParticipantStatsView
+import digital_meal.dashboard.views as views
 
 urlpatterns = [
     path(
         '',
-        DashboardView.as_view(),
+        views.DashboardView.as_view(),
         name='dashboard'
     ),
     path(
-        'participant-stats',
-        ParticipantStatsView.as_view(),
-        name='dashboard_participant_stats'
+        'classroom-overview',
+        views.ClassroomOverviewView.as_view(),
+        name='dashboard_classroom_overview'
+    ),
+    path(
+        'teacher-overview',
+        views.TeacherOverviewView.as_view(),
+        name='dashboard_teacher_overview'
+    ),
+    path(
+        'participation-overview',
+        views.ParticipationOverviewView.as_view(),
+        name='dashboard_participation_overview'
     ),
 ]

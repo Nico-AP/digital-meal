@@ -22,106 +22,32 @@
 
     <h1 class="mb-4">Admin Dashboard</h1>
 
-    <!-- Classrooms Overview -->
-    <div class="row mb-5">
+    <!-- Classroom Overview -->
+    <div class="row mb-4">
       <div class="col-12">
         <div class="card">
-
           <div class="card-header">
-            <h4 class="mb-0">Classrooms Overview</h4>
+            <h4 class="mb-0">Classroom Overview</h4>
           </div>
 
           <div class="card-body">
-            <div class="row mb-3">
-              <div class="col-md-4">
-                <div class="stat-box">
-                  <div class="stat-label">Total Classrooms</div>
-                  <div class="stat-value">{{ total_classrooms }}</div>
+            <div id="classroom-overview"
+                 hx-get="{% url 'dashboard_classroom_overview' %}"
+                 hx-trigger="load delay:1s"
+                 hx-swap="innerHTML">
+              <div class="text-center py-4">
+                <div class="row justify-content-center">
+                  <div class="col-auto">{% include "reports/components/loader.html" %}</div>
                 </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="stat-box">
-                  <div class="stat-label">Active Classrooms</div>
-                  <div class="stat-value text-success">{{ active_classrooms }}</div>
-                </div>
-              </div>
-
-              <div class="col-md-4">
-                <div class="stat-box">
-                  <div class="stat-label">Expired Classrooms</div>
-                  <div class="stat-value text-muted">{{ expired_classrooms }}</div>
-                </div>
+                <p class="mt-2 text-muted">Loading classroom overview...</p>
               </div>
             </div>
-
-            <h5 class="mt-5">By Module</h5>
-            <div>
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Module</th>
-                    <th scope="col">Total</th>
-                    <th scope="col">Active</th>
-                    <th scope="col">Expired</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                {% for module in classrooms_by_module %}
-                  <tr>
-                    <td>{{ module.base_module__name }}</td>
-                    <td>{{ module.count }}</td>
-                    <td>{{ module.n_active }}</td>
-                    <td>{{ module.n_expired }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td>No Modules Found</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            </div>
-
-            <h5 class="mt-5">Recently Created</h5>
-            <div>
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">Class ID</th>
-                    <th scope="col">Module</th>
-                    <th scope="col">Class Name</th>
-                    <th scope="col">Teacher</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                {% for classroom in recent_classrooms %}
-                  <tr>
-                    <td>{{ classroom.date_created|date:"Y-m-d" }}</td>
-                    <td>{{ classroom.url_id }}</td>
-                    <td>{{ classroom.base_module.name }}</td>
-                    <td>{{ classroom.name }}</td>
-                    <td>{{ classroom.owner.email }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td>No Classrooms Found</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            </div>
-
           </div>
-          <div class="ps-3 pb-1"><small class="text-muted">Note: Classes created by staff accounts are excluded.</small></div>
         </div>
       </div>
     </div>
 
-    <!-- Teachers Overview -->
+    <!-- Teacher Overview -->
     <div class="row mb-4">
       <div class="col-12">
         <div class="card">
@@ -130,84 +56,23 @@
           </div>
 
           <div class="card-body">
-            <div class="row mb-3">
-
-              <div class="col-md-6">
-                <div class="stat-box">
-                  <div class="stat-label">With Classrooms</div>
-                  <div class="stat-value text-success">{{ teachers_with_classroom }}</div>
+            <div id="teacher-overview"
+                 hx-get="{% url 'dashboard_teacher_overview' %}"
+                 hx-trigger="load delay:2s"
+                 hx-swap="innerHTML">
+              <div class="text-center py-4">
+                <div class="row justify-content-center">
+                  <div class="col-auto">{% include "reports/components/loader.html" %}</div>
                 </div>
+                <p class="mt-2 text-muted">Loading teacher overview...</p>
               </div>
-
-              <div class="col-md-6">
-                <div class="stat-box">
-                  <div class="stat-label">Without Classrooms</div>
-                  <div class="stat-value text-muted">{{ teachers_without_classroom }}</div>
-                </div>
-              </div>
-
             </div>
-
-            <h5 class="mt-5">Recently Registered</h5>
-            <div>
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Date</th>
-                    <th scope="col">E-Mail</th>
-                    <th scope="col">Canton</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                {% for teacher in recent_teachers %}
-                  <tr>
-                    <td>{{ teacher.date_joined|date:"Y-m-d" }}</td>
-                    <td>{{ teacher.email }}</td>
-                    <td>{{ teacher.teacher.canton }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td>No Classrooms Found</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            </div>
-
-            <h5 class="mt-5">Top Cantons</h5>
-            <div>
-              <table class="table table-sm table-striped">
-                <thead>
-                  <tr>
-                    <th scope="col">Name</th>
-                    <th scope="col">Count</th>
-                  </tr>
-                </thead>
-                <tbody>
-
-                {% for canton in teachers_by_canton %}
-                  <tr>
-                    <td>{{ canton.canton }}</td>
-                    <td>{{ canton.count }}</td>
-                  </tr>
-                {% empty %}
-                  <tr>
-                    <td>No data available</td>
-                  </tr>
-                {% endfor %}
-                </tbody>
-              </table>
-            </div>
-
           </div>
-          <div class="ps-3 pb-1"><small class="text-muted">Note: Staff accounts are excluded.</small></div>
         </div>
-
       </div>
     </div>
 
-    <!-- Participants Overview (loaded via HTMX) -->
+    <!-- Participant Overview -->
     <div class="row mb-5">
       <div class="col-12">
         <div class="card">
@@ -215,9 +80,9 @@
             <h4 class="mb-0">Participation Overview</h4>
           </div>
           <div class="card-body">
-            <div id="participant-stats"
-                 hx-get="{% url 'dashboard_participant_stats' %}"
-                 hx-trigger="load"
+            <div id="participation-overview"
+                 hx-get="{% url 'dashboard_participation_overview' %}"
+                 hx-trigger="load delay:2s"
                  hx-swap="innerHTML">
               <div class="text-center py-4">
                 <div class="row justify-content-center">
