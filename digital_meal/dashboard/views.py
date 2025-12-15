@@ -148,23 +148,53 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # Aggregate participant statistics by module
-        info_per_module = {}
-
+        # Get relevant classrooms
         classrooms = Classroom.objects.exclude(
             Q(is_test_participation_class=True) |
             Q(owner__is_staff=True)
         ).select_related('base_module').all()
 
-        base_modules = BaseModule.objects.all()
+        # Get all base modules with aggregated classroom counts
+        base_modules = BaseModule.objects.annotate(
+            classroom_count=Count(
+                'classroom',
+                filter=Q(
+                    classroom__is_test_participation_class=False,
+                    classroom__owner__is_staff=False
+                )
+            )
+        )
+
+        # Fetch all projects with blueprints in one go
+        project_ids = [m.ddm_project_id for m in base_modules if m.ddm_project_id]
+        donation_projects = DonationProject.objects.filter(
+            url_id__in=project_ids
+        ).prefetch_related('donationblueprint_set')
+
+        # Create a project lookup dict
+        projects_by_url_id = {p.url_id: p for p in donation_projects}
+
+        info_per_module = {}
         for module in base_modules:
             module_name = module.name
-            info_per_module[module_name] = {}
-            info_per_module[module_name]['id'] = module.pk
 
             # Gather base information
-            classroom_ids = classrooms.filter(base_module=module).values_list('url_id', flat=True)
-            donation_project = DonationProject.objects.filter(url_id=module.ddm_project_id).first()
+            classroom_ids = list(
+                classrooms.filter(base_module=module).values_list('url_id', flat=True)
+            )
+            donation_project = projects_by_url_id.get(module.ddm_project_id)
+
+            if not donation_project:
+                continue
+
+            # Single query for all participant stats
+            participant_stats = Participant.objects.filter(
+                project=donation_project,
+                extra_data__url_param__class__in=classroom_ids
+            ).aggregate(
+                total=Count('id'),
+                completed=Count('id', filter=Q(completed=True))
+            )
 
             # Get all participants for relevant classroom
             participants = Participant.objects.filter(
@@ -172,66 +202,65 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
                 extra_data__url_param__class__in=classroom_ids
             )
 
-            # Get overall participation counts
-            n_classrooms = len(classroom_ids)
-            n_started = participants.count()
-            n_completed = participants.filter(completed=True).count()
+            # Get responses
+            responses = QuestionnaireResponse.objects.filter(participant__in=participants)
+            response_data = ResponseSerializer(responses, many=True).data
 
-            # Loop over blueprints to gather blueprint specific stats
-            info_per_module[module_name]['blueprints'] = {}
-            blueprints = DonationBlueprint.objects.filter(project=donation_project)
+            # Set of participant IDs who consented to the donation
+            consented_participant_ids = {
+                response['participant']
+                for response in response_data
+                if response['response_data'].get('usage_dd_consent') in [1, '1']
+            }
+
+            # Process blueprints to gather blueprint specific stats
+            blueprints_info = {}
+            blueprints = donation_project.donationblueprint_set.all()
+
             for blueprint in blueprints:
-                n_uploaded = blueprint.datadonation_set.filter(
-                    participant__in=participants, status='success'
-                ).count()
+                uploaded_donations = blueprint.datadonation_set.filter(
+                    participant__in=participants,
+                    status='success'
+                ).values_list('participant__external_id', flat=True)
+
+                uploaded_participant_ids = set(uploaded_donations)
+                n_uploaded = len(uploaded_participant_ids)
 
                 # Check donation consent
-                responses = QuestionnaireResponse.objects.filter(participant__in=participants)
-                response_data = ResponseSerializer(responses, many=True).data
-                n_agreed_to_donate = 0
-                for response in response_data:
-                    usage_dd_consent = response['response_data'].get('usage_dd_consent')
-                    if usage_dd_consent in [1, '1']:
-                        n_agreed_to_donate += 1
+                n_agreed_to_donate = len(uploaded_participant_ids & consented_participant_ids)
 
-                if n_uploaded > 0:
-                    donation_rate = n_agreed_to_donate / n_uploaded
-                else:
-                    donation_rate = 0
+                donation_rate = (n_agreed_to_donate / n_uploaded) if n_uploaded > 0 else 0
 
-                blueprint_stats = {
+                blueprints_info[blueprint.name] = {
                     'n_uploaded': n_uploaded,
                     'n_donated': n_agreed_to_donate,
                     'donation_rate': donation_rate
                 }
 
-                info_per_module[module_name]['blueprints'][blueprint.name] = blueprint_stats
+            # Get overall participation counts
+            n_classrooms = len(classroom_ids)
+            n_started = participant_stats['total']
+            n_completed = participant_stats['completed']
 
-            info_per_module[module_name].update({
+            info_per_module[module_name] = {
+                'id': module.pk,
                 'classrooms': n_classrooms,
                 'total': n_started,
                 'completed': n_completed,
-            })
+                'completion_rate': (n_completed / n_started * 100) if n_started > 0 else 0,
+                'avg_per_classroom': n_started / n_classrooms if n_classrooms > 0 else 0,
+                'blueprints': blueprints_info
+            }
 
-        # Calculate completion rates and averages
-        total_participants = 0
-        total_completed = 0
-
-        for module_data in info_per_module.values():
-            if module_data['total'] > 0:
-                module_data['completion_rate'] = (module_data['completed'] / module_data['total']) * 100
-                module_data['avg_per_classroom'] = module_data['total'] / module_data['classrooms']
-                total_participants += module_data['total']
-            else:
-                module_data['completion_rate'] = 0
-                module_data['avg_per_classroom'] = 0
-
-            total_completed += module_data['completed']
+        # Calculate totals
+        total_participants = sum(m['total'] for m in info_per_module.values())
+        total_completed = sum(m['completed'] for m in info_per_module.values())
+        total_classrooms = classrooms.count()
 
         context['total_participants'] = total_participants
         context['total_completed'] = total_completed
         context['completion_rate'] = (total_completed / total_participants * 100) if total_participants > 0 else 0
-        context['avg_per_classroom'] = total_participants / classrooms.count() if classrooms.count() > 0 else 0
+        context['avg_per_classroom'] = total_participants / total_classrooms if total_classrooms > 0 else 0
         context['participants_by_module'] = dict(sorted(info_per_module.items()))
 
         return context
