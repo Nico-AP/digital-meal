@@ -74,6 +74,9 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
+        'json': {
+            '()': 'digital_meal.logging.JsonFormatter',
+        },
     },
     'handlers': {
         'console': {
@@ -86,14 +89,22 @@ LOGGING = {
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'django.log'),
             'maxBytes': 1024*1024*15,
-            'formatter': 'verbose'
+            'formatter': 'verbose',
+        },
+        'portability_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'portability.log'),
+            'maxBytes': 1024 * 1024 * 15,
+            'backupCount': 5,
+            'formatter': 'json',
         },
         'error_file': {
             'level': 'ERROR',
             'class': 'logging.handlers.RotatingFileHandler',
             'filename': os.path.join(BASE_DIR, 'logs', 'errors.log'),
             'maxBytes': 1024 * 1024 * 15,
-            'formatter': 'verbose'
+            'formatter': 'verbose',
         }
     },
     'loggers': {
@@ -108,6 +119,11 @@ LOGGING = {
         },
         'digital_meal': {
             'handlers': ['file', 'error_file', 'console'],
+            'propagate': False,
+            'level': 'INFO',
+        },
+        'digital_meal.portability': {
+            'handlers': ['portability_file', 'error_file', 'console'],
             'propagate': False,
             'level': 'INFO',
         }

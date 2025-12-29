@@ -1,0 +1,263 @@
+import logging
+import requests
+
+from typing import Tuple
+
+from django.http import StreamingHttpResponse
+from django.utils import timezone
+
+from digital_meal.portability.models import TikTokDataRequest
+
+logger = logging.getLogger(__name__)
+
+class TikTokPortabilityAPIClient:
+
+    def __init__(self, access_token: str):
+        self.access_token = access_token
+        self.data_request_url = 'https://open.tiktokapis.com/v2/user/data/add/'
+        self.data_request_status_url = 'https://open.tiktokapis.com/v2/user/data/check/'
+        self.data_download_url = 'https://open.tiktokapis.com/v2/user/data/download/'
+
+    def make_data_request(self) -> dict:
+        """Initiates a data portability request with TikTok's Data Portability API.
+
+        Sends a POST request to TikTok to request all user data in JSON format.
+        The data will be prepared asynchronously by TikTok and can be retrieved
+        later using the returned request_id.
+
+        Returns:
+            dict: JSON response from TikTok containing the request_id if successful.
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-add-data-request/
+        """
+        url = self.data_request_url
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        params = {'fields': 'request_id'}
+        payload = {
+            'data_format': 'json',
+            'category_selection_list': ['all_data']
+        }
+        try:
+            response = requests.post(url, headers=headers, params=params, json=payload)
+            response.raise_for_status()
+            request_result = response.json()
+        except requests.exceptions.RequestException as e:
+            logger.error('Failed to make data request: %s', e)
+            request_result = {'error': 'Failed to make data request', 'details': e}
+            # TODO: Add retry logic.
+
+        return request_result
+
+    @staticmethod
+    def data_request_response_valid(response_json: dict) -> Tuple[bool, str]:
+        """Validates the response from a TikTok data portability request.
+
+        Checks if:
+        - the response contains a valid error code ('ok')
+        - response includes the required 'request_id' field
+
+        Args:
+            response_json:  The JSON response from TikTok's data request API.
+
+        Returns:
+            Tuple[bool, str]: A tuple containing:
+                - bool: True if response is valid, False otherwise
+                - str: 'ok' if valid, or error message if invalid
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-add-data-request/#__response
+        """
+        error_code = response_json.get('errors', {}).get('code')
+        if error_code != 'ok':
+            error_msg = response_json.get('errors', {}).get('message')
+            msg = f'TikTok data request received invalid error code: {error_msg} (code: {error_code})'
+            logger.warning(msg)
+            return False, msg
+
+        request_id = response_json.get('data', {}).get('request_id')
+        if request_id is None:
+            msg = 'Missing "request_id" in TikTok data request response.'
+            logger.warning(msg)
+            return False, msg
+
+        return True, 'ok'
+
+    def poll_data_request_status(self, request_id: int) -> dict:
+        """Polls the status of the portability request with TikTok's API.
+
+        Sends a POST request to TikTok to poll the status of the data request with
+        request_id.
+
+        Args:
+            request_id: The ID of the data portability request.
+
+        Returns:
+            dict: JSON response from TikTok containing information on the
+                current status of the data request.
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-check-status-of-data-request
+        """
+        url = self.data_request_status_url
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        fields = [
+            'request_id',
+            'apply_time',
+            'collect_time',
+            'status',
+            'data_format',
+            'category_selection_list',
+        ]
+        params = {'fields': ','.join(fields)}
+        payload = {
+            'request_id': request_id,
+        }
+        try:
+            response = requests.post(
+                url,
+                headers=headers,
+                params=params,
+                json=payload,
+                timeout=30
+            )
+            response.raise_for_status()
+            poll_result = response.json()
+        except requests.exceptions.Timeout:
+            logger.error('Data request status polling timed out')
+            poll_result = {'error': 'Data request status polling timed out'}
+            # TODO: Retry
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                'Failed to poll data request status: %s (request_id: %s)',
+                e, request_id
+            )
+            poll_result = {'error': 'Failed to poll data request status'}
+
+        return poll_result
+
+    @staticmethod
+    def check_data_request_status_response_valid(response_json: dict) -> Tuple[bool, str]:
+        """Validates the response from a TikTok data request status check.
+
+        Checks if:
+        - the response contains a valid error code ('ok')
+        - response includes the required 'data' field
+        - response has a valid status code
+
+        Args:
+            response_json: The JSON response from TikTok's status check API.
+
+        Returns:
+            Tuple[bool, dict | str]: A tuple or dict containing:
+                - bool: True if response is valid, False otherwise
+                - str: 'ok' if valid, or error message if invalid
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-check-status-of-data-request#__response
+        """
+        error_code = response_json.get('errors', {}).get('code')
+        if error_code != 'ok':
+            error_msg = response_json.get('errors', {}).get('message')
+            msg = f'TikTok data request status check received invalid error code: {error_msg} (code: {error_code})'
+            logger.warning(msg)
+            return False, msg
+
+        request_data = response_json.get('data')
+        if request_data is None:
+            msg = 'Missing "data" in TikTok data request response.'
+            logger.warning(msg)
+            return False, msg
+
+        valid_status_codes = ['pending', 'downloading', 'expired', 'cancelled']
+        status_code = request_data.get('status')
+        if status_code not in valid_status_codes:
+            msg = f'Invalid status code in TikTok data request response: {status_code}'
+            logger.warning(msg)
+            return False, msg
+
+        return True, 'ok'
+
+    def stream_download_requested_data(
+            self,
+            data_request: TikTokDataRequest
+    ) -> StreamingHttpResponse:
+        """Downloads the requested data from TikTok's Portability API as a stream.
+
+        Sends a POST request to TikTok to download the requested data associated to
+        a given data_request (should only be done, after the status for the given
+        request is 'downloading' - check using the check_data_request_status()
+        function).
+        Returns the response.content as a streaming response.
+
+        Args:
+            data_request: TikTokDataRequest object.
+
+        Returns:
+            StreamingHttpResponse: Data stream retrieved from TikTok.
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-download
+        """
+        request_id = data_request.request_id
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        payload = {
+            'request_id': request_id,
+        }
+        try:
+            response = requests.post(
+                self.data_download_url,
+                headers=headers,
+                json=payload,
+                stream=True
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                'Download failed for request %s: %s',
+                request_id, e
+            )
+            raise
+
+        def stream_with_cleanup():
+            try:
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        yield chunk
+            except Exception as err:
+                data_request.download_succeeded = False
+                data_request.save()
+                logger.error(
+                    'Download failed for request %s: %s',
+                    request_id, err
+                )
+                raise
+            else:
+                data_request.download_succeeded = True
+                data_request.save()
+                logger.info(
+                    'Download completed successfully for request %s',
+                    request_id
+                )
+            finally:
+                # This runs after streaming completes (or fails)
+                data_request.download_attempted = True
+                data_request.downloaded_at = timezone.now()
+                data_request.save()
+
+        streaming_response = StreamingHttpResponse(
+            stream_with_cleanup(),
+            content_type='application/zip'
+        )
+        streaming_response['Content-Disposition'] = f'attachment; filename="tiktok_data_{request_id}.zip"'
+
+        return streaming_response

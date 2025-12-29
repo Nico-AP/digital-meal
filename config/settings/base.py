@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 # APPLICATION DEFINITIONS
 # ------------------------------------------------------------------------------
 SECRET_KEY = os.environ['DJANGO_SECRET']
+SALT_KEY = os.environ['SALT_KEY']
 
 ADMINS = [tuple(admin) for admin in json.loads(os.environ.get('ADMINS', '[]'))]
 SERVER_EMAIL = os.environ['DEFAULT_FROM_EMAIL']

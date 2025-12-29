@@ -7,6 +7,17 @@
 {% block add_dm_content_class %}d-flex flex-column justify-content-center{% endblock %}
 
 {% block main_content %}
+  {% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+      {{ message }}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <div>
     <h1 class="mb-4">Erfahre mehr über deine TikTok-Nutzung</h1>
     <div class="mb-2">

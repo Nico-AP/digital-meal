@@ -1,0 +1,31 @@
+{% extends "tool/base.html" %}
+{% load static django_htmx %}
+
+{% block title %}
+  Warten auf TikTok Daten
+{% endblock title %}
+
+{% block main_content %}
+<div>
+  <h1>Deine TikTok Daten werden abgerufen</h1>
+
+  <div class="mb-3">
+    Du hast den Zugriff auf deine Daten erfolgreich autorisiert. Wir warten nun darauf,
+    dass die Daten von TikTok abgerufen werden können. Sobald die Daten verfügbar sind,
+    kannst du dir die Daten auf der nächsten Seite in aller Ruhe ansehen und entscheiden,
+    ob wir den Report generieren sollen.
+  </div>
+
+  <div id="check-download-availability"
+       hx-get="{% url 'tiktok_check_download_availability' %}"
+       hx-trigger="load, every 5s"
+       hx-swap="innerHTML">
+    {% include 'portability/partials/_data_download_await_msg.html' %}
+  </div>
+</div>
+{% endblock main_content %}
+
+{% block site_js %}
+  {{ block.super }}
+  {% htmx_script %}
+{% endblock site_js %}

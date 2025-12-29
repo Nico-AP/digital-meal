@@ -38,6 +38,9 @@ LOGGING = {
         'simple': {
             'format': '%(levelname)s %(message)s'
         },
+        'json': {
+            '()': 'digital_meal.logging.JsonFormatter',
+        },
     },
     'filters': {
         'require_debug_false': {
@@ -57,6 +60,14 @@ LOGGING = {
             'maxBytes': 1024 * 1024 * 15,
             'backupCount': 5,
             'formatter': 'verbose'
+        },
+        'portability_file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'portability.log'),
+            'maxBytes': 1024 * 1024 * 15,
+            'backupCount': 5,
+            'formatter': 'json',
         },
         'error_file': {
             'level': 'ERROR',
@@ -103,6 +114,11 @@ LOGGING = {
         },
         'digital_meal' : {
             'handlers': ['file', 'error_file', 'mail_admins', 'console'],
+            'propagate': False,
+            'level': 'INFO',
+        },
+        'digital_meal.portability': {
+            'handlers': ['portability_file', 'error_file', 'mail_admins', 'console'],
             'propagate': False,
             'level': 'INFO',
         }

@@ -1,0 +1,8 @@
+<div class="border border-secondary rounded bg-light">
+  <p>Leider ist beim Abrufen deiner Daten der folgende Fehler aufgetreten:</p>
+  {% if error_msg %}
+    <p>{{ error_msg }}</p>
+  {% else %}
+    <p>Leider sind keine Informationen zum aufgetretenen Fehler verfügbar.</p>
+  {% endif %}
+</div>
