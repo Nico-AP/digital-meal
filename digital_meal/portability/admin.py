@@ -1,8 +1,8 @@
 from django.contrib import admin
-from .models import OAuthToken, TikTokAccessToken, TikTokDataRequest
+from .models import OAuthStateToken, TikTokAccessToken, TikTokDataRequest
 
-@admin.register(OAuthToken)
-class OAuthTokenAdmin(admin.ModelAdmin):
+@admin.register(OAuthStateToken)
+class OAuthStateTokenAdmin(admin.ModelAdmin):
     list_display = ['token', 'created_at', 'used', 'is_expired']
     list_filter = ['used', 'created_at']
     readonly_fields = ['token', 'created_at']

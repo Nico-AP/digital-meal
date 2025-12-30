@@ -19,7 +19,7 @@ from django.views.generic import TemplateView
 from digital_meal.logging import log_security_event
 from digital_meal.portability.exceptions import TokenRefreshException
 from digital_meal.portability.models import (
-    OAuthToken,
+    OAuthStateToken,
     TikTokAccessToken,
     TikTokDataRequest,
 )
@@ -98,7 +98,7 @@ class StateTokenMixin:
     def get_or_create_state_token(self) -> str:
         """Get the state token from the current user's session.
 
-        If no token exists, create a new OAuthToken object and return its token.
+        If no token exists, create a new OAuthStateToken object and return its token.
         If a session is already assigned a token and the token is still valid,
         return the existing token.
 
@@ -108,20 +108,20 @@ class StateTokenMixin:
         # Check if session already has an associated token
         session_token = self.request.session.get(self.state_token_session_key)
         if session_token:
-            token = OAuthToken.objects.filter(token=session_token).first()
+            token = OAuthStateToken.objects.filter(token=session_token).first()
             if token and not token.is_expired() and not token.used:
                 return token.token
 
         # If session has no associated (valid) token
-        token = OAuthToken.objects.create()
+        token = OAuthStateToken.objects.create()
         return token.token
 
     def verify_and_consume_state_token(self, state_token: str) -> None:
         """Verifies a given state token.
 
-        Verifies if a state token is the same as the one stored in the
+        Verifies that a state token is the same as the one stored in the
         current session. If the token exists, the token will be deleted from the
-        session and the corresponding OAuthToken model will be set to used.
+        session and the corresponding OAuthStateToken model will be set to "used".
 
         Args:
             state_token: The state token to be verified.
@@ -144,17 +144,17 @@ class StateTokenMixin:
                 'State token does not match the session state token.'
             )
 
-        if not OAuthToken.objects.filter(token=session_token).exists():
+        if not OAuthStateToken.objects.filter(token=session_token).exists():
             logger.info(
-                'Tried to retrieve non existing OAuthToken (state token): %s',
+                'Tried to retrieve non existing OAuthStateToken: %s',
                 session_token
             )
             raise ValidationError('Authentication token does not exist.')
 
-        token = OAuthToken.objects.get(token=session_token)
+        token = OAuthStateToken.objects.get(token=session_token)
         if token.is_expired() or token.used:
             logger.info(
-                'Tried to use expired OAuthToken (state token): %s (pk: %s)',
+                'Tried to use expired OAuthStateToken: %s (pk: %s)',
                 token.token, token.pk
             )
             raise ValidationError('Authentication token is expired.')

@@ -1,20 +1,12 @@
-import logging
-import requests
-
 from datetime import timedelta
 
-from django.conf import settings
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 from encrypted_fields import EncryptedTextField
 
-from digital_meal.portability.exceptions import TokenRefreshException
 
-logger = logging.getLogger(__name__)
-
-
-class OAuthToken(models.Model):
+class OAuthStateToken(models.Model):
     """Class to store state tokens used for OAuth."""
     token = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -24,7 +16,7 @@ class OAuthToken(models.Model):
         # On create, generate token
         if not self.pk and not self.token:
             new_token = get_random_string(50)
-            while OAuthToken.objects.filter(token=new_token).exists():
+            while OAuthStateToken.objects.filter(token=new_token).exists():
                 new_token = get_random_string(50)
             self.token = new_token
 
@@ -122,7 +114,7 @@ class TikTokDataRequest(models.Model):
     class Meta:
         ordering = ['-issued_at']
 
-    def active(self) -> bool:
+    def is_active(self) -> bool:
         inactive_states = ['expired', 'cancelled']
         if self.status in inactive_states or self.download_succeeded:
             return False
