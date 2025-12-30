@@ -3,13 +3,10 @@ import time
 
 import requests
 
-from datetime import timedelta
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
-from django.db import transaction
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils import timezone
@@ -279,16 +276,6 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
             return redirect_to_auth_view(request)
 
         self.access_token = access_token
-
-        # Check if access_token is still active or refresh
-        if self.access_token.is_expired(threshold=90):
-            refresh_service = TikTokAccessTokenService()
-
-            try:
-                refresh_service.refresh_token(self.access_token)
-            except TokenRefreshException as e:
-                return redirect_to_auth_view(request)
-
         self.access_token.refresh_from_db()
         return super().dispatch(request, *args, **kwargs)
 
@@ -403,13 +390,16 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
             HttpResponse: Either an error response if token exchange fails,
                 or redirect to the data review view on success.
         """
+        token_service = TikTokAccessTokenService()
+
         # Get access token information from TikTok.
         try:
-            token_data = self.exchange_code_for_token()
+            auth_code = self.request.GET.get('code')
+            token_data = token_service.exchange_code_for_token(auth_code)
         except requests.exceptions.RequestException:
             return redirect_to_auth_view(request)
 
-        if not self.check_token_data_is_valid(token_data):
+        if not token_service.check_token_data_is_valid(token_data):
             try:
                 token_info = token_data.keys()
             except AttributeError:
@@ -428,7 +418,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
             )
             return redirect_to_auth_view(request)
 
-        self.update_or_create_access_token(token_data)
+        token_service.update_or_create_access_token(token_data)
 
         # Regenerate session ID to prevent session hijacking
         request.session.cycle_key()
@@ -436,113 +426,6 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
 
         # Redirect to await data download view.
         return redirect('tiktok_await_data_download')
-
-    @staticmethod
-    def check_token_data_is_valid(token_data: dict) -> bool:
-        """Validate the received token data structure.
-
-        Check if the received token data is a dictionary and contains the
-        expected fields.
-
-        Args:
-            token_data: The received token data.
-
-        Returns:
-            bool: True if data is valid, False otherwise.
-        """
-        if not isinstance(token_data, dict):
-            return False
-
-        expected_fields = [
-            'access_token',
-            'expires_in',
-            'open_id',
-            'refresh_expires_in',
-            'refresh_token',
-            'scope',
-            'token_type'
-        ]
-        return all(k in token_data for k in expected_fields)
-
-    @staticmethod
-    def update_or_create_access_token(token_data: dict) -> TikTokAccessToken:
-        """Update or create TikTokAccessToken object from the received token data.
-
-        Args:
-            token_data: Dictionary holding the Token information.
-
-        Returns:
-            TikTokAccessToken: The newly created TikTokAccessToken object.
-        """
-        expiration_date = timezone.now() + timedelta(seconds=token_data['expires_in'])
-        refresh_expiration_date = timezone.now() + timedelta(seconds=token_data['refresh_expires_in'])
-        with transaction.atomic():
-            access_token, created = TikTokAccessToken.objects.update_or_create(
-                open_id=token_data['open_id'],
-                defaults={
-                    'token': token_data['access_token'],
-                    'token_expiration_date': expiration_date,
-                    'refresh_token': token_data['refresh_token'],
-                    'refresh_token_expiration_date': refresh_expiration_date,
-                    'scope': token_data['scope'],
-                    'token_type': token_data['token_type'],
-                }
-            )
-        return access_token
-
-    def exchange_code_for_token(self, attempt: int = 1) -> dict:
-        """Exchanges the authorization code for an access token and stores it.
-
-        Loads the authorization code received from TikTok from the request
-        object and requests the corresponding access token from the TikTok User
-        Management API endpoint.
-
-        Args:
-            attempt: Number of attempts to exchange the authorization code.
-
-        Raises:
-            requests.exceptions.RequestException: If exchange request fails.
-
-        Returns:
-            dict: The JSON response from the TikTok API endpoint.
-        """
-        url = settings.TIKTOK_TOKEN_URL
-        data = {
-            'client_key': settings.TIKTOK_CLIENT_KEY,
-            'client_secret': settings.TIKTOK_CLIENT_SECRET,
-            'grant_type': 'authorization_code',
-            'redirect_uri': settings.TIKTOK_REDIRECT_URL,
-            'code': self.request.GET.get('code')
-        }
-        headers = {'Accept': 'application/json'}
-
-        max_tries = 3
-        try:
-            response = requests.post(url, data=data, headers=headers, timeout=30)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.Timeout:
-            logger.error(
-                'Request to exchange token timed out (attempt %s)',
-                attempt
-            )
-
-            if attempt < max_tries:
-                time.sleep(3 * attempt)
-                return self.exchange_code_for_token(attempt + 1)
-            else:
-                raise requests.exceptions.RequestException
-        except requests.exceptions.RequestException as e:
-            logger.error(
-                'Failed to retrieve authentication token: %s, (attempt %s)',
-                e, attempt
-            )
-
-            if attempt < max_tries:
-                time.sleep(3 * attempt)
-                return self.exchange_code_for_token(attempt + 1)
-            else:
-                raise
 
 
 class TikTokAwaitDataDownloadView(
@@ -569,10 +452,12 @@ class TikTokCheckDownloadAvailabilityView(
     Returns rendered html partial and intended to be called by an HTMX component.
     """
 
-    template_name = None  # Note: assigned in get_context_data
-    template_await = 'portability/partials/_data_download_await_msg.html'
+    template_name = None  # Note: is assigned in get_context_data
+
+    template_pending = 'portability/partials/_data_download_pending_msg.html'
     template_success = 'portability/partials/_data_download_available_msg.html'
     template_error = 'portability/partials/_data_download_error_msg.html'
+    template_expired = 'portability/partials/_data_download_expired_msg.html'
 
     def get_context_data(self, **kwargs):
         """Checks data download availability and prepares appropriate template.
@@ -581,7 +466,7 @@ class TikTokCheckDownloadAvailabilityView(
         1. Check if a data request already exists for this user
         2. If not, initiate a new data request via TikTok API
         3. Poll the status of the data request
-        4. Select appropriate template based on status (await/success/error)
+        4. Select appropriate template based on status (pending/success/error)
 
         Returns:
             dict: Context dictionary containing status information and any
@@ -595,7 +480,7 @@ class TikTokCheckDownloadAvailabilityView(
         open_id = self.get_open_id_from_session()
         data_request = TikTokDataRequest.objects.filter(open_id=open_id).first()
 
-        if not data_request or not data_request.active():
+        if not data_request or not data_request.is_active():
             # Make initial data request.
             response_data = api_client.make_data_request()
             response_valid, msg = api_client.data_request_response_valid(response_data)
@@ -606,7 +491,7 @@ class TikTokCheckDownloadAvailabilityView(
 
             data_request = TikTokDataRequest.objects.create(
                 open_id=open_id,
-                request_id=response_data.get('request_id'),
+                request_id=response_data.get('data', {}).get('request_id'),
             )
 
         # Poll download status
@@ -624,13 +509,16 @@ class TikTokCheckDownloadAvailabilityView(
         request_status = request_status_data.get('status')
         data_request.status = request_status
         data_request.last_polled = timezone.now()
+        data_request.save()
+
+        # Use the matching template.
         if request_status == 'pending':
-            self.template_name = self.template_await
+            self.template_name = self.template_pending
         elif request_status == 'downloading':
             context['request_id'] = request_id
             self.template_name = self.template_success
         elif request_status in ['expired', 'cancelled']:
-            self.template_name = self.template_await
+            self.template_name = self.template_expired
         else:
             self.template_name = self.template_error
             context['error_msg'] = 'Received wrong status'
