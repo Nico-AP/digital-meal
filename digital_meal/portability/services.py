@@ -1,4 +1,5 @@
 import logging
+import time
 from datetime import timedelta
 
 import requests
@@ -6,6 +7,7 @@ import requests
 from typing import Tuple
 
 from django.conf import settings
+from django.db import transaction
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 
@@ -86,6 +88,115 @@ class TikTokAccessTokenService:
         access_token.scope = data['scope']
         access_token.save()
 
+    @staticmethod
+    def check_token_data_is_valid(token_data: dict) -> bool:
+        """Validate the token data structure received from TikTok.
+
+        Check if the received token data is a dictionary and contains the
+        expected fields.
+
+        Args:
+            token_data: The received token data.
+
+        Returns:
+            bool: True if data is valid, False otherwise.
+        """
+        if not isinstance(token_data, dict):
+            return False
+
+        expected_fields = [
+            'access_token',
+            'expires_in',
+            'open_id',
+            'refresh_expires_in',
+            'refresh_token',
+            'scope',
+            'token_type'
+        ]
+        return all(k in token_data for k in expected_fields)
+
+    @staticmethod
+    def update_or_create_access_token(token_data: dict) -> TikTokAccessToken:
+        """Update or create TikTokAccessToken object from token data dict.
+
+        Args:
+            token_data: Dictionary holding the Token information.
+
+        Returns:
+            TikTokAccessToken: The newly created TikTokAccessToken object.
+        """
+        expiration_date = timezone.now() + timedelta(seconds=token_data['expires_in'])
+        refresh_expiration_date = timezone.now() + timedelta(seconds=token_data['refresh_expires_in'])
+        with transaction.atomic():
+            access_token, created = TikTokAccessToken.objects.update_or_create(
+                open_id=token_data['open_id'],
+                defaults={
+                    'token': token_data['access_token'],
+                    'token_expiration_date': expiration_date,
+                    'refresh_token': token_data['refresh_token'],
+                    'refresh_token_expiration_date': refresh_expiration_date,
+                    'scope': token_data['scope'],
+                    'token_type': token_data['token_type'],
+                }
+            )
+        return access_token
+
+    # TODO: Split function up?
+    def exchange_code_for_token(self, auth_code: str, attempt: int = 1) -> dict:
+        """Exchanges the authorization code for an access token and stores it.
+
+        Loads the authorization code received from TikTok from the request
+        object and requests the corresponding access token from the TikTok User
+        Management API endpoint.
+
+        Args:
+            auth_code: Authorization code received from TikTok.
+            attempt: Number of attempts to exchange the authorization code.
+
+        Raises:
+            requests.exceptions.RequestException: If exchange request fails.
+
+        Returns:
+            dict: The JSON response from the TikTok API endpoint.
+        """
+        url = settings.TIKTOK_TOKEN_URL
+        data = {
+            'client_key': settings.TIKTOK_CLIENT_KEY,
+            'client_secret': settings.TIKTOK_CLIENT_SECRET,
+            'grant_type': 'authorization_code',
+            'redirect_uri': settings.TIKTOK_REDIRECT_URL,
+            'code': auth_code
+        }
+        headers = {'Accept': 'application/json'}
+
+        max_tries = 3
+        try:
+            response = requests.post(url, data=data, headers=headers, timeout=30)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.Timeout:
+            logger.error(
+                'Request to exchange token timed out (attempt %s)',
+                attempt
+            )
+
+            if attempt < max_tries:
+                time.sleep(3 * attempt)
+                return self.exchange_code_for_token(attempt + 1)
+            else:
+                raise requests.exceptions.RequestException
+        except requests.exceptions.RequestException as e:
+            logger.error(
+                'Failed to retrieve authentication token: %s, (attempt %s)',
+                e, attempt
+            )
+
+            if attempt < max_tries:
+                time.sleep(3 * attempt)
+                return self.exchange_code_for_token(attempt + 1)
+            else:
+                raise
+
 
 class TikTokPortabilityAPIClient:
 
@@ -103,7 +214,13 @@ class TikTokPortabilityAPIClient:
         later using the returned request_id.
 
         Returns:
-            dict: JSON response from TikTok containing the request_id if successful.
+            dict: JSON response from TikTok containing the following keys:
+
+                'data': {'request_id': <request_id>}
+
+                'error': {'code': <error code>,
+                          'message': <error message>,
+                          'log_id': <log id>}
 
         References:
             https://developers.tiktok.com/doc/data-portability-api-add-data-request/
@@ -148,9 +265,9 @@ class TikTokPortabilityAPIClient:
         References:
             https://developers.tiktok.com/doc/data-portability-api-add-data-request/#__response
         """
-        error_code = response_json.get('errors', {}).get('code')
+        error_code = response_json.get('error', {}).get('code')
         if error_code != 'ok':
-            error_msg = response_json.get('errors', {}).get('message')
+            error_msg = response_json.get('error', {}).get('message')
             msg = f'TikTok data request received invalid error code: {error_msg} (code: {error_code})'
             logger.warning(msg)
             return False, msg
@@ -219,6 +336,7 @@ class TikTokPortabilityAPIClient:
 
         return poll_result
 
+    # TODO: Better name - confusing, especially together with the other similar function.
     @staticmethod
     def check_data_request_status_response_valid(response_json: dict) -> Tuple[bool, str]:
         """Validates the response from a TikTok data request status check.
@@ -239,9 +357,9 @@ class TikTokPortabilityAPIClient:
         References:
             https://developers.tiktok.com/doc/data-portability-api-check-status-of-data-request#__response
         """
-        error_code = response_json.get('errors', {}).get('code')
+        error_code = response_json.get('error', {}).get('code')
         if error_code != 'ok':
-            error_msg = response_json.get('errors', {}).get('message')
+            error_msg = response_json.get('error', {}).get('message')
             msg = f'TikTok data request status check received invalid error code: {error_msg} (code: {error_code})'
             logger.warning(msg)
             return False, msg
