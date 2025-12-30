@@ -1,14 +1,91 @@
 import logging
+from datetime import timedelta
+
 import requests
 
 from typing import Tuple
 
+from django.conf import settings
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 
-from digital_meal.portability.models import TikTokDataRequest
+from digital_meal.portability.exceptions import TokenRefreshException
+from digital_meal.portability.models import TikTokDataRequest, TikTokAccessToken
 
 logger = logging.getLogger(__name__)
+
+
+class TikTokAccessTokenService:
+
+    def refresh_token(self, access_token: TikTokAccessToken) -> TikTokAccessToken:
+        """Refreshes the access token through the TikTok user access token API.
+
+        Raises:
+            TokenRefreshException: If token refresh fails.
+
+        Returns:
+            TikTokAccessToken: Refreshed token.
+        """
+        if access_token.refresh_is_expired:
+            logger.info(
+                'Refresh token expired for TikTokAccessToken %s (expiration date: %s)',
+                access_token.pk,
+                access_token.refresh_token_expiration_date
+            )
+            raise TokenRefreshException('Refresh token expired')
+
+        response_data = self._call_tiktok_api(access_token.refresh_token)
+
+        self._update_token(access_token, response_data)
+        access_token.refresh_from_db()
+
+        return access_token
+
+    def _call_tiktok_api(self, access_token: TikTokAccessToken) -> dict:
+        """Call TikTok API to refresh access token.
+
+        Raises:
+            TokenRefreshException: If token refresh fails.
+
+        Returns:
+            dict: Refreshed token data.
+        """
+        url = settings.TIKTOK_TOKEN_URL
+        data = {
+            'client_key': settings.TIKTOK_CLIENT_KEY,
+            'client_secret': settings.TIKTOK_CLIENT_SECRET,
+            'grant_type': 'refresh_token',
+            'refresh_token': access_token.refresh_token,
+        }
+        headers = {'Accept': 'application/x-www-form-urlencoded'}
+
+        try:
+            response = requests.post(url, data=data, headers=headers)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            logger.warning(
+                'Unable to refresh TikTokAccessToken %s: %s', access_token.pk, e
+            )
+            raise TokenRefreshException(f'Unable to refresh TikTokAccessToken: {e}')
+
+    def _update_token(
+            self,
+            access_token: TikTokAccessToken,
+            data: dict
+    ) -> None:
+        """Update the access token with new data."""
+        new_expiration_date = timezone.now() + timedelta(seconds=data['expires_in'])
+        new_refresh_expiration_date = timezone.now() + timedelta(seconds=data['refresh_expires_in'])
+
+        access_token.token = data['access_token']
+        access_token.token_expiration_date = new_expiration_date
+        access_token.refresh_token = data['refresh_token']
+        access_token.refresh_token_expiration_date = new_refresh_expiration_date
+        access_token.token_type = data['token_type']
+        access_token.scope = data['scope']
+        access_token.save()
+
 
 class TikTokPortabilityAPIClient:
 

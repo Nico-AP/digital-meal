@@ -17,12 +17,13 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from digital_meal.logging import log_security_event
+from digital_meal.portability.exceptions import TokenRefreshException
 from digital_meal.portability.models import (
     OAuthToken,
     TikTokAccessToken,
     TikTokDataRequest,
 )
-from digital_meal.portability.services import TikTokPortabilityAPIClient
+from digital_meal.portability.services import TikTokPortabilityAPIClient, TikTokAccessTokenService
 
 logger = logging.getLogger(__name__)
 
@@ -197,15 +198,17 @@ class ManageAccessTokenMixin:
         if not access_token:
             logger.info('Tried to retrieve inexistent TikTokAccessToken.')
             raise TikTokAccessToken.DoesNotExist(
-                f'No TikTokAccessToken found for '
-                f'provided open_id "{open_id}".'
+                f'No TikTokAccessToken found for provided open_id "{open_id}".'
             )
 
         # Check if the access token is expired.
         if access_token.is_expired():
+            refresh_service = TikTokAccessTokenService()
+
             # Try to refresh token.
-            access_token = access_token.refresh()
-            if not access_token:
+            try:
+                access_token = refresh_service.refresh_token(access_token)
+            except TokenRefreshException:
                 raise ValidationError(
                     f'TikTokAccessToken is expired and cannot be refreshed '
                     f'(open_id: {open_id}).'
@@ -279,9 +282,11 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
 
         # Check if access_token is still active or refresh
         if self.access_token.is_expired(threshold=90):
+            refresh_service = TikTokAccessTokenService()
+
             try:
-                self.access_token.refresh()
-            except requests.exceptions.RequestException as e:
+                refresh_service.refresh_token(self.access_token)
+            except TokenRefreshException as e:
                 return redirect_to_auth_view(request)
 
         self.access_token.refresh_from_db()
