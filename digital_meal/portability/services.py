@@ -269,6 +269,15 @@ class TikTokPortabilityAPIClient:
         References:
             https://developers.tiktok.com/doc/data-portability-api-add-data-request/#__response
         """
+        if not isinstance(response_json, dict):
+            msg = 'TikTok data request response is not a valid JSON response'
+
+            if isinstance(response_json, str):
+                msg += f': {response_json}'
+
+            logger.error(msg)
+            return False, msg
+
         error_code = response_json.get('error', {}).get('code')
         if error_code != 'ok':
             error_msg = response_json.get('error', {}).get('message')

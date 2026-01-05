@@ -272,6 +272,15 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.assertTrue(is_valid)
         self.assertEqual(message, 'ok')
 
+    def test_data_request_response_is_valid_when_response_is_not_dict(self):
+        """Test validation fails when error code is not 'ok'"""
+        invalid_response = 'some invalid response'
+
+        is_valid, message = self.api_client.data_request_response_is_valid(invalid_response)
+
+        self.assertFalse(is_valid)
+        self.assertIn('not a valid JSON response', message)
+
     def test_data_request_response_is_valid_when_error_code_not_ok(self):
         """Test validation fails when error code is not 'ok'"""
         invalid_response = {
