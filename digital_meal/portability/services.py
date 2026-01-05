@@ -28,7 +28,7 @@ class TikTokAccessTokenService:
         Returns:
             TikTokAccessToken: Refreshed token.
         """
-        if access_token.refresh_is_expired:
+        if access_token.refresh_is_expired():
             logger.info(
                 'Refresh token expired for TikTokAccessToken %s (expiration date: %s)',
                 access_token.pk,

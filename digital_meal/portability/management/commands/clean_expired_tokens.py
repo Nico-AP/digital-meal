@@ -3,26 +3,26 @@ import logging
 from django.core.management import BaseCommand
 from django.utils import timezone
 
-from digital_meal.portability.models import OAuthToken, TikTokAccessToken
+from digital_meal.portability.models import OAuthStateToken, TikTokAccessToken
 
 logger = logging.getLogger(__name__)
 
 
 def clean_oauth_tokens() -> None:
-    """Clean used and expired OAuthTokens.
+    """Clean used and expired OAuthStateTokens.
 
     Logs the deletion counts of used and expired tokens.
 
     Returns:
         None
     """
-    tokens_to_delete = OAuthToken.objects.filter(used=True)
+    tokens_to_delete = OAuthStateToken.objects.filter(used=True)
     deleted_used_count = tokens_to_delete.delete()[0]
 
-    deleted_expired_count = OAuthToken.cleanup_expired()
+    deleted_expired_count = OAuthStateToken.cleanup_expired()
 
     logger.info(
-        'Deleted %s used OAuth tokens and %s expired OAuth tokens',
+        'Deleted %s used OAuth state tokens and %s expired OAuth tokens',
         deleted_used_count, deleted_expired_count
     )
     return
@@ -50,8 +50,8 @@ def clean_access_tokens() -> None:
 
 class Command(BaseCommand):
     help = (
-        'Deletes donations of participants that have started participation '
-        'over x days ago and not provided explicit consent to store their data.'
+        'Deletes expired OAuthStateTokens and TikTokAccessTokens with expired '
+        'refresh tokens.'
     )
 
     def handle(self, *args, **options):
