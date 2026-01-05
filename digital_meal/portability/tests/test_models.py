@@ -31,7 +31,7 @@ class TestOAuthStateToken(TestCase):
         expired_token = OAuthStateToken.objects.create()
         expired_token.created_at = timezone.now() - timedelta(hours=24)
         expired_token.save()
-        active_token = OAuthStateToken.objects.create()
+        _ = OAuthStateToken.objects.create()
 
         self.assertEqual(OAuthStateToken.objects.count(), 2)
         time.sleep(2)
