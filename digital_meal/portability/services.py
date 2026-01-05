@@ -43,7 +43,8 @@ class TikTokAccessTokenService:
 
         return access_token
 
-    def _call_tiktok_api(self, access_token: TikTokAccessToken) -> dict:
+    @staticmethod
+    def _call_tiktok_api(access_token: TikTokAccessToken) -> dict:
         """Call TikTok API to refresh access token.
 
         Raises:
@@ -71,8 +72,8 @@ class TikTokAccessTokenService:
             )
             raise TokenRefreshException(f'Unable to refresh TikTokAccessToken: {e}')
 
+    @staticmethod
     def _update_token(
-            self,
             access_token: TikTokAccessToken,
             data: dict
     ) -> None:
@@ -141,8 +142,12 @@ class TikTokAccessTokenService:
             )
         return access_token
 
-    # TODO: Split function up?
-    def exchange_code_for_token(self, auth_code: str, attempt: int = 1) -> dict:
+    def exchange_code_for_token(
+            self,
+            auth_code: str,
+            attempt: int = 1,
+            max_attempts: int = 3
+    ) -> dict:
         """Exchanges the authorization code for an access token and stores it.
 
         Loads the authorization code received from TikTok from the request
@@ -152,6 +157,7 @@ class TikTokAccessTokenService:
         Args:
             auth_code: Authorization code received from TikTok.
             attempt: Number of attempts to exchange the authorization code.
+            max_attempts: Maximum number of attempts to exchange the authorization code.
 
         Raises:
             requests.exceptions.RequestException: If exchange request fails.
@@ -169,7 +175,6 @@ class TikTokAccessTokenService:
         }
         headers = {'Accept': 'application/json'}
 
-        max_tries = 3
         try:
             response = requests.post(url, data=data, headers=headers, timeout=30)
             response.raise_for_status()
@@ -180,9 +185,9 @@ class TikTokAccessTokenService:
                 attempt
             )
 
-            if attempt < max_tries:
+            if attempt < max_attempts:
                 time.sleep(3 * attempt)
-                return self.exchange_code_for_token(attempt + 1)
+                return self.exchange_code_for_token(auth_code, attempt + 1)
             else:
                 raise requests.exceptions.RequestException
         except requests.exceptions.RequestException as e:
@@ -191,9 +196,9 @@ class TikTokAccessTokenService:
                 e, attempt
             )
 
-            if attempt < max_tries:
+            if attempt < max_attempts:
                 time.sleep(3 * attempt)
-                return self.exchange_code_for_token(attempt + 1)
+                return self.exchange_code_for_token(auth_code, attempt + 1)
             else:
                 raise
 
@@ -242,12 +247,11 @@ class TikTokPortabilityAPIClient:
         except requests.exceptions.RequestException as e:
             logger.error('Failed to make data request: %s', e)
             request_result = {'error': 'Failed to make data request', 'details': e}
-            # TODO: Add retry logic.
 
         return request_result
 
     @staticmethod
-    def data_request_response_valid(response_json: dict) -> Tuple[bool, str]:
+    def data_request_response_is_valid(response_json: dict) -> Tuple[bool, str]:
         """Validates the response from a TikTok data portability request.
 
         Checks if:
@@ -326,7 +330,6 @@ class TikTokPortabilityAPIClient:
         except requests.exceptions.Timeout:
             logger.error('Data request status polling timed out')
             poll_result = {'error': 'Data request status polling timed out'}
-            # TODO: Retry
         except requests.exceptions.RequestException as e:
             logger.error(
                 'Failed to poll data request status: %s (request_id: %s)',
@@ -336,9 +339,8 @@ class TikTokPortabilityAPIClient:
 
         return poll_result
 
-    # TODO: Better name - confusing, especially together with the other similar function.
     @staticmethod
-    def check_data_request_status_response_valid(response_json: dict) -> Tuple[bool, str]:
+    def poll_data_request_status_response_is_valid(response_json: dict) -> Tuple[bool, str]:
         """Validates the response from a TikTok data request status check.
 
         Checks if:
