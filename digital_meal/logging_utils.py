@@ -1,7 +1,6 @@
 import logging
 import json
 from collections import OrderedDict
-from logging import Logger
 
 from django.http import HttpRequest
 
@@ -32,7 +31,7 @@ class JsonFormatter(logging.Formatter):
 
 
 def log_security_event(
-        logger: Logger,
+        logger: logging.Logger,
         msg: str,
         request: HttpRequest,
         extra: dict = None,

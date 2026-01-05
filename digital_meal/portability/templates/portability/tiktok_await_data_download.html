@@ -20,7 +20,7 @@
        hx-get="{% url 'tiktok_check_download_availability' %}"
        hx-trigger="load, every 5s"
        hx-swap="innerHTML">
-    {% include 'portability/partials/_data_download_await_msg.html' %}
+    {% include 'portability/partials/_data_download_pending_msg.html' %}
   </div>
 </div>
 {% endblock main_content %}
