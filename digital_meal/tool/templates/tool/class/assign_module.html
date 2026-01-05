@@ -28,7 +28,7 @@
     <div>
       <input type="radio" name="base-modules" value="{{ module.id }}" id="mt-{{ forloop.counter }}" class="d-none" autocomplete="off"/>
       <label onclick="showHideSubModules(this); selectModule('{{ module.id }}')" class="m-auto d-flex flex-column justify-content-center align-items-center base-module-label base-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
-        <div>{{ module.name }}</div>
+        <span>{{ module.name }}</span>
       </label>
     </div>
   </div>
@@ -65,8 +65,8 @@
     <div class="pb-3">
       <input type="checkbox" name="sub-modules-{{ mt }}" value="{{ module.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
       <label onclick="selectSubModule('{{ sub_module.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-module-label sub-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
-        <div>{{ sub_module.name }}</div>
-        <div class="ff-non-serif fs-6 fw-normal">{{ sub_module.description }}</div>
+        <span>{{ sub_module.name }}</span>
+        <span class="ff-non-serif fs-6 fw-normal">{{ sub_module.description }}</span>
       </label>
     </div>
 

@@ -4,7 +4,7 @@
 @import url("call_to_action.css");
 
 .font-source-serif-pro {
-    font-family: Source Serif Pro;
+    font-family: Source Serif Pro, serif;
 }
 
 .text-small {
@@ -36,7 +36,7 @@
     padding-right: 5%;
 }
 .nav-element {
-    font-family: Space Grotesk;
+    font-family: Space Grotesk, sans-serif;
     font-size: 1.2rem;
     text-decoration: None;
     padding-left: 10px;
@@ -150,7 +150,7 @@ a:visited {
     color: black;
     text-decoration-color: var(--blue);
     text-decoration-thickness: 5px;
-    font-family: Space Grotesk
+    font-family: Space Grotesk, sans-serif;
 }
 a:hover {
     background: rgba(191, 226, 224, 0.35);
@@ -182,7 +182,7 @@ a.link-document::before {
     margin-top: -90px;
     padding-top: 10px;
     font-size: 0.9rem;
-    font-family: Space Grotesk;
+    font-family: Space Grotesk, sans-serif;
 }
 
 form label,
@@ -222,7 +222,7 @@ form select {
 form .select-items {
     color: #ffffff;
     padding: 8px 16px;
-    border: 1px solid transparent;
+    border: 1px solid;
     border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
     cursor: pointer;
     font-family: Open Sans, sans-serif;

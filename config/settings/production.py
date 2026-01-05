@@ -1,5 +1,4 @@
 from .base import *
-from .ckeditor_configs import CKEDITOR_5_CONFIGS
 import os
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS').split()
@@ -39,7 +38,7 @@ LOGGING = {
             'format': '%(levelname)s %(message)s'
         },
         'json': {
-            '()': 'digital_meal.logging.JsonFormatter',
+            '()': 'digital_meal.logging_utils.JsonFormatter',
         },
     },
     'filters': {

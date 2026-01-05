@@ -28,7 +28,7 @@
 }
 
 #report p {
-    font-family: Open Sans;
+    font-family: Open Sans, sans-serif;
     font-size: 1.1rem;
     line-height: 1.8rem;
 }
@@ -156,7 +156,6 @@
     border-top-left-radius: 40px;
     border-bottom-left-radius: 40px;
     padding: 10px 15px 10px 15px;
-    font-size:inherit;
     line-height: 2rem;
     font-size: 1.8rem;
 }

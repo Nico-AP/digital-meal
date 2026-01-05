@@ -1,5 +1,5 @@
 import random
-from datetime import timedelta, datetime, date
+from datetime import timedelta, date
 
 import numpy as np
 from django.utils import timezone

@@ -1,5 +1,5 @@
 import json
-import logging_utils
+import logging
 
 from datetime import timedelta
 from smtplib import SMTPException

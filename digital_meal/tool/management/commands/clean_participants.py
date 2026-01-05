@@ -1,4 +1,4 @@
-import logging_utils
+import logging
 from datetime import timedelta
 
 from ddm.apis.serializers import ResponseSerializer

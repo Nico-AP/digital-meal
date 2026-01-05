@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="de">
 <head>
@@ -11,8 +13,8 @@
   <link rel="shortcut icon" type="image/x-icon" href="https://digital-meal.ch/static/website/img/DigitalMeal_favicon.svg">
 
   {% block site_css %}
-  <link rel="stylesheet" href="https://digital-meal.ch/static/website/css/bootstrap/bootstrap.min.css">
-  <link rel="stylesheet" href="https://digital-meal.ch/static/website/css/base.css">
+  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'website/css/base.css' %}">
   {% endblock site_css %}
 
   {% block extra_head %}
@@ -30,7 +32,7 @@
             <div class="col">
               <a href="/">
                 <img alt="Digital Meal Logo"
-                      src="https://digital-meal.ch/static/website/img/DigitalMeal_logo.svg"
+                      src="{% static 'website/img/DigitalMeal_logo.svg' %}"
                       height="100px"
                 >
               </a>
@@ -58,8 +60,8 @@
 
 </div>
 
-<script src="https://digital-meal.ch/static/website/js/jquery/jquery-3.6.2.min.js"></script>
-<script src="https://digital-meal.ch/static/website/js/bootstrap/bootstrap.bundle.min.js"></script>
+<script src="{% static 'website/js/jquery/jquery-3.7.1.min.js' %}"></script>
+<script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 
 </body>
 

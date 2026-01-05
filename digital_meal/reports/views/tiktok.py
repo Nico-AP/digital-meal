@@ -24,7 +24,7 @@ from digital_meal.reports.utils.tiktok.example_data import (
 )
 from digital_meal.tool.models import Classroom
 
-import logging_utils
+import logging
 logger = logging.getLogger(__name__)
 
 BLUEPRINT_NAMES = {
