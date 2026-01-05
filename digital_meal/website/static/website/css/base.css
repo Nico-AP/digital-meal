@@ -168,6 +168,9 @@ a.link-document::before {
     margin-left: -22px;
     margin-top: 5px;
 }
+a.darkblue-button:visited {
+    color: white !important;
+}
 
 #footer {
     margin-top: 90px;
