@@ -537,7 +537,7 @@ class TikTokDataDownloadView(
     to the user as a downloadable ZIP file.
     """
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, request_id, *args, **kwargs):
         """Downloads and returns the TikTok data as a ZIP file.
 
         Retrieves the request_id from query parameters, downloads the data
@@ -545,7 +545,8 @@ class TikTokDataDownloadView(
         headers for file download.
 
         Args:
-            request: The HTTP request object containing 'request_id' parameter.
+            request: The HTTP request object.
+            request_id: The request ID (usually passed as URL path parameter).
             *args: Additional positional arguments.
             **kwargs: Additional keyword arguments.
 
@@ -557,7 +558,6 @@ class TikTokDataDownloadView(
                 Http404: If the download fails or data is not available.
         """
         open_id = self.get_open_id_from_session()
-        request_id = request.GET.get('request_id')
 
         # Validate request id
         try:
