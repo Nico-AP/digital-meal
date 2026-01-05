@@ -439,7 +439,7 @@ class TikTokAwaitDataDownloadView(
     is being processed by TikTok.
     """
 
-    template_name = 'portability/tiktok_data_review.html'
+    template_name = 'portability/tiktok_await_data_download.html'
 
 
 class TikTokCheckDownloadAvailabilityView(
