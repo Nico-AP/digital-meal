@@ -379,7 +379,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         is_valid, message = self.api_client.poll_data_request_status_response_is_valid(invalid_response)
 
         self.assertFalse(is_valid)
-        self.assertIn('invalid error code', message)
+        self.assertIn('returned an error', message)
 
     def test_poll_status_response_is_valid_when_data_missing(self):
         """Test validation fails when 'data' is missing"""

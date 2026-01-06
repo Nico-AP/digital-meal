@@ -288,25 +288,24 @@ class TikTokPortabilityAPIClient:
             https://developers.tiktok.com/doc/data-portability-api-add-data-request/#__response
         """
         if not isinstance(response_json, dict):
-            msg = 'TikTok data request response is not a valid JSON response'
-
-            if isinstance(response_json, str):
-                msg += f': {response_json}'
-
+            detail = response_json if isinstance(response_json, str) else type(response_json)
+            msg = f'TikTok data request response is not a valid JSON response: {detail}'
             logger.error(msg)
             return False, msg
 
-        error_code = response_json.get('error', {}).get('code')
-        if error_code != 'ok':
-            error_msg = response_json.get('error', {}).get('message')
-            msg = f'TikTok data request received invalid error code: {error_msg} (code: {error_code})'
+        error_details = response_json.get('error', {})
+        error_code = error_details.get('code') if isinstance(error_details, dict) else None
+
+        if error_code and error_code != 'ok':
+            msg = f'TikTok data request returned an error: {error_details})'
             logger.warning(msg)
             return False, msg
 
-        request_id = response_json.get('data', {}).get('request_id')
+        response_data = response_json.get('data', {})
+        request_id = response_data.get('request_id') if isinstance(response_data, dict) else None
         if request_id is None:
-            msg = 'Missing "request_id" in TikTok data request response.'
-            logger.warning(msg)
+            msg = 'Missing "request_id" in TikTok data request response. Response data: %s'
+            logger.warning(msg, response_data)
             return False, msg
 
         return True, 'ok'
@@ -400,21 +399,28 @@ class TikTokPortabilityAPIClient:
         References:
             https://developers.tiktok.com/doc/data-portability-api-check-status-of-data-request#__response
         """
-        error_code = response_json.get('error', {}).get('code')
-        if error_code != 'ok':
-            error_msg = response_json.get('error', {}).get('message')
-            msg = f'TikTok data request status check received invalid error code: {error_msg} (code: {error_code})'
+        if not isinstance(response_json, dict):
+            detail = response_json if isinstance(response_json, str) else type(response_json)
+            msg = f'Poll data request status response is not a valid JSON response: {detail}'
+            logger.error(msg)
+            return False, msg
+
+        error_details = response_json.get('error', {})
+        error_code = error_details.get('code') if isinstance(error_details, dict) else None
+
+        if error_code and error_code != 'ok':
+            msg = f'TikTok data request status check returned an error: {error_details}'
             logger.warning(msg)
             return False, msg
 
-        request_data = response_json.get('data')
-        if request_data is None:
+        response_data = response_json.get('data')
+        if response_data is None:
             msg = 'Missing "data" in TikTok data request response.'
             logger.warning(msg)
             return False, msg
 
         valid_status_codes = ['pending', 'downloading', 'expired', 'cancelled']
-        status_code = request_data.get('status')
+        status_code = response_data.get('status') if isinstance(response_data, dict) else 'missing status code'
         if status_code not in valid_status_codes:
             msg = f'Invalid status code in TikTok data request response: {status_code}'
             logger.warning(msg)
