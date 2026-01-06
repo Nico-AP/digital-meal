@@ -477,7 +477,12 @@ class TikTokCheckDownloadAvailabilityView(
 
         # Check if data request has already been issued.
         open_id = self.get_open_id_from_session()
-        data_request = TikTokDataRequest.objects.filter(open_id=open_id).first()
+        data_request = TikTokDataRequest.objects.filter(
+            open_id=open_id,
+            download_succeeded=False,
+        ).exclude(
+            status__in=[TikTokDataRequest.State.EXPIRED, TikTokDataRequest.State.CANCELLED]
+        ).first()
 
         if not data_request or not data_request.is_active():
             # Make initial data request.

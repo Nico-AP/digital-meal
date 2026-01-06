@@ -4,7 +4,7 @@ from unittest.mock import patch, Mock
 from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.utils import timezone
-from requests import Timeout
+from requests import Timeout, HTTPError
 
 from digital_meal.portability.exceptions import TokenRefreshException
 from digital_meal.portability.models import TikTokAccessToken, TikTokDataRequest
@@ -469,3 +469,69 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.test_data_request.refresh_from_db()
         self.assertFalse(self.test_data_request.download_succeeded)
         self.assertTrue(self.test_data_request.download_attempted)
+
+    # ===== cancel_data_request() Tests =====
+
+    @patch('digital_meal.portability.services.requests.post')
+    def test_cancel_data_request_success(self, mock_post):
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            'error': {'code': 'ok'},
+            'data': {'request_id': 12345}
+        }
+        mock_response.status_code = 200
+        mock_response.text = 'success'
+        mock_post.return_value = mock_response
+
+        result = self.api_client.cancel_data_request(12345)
+
+        self.assertEqual(result['error']['code'], 'ok')
+        mock_post.assert_called_once()
+
+        self.test_data_request.refresh_from_db()
+        self.assertEqual(self.test_data_request.status, TikTokDataRequest.State.CANCELLED)
+
+    @patch('digital_meal.portability.services.requests.post')
+    def test_cancel_data_request_handles_nonexistent_request(self, mock_post):
+        """Test handles case when data request doesn't exist in database"""
+        mock_response = Mock()
+        mock_response.json.return_value = {
+            'error': {'code': 'ok'},
+            'data': {'request_id': 99999}
+        }
+        mock_response.status_code = 200
+        mock_response.text = 'success'
+        mock_post.return_value = mock_response
+
+        result = self.api_client.cancel_data_request(99999)
+        self.assertEqual(result['error']['code'], 'ok')
+
+    @patch('digital_meal.portability.services.requests.post')
+    def test_cancel_data_request_handles_http_error(self, mock_post):
+        """Test returns error dict when HTTP error occurs"""
+        mock_post.side_effect = HTTPError('500 Server Error')
+
+        result = self.api_client.cancel_data_request(12345)
+
+        self.assertIn('error', result)
+        self.assertIn('Failed to cancel data request', result['error'])
+
+    @patch('digital_meal.portability.services.requests.post')
+    def test_cancel_data_request_handles_timeout(self, mock_post):
+        """Test returns error dict on timeout"""
+        mock_post.side_effect = Timeout()
+
+        result = self.api_client.cancel_data_request(12345)
+
+        self.assertIn('error', result)
+
+    @patch('digital_meal.portability.services.requests.post')
+    def test_cancel_data_request_does_not_update_db_on_api_failure(self, mock_post):
+        """Test database status is NOT updated when API call fails"""
+        mock_post.side_effect = HTTPError('500 Server Error')
+        original_status = self.test_data_request.status
+
+        self.api_client.cancel_data_request(12345)
+
+        self.test_data_request.refresh_from_db()
+        self.assertEqual(self.test_data_request.status, original_status)

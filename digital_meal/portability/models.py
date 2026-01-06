@@ -102,9 +102,15 @@ class TikTokDataRequest(models.Model):
 
     last_polled = models.DateTimeField(null=True)
 
+    class State(models.TextChoices):
+        NOT_POLLED = 'not polled', 'not polled'
+        PENDING = 'pending', 'pending'
+        EXPIRED = 'expired', 'expired'
+        CANCELLED = 'cancelled', 'cancelled'
+
     status = models.CharField(
         max_length=20,
-        default='not-polled',
+        default=State.NOT_POLLED,
     )
 
     download_attempted = models.BooleanField(default=False)
@@ -115,7 +121,7 @@ class TikTokDataRequest(models.Model):
         ordering = ['-issued_at']
 
     def is_active(self) -> bool:
-        inactive_states = ['expired', 'cancelled']
+        inactive_states = [self.State.EXPIRED, self.State.CANCELLED]
         if self.status in inactive_states or self.download_succeeded:
             return False
 

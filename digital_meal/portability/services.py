@@ -213,6 +213,7 @@ class TikTokPortabilityAPIClient:
         self.access_token = access_token
         self.data_request_url = 'https://open.tiktokapis.com/v2/user/data/add/'
         self.data_request_status_url = 'https://open.tiktokapis.com/v2/user/data/check/'
+        self.cancel_data_request_url = 'https://open.tiktokapis.com/v2/user/data/cancel/'
         self.data_download_url = 'https://open.tiktokapis.com/v2/user/data/download/'
 
     def make_data_request(self) -> dict:
@@ -267,6 +268,82 @@ class TikTokPortabilityAPIClient:
                 'response_text': getattr(response, 'text', 'no response text available'),
             }
         )
+
+        return request_result
+
+    def cancel_data_request(self, request_id: int) -> dict:
+        """Cancels a data portability request with TikTok's Data Portability API.
+
+        Sends a POST request to TikTok to request the cancellation of a previously
+        issued data request.
+
+        Args:
+            request_id: Request id of the data portability request to be cancelled.
+
+        Returns:
+            dict: JSON response from TikTok containing the following keys:
+
+                'data': {'request_id': <request_id>}
+
+                'error': {'code': <error code>,
+                          'message': <error message>,
+                          'log_id': <log id>}
+
+        References:
+            https://developers.tiktok.com/doc/data-portability-api-cancel-data-request
+        """
+        url = self.cancel_data_request_url
+        headers = {
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {self.access_token}'
+        }
+        payload = {
+            'request_id': request_id,
+        }
+        try:
+            response = requests.post(url, headers=headers, json=payload, timeout=30)
+            response.raise_for_status()
+            request_result = response.json()
+        except requests.exceptions.RequestException as e:
+            log_requests_exception(
+                logger, url, e,
+                f'Failed to cancel data request at {url} (request {request_id})',
+                extra={
+                    'request_id': request_id,
+                    'access_token': self.access_token,
+                },
+            )
+            return {'error': 'Failed to cancel data request', 'details': e}
+
+        logger.info(
+            'Cancelled data request %s.',
+            request_id,
+            extra={
+                'url': url,
+                'status_code': getattr(response, 'status_code', 'no status code available'),
+                'response_text': getattr(response, 'text', 'no response text available'),
+            }
+        )
+
+        error_details = request_result.get('error', {})
+        error_code = error_details.get('code') if isinstance(error_details, dict) else None
+        if error_code and error_code != 'ok':
+            logger.warning(
+                'TikTok rejected cancellation request %s: %s (code: %s)',
+                request_id, error_details, error_code
+            )
+            return request_result
+
+        # Update status of cancelled request
+        data_request = TikTokDataRequest.objects.filter(request_id=request_id).first()
+        if not data_request:
+            logger.warning(
+                f'Could not find data request object with id {request_id} to '
+                'set status to cancelled.'
+            )
+        else:
+            data_request.status = TikTokDataRequest.State.CANCELLED
+            data_request.save()
 
         return request_result
 
