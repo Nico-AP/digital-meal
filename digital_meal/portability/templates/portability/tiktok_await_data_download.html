@@ -16,12 +16,8 @@
     ob wir den Report generieren sollen.
   </div>
 
-  <div id="check-download-availability"
-       hx-get="{% url 'tiktok_check_download_availability' %}"
-       hx-trigger="load, every 15s"
-       hx-swap="innerHTML">
-    {% include 'portability/partials/_data_download_pending_msg.html' %}
-  </div>
+  {% include 'portability/partials/_data_download_pending_msg.html' %}
+
 </div>
 {% endblock main_content %}
 
