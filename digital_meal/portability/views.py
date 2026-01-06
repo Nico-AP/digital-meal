@@ -440,11 +440,6 @@ class TikTokAwaitDataDownloadView(
 
     template_name = 'portability/tiktok_await_data_download.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['poll_datetime'] = timezone.now()
-        return context
-
 
 class TikTokCheckDownloadAvailabilityView(
     AuthenticationRequiredMixin,
@@ -526,6 +521,8 @@ class TikTokCheckDownloadAvailabilityView(
         else:
             self.template_name = self.template_error
             context['error_msg'] = 'Received wrong status'
+
+        context['poll_datetime'] = timezone.now()
 
         return context
 
