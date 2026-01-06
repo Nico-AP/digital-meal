@@ -252,8 +252,10 @@ class TikTokPortabilityAPIClient:
             log_requests_exception(
                 logger, url, e,
                 f'Failed to make data request to {url}',
-                extra={'request_params': params,},
-                level=logging.ERROR
+                extra={
+                    'request_params': params,
+                    'access_token': self.access_token,
+                },
             )
             return {'error': 'Failed to make data request', 'details': e}
 
