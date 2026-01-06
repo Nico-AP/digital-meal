@@ -5,6 +5,14 @@ from collections import OrderedDict
 from django.http import HttpRequest
 
 
+ALLOWED_LOGGING_LEVELS = [
+    logging.WARNING,
+    logging.INFO,
+    logging.ERROR,
+    logging.CRITICAL
+]
+
+
 class JsonFormatter(logging.Formatter):
     def format(self, record):
         log_data = OrderedDict()
@@ -37,21 +45,41 @@ def log_security_event(
         extra: dict = None,
         level: int = logging.WARNING,
 ):
-    allowed_levels = [
-        logging.WARNING,
-        logging.INFO,
-        logging.ERROR,
-        logging.CRITICAL
-    ]
-
-    if level not in allowed_levels:
+    if level not in ALLOWED_LOGGING_LEVELS:
         level = logging.WARNING
+
+    session = getattr(request, 'session', None)
 
     security_extra = {
         'ip': request.META.get('REMOTE_ADDR'),
         'user_agent': request.META.get('HTTP_USER_AGENT'),
-        'session_key': getattr(request.session, 'session_key', None),
+        'session_key': getattr(session, 'session_key', None),
         **(extra or {})
     }
 
     logger.log(level, msg, extra=security_extra)
+
+
+def log_requests_exception(
+        logger: logging.Logger,
+        url: str | None,
+        e: Exception,
+        msg: str,
+        *args,
+        extra: dict = None,
+        level: int = logging.WARNING,
+):
+    if level not in ALLOWED_LOGGING_LEVELS:
+        level = logging.WARNING
+
+    response = getattr(e, 'response', None)
+
+    requests_extra = {
+        'status_code': getattr(response, 'status_code', None),
+        'response_text': getattr(response, 'text', 'no response text available')[:500],
+        'error_type': type(e).__name__,
+        'url': url,
+        **(extra or {})
+    }
+
+    logger.log(level, msg, *args, extra=requests_extra)

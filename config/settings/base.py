@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'taggit',
+    'digital_meal.core',
     'digital_meal.tool',
     'digital_meal.website',
     'digital_meal.reports',

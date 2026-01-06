@@ -13,6 +13,7 @@ from django.utils import timezone
 
 from digital_meal.portability.exceptions import TokenRefreshException
 from digital_meal.portability.models import TikTokDataRequest, TikTokAccessToken
+from digital_meal.core.logging_utils import log_requests_exception
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +68,9 @@ class TikTokAccessTokenService:
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            logger.warning(
-                'Unable to refresh TikTokAccessToken %s: %s', access_token.pk, e
+            log_requests_exception(
+                logger, url, e,
+                f'Unable to refresh TikTokAccessToken (pk: {access_token.pk})',
             )
             raise TokenRefreshException(f'Unable to refresh TikTokAccessToken: {e}')
 
@@ -179,10 +181,11 @@ class TikTokAccessTokenService:
             response = requests.post(url, data=data, headers=headers, timeout=30)
             response.raise_for_status()
             return response.json()
-        except requests.exceptions.Timeout:
-            logger.error(
-                'Request to exchange token timed out (attempt %s)',
-                attempt
+        except requests.exceptions.Timeout as e:
+            log_requests_exception(
+                logger, url, e,
+                f'Request to exchange token timed out (attempt {attempt})',
+                level=logging.ERROR
             )
 
             if attempt < max_attempts:
@@ -191,9 +194,10 @@ class TikTokAccessTokenService:
             else:
                 raise requests.exceptions.RequestException
         except requests.exceptions.RequestException as e:
-            logger.error(
-                'Failed to retrieve authentication token: %s, (attempt %s)',
-                e, attempt
+            log_requests_exception(
+                logger, url, e,
+                f'Failed to retrieve authentication token (attempt {attempt})',
+                level=logging.ERROR
             )
 
             if attempt < max_attempts:
@@ -245,7 +249,12 @@ class TikTokPortabilityAPIClient:
             response.raise_for_status()
             request_result = response.json()
         except requests.exceptions.RequestException as e:
-            logger.error('Failed to make data request: %s', e)
+            log_requests_exception(
+                logger, url, e,
+                f'Failed to make data request to {url}',
+                extra={'request_params': params,},
+                level=logging.ERROR
+            )
             request_result = {'error': 'Failed to make data request', 'details': e}
 
         return request_result
@@ -336,13 +345,18 @@ class TikTokPortabilityAPIClient:
             )
             response.raise_for_status()
             poll_result = response.json()
-        except requests.exceptions.Timeout:
-            logger.error('Data request status polling timed out')
+        except requests.exceptions.Timeout as e:
+            log_requests_exception(
+                logger, url, e,
+                'Data request status polling timed out',
+                level=logging.ERROR
+            )
             poll_result = {'error': 'Data request status polling timed out'}
         except requests.exceptions.RequestException as e:
-            logger.error(
-                'Failed to poll data request status: %s (request_id: %s)',
-                e, request_id
+            log_requests_exception(
+                logger, url, e,
+                f'Failed to poll data request status for request with ID {request_id})',
+                level=logging.ERROR
             )
             poll_result = {'error': 'Failed to poll data request status'}
 
@@ -428,9 +442,10 @@ class TikTokPortabilityAPIClient:
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            logger.error(
-                'Download failed for request %s: %s',
-                request_id, e
+            log_requests_exception(
+                logger, self.data_download_url, e,
+                f'Download failed for request {request_id}',
+                logging.ERROR
             )
             raise
 

@@ -59,7 +59,7 @@ urlpatterns += custom_ddm_patterns
 
 # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
 urlpatterns += [
-    path('', include('digital_meal.urls')),
+    path('', include('digital_meal.core.urls')),
 ]
 
 if settings.DEBUG:

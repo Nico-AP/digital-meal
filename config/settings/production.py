@@ -38,7 +38,7 @@ LOGGING = {
             'format': '%(levelname)s %(message)s'
         },
         'json': {
-            '()': 'digital_meal.logging_utils.JsonFormatter',
+            '()': 'digital_meal.core.logging_utils.JsonFormatter',
         },
     },
     'filters': {

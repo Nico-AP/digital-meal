@@ -13,7 +13,7 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from digital_meal.logging_utils import log_security_event
+from digital_meal.core.logging_utils import log_security_event
 from digital_meal.portability.exceptions import TokenRefreshException
 from digital_meal.portability.models import (
     OAuthStateToken,
