@@ -255,7 +255,16 @@ class TikTokPortabilityAPIClient:
                 extra={'request_params': params,},
                 level=logging.ERROR
             )
-            request_result = {'error': 'Failed to make data request', 'details': e}
+            return {'error': 'Failed to make data request', 'details': e}
+
+        logger.info(
+            'Issued data request for access token %s (pk)', self.access_token,
+            extra={
+                'url': self.data_request_url,
+                'status_code': getattr(response, 'status_code', 'no status code available'),
+                'response_text': getattr(response, 'text', 'no response text available')[:500],
+            }
+        )
 
         return request_result
 
@@ -351,14 +360,23 @@ class TikTokPortabilityAPIClient:
                 'Data request status polling timed out',
                 level=logging.ERROR
             )
-            poll_result = {'error': 'Data request status polling timed out'}
+            return {'error': 'Data request status polling timed out'}
         except requests.exceptions.RequestException as e:
             log_requests_exception(
                 logger, url, e,
                 f'Failed to poll data request status for request with ID {request_id})',
                 level=logging.ERROR
             )
-            poll_result = {'error': 'Failed to poll data request status'}
+            return {'error': 'Failed to poll data request status'}
+
+        logger.info(
+            'Polled data request status for request %s', request_id,
+            extra={
+                'url': self.data_request_status_url,
+                'status_code': getattr(response, 'status_code', 'no status code available'),
+                'response_text': getattr(response, 'text', 'no response text available')[:500],
+            }
+        )
 
         return poll_result
 
