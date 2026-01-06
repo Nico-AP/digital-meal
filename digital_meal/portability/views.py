@@ -424,7 +424,6 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
         request.session.cycle_key()
         self.store_open_id_in_session(open_id)
 
-        # Redirect to await data download view.
         return redirect('tiktok_await_data_download')
 
 
@@ -440,6 +439,11 @@ class TikTokAwaitDataDownloadView(
     """
 
     template_name = 'portability/tiktok_await_data_download.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['poll_datetime'] = timezone.now()
+        return context
 
 
 class TikTokCheckDownloadAvailabilityView(
