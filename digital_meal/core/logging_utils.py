@@ -74,9 +74,14 @@ def log_requests_exception(
 
     response = getattr(e, 'response', None)
 
+    try:
+        response_text = response.text[:500] if hasattr(response, 'text') else 'no response text available'
+    except (AttributeError, TypeError):
+        response_text = 'no response text available'
+
     requests_extra = {
         'status_code': getattr(response, 'status_code', None),
-        'response_text': getattr(response, 'text', 'no response text available')[:500],
+        'response_text': response_text,
         'error_type': type(e).__name__,
         'url': url,
         **(extra or {})

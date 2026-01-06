@@ -262,7 +262,7 @@ class TikTokPortabilityAPIClient:
             extra={
                 'url': self.data_request_url,
                 'status_code': getattr(response, 'status_code', 'no status code available'),
-                'response_text': getattr(response, 'text', 'no response text available')[:500],
+                'response_text': getattr(response, 'text', 'no response text available'),
             }
         )
 
@@ -374,7 +374,7 @@ class TikTokPortabilityAPIClient:
             extra={
                 'url': self.data_request_status_url,
                 'status_code': getattr(response, 'status_code', 'no status code available'),
-                'response_text': getattr(response, 'text', 'no response text available')[:500],
+                'response_text': getattr(response, 'text', 'no response text available'),
             }
         )
 
