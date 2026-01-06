@@ -1,8 +1,5 @@
-<div class="border border-secondary rounded bg-light">
-  <p>Leider ist beim Abrufen deiner Daten der folgende Fehler aufgetreten:</p>
-  {% if error_msg %}
-    <p>{{ error_msg }}</p>
-  {% else %}
-    <p>Leider sind keine Informationen zum aufgetretenen Fehler verfügbar.</p>
-  {% endif %}
+<div class="border border-secondary rounded bg-light p-3">
+  <p class="mb-0">Leider ist beim Abrufen deiner Daten ein Fehler aufgetreten.</p>
+  <p class="mb-0">Bitte versuche es noch einmal oder kontaktiere den Support: <a href="mailto:kontakt@digital-meal.ch">kontakt@digital-meal.ch</a></p>
+  <p><a href="{% url 'tiktok_auth' %}" class="btn darkblue-button">Noch einmal versuchen</a></p>
 </div>

@@ -484,7 +484,6 @@ class TikTokCheckDownloadAvailabilityView(
             response_data = api_client.make_data_request()
             response_valid, msg = api_client.data_request_response_is_valid(response_data)
             if not response_valid:
-                context['error_msg'] = msg
                 self.template_name = self.template_error
                 return context
 
@@ -499,7 +498,6 @@ class TikTokCheckDownloadAvailabilityView(
         status_request_valid, msg = api_client.poll_data_request_status_response_is_valid(request_status_response)
 
         if not status_request_valid:
-            context['error_msg'] = msg
             self.template_name = self.template_error
             return context
 
@@ -520,7 +518,6 @@ class TikTokCheckDownloadAvailabilityView(
             self.template_name = self.template_expired
         else:
             self.template_name = self.template_error
-            context['error_msg'] = 'Received wrong status'
 
         context['poll_datetime'] = timezone.now()
 
