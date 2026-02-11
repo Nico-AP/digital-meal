@@ -5,12 +5,25 @@ from .models import Classroom, User, Teacher, BaseModule, SubModule
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ['email', 'date_joined', 'last_login', 'is_superuser']
+    list_display = [
+        'email',
+        'date_joined',
+        'last_login',
+        'is_superuser',
+        'is_active',
+    ]
 
 
 @admin.register(Teacher)
 class TeacherAdmin(admin.ModelAdmin):
-    list_display = ['user', 'name', 'first_name', 'canton', 'school_name', 'date_created']
+    list_display = [
+        'user',
+        'name',
+        'first_name',
+        'canton',
+        'school_name',
+        'date_created',
+    ]
 
 
 @admin.register(BaseModule)
@@ -24,7 +37,7 @@ class BaseModuleAdmin(admin.ModelAdmin):
         'ddm_project_id',
         'report_prefix',
         'active',
-        'test_class_url_id'
+        'test_class_url_id',
     )
 
 
@@ -37,16 +50,24 @@ class SubModuleAdmin(admin.ModelAdmin):
         'description',
         'materials_text',
         'url_parameter',
-        'active'
+        'active',
     )
 
 
 @admin.register(Classroom)
 class ClassroomAdmin(admin.ModelAdmin):
     list_display = [
-        'name', 'url_id', 'date_created', 'owner', 'base_module',
-        'n_started', 'n_finished', 'completion_rate', 'last_started',
-        'last_completed', 'is_active'
+        'name',
+        'url_id',
+        'date_created',
+        'owner',
+        'base_module',
+        'n_started',
+        'n_finished',
+        'completion_rate',
+        'last_started',
+        'last_completed',
+        'is_active',
     ]
     list_filter = ['base_module', 'owner', 'date_created']
 
