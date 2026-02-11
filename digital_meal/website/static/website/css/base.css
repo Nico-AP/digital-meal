@@ -292,3 +292,9 @@ form .helptext {
     line-height: 2.1rem;
     padding-bottom: 14px;
 }
+
+/* Honeypot class: */
+.signup-phone-number {
+    position: absolute;
+    left: -9999px;
+}

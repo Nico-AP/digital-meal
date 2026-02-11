@@ -11,6 +11,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 from django.urls import reverse
 
+from .forms import SimpleSignupForm
 from .models import Classroom, BaseModule
 
 User = get_user_model()
@@ -350,3 +351,43 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_responses_after, 1)
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
+
+
+class TestSimpleSignupForm(TestCase):
+
+    def setUp(self):
+        self.valid_data = {
+            'first_name': 'Max',
+            'name': 'Muster',
+            'canton': 'AG',
+            'school_name': 'Testschule',
+            'email': 'test@example.com',
+            'email2': 'test@example.com',
+            'password1': 'SecurePass123!',
+            'password2': 'SecurePass123!',
+            'mobile_phone_number': '',
+        }
+
+    def test_form_valid_without_honeypot(self):
+        """Form should be valid when honeypot field is empty."""
+        form = SimpleSignupForm(data=self.valid_data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_form_invalid_when_honeypot_filled(self):
+        """Form should be invalid when honeypot field is filled (bot detected)."""
+        data = {**self.valid_data, 'mobile_phone_number': '+41791234567'}
+        form = SimpleSignupForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn('mobile_phone_number', form.errors)
+
+    def test_form_valid_when_honeypot_absent(self):
+        """Form should be valid when honeypot field is not submitted at all."""
+        data = {**self.valid_data}
+        del data['mobile_phone_number']
+        form = SimpleSignupForm(data=data)
+        self.assertTrue(form.is_valid(), form.errors)
+
+    def test_honeypot_not_in_field_order(self):
+        """Honeypot field should not appear in the explicit field order."""
+        form = SimpleSignupForm()
+        self.assertNotIn('mobile_phone_number', form.field_order)

@@ -37,6 +37,21 @@ class SimpleSignupForm(SignupForm):
         )
     )
 
+    # Used as honeypot field
+    mobile_phone_number = forms.CharField(
+        required=False,
+        max_length=12,
+        label=_(''),
+        widget=forms.TextInput(
+            attrs={
+                'placeholder': _('Ihre Mobilnummer'),
+                'class': 'signup-phone-number',
+                'tabindex': '-1',
+                'autocomplete': 'off',
+            }
+        )
+    )
+
     field_order = [
         'first_name',
         'name',
@@ -47,6 +62,13 @@ class SimpleSignupForm(SignupForm):
         'password1',
         'password2',
     ]
+
+    def clean_mobile_phone_number(self):
+        # Catch bots (honeypot field)
+        value = self.cleaned_data.get('mobile_phone_number')
+        if value:
+            raise forms.ValidationError(_('Registrierung fehlgeschlagen.'))
+        return value
 
     def save(self, request):
         user = super().save(request)
