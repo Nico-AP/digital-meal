@@ -20,7 +20,10 @@ from shared.portability.models import (
     TikTokAccessToken,
     TikTokDataRequest,
 )
-from shared.portability.services import TikTokPortabilityAPIClient, TikTokAccessTokenService
+from shared.portability.services import (
+    TikTokPortabilityAPIClient,
+    TikTokAccessTokenService,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -35,19 +38,18 @@ def render_http_400(request, e: str) -> HttpResponse:
     Returns:
         HttpResponse: A http response with status code 400.
     """
-    context = {'error_message': e}
-    return render(request, 'portability/400.html', context, status=400)
+    context = {"error_message": e}
+    return render(request, "portability/400.html", context, status=400)
 
 
 def redirect_to_auth_view(
-        request: WSGIRequest,
-        msg: str = None
+    request: WSGIRequest, msg: str = None
 ) -> HttpResponseRedirect:
     if msg is None:
-        msg = 'Something went wrong. Please try again.'
+        msg = "Something went wrong. Please try again."
 
     messages.info(request, msg)
-    return redirect('tiktok_auth')
+    return redirect("tiktok_auth")
 
 
 class StateTokenMixin:
@@ -58,8 +60,9 @@ class StateTokenMixin:
 
     Should not be used with views that are marked as csrf_exempt
     """
+
     state_token = None
-    state_token_session_key = 'state_token'
+    state_token_session_key = "state_token"
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -78,8 +81,8 @@ class StateTokenMixin:
         return super().dispatch(request, *args, **kwargs)
 
     def store_state_token_in_session(
-            self,
-            state_token: str,
+        self,
+        state_token: str,
     ) -> None:
         """Stores a state token in the current user's session.
 
@@ -130,31 +133,29 @@ class StateTokenMixin:
         if not session_token == state_token:
             log_security_event(
                 logger,
-                'Received state token does not match session state token',
+                "Received state token does not match session state token",
                 self.request,
                 extra={
-                    'state_token': state_token,
-                    'session_token': session_token,
-                }
+                    "state_token": state_token,
+                    "session_token": session_token,
+                },
             )
-            raise ValidationError(
-                'State token does not match the session state token.'
-            )
+            raise ValidationError("State token does not match the session state token.")
 
         if not OAuthStateToken.objects.filter(token=session_token).exists():
             logger.info(
-                'Tried to retrieve non existing OAuthStateToken: %s',
-                session_token
+                "Tried to retrieve non existing OAuthStateToken: %s", session_token
             )
-            raise ValidationError('Authentication token does not exist.')
+            raise ValidationError("Authentication token does not exist.")
 
         token = OAuthStateToken.objects.get(token=session_token)
         if token.is_expired() or token.used:
             logger.info(
-                'Tried to use expired OAuthStateToken: %s (pk: %s)',
-                token.token, token.pk
+                "Tried to use expired OAuthStateToken: %s (pk: %s)",
+                token.token,
+                token.pk,
             )
-            raise ValidationError('Authentication token is expired.')
+            raise ValidationError("Authentication token is expired.")
 
         # If token is valid, set it to used and delete token from session.
         token.used = True
@@ -165,12 +166,10 @@ class StateTokenMixin:
 
 class ManageAccessTokenMixin:
     access_token = None
-    open_id_session_key = 'tiktok_open_id'
+    open_id_session_key = "tiktok_open_id"
 
     @staticmethod
-    def get_valid_access_token_from_db(
-            open_id: str
-    ) -> TikTokAccessToken:
+    def get_valid_access_token_from_db(open_id: str) -> TikTokAccessToken:
         """Retrieves a valid access token.
 
         Tries to get the TikTokAccessToken related to the given primary key from
@@ -193,7 +192,7 @@ class ManageAccessTokenMixin:
         # Check if related access token exists in db.
         access_token = TikTokAccessToken.objects.filter(open_id=open_id).first()
         if not access_token:
-            logger.info('Tried to retrieve inexistent TikTokAccessToken.')
+            logger.info("Tried to retrieve inexistent TikTokAccessToken.")
             raise TikTokAccessToken.DoesNotExist(
                 f'No TikTokAccessToken found for provided open_id "{open_id}".'
             )
@@ -207,16 +206,13 @@ class ManageAccessTokenMixin:
                 access_token = refresh_service.refresh_token(access_token)
             except TokenRefreshException:
                 raise ValidationError(
-                    f'TikTokAccessToken is expired and cannot be refreshed '
-                    f'(open_id: {open_id}).'
+                    f"TikTokAccessToken is expired and cannot be refreshed "
+                    f"(open_id: {open_id})."
                 )
 
         return access_token
 
-    def store_open_id_in_session(
-            self,
-            open_id: str
-    ) -> None:
+    def store_open_id_in_session(self, open_id: str) -> None:
         """Stores the PK of the related TikTokAccessToken object in the session.
 
         Args:
@@ -239,7 +235,6 @@ class ManageAccessTokenMixin:
 
 
 class AuthenticationRequiredMixin(ManageAccessTokenMixin):
-
     def dispatch(self, request, *args, **kwargs):
         """Ensure that the user is authenticated (open_id is in session).
 
@@ -248,12 +243,9 @@ class AuthenticationRequiredMixin(ManageAccessTokenMixin):
         # Check if session is authenticated.
         open_id = self.get_open_id_from_session()
         if not open_id:
+            msg = "Open ID information missing in session (unauthenticated request)."
 
-            log_security_event(
-                logger,
-                'Open ID information missing in session (unauthenticated request).',
-                self.request,
-            )
+            log_security_event(logger, msg, self.request)
 
             return redirect_to_auth_view(request)
 
@@ -261,7 +253,6 @@ class AuthenticationRequiredMixin(ManageAccessTokenMixin):
 
 
 class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
-
     def dispatch(self, request, *args, **kwargs):
         """Ensure that current session has an active access token.
 
@@ -272,7 +263,7 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
         try:
             access_token = self.get_valid_access_token_from_db(open_id)
         except (TikTokAccessToken.DoesNotExist, ValidationError) as e:
-            logger.error('Failed to get access token: %s', e)
+            logger.error("Failed to get access token: %s", e)
             return redirect_to_auth_view(request)
 
         self.access_token = access_token
@@ -281,7 +272,7 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
 
 
 class TikTokAuthView(StateTokenMixin, TemplateView):
-    template_name = 'portability/tiktok_auth.html'
+    template_name = "portability/tiktok_auth.html"
 
     # TODO: Add throttling.
 
@@ -293,24 +284,29 @@ class TikTokAuthView(StateTokenMixin, TemplateView):
         """
         auth_url = settings.TIKTOK_AUTH_URL
         client_key = settings.TIKTOK_CLIENT_KEY
-        scope = 'user.info.basic,portability.all.single'
+        scope = "user.info.basic,portability.all.single"
         redirect_uri = settings.TIKTOK_REDIRECT_URL
         state = self.state_token
-        response_type = 'code'
+        response_type = "code"
 
         return (
-            auth_url +
-            '?client_key=' + client_key +
-            '&scope=' + scope +
-            '&redirect_uri=' + redirect_uri +
-            '&state=' + state +
-            '&response_type=' + response_type
+            auth_url
+            + "?client_key="
+            + client_key
+            + "&scope="
+            + scope
+            + "&redirect_uri="
+            + redirect_uri
+            + "&state="
+            + state
+            + "&response_type="
+            + response_type
         )
 
     def get_context_data(self, **kwargs):
         """Adds the TikTok authentication URL to the template context."""
         context = super().get_context_data(**kwargs)
-        context['tt_auth_url'] = self.build_auth_url()
+        context["tt_auth_url"] = self.build_auth_url()
         return context
 
 
@@ -343,28 +339,25 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
         """
 
         # Validate state token before any processing
-        state = request.GET.get('state')
+        state = request.GET.get("state")
         if not state:
-            logger.info('Request is missing state token.')
+            logger.info("Request is missing state token.")
             return redirect_to_auth_view(request)
 
         try:
             self.verify_and_consume_state_token(state)
-        except ValidationError as e:
+        except ValidationError:
             return redirect_to_auth_view(request)
 
         # Check for errors raised by the external service.
-        error = request.GET.get('error')
+        error = request.GET.get("error")
         if error:
-            descr = request.GET.get('error_description')
-            logger.error(
-                'Authentication with TikTok failed: %s (%s)',
-                error, descr
-            )
+            descr = request.GET.get("error_description")
+            logger.error("Authentication with TikTok failed: %s (%s)", error, descr)
             return redirect_to_auth_view(request)
 
         # Check for authorization code
-        if not request.GET.get('code'):
+        if not request.GET.get("code"):
             logger.info('Request is missing "code" parameter.')
             return redirect_to_auth_view(request)
 
@@ -394,7 +387,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
 
         # Get access token information from TikTok.
         try:
-            auth_code = self.request.GET.get('code')
+            auth_code = self.request.GET.get("code")
             token_data = token_service.exchange_code_for_token(auth_code)
         except requests.exceptions.RequestException:
             return redirect_to_auth_view(request)
@@ -404,17 +397,14 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
                 token_info = token_data.keys()
             except AttributeError:
                 token_info = token_data
-            logger.error(
-                'Received invalid token data from TikTok: %s', token_info
-            )
+            logger.error("Received invalid token data from TikTok: %s", token_info)
             return redirect_to_auth_view(request)
 
         # Check if token for user already exists and if yes, delete existing one.
-        open_id = token_data.get('open_id')
+        open_id = token_data.get("open_id")
         if open_id is None:
             logger.error(
-                'Received token data without open_id; token_data: %s',
-                token_data
+                "Received token data without open_id; token_data: %s", token_data
             )
             return redirect_to_auth_view(request)
 
@@ -424,13 +414,11 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
         request.session.cycle_key()
         self.store_open_id_in_session(open_id)
 
-        return redirect('tiktok_await_data_download')
+        return redirect("tiktok_await_data_download")
 
 
 class TikTokAwaitDataDownloadView(
-    AuthenticationRequiredMixin,
-    ActiveAccessTokenRequiredMixin,
-    TemplateView
+    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
 ):
     """Displays a waiting page while TikTok prepares the user's data export.
 
@@ -438,13 +426,11 @@ class TikTokAwaitDataDownloadView(
     is being processed by TikTok.
     """
 
-    template_name = 'portability/tiktok_await_data_download.html'
+    template_name = "portability/tiktok_await_data_download.html"
 
 
 class TikTokCheckDownloadAvailabilityView(
-    AuthenticationRequiredMixin,
-    ActiveAccessTokenRequiredMixin,
-    TemplateView
+    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
 ):
     """Returns appropriate status for the download availability.
 
@@ -453,10 +439,10 @@ class TikTokCheckDownloadAvailabilityView(
 
     template_name = None  # Note: is assigned in get_context_data
 
-    template_pending = 'portability/partials/_data_download_pending_msg.html'
-    template_success = 'portability/partials/_data_download_available_msg.html'
-    template_error = 'portability/partials/_data_download_error_msg.html'
-    template_expired = 'portability/partials/_data_download_expired_msg.html'
+    template_pending = "portability/partials/_data_download_pending_msg.html"
+    template_success = "portability/partials/_data_download_available_msg.html"
+    template_error = "portability/partials/_data_download_error_msg.html"
+    template_expired = "portability/partials/_data_download_expired_msg.html"
 
     def get_context_data(self, **kwargs):
         """Checks data download availability and prepares appropriate template.
@@ -477,62 +463,73 @@ class TikTokCheckDownloadAvailabilityView(
 
         # Check if data request has already been issued.
         open_id = self.get_open_id_from_session()
-        data_request = TikTokDataRequest.objects.filter(
-            open_id=open_id,
-            download_succeeded=False,
-        ).exclude(
-            status__in=[TikTokDataRequest.State.EXPIRED, TikTokDataRequest.State.CANCELLED]
-        ).first()
+        data_request = (
+            TikTokDataRequest.objects.filter(
+                open_id=open_id,
+                download_succeeded=False,
+            )
+            .exclude(
+                status__in=[
+                    TikTokDataRequest.State.EXPIRED,
+                    TikTokDataRequest.State.CANCELLED,
+                ]
+            )
+            .first()
+        )
 
         if not data_request or not data_request.is_active():
             # Make initial data request.
             response_data = api_client.make_data_request()
-            response_valid, msg = api_client.data_request_response_is_valid(response_data)
+            response_valid, msg = api_client.data_request_response_is_valid(
+                response_data
+            )
             if not response_valid:
                 self.template_name = self.template_error
                 return context
 
             data_request = TikTokDataRequest.objects.create(
                 open_id=open_id,
-                request_id=response_data.get('data', {}).get('request_id'),
+                request_id=response_data.get("data", {}).get("request_id"),
             )
 
         # Poll download status
         request_id = data_request.request_id
         request_status_response = api_client.poll_data_request_status(request_id)
-        status_request_valid, msg = api_client.poll_data_request_status_response_is_valid(request_status_response)
+        status_request_valid, msg = (
+            api_client.poll_data_request_status_response_is_valid(
+                request_status_response
+            )
+        )
 
         if not status_request_valid:
             self.template_name = self.template_error
             return context
 
         # Handle response and update data request object
-        request_status_data = request_status_response.get('data')
-        request_status = request_status_data.get('status')
+        request_status_data = request_status_response.get("data")
+        request_status = request_status_data.get("status")
         data_request.status = request_status
         data_request.last_polled = timezone.now()
         data_request.save()
 
         # Use the matching template.
-        if request_status == 'pending':
+        if request_status == "pending":
             self.template_name = self.template_pending
-        elif request_status == 'downloading':
-            context['request_id'] = request_id
+        elif request_status == "downloading":
+            context["request_id"] = request_id
             self.template_name = self.template_success
-        elif request_status in ['expired', 'cancelled']:
+        elif request_status in ["expired", "cancelled"]:
             self.template_name = self.template_expired
         else:
             self.template_name = self.template_error
 
-        context['poll_datetime'] = timezone.now()
+        context["poll_datetime"] = timezone.now()
 
         return context
 
 
 class TikTokDataDownloadView(
-    AuthenticationRequiredMixin,
-    ActiveAccessTokenRequiredMixin,
-    View
+    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, View
 ):
     """Handles the actual download of TikTok user data as a ZIP file.
 
@@ -568,11 +565,11 @@ class TikTokDataDownloadView(
         except ValueError:
             log_security_event(
                 logger,
-                'Received invalid request id',
+                "Received invalid request id",
                 self.request,
                 extra={
-                    'request_id': request_id,
-                }
+                    "request_id": request_id,
+                },
             )
 
             raise Http404
@@ -584,15 +581,14 @@ class TikTokDataDownloadView(
                 open_id=open_id,
             )
         except TikTokDataRequest.DoesNotExist:
-
             log_security_event(
                 logger,
-                'Registered attempt to download non-existing request ID',
+                "Registered attempt to download non-existing request ID",
                 self.request,
                 extra={
-                    'request_id': request_id,
-                    'open_id': open_id,
-                }
+                    "request_id": request_id,
+                    "open_id": open_id,
+                },
             )
 
             raise Http404  # TODO: Is there a more adequate option to raise here?
@@ -602,17 +598,17 @@ class TikTokDataDownloadView(
 
         try:
             return api_client.stream_download_requested_data(data_request)
-        except Exception as e:
-            return render_http_400(request, 'Download Failed')  # TODO: Is there a more adequate option to raise here?
+        except Exception:
+            return render_http_400(request, "Download Failed")
+            # TODO: Is there a more adequate option to raise here?
 
 
 class TikTokDataReviewView(
-    AuthenticationRequiredMixin,
-    ActiveAccessTokenRequiredMixin,
-    TemplateView
+    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
 ):
     """Gets user information from the TikTok User Info API."""
-    template_name = 'portability/tiktok_data_review.html'
+
+    template_name = "portability/tiktok_data_review.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -620,15 +616,15 @@ class TikTokDataReviewView(
 
         try:
             response = self.get_user_info_from_tiktok()
-        except requests.exceptions.RequestException as e:
-            context['error'] = 'request_exception'
+        except requests.exceptions.RequestException:
+            context["error"] = "request_exception"
             response = None
 
         if response:
-            user_data = response.get('data')
+            user_data = response.get("data")
             if user_data:
-                user_info = user_data.get('user')
-                user_info.pop('union_id', None)
+                user_info = user_data.get("user")
+                user_info.pop("union_id", None)
                 user_info = self.prettify_user_info(user_info)
                 user_info_retrieved = True
             else:
@@ -637,9 +633,9 @@ class TikTokDataReviewView(
                 )
                 user_info = None
 
-            context['user_info'] = user_info
+            context["user_info"] = user_info
 
-        context['user_info_retrieved'] = user_info_retrieved
+        context["user_info_retrieved"] = user_info_retrieved
         return context
 
     @staticmethod
@@ -655,10 +651,10 @@ class TikTokDataReviewView(
             dict: The dictionary with prettified labels.
         """
         pretty_dict = {}
-        user_info = {'display_name': user_info.pop('display_name'), **user_info}
+        user_info = {"display_name": user_info.pop("display_name"), **user_info}
 
         for label, value in user_info.items():
-            label = label.replace('_', ' ').title()
+            label = label.replace("_", " ").title()
             pretty_dict[label] = value
 
         return pretty_dict
@@ -677,12 +673,9 @@ class TikTokDataReviewView(
                 None, if request failed.
         """
         url = settings.TIKTOK_USER_INFO_URL
-        fields = [
-            'union_id',
-            'display_name'
-        ]
-        params = {'fields': ','.join(fields)}
-        headers = {'Authorization': f'Bearer {self.access_token.token}'}
+        fields = ["union_id", "display_name"]
+        params = {"fields": ",".join(fields)}
+        headers = {"Authorization": f"Bearer {self.access_token.token}"}
 
         max_tries = 3
         try:
@@ -692,11 +685,13 @@ class TikTokDataReviewView(
 
         except requests.exceptions.RequestException as e:
             # TODO: Handle specific errors.
-            # Possible errors: {"error":{"code":"scope_not_authorized","message":"The user did not author
-            # ize the scope required for completing this request.","log_id":"20250625133420FE910721C437
+            # Possible errors: {"error":{"code":"scope_not_authorized",
+            # "message":"The user did not authorize the scope required
+            # for completing this request.",
+            # "log_id":"20250625133420FE910721C437
             # F9AB7B4D"}
 
-            logger.error('Failed to retrieve user info: %s', e)
+            logger.error("Failed to retrieve user info: %s", e)
 
             if attempt < max_tries:
                 time.sleep(3 * attempt)
@@ -706,12 +701,10 @@ class TikTokDataReviewView(
 
 
 class TikTokDisconnectView(AuthenticationRequiredMixin, View):
-
     def get(self, request, *args, **kwargs):
-
         # Delete open ID from session.
         request.session.pop(self.open_id_session_key)
         request.session.cycle_key()
 
-        msg = 'Successfully disconnected from TikTok.'
+        msg = "Successfully disconnected from TikTok."
         return redirect_to_auth_view(request, msg)

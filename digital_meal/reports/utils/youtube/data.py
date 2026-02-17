@@ -18,8 +18,9 @@ def get_video_ids(watch_history: list[dict]) -> list[str]:
         of watch history entries.
     """
     video_ids = [
-        d['titleUrl'].replace('https://www.youtube.com/watch?v=', '')
-        for d in watch_history if 'titleUrl' in d
+        d["titleUrl"].replace("https://www.youtube.com/watch?v=", "")
+        for d in watch_history
+        if "titleUrl" in d
     ]
     return video_ids
 
@@ -34,11 +35,11 @@ def get_date_list(watch_history: list[dict]) -> list[datetime.datetime]:
     Returns:
         list[dict]: A list of dates as datetime objects extracted from the 'time' key.
     """
-    dates_str = [d['time'] for d in watch_history if 'time' in d]
+    dates_str = [d["time"] for d in watch_history if "time" in d]
     if not dates_str:
         return []
 
-    dates = pd.to_datetime(dates_str, errors='coerce').dropna().tolist()
+    dates = pd.to_datetime(dates_str, errors="coerce").dropna().tolist()
     return dates
 
 
@@ -53,9 +54,7 @@ def get_title_list(history: list[dict]) -> list:
         list: A list of search terms.
     """
     titles = [
-        event['title']
-        for event in history
-        if 'title' in event and event['title']
+        event["title"] for event in history if "title" in event and event["title"]
     ]
     return titles
 
@@ -71,17 +70,17 @@ def is_ad(watch_entry: dict) -> bool:
         bool: True if it is an ad, False otherwise.
     """
     ad_identifiers = {
-        'from google ads',
-        'von google anzeigen',
-        'da programmi pubblicitari google',
-        'des annonces google',
+        "from google ads",
+        "von google anzeigen",
+        "da programmi pubblicitari google",
+        "des annonces google",
     }
 
     entry_is_ad = (
-        'details' in watch_entry
-        and len(watch_entry['details']) > 0
-        and 'name' in watch_entry['details'][0]
-        and watch_entry['details'][0]['name'].lower() in ad_identifiers
+        "details" in watch_entry
+        and len(watch_entry["details"]) > 0
+        and "name" in watch_entry["details"][0]
+        and watch_entry["details"][0]["name"].lower() in ad_identifiers
     )
     return entry_is_ad
 
@@ -99,16 +98,16 @@ def get_video_id(watch_entry: dict) -> str | None:
     Returns:
         str: The video ID if it is contained in the entry, None otherwise.
     """
-    title_url = watch_entry.get('titleUrl')
+    title_url = watch_entry.get("titleUrl")
 
     if title_url:
-        return title_url.replace('https://www.youtube.com/watch?v=', '')
+        return title_url.replace("https://www.youtube.com/watch?v=", "")
     else:
         return None
 
 
 def convert_date_strings_to_datetime(
-        date_strings: list[str]
+    date_strings: list[str],
 ) -> list[datetime.datetime]:
     """
     Convert a list of date strings into a list of datetime objects.
@@ -119,7 +118,7 @@ def convert_date_strings_to_datetime(
     Returns:
         list[datetime.datetime]: List of datetime objects.
     """
-    return pd.to_datetime(date_strings, errors='coerce').dropna().tolist()
+    return pd.to_datetime(date_strings, errors="coerce").dropna().tolist()
 
 
 def get_channel_name(watch_entry: dict) -> str | None:
@@ -132,14 +131,14 @@ def get_channel_name(watch_entry: dict) -> str | None:
     Returns:
         str: The channel name. None if this information is missing.
     """
-    subtitles = watch_entry.get('subtitles')
+    subtitles = watch_entry.get("subtitles")
 
     if subtitles is None:
         return None
 
     if len(subtitles) > 0:
-        if 'name' in subtitles[0]:
-            return subtitles[0]['name']
+        if "name" in subtitles[0]:
+            return subtitles[0]["name"]
 
     return None
 
@@ -157,8 +156,7 @@ class WatchHistoryData(TypedDict):
 
 
 def extract_watch_history_data(
-        watch_histories: list[list[dict]],
-        keep_separate: bool = False
+    watch_histories: list[list[dict]], keep_separate: bool = False
 ) -> WatchHistoryData:
     """Create a WatchHistoryData object from a list of watch histories.
 
@@ -191,7 +189,6 @@ def extract_watch_history_data(
     channels_separate = [] if keep_separate else None
 
     for history in watch_histories:
-
         watched_videos = []
         ids = []
         dates = []
@@ -210,7 +207,7 @@ def extract_watch_history_data(
                 ids.append(video_id)
 
             # Extract video date
-            video_date = entry.get('time')
+            video_date = entry.get("time")
             if video_date is not None:
                 dates.append(video_date)
 
@@ -234,15 +231,15 @@ def extract_watch_history_data(
     n_participants = len(watch_histories)
 
     return {
-        'videos': histories_combined,
-        'video_ids': ids_combined,
-        'watch_dates': dates_combined,
-        'channels': channels_combined,
-        'videos_separate': histories_separate,
-        'video_ids_separate': None,
-        'watch_dates_separate': dates_separate,
-        'channels_separate': channels_separate,
-        'n_participants': n_participants
+        "videos": histories_combined,
+        "video_ids": ids_combined,
+        "watch_dates": dates_combined,
+        "channels": channels_combined,
+        "videos_separate": histories_separate,
+        "video_ids_separate": None,
+        "watch_dates_separate": dates_separate,
+        "channels_separate": channels_separate,
+        "n_participants": n_participants,
     }
 
 
@@ -257,15 +254,16 @@ def is_search_ad(search_entry: dict) -> bool:
         bool: True if it is an ad, False otherwise.
     """
     ad_identifiers = {
-        'web & app activity',
-        'web- & app-aktivitäten',
-        'attività web e app',
-        'activité sur le web et les applications'
+        "web & app activity",
+        "web- & app-aktivitäten",
+        "attività web e app",
+        "activité sur le web et les applications",
     }
 
-    if 'activityControls' in search_entry:
-        if any(item.lower() in ad_identifiers
-               for item in search_entry['activityControls']):
+    if "activityControls" in search_entry:
+        if any(
+            item.lower() in ad_identifiers for item in search_entry["activityControls"]
+        ):
             return True
 
     return False
@@ -279,8 +277,8 @@ class SearchHistoryData(TypedDict):
 
 
 def extract_search_history_data(
-        search_histories: list[list[dict]],
-        keep_separate: bool = False,
+    search_histories: list[list[dict]],
+    keep_separate: bool = False,
 ) -> SearchHistoryData:
     """Create a SearchHistoryData object from a list of search histories.
 
@@ -309,7 +307,6 @@ def extract_search_history_data(
     search_term_separate = [] if keep_separate else None
 
     for history in search_histories:
-
         searches = []
         search_terms = []
 
@@ -318,10 +315,10 @@ def extract_search_history_data(
                 continue
 
             # Clean search title
-            title = entry.get('title')
+            title = entry.get("title")
             if title is not None:
                 clean_title = clean_search_title(title)
-                entry['title'] = clean_title
+                entry["title"] = clean_title
 
                 if clean_title:
                     search_terms.append(clean_title)
@@ -337,10 +334,10 @@ def extract_search_history_data(
     n_participants = len(search_histories)
 
     return {
-        'searches': searches_combined,
-        'search_terms': search_terms_combined,
-        'search_terms_separate': search_term_separate,
-        'n_participants': n_participants,
+        "searches": searches_combined,
+        "search_terms": search_terms_combined,
+        "search_terms_separate": search_term_separate,
+        "n_participants": n_participants,
     }
 
 
@@ -355,19 +352,19 @@ def exclude_google_ads_videos(watch_history: list[dict]) -> list[dict]:
         list[dict]: The watch history excluding videos shown through Google Ads.
     """
     ad_identifiers = {
-        'from google ads',
-        'von google anzeigen',
-        'da programmi pubblicitari google',
-        'des annonces google',
+        "from google ads",
+        "von google anzeigen",
+        "da programmi pubblicitari google",
+        "des annonces google",
     }
 
     watched_videos = []
     for video in watch_history:
         is_ad = (
-            'details' in video
-            and len(video['details']) > 0
-            and 'name' in video['details'][0]
-            and video['details'][0]['name'].lower() in ad_identifiers
+            "details" in video
+            and len(video["details"]) > 0
+            and "name" in video["details"][0]
+            and video["details"][0]["name"].lower() in ad_identifiers
         )
 
         if not is_ad:
@@ -387,23 +384,26 @@ def exclude_ads_from_search_history(search_history: list[dict]) -> list[dict]:
         list[dict]: The search history excluding videos shown through Google Ads.
     """
     ad_identifiers = {
-        'web & app activity',
-        'web- & app-aktivitäten',
-        'attività web e app',
-        'activité sur le web et les applications'
+        "web & app activity",
+        "web- & app-aktivitäten",
+        "attività web e app",
+        "activité sur le web et les applications",
     }
 
     history = [
-        entry for entry in search_history
-        if 'activityControls' in entry
-        and not any(item.lower() in ad_identifiers for item in entry['activityControls'])
+        entry
+        for entry in search_history
+        if "activityControls" in entry
+        and not any(
+            item.lower() in ad_identifiers for item in entry["activityControls"]
+        )
     ]
     return history
 
 
 # Compile regex once at module level for reuse
 _SEARCH_PREFIX_PATTERN = re.compile(
-    r'^Searched for |^Gesucht nach: |^Hai cercato |^Vous avez recherché '
+    r"^Searched for |^Gesucht nach: |^Hai cercato |^Vous avez recherché "
 )
 
 
@@ -418,7 +418,7 @@ def clean_search_title(search_title: str) -> str:
     Returns:
         list: The search history with cleaned titles.
     """
-    return _SEARCH_PREFIX_PATTERN.sub('', search_title)
+    return _SEARCH_PREFIX_PATTERN.sub("", search_title)
 
 
 def clean_search_titles(search_history: list[dict]) -> list[dict]:
@@ -434,9 +434,9 @@ def clean_search_titles(search_history: list[dict]) -> list[dict]:
     """
     clean_searches = []
     for entry in search_history:
-        if 'title' in entry:
+        if "title" in entry:
             entry = entry.copy()
-            entry['title'] = _SEARCH_PREFIX_PATTERN.sub('', entry['title'])
+            entry["title"] = _SEARCH_PREFIX_PATTERN.sub("", entry["title"])
         clean_searches.append(entry)
 
     return clean_searches
@@ -444,7 +444,7 @@ def clean_search_titles(search_history: list[dict]) -> list[dict]:
 
 # Compile regex once at module level for reuse
 _VIDEO_TITLE_PATTERN = re.compile(
-    r'^Watched |^Hai guardato |^Vous avez regardé | angesehen$'
+    r"^Watched |^Hai guardato |^Vous avez regardé | angesehen$"
 )
 
 
@@ -460,7 +460,7 @@ def clean_video_title(video_title: str) -> str:
     Returns:
         str: The cleaned video title.
     """
-    return _VIDEO_TITLE_PATTERN.sub('', video_title)
+    return _VIDEO_TITLE_PATTERN.sub("", video_title)
 
 
 def get_video_title_dict(watch_history: list[dict]) -> dict:
@@ -475,11 +475,11 @@ def get_video_title_dict(watch_history: list[dict]) -> dict:
         dict: Dict with Video IDs as keys and video title as value
     """
     titles = {}
-    generic_url = 'https://www.youtube.com/watch?v='
+    generic_url = "https://www.youtube.com/watch?v="
     for video in watch_history:
-        if 'titleUrl' in video:
-            video_id = video['titleUrl'].replace(generic_url, '')
-            title = video['title'].strip()
+        if "titleUrl" in video:
+            video_id = video["titleUrl"].replace(generic_url, "")
+            title = video["title"].strip()
             titles[video_id] = title
     return titles
 
@@ -496,14 +496,15 @@ def get_most_watched_video(watch_history: list[dict]) -> dict:
             {'id': <id of fav video>, 'n_watched': <times video occurred>}
     """
     video_ids = pd.Series(get_video_ids(watch_history))
-    # TODO: Make sure, the chosen favorite video is still available, i.e. has not been deleted.
+    # TODO: Make sure, the chosen favorite video is still available,
+    #  i.e. has not been deleted.
 
     video_counts = video_ids.value_counts()
     max_count = video_counts.max()
 
     most_watched_ids = video_counts[video_counts == max_count]
     favorite_video = random.choice(most_watched_ids.index.to_list())
-    return {'id': favorite_video, 'n_watched': max_count}
+    return {"id": favorite_video, "n_watched": max_count}
 
 
 def get_channel_names_from_history(watch_history: list[dict]) -> list:
@@ -519,21 +520,20 @@ def get_channel_names_from_history(watch_history: list[dict]) -> list:
     """
     channels = []
     for video in watch_history:
-        if 'subtitles' in video:
-            subtitles = video['subtitles']
+        if "subtitles" in video:
+            subtitles = video["subtitles"]
         else:
             continue
 
         if len(subtitles) > 0:
-            if 'name' in subtitles[0]:
-                channels.append(subtitles[0]['name'])
+            if "name" in subtitles[0]:
+                channels.append(subtitles[0]["name"])
 
     return channels
 
 
 def get_search_term_frequency(
-        search_history: list[dict],
-        n_terms: int | None = None
+    search_history: list[dict], n_terms: int | None = None
 ) -> list[dict]:
     """
     Get holding information on how often a search term was used.
@@ -546,16 +546,13 @@ def get_search_term_frequency(
         dict: A list of dictionaries representing a search term frequency,
             each containing the keys 'term' and 'count'.
     """
-    search_terms = pd.Series([t['title'] for t in search_history])
+    search_terms = pd.Series([t["title"] for t in search_history])
     term_counts = search_terms.value_counts()
 
     if n_terms and len(term_counts) > n_terms:
         term_counts = term_counts[:n_terms]
 
-    searches = [
-        {'term': term, 'count': count}
-        for term, count in term_counts.items()
-    ]
+    searches = [{"term": term, "count": count} for term, count in term_counts.items()]
     return searches
 
 
@@ -568,13 +565,11 @@ def clean_channel_list(channel_list: list[dict]) -> list[dict]:
     Returns:
         list: A new list of dictionaries with standardized keys.
     """
-    ddm_id_key = 'Channel ID|Kanal-ID|ID des cha.*|ID canale'
-    ddm_title_key = (
-        'Channel title|Kanaltitel|Titres des cha.*|Titolo canale'
-    )
+    ddm_id_key = "Channel ID|Kanal-ID|ID des cha.*|ID canale"
+    ddm_title_key = "Channel title|Kanaltitel|Titres des cha.*|Titolo canale"
     keys = {
-        f'{ddm_id_key}': 'id',
-        f'{ddm_title_key}': 'title',
+        f"{ddm_id_key}": "id",
+        f"{ddm_title_key}": "title",
     }
     channels = []
     for channel in channel_list:

@@ -6,62 +6,51 @@ from django.views.defaults import page_not_found
 
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.urls')),
-    path('ckeditor5/', include('django_ckeditor_5.urls')),
+    path("admin/", admin.site.urls),
+    path("accounts/", include("allauth.urls")),
+    path("ckeditor5/", include("django_ckeditor_5.urls")),
 ]
 
 custom_ddm_patterns = [
     path(
-        r'teilnahme/<slug:slug>/',
-        include('ddm.participation.urls', namespace='ddm_participation')
+        r"teilnahme/<slug:slug>/",
+        include("ddm.participation.urls", namespace="ddm_participation"),
+    ),
+    path(r"ddm/projects/", include("ddm.projects.urls", namespace="ddm_projects")),
+    path(
+        r"ddm/projects/<slug:project_url_id>/questionnaire/",
+        include("ddm.questionnaire.urls", namespace="ddm_questionnaire"),
     ),
     path(
-        r'ddm/projects/',
-        include('ddm.projects.urls', namespace='ddm_projects')
+        r"ddm/projects/<slug:project_url_id>/data-donation/",
+        include("ddm.datadonation.urls", namespace="ddm_datadonation"),
     ),
+    path(r"logs/", include("ddm.logging.urls", namespace="ddm_logging")),
+    path(r"ddm/", include("ddm.auth.urls", namespace="ddm_auth")),
+    path(r"ddm-api/", include("ddm.apis.urls", namespace="ddm_apis")),
     path(
-        r'ddm/projects/<slug:project_url_id>/questionnaire/',
-        include('ddm.questionnaire.urls', namespace='ddm_questionnaire')
-    ),
-    path(
-        r'ddm/projects/<slug:project_url_id>/data-donation/',
-        include('ddm.datadonation.urls', namespace='ddm_datadonation')
-    ),
-    path(
-        r'logs/',
-        include('ddm.logging.urls', namespace='ddm_logging')
-    ),
-    path(
-        r'ddm/',
-        include('ddm.auth.urls', namespace='ddm_auth')
-    ),
-    path(
-        r'ddm-api/',
-        include('ddm.apis.urls', namespace='ddm_apis')
-    ),
-    path(
-        'login/',
+        "login/",
         page_not_found,
-        kwargs={'exception': Exception('Page not Found')},
-        name='ddm_login'
+        kwargs={"exception": Exception("Page not Found")},
+        name="ddm_login",
     ),
     path(
-        'logout/',
+        "logout/",
         page_not_found,
-        kwargs={'exception': Exception('Page not Found')},
-        name='ddm_logout'
+        kwargs={"exception": Exception("Page not Found")},
+        name="ddm_logout",
     ),
-    path('portability/', include('shared.portability.urls')),
+    path("portability/", include("shared.portability.urls")),
 ]
 
 urlpatterns += custom_ddm_patterns
 
 # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
 urlpatterns += [
-    path('', include('digital_meal.core.urls')),
+    path("", include("digital_meal.core.urls")),
 ]
 
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + \
-                   static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += static(
+        settings.STATIC_URL, document_root=settings.STATIC_ROOT
+    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

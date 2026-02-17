@@ -16,8 +16,9 @@ class OwnershipRequiredMixin:
     Mixin to only allow access to objects that are owned by the current user.
     Superuser can access any object.
     """
+
     def dispatch(self, request, *args, **kwargs):
-        classroom_id = self.kwargs.get('url_id', None)
+        classroom_id = self.kwargs.get("url_id", None)
         if classroom_id is None:
             raise Http404()
 
@@ -30,49 +31,53 @@ class OwnershipRequiredMixin:
 
 
 class ProfileView(LoginRequiredMixin, TemplateView):
-    template_name = 'tool/profile.html'
+    template_name = "tool/profile.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['teacher'] = Teacher.objects.filter(user=user).first()
+        context["teacher"] = Teacher.objects.filter(user=user).first()
         return context
 
 
 class ToolMainPage(LoginRequiredMixin, ListView):
-    """ Show overview for a specific user. """
+    """Show overview for a specific user."""
+
     model = Classroom
-    template_name = 'tool/main_page.html'
+    template_name = "tool/main_page.html"
 
     def get_queryset(self):
         return Classroom.objects.filter(owner=self.request.user)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['active_classes'] = [
-            c for c in context['object_list'] if c.is_active]
-        context['archived_classes'] = [
-            c for c in context['object_list'] if not c.is_active]
+        context["active_classes"] = [c for c in context["object_list"] if c.is_active]
+        context["archived_classes"] = [
+            c for c in context["object_list"] if not c.is_active
+        ]
         return context
 
 
 class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
-    """ Display participation overview statistics for a classroom. """
+    """Display participation overview statistics for a classroom."""
+
     model = Classroom
-    lookup_field = 'url_id'
-    slug_field = 'url_id'
-    slug_url_kwarg = 'url_id'
-    template_name = 'tool/class/detail.html'
+    lookup_field = "url_id"
+    slug_field = "url_id"
+    slug_url_kwarg = "url_id"
+    template_name = "tool/class/detail.html"
 
     def dispatch(self, request, *args, **kwargs):
         obj = self.get_object()
         if not obj.base_module:
-            return redirect(reverse_lazy('class_assign_module',
-                                         kwargs={'url_id': obj.url_id}))
+            return redirect(
+                reverse_lazy("class_assign_module", kwargs={"url_id": obj.url_id})
+            )
 
         if not obj.is_active:
-            return redirect(reverse_lazy('class_expired',
-                                         kwargs={'url_id': obj.url_id}))
+            return redirect(
+                reverse_lazy("class_expired", kwargs={"url_id": obj.url_id})
+            )
 
         return super().dispatch(request, *args, **kwargs)
 
@@ -86,9 +91,9 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
             str: The participation url.
         """
         participation_url = self.object.base_module.ddm_path
-        participation_url += f'?class={self.object.url_id}'
+        participation_url += f"?class={self.object.url_id}"
         for sub_module in self.object.sub_modules.all():
-            participation_url += f'&{sub_module.url_parameter}=1'
+            participation_url += f"&{sub_module.url_parameter}=1"
         return participation_url
 
     def get_test_participation_url(self):
@@ -101,16 +106,16 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
             str: The test participation url.
         """
         participation_url = self.object.base_module.ddm_path
-        participation_url += f'?class={self.object.base_module.test_class_url_id}'
+        participation_url += f"?class={self.object.base_module.test_class_url_id}"
         for sub_module in self.object.sub_modules.all():
-            participation_url += f'&{sub_module.url_parameter}=1'
+            participation_url += f"&{sub_module.url_parameter}=1"
         return participation_url
 
     def get_report_view_name(self):
-        return self.object.base_module.report_prefix + '_class_report'
+        return self.object.base_module.report_prefix + "_class_report"
 
     def get_example_report_url(self):
-        view_name = self.object.base_module.report_prefix + '_example_report'
+        view_name = self.object.base_module.report_prefix + "_example_report"
         try:
             url = reverse(view_name)
         except NoReverseMatch:
@@ -120,12 +125,12 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_overview_data())
-        context['base_module'] = self.object.base_module
-        context['sub_modules'] = self.object.sub_modules.all()
-        context['test_participation_url'] = self.get_test_participation_url()
-        context['participation_url'] = self.get_participation_url()
-        context['report_view_name'] = self.get_report_view_name()
-        context['example_report_url'] = self.get_example_report_url()
+        context["base_module"] = self.object.base_module
+        context["sub_modules"] = self.object.sub_modules.all()
+        context["test_participation_url"] = self.get_test_participation_url()
+        context["participation_url"] = self.get_participation_url()
+        context["report_view_name"] = self.get_report_view_name()
+        context["example_report_url"] = self.get_example_report_url()
         return context
 
     def get_overview_data(self):
@@ -139,7 +144,7 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
             return {}
 
         # Compute basic participation statistics.
-        participant_ids = participants.values_list('id', flat=True)
+        participant_ids = participants.values_list("id", flat=True)
         n_started = len(participants)
         n_finished = len(participants.filter(completed=True))
 
@@ -150,29 +155,30 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
         blueprints = DonationBlueprint.objects.filter(project=donation_project)
         for blueprint in blueprints:
             blueprint_donations = blueprint.datadonation_set.filter(
-                participant__pk__in=participant_ids, status='success'
-            ).defer('data')
+                participant__pk__in=participant_ids, status="success"
+            ).defer("data")
 
             n_donations[blueprint.name] = len(blueprint_donations)
-            donation_dates.extend(blueprint_donations.values_list(
-                'time_submitted', flat=True))
+            donation_dates.extend(
+                blueprint_donations.values_list("time_submitted", flat=True)
+            )
 
         data = {
-            'n_donations': n_donations,
-            'n_not_finished': (n_started - n_finished),
-            'n_finished': n_finished,
-            'donation_dates': [
-                d.strftime('%Y-%m-%dT%H:%M:%S.%fZ')
-                for d in list(set(donation_dates))
-            ]
+            "n_donations": n_donations,
+            "n_not_finished": (n_started - n_finished),
+            "n_finished": n_finished,
+            "donation_dates": [
+                d.strftime("%Y-%m-%dT%H:%M:%S.%fZ") for d in list(set(donation_dates))
+            ],
         }
         return data
 
 
 class ClassroomCreate(LoginRequiredMixin, CreateView):
-    """ Register a new classroom. """
+    """Register a new classroom."""
+
     model = Classroom
-    template_name = 'tool/class/create.html'
+    template_name = "tool/class/create.html"
     form_class = ClassroomCreateForm
 
     def form_valid(self, form):
@@ -181,24 +187,25 @@ class ClassroomCreate(LoginRequiredMixin, CreateView):
 
     def get_success_url(self):
         return reverse_lazy(
-            'class_assign_module', kwargs={'url_id': self.object.url_id})
+            "class_assign_module", kwargs={"url_id": self.object.url_id}
+        )
 
 
 class ClassroomAssignModule(LoginRequiredMixin, UpdateView):
-    """ Assign a module to a classroom. """
+    """Assign a module to a classroom."""
+
     model = Classroom
-    lookup_field = 'url_id'
-    slug_field = 'url_id'
-    slug_url_kwarg = 'url_id'
-    template_name = 'tool/class/assign_module.html'
+    lookup_field = "url_id"
+    slug_field = "url_id"
+    slug_url_kwarg = "url_id"
+    template_name = "tool/class/assign_module.html"
     form_class = ClassroomModuleForm
 
     def dispatch(self, request, *args, **kwargs):
         # If classroom has module already assigned, redirect to overview
         obj = self.get_object()
         if obj.base_module:
-            return redirect(reverse_lazy('class_detail',
-                                         kwargs={'url_id': obj.url_id}))
+            return redirect(reverse_lazy("class_detail", kwargs={"url_id": obj.url_id}))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -208,27 +215,28 @@ class ClassroomAssignModule(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         active_base_modules = BaseModule.objects.filter(active=True)
-        context['active_base_modules'] = active_base_modules
+        context["active_base_modules"] = active_base_modules
         return context
 
 
 class ClassroomExpired(LoginRequiredMixin, OwnershipRequiredMixin, TemplateView):
-    template_name = 'tool/class/expired.html'
+    template_name = "tool/class/expired.html"
 
 
 class ClassroomDoesNotExist(LoginRequiredMixin, TemplateView):
-    template_name = 'tool/class/does_not_exist.html'
+    template_name = "tool/class/does_not_exist.html"
 
 
 class TeacherEdit(LoginRequiredMixin, UpdateView):
-    """ Edit teacher account details. """
+    """Edit teacher account details."""
+
     model = Teacher
     fields = []
-    template_name = 'website/form.html'
+    template_name = "website/form.html"
 
     def dispatch(self, request, *args, **kwargs):
-        """ Make sure users can only edit their own profile. """
-        teacher_id = self.kwargs.get('id', None)
+        """Make sure users can only edit their own profile."""
+        teacher_id = self.kwargs.get("id", None)
         if teacher_id is None:
             raise Http404()
 

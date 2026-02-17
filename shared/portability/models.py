@@ -8,6 +8,7 @@ from encrypted_fields import EncryptedTextField
 
 class OAuthStateToken(models.Model):
     """Class to store state tokens used for OAuth."""
+
     token = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
@@ -43,9 +44,7 @@ class OAuthStateToken(models.Model):
 
 class TikTokAccessToken(models.Model):
     open_id = models.CharField(
-        max_length=250,
-        unique=True,
-        verbose_name='ID of TikTok user'
+        max_length=250, unique=True, verbose_name="ID of TikTok user"
     )
 
     token = EncryptedTextField(max_length=250)
@@ -55,7 +54,7 @@ class TikTokAccessToken(models.Model):
     refresh_token_expiration_date = models.DateTimeField(null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    scope = models.CharField(max_length=250) # Comma separated list of scopes
+    scope = models.CharField(max_length=250)  # Comma separated list of scopes
 
     token_type = models.CharField(max_length=50)
 
@@ -82,31 +81,27 @@ class TikTokAccessToken(models.Model):
         Returns:
             bool: True if token is expired (or expiring soon)
         """
-        expiration_time = self.refresh_token_expiration_date - timedelta(seconds=threshold)
+        expiration_time = self.refresh_token_expiration_date - timedelta(
+            seconds=threshold
+        )
         return timezone.now() > expiration_time
 
     def get_scope_list(self) -> list:
-        return self.scope.split(',')
+        return self.scope.split(",")
 
 
 class TikTokDataRequest(models.Model):
-    open_id = models.CharField(
-        max_length=250,
-        verbose_name='ID of TikTok user'
-    )
-    request_id = models.BigIntegerField(
-        unique=True,
-        verbose_name='ID of data request'
-    )
+    open_id = models.CharField(max_length=250, verbose_name="ID of TikTok user")
+    request_id = models.BigIntegerField(unique=True, verbose_name="ID of data request")
     issued_at = models.DateTimeField(default=timezone.now)
 
     last_polled = models.DateTimeField(null=True)
 
     class State(models.TextChoices):
-        NOT_POLLED = 'not polled', 'not polled'
-        PENDING = 'pending', 'pending'
-        EXPIRED = 'expired', 'expired'
-        CANCELLED = 'cancelled', 'cancelled'
+        NOT_POLLED = "not polled", "not polled"
+        PENDING = "pending", "pending"
+        EXPIRED = "expired", "expired"
+        CANCELLED = "cancelled", "cancelled"
 
     status = models.CharField(
         max_length=20,
@@ -118,7 +113,7 @@ class TikTokDataRequest(models.Model):
     downloaded_at = models.DateTimeField(null=True)
 
     class Meta:
-        ordering = ['-issued_at']
+        ordering = ["-issued_at"]
 
     def is_active(self) -> bool:
         inactive_states = [self.State.EXPIRED, self.State.CANCELLED]

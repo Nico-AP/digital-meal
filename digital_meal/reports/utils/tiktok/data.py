@@ -16,8 +16,7 @@ class WatchHistoryData(TypedDict):
 
 
 def extract_watch_history_data(
-        watch_histories: list[list[dict]],
-        keep_separate: bool = False
+    watch_histories: list[list[dict]], keep_separate: bool = False
 ) -> WatchHistoryData:
     """Create a WatchHistoryData object from a list of watch histories.
 
@@ -53,7 +52,7 @@ def extract_watch_history_data(
 
         for entry in history:
             video_id = get_video_id(entry)
-            entry['id'] = video_id
+            entry["id"] = video_id
             if video_id is not None:
                 video_ids.append(video_id)
 
@@ -64,7 +63,7 @@ def extract_watch_history_data(
             if video_date is not None or video_id is not None:
                 videos.append(entry)
 
-        video_dates = pd.to_datetime(video_dates, errors='coerce').dropna().tolist()
+        video_dates = pd.to_datetime(video_dates, errors="coerce").dropna().tolist()
 
         if keep_separate:
             videos_separate.append(videos)
@@ -96,8 +95,8 @@ class SearchHistoryData(TypedDict):
 
 
 def extract_search_history_data(
-        search_histories: list[list[dict]],
-        keep_separate: bool = False,
+    search_histories: list[list[dict]],
+    keep_separate: bool = False,
 ) -> SearchHistoryData:
     """Create a SearchHistoryData object from a list of search histories.
 
@@ -126,14 +125,12 @@ def extract_search_history_data(
     search_term_separate = [] if keep_separate else None
 
     for history in search_histories:
-
         searches = []
         search_terms = []
 
         for entry in history:
-
             # Clean search title
-            title = entry.get('SearchTerm')
+            title = entry.get("SearchTerm")
             if title is None:
                 continue
 
@@ -149,47 +146,48 @@ def extract_search_history_data(
     n_participants = len(search_histories)
 
     return {
-        'searches': searches_combined,
-        'search_terms': search_terms_combined,
-        'search_terms_separate': search_term_separate,
-        'n_participants': n_participants,
+        "searches": searches_combined,
+        "search_terms": search_terms_combined,
+        "search_terms_separate": search_term_separate,
+        "n_participants": n_participants,
     }
 
 
 def get_video_id(watch_entry: dict) -> str | None:
     """Get the video id from a watch history entry."""
-    if 'Link' not in watch_entry:
+    if "Link" not in watch_entry:
         return None
 
-    link_parts = watch_entry['Link'].split('/')
+    link_parts = watch_entry["Link"].split("/")
     # Get last non-empty part
     video_id = link_parts[-1] if link_parts[-1] else link_parts[-2]
     return video_id
 
+
 def get_watch_date(watch_entry: dict) -> str | None:
     """Get the watch date from a watch history entry."""
-    if 'Date' not in watch_entry:
+    if "Date" not in watch_entry:
         return None
 
-    date_str = watch_entry['Date']
+    date_str = watch_entry["Date"]
     return date_str
 
-def get_video_metadata(
-        video_id: str,
-        session: requests.Session | None = None
-) -> dict:
+
+def get_video_metadata(video_id: str, session: requests.Session | None = None) -> dict:
     """Get TikTok video metadata from official embed API."""
     if session is None:
         session = requests.Session()
 
-    url = f'https://www.tiktok.com/oembed?url=https://www.tiktok.com/@/video/{video_id}/'
+    url = (
+        f"https://www.tiktok.com/oembed?url=https://www.tiktok.com/@/video/{video_id}/"
+    )
 
     try:
         response = session.get(url)
         response.raise_for_status()
         data = response.json()
-    except:
+    except:  # noqa: E722 TODO
         data = {}
-    thumbnail = data.get('thumbnail_url', None)
-    channel = data.get('author_name', None)
-    return {'thumbnail': thumbnail, 'channel': channel}
+    thumbnail = data.get("thumbnail_url", None)
+    channel = data.get("author_name", None)
+    return {"thumbnail": thumbnail, "channel": channel}

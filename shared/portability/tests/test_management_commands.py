@@ -8,7 +8,7 @@ from django.utils import timezone
 
 from shared.portability.management.commands.clean_expired_tokens import (
     clean_oauth_tokens,
-    clean_access_tokens
+    clean_access_tokens,
 )
 from shared.portability.models import OAuthStateToken, TikTokAccessToken
 
@@ -51,23 +51,23 @@ class TestCleanAccessTokensFunction(TestCase):
     def test_deletes_tokens_with_expired_refresh_tokens(self):
         """Test deletes tokens where refresh token has expired"""
         expired_token = TikTokAccessToken.objects.create(
-            open_id='expired_user',
-            token='token',
+            open_id="expired_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() - timedelta(days=1),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
         valid_token = TikTokAccessToken.objects.create(
-            open_id='valid_user',
-            token='token',
+            open_id="valid_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() + timedelta(days=30),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
         clean_access_tokens()
@@ -78,13 +78,13 @@ class TestCleanAccessTokensFunction(TestCase):
     def test_does_not_delete_tokens_with_valid_refresh_tokens(self):
         """Test does not delete tokens with valid refresh tokens"""
         valid_token = TikTokAccessToken.objects.create(
-            open_id='valid_user',
-            token='token',
+            open_id="valid_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() + timedelta(days=30),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
         clean_access_tokens()
@@ -94,13 +94,13 @@ class TestCleanAccessTokensFunction(TestCase):
     def test_handles_no_tokens_to_delete(self):
         """Test handles case when there are no tokens to delete"""
         TikTokAccessToken.objects.create(
-            open_id='valid_user',
-            token='token',
+            open_id="valid_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() + timedelta(days=30),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
         clean_access_tokens()
@@ -109,11 +109,17 @@ class TestCleanAccessTokensFunction(TestCase):
 class TestCleanExpiredTokensCommand(TestCase):
     """Tests for the clean_expired_tokens management command"""
 
-    @patch('shared.portability.management.commands.clean_expired_tokens.clean_access_tokens')
-    @patch('shared.portability.management.commands.clean_expired_tokens.clean_oauth_tokens')
-    def test_command_calls_both_clean_functions(self, mock_clean_oauth, mock_clean_access):
+    @patch(
+        "shared.portability.management.commands.clean_expired_tokens.clean_access_tokens"
+    )
+    @patch(
+        "shared.portability.management.commands.clean_expired_tokens.clean_oauth_tokens"
+    )
+    def test_command_calls_both_clean_functions(
+        self, mock_clean_oauth, mock_clean_access
+    ):
         """Test command calls both clean_oauth_tokens and clean_access_tokens"""
-        call_command('clean_expired_tokens')
+        call_command("clean_expired_tokens")
 
         mock_clean_oauth.assert_called_once()
         mock_clean_access.assert_called_once()
@@ -122,16 +128,16 @@ class TestCleanExpiredTokensCommand(TestCase):
         """Test command can be executed without errors"""
         OAuthStateToken.objects.create(used=True)
         TikTokAccessToken.objects.create(
-            open_id='user',
-            token='token',
+            open_id="user",
+            token="token",
             token_expiration_date=timezone.now() - timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() - timedelta(days=1),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
-        call_command('clean_expired_tokens', stdout=StringIO())
+        call_command("clean_expired_tokens", stdout=StringIO())
 
     def test_command_integration_deletes_tokens(self):
         """Integration test: command actually deletes the right tokens"""
@@ -139,28 +145,30 @@ class TestCleanExpiredTokensCommand(TestCase):
         unused_oauth = OAuthStateToken.objects.create(used=False)
 
         expired_access = TikTokAccessToken.objects.create(
-            open_id='expired_user',
-            token='token',
+            open_id="expired_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() - timedelta(days=1),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
         valid_access = TikTokAccessToken.objects.create(
-            open_id='valid_user',
-            token='token',
+            open_id="valid_user",
+            token="token",
             token_expiration_date=timezone.now() + timedelta(hours=1),
-            refresh_token='refresh',
+            refresh_token="refresh",
             refresh_token_expiration_date=timezone.now() + timedelta(days=30),
-            scope='user.info.basic',
-            token_type='Bearer'
+            scope="user.info.basic",
+            token_type="Bearer",
         )
 
-        call_command('clean_expired_tokens')
+        call_command("clean_expired_tokens")
 
         self.assertFalse(OAuthStateToken.objects.filter(pk=used_oauth.pk).exists())
         self.assertTrue(OAuthStateToken.objects.filter(pk=unused_oauth.pk).exists())
-        self.assertFalse(TikTokAccessToken.objects.filter(pk=expired_access.pk).exists())
+        self.assertFalse(
+            TikTokAccessToken.objects.filter(pk=expired_access.pk).exists()
+        )
         self.assertTrue(TikTokAccessToken.objects.filter(pk=valid_access.pk).exists())

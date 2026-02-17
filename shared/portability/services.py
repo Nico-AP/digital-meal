@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 
 class TikTokAccessTokenService:
-
     def refresh_token(self, access_token: TikTokAccessToken) -> TikTokAccessToken:
         """Refreshes the access token through the TikTok user access token API.
 
@@ -31,11 +30,11 @@ class TikTokAccessTokenService:
         """
         if access_token.refresh_is_expired():
             logger.info(
-                'Refresh token expired for TikTokAccessToken %s (expiration date: %s)',
+                "Refresh token expired for TikTokAccessToken %s (expiration date: %s)",
                 access_token.pk,
-                access_token.refresh_token_expiration_date
+                access_token.refresh_token_expiration_date,
             )
-            raise TokenRefreshException('Refresh token expired')
+            raise TokenRefreshException("Refresh token expired")
 
         response_data = self._call_tiktok_api(access_token.refresh_token)
 
@@ -56,12 +55,12 @@ class TikTokAccessTokenService:
         """
         url = settings.TIKTOK_TOKEN_URL
         data = {
-            'client_key': settings.TIKTOK_CLIENT_KEY,
-            'client_secret': settings.TIKTOK_CLIENT_SECRET,
-            'grant_type': 'refresh_token',
-            'refresh_token': access_token.refresh_token,
+            "client_key": settings.TIKTOK_CLIENT_KEY,
+            "client_secret": settings.TIKTOK_CLIENT_SECRET,
+            "grant_type": "refresh_token",
+            "refresh_token": access_token.refresh_token,
         }
-        headers = {'Accept': 'application/x-www-form-urlencoded'}
+        headers = {"Accept": "application/x-www-form-urlencoded"}
 
         try:
             response = requests.post(url, data=data, headers=headers)
@@ -69,26 +68,27 @@ class TikTokAccessTokenService:
             return response.json()
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, url, e,
-                f'Unable to refresh TikTokAccessToken (pk: {access_token.pk})',
+                logger,
+                url,
+                e,
+                f"Unable to refresh TikTokAccessToken (pk: {access_token.pk})",
             )
-            raise TokenRefreshException(f'Unable to refresh TikTokAccessToken: {e}')
+            raise TokenRefreshException(f"Unable to refresh TikTokAccessToken: {e}")
 
     @staticmethod
-    def _update_token(
-            access_token: TikTokAccessToken,
-            data: dict
-    ) -> None:
+    def _update_token(access_token: TikTokAccessToken, data: dict) -> None:
         """Update the access token with new data."""
-        new_expiration_date = timezone.now() + timedelta(seconds=data['expires_in'])
-        new_refresh_expiration_date = timezone.now() + timedelta(seconds=data['refresh_expires_in'])
+        new_expiration_date = timezone.now() + timedelta(seconds=data["expires_in"])
+        new_refresh_expiration_date = timezone.now() + timedelta(
+            seconds=data["refresh_expires_in"]
+        )
 
-        access_token.token = data['access_token']
+        access_token.token = data["access_token"]
         access_token.token_expiration_date = new_expiration_date
-        access_token.refresh_token = data['refresh_token']
+        access_token.refresh_token = data["refresh_token"]
         access_token.refresh_token_expiration_date = new_refresh_expiration_date
-        access_token.token_type = data['token_type']
-        access_token.scope = data['scope']
+        access_token.token_type = data["token_type"]
+        access_token.scope = data["scope"]
         access_token.save()
 
     @staticmethod
@@ -108,13 +108,13 @@ class TikTokAccessTokenService:
             return False
 
         expected_fields = [
-            'access_token',
-            'expires_in',
-            'open_id',
-            'refresh_expires_in',
-            'refresh_token',
-            'scope',
-            'token_type'
+            "access_token",
+            "expires_in",
+            "open_id",
+            "refresh_expires_in",
+            "refresh_token",
+            "scope",
+            "token_type",
         ]
         return all(k in token_data for k in expected_fields)
 
@@ -128,27 +128,26 @@ class TikTokAccessTokenService:
         Returns:
             TikTokAccessToken: The newly created TikTokAccessToken object.
         """
-        expiration_date = timezone.now() + timedelta(seconds=token_data['expires_in'])
-        refresh_expiration_date = timezone.now() + timedelta(seconds=token_data['refresh_expires_in'])
+        expiration_date = timezone.now() + timedelta(seconds=token_data["expires_in"])
+        refresh_expiration_date = timezone.now() + timedelta(
+            seconds=token_data["refresh_expires_in"]
+        )
         with transaction.atomic():
             access_token, created = TikTokAccessToken.objects.update_or_create(
-                open_id=token_data['open_id'],
+                open_id=token_data["open_id"],
                 defaults={
-                    'token': token_data['access_token'],
-                    'token_expiration_date': expiration_date,
-                    'refresh_token': token_data['refresh_token'],
-                    'refresh_token_expiration_date': refresh_expiration_date,
-                    'scope': token_data['scope'],
-                    'token_type': token_data['token_type'],
-                }
+                    "token": token_data["access_token"],
+                    "token_expiration_date": expiration_date,
+                    "refresh_token": token_data["refresh_token"],
+                    "refresh_token_expiration_date": refresh_expiration_date,
+                    "scope": token_data["scope"],
+                    "token_type": token_data["token_type"],
+                },
             )
         return access_token
 
     def exchange_code_for_token(
-            self,
-            auth_code: str,
-            attempt: int = 1,
-            max_attempts: int = 3
+        self, auth_code: str, attempt: int = 1, max_attempts: int = 3
     ) -> dict:
         """Exchanges the authorization code for an access token and stores it.
 
@@ -169,13 +168,13 @@ class TikTokAccessTokenService:
         """
         url = settings.TIKTOK_TOKEN_URL
         data = {
-            'client_key': settings.TIKTOK_CLIENT_KEY,
-            'client_secret': settings.TIKTOK_CLIENT_SECRET,
-            'grant_type': 'authorization_code',
-            'redirect_uri': settings.TIKTOK_REDIRECT_URL,
-            'code': auth_code
+            "client_key": settings.TIKTOK_CLIENT_KEY,
+            "client_secret": settings.TIKTOK_CLIENT_SECRET,
+            "grant_type": "authorization_code",
+            "redirect_uri": settings.TIKTOK_REDIRECT_URL,
+            "code": auth_code,
         }
-        headers = {'Accept': 'application/json'}
+        headers = {"Accept": "application/json"}
 
         try:
             response = requests.post(url, data=data, headers=headers, timeout=30)
@@ -183,9 +182,11 @@ class TikTokAccessTokenService:
             return response.json()
         except requests.exceptions.Timeout as e:
             log_requests_exception(
-                logger, url, e,
-                f'Request to exchange token timed out (attempt {attempt})',
-                level=logging.ERROR
+                logger,
+                url,
+                e,
+                f"Request to exchange token timed out (attempt {attempt})",
+                level=logging.ERROR,
             )
 
             if attempt < max_attempts:
@@ -195,9 +196,11 @@ class TikTokAccessTokenService:
                 raise requests.exceptions.RequestException
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, url, e,
-                f'Failed to retrieve authentication token (attempt {attempt})',
-                level=logging.ERROR
+                logger,
+                url,
+                e,
+                f"Failed to retrieve authentication token (attempt {attempt})",
+                level=logging.ERROR,
             )
 
             if attempt < max_attempts:
@@ -208,13 +211,14 @@ class TikTokAccessTokenService:
 
 
 class TikTokPortabilityAPIClient:
-
     def __init__(self, access_token: str):
         self.access_token = access_token
-        self.data_request_url = 'https://open.tiktokapis.com/v2/user/data/add/'
-        self.data_request_status_url = 'https://open.tiktokapis.com/v2/user/data/check/'
-        self.cancel_data_request_url = 'https://open.tiktokapis.com/v2/user/data/cancel/'
-        self.data_download_url = 'https://open.tiktokapis.com/v2/user/data/download/'
+        self.data_request_url = "https://open.tiktokapis.com/v2/user/data/add/"
+        self.data_request_status_url = "https://open.tiktokapis.com/v2/user/data/check/"
+        self.cancel_data_request_url = (
+            "https://open.tiktokapis.com/v2/user/data/cancel/"
+        )
+        self.data_download_url = "https://open.tiktokapis.com/v2/user/data/download/"
 
     def make_data_request(self) -> dict:
         """Initiates a data portability request with TikTok's Data Portability API.
@@ -237,36 +241,40 @@ class TikTokPortabilityAPIClient:
         """
         url = self.data_request_url
         headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.access_token}'
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
         }
-        params = {'fields': 'request_id'}
-        payload = {
-            'data_format': 'json',
-            'category_selection_list': ['all_data']
-        }
+        params = {"fields": "request_id"}
+        payload = {"data_format": "json", "category_selection_list": ["all_data"]}
         try:
             response = requests.post(url, headers=headers, params=params, json=payload)
             response.raise_for_status()
             request_result = response.json()
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, url, e,
-                f'Failed to make data request to {url}',
+                logger,
+                url,
+                e,
+                f"Failed to make data request to {url}",
                 extra={
-                    'request_params': params,
-                    'access_token': self.access_token,
+                    "request_params": params,
+                    "access_token": self.access_token,
                 },
             )
-            return {'error': 'Failed to make data request', 'details': e}
+            return {"error": "Failed to make data request", "details": e}
 
         logger.info(
-            'Issued data request for access token %s (pk)', self.access_token,
+            "Issued data request for access token %s (pk)",
+            self.access_token,
             extra={
-                'url': self.data_request_url,
-                'status_code': getattr(response, 'status_code', 'no status code available'),
-                'response_text': getattr(response, 'text', 'no response text available'),
-            }
+                "url": self.data_request_url,
+                "status_code": getattr(
+                    response, "status_code", "no status code available"
+                ),
+                "response_text": getattr(
+                    response, "text", "no response text available"
+                ),
+            },
         )
 
         return request_result
@@ -294,11 +302,11 @@ class TikTokPortabilityAPIClient:
         """
         url = self.cancel_data_request_url
         headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.access_token}'
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
         }
         payload = {
-            'request_id': request_id,
+            "request_id": request_id,
         }
         try:
             response = requests.post(url, headers=headers, json=payload, timeout=30)
@@ -306,31 +314,41 @@ class TikTokPortabilityAPIClient:
             request_result = response.json()
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, url, e,
-                f'Failed to cancel data request at {url} (request {request_id})',
+                logger,
+                url,
+                e,
+                f"Failed to cancel data request at {url} (request {request_id})",
                 extra={
-                    'request_id': request_id,
-                    'access_token': self.access_token,
+                    "request_id": request_id,
+                    "access_token": self.access_token,
                 },
             )
-            return {'error': 'Failed to cancel data request', 'details': e}
+            return {"error": "Failed to cancel data request", "details": e}
 
         logger.info(
-            'Cancelled data request %s.',
+            "Cancelled data request %s.",
             request_id,
             extra={
-                'url': url,
-                'status_code': getattr(response, 'status_code', 'no status code available'),
-                'response_text': getattr(response, 'text', 'no response text available'),
-            }
+                "url": url,
+                "status_code": getattr(
+                    response, "status_code", "no status code available"
+                ),
+                "response_text": getattr(
+                    response, "text", "no response text available"
+                ),
+            },
         )
 
-        error_details = request_result.get('error', {})
-        error_code = error_details.get('code') if isinstance(error_details, dict) else None
-        if error_code and error_code != 'ok':
+        error_details = request_result.get("error", {})
+        error_code = (
+            error_details.get("code") if isinstance(error_details, dict) else None
+        )
+        if error_code and error_code != "ok":
             logger.warning(
-                'TikTok rejected cancellation request %s: %s (code: %s)',
-                request_id, error_details, error_code
+                "TikTok rejected cancellation request %s: %s (code: %s)",
+                request_id,
+                error_details,
+                error_code,
             )
             return request_result
 
@@ -338,8 +356,8 @@ class TikTokPortabilityAPIClient:
         data_request = TikTokDataRequest.objects.filter(request_id=request_id).first()
         if not data_request:
             logger.warning(
-                f'Could not find data request object with id {request_id} to '
-                'set status to cancelled.'
+                f"Could not find data request object with id {request_id} to "
+                "set status to cancelled."
             )
         else:
             data_request.status = TikTokDataRequest.State.CANCELLED
@@ -367,27 +385,33 @@ class TikTokPortabilityAPIClient:
             https://developers.tiktok.com/doc/data-portability-api-add-data-request/#__response
         """
         if not isinstance(response_json, dict):
-            detail = response_json if isinstance(response_json, str) else type(response_json)
-            msg = f'TikTok data request response is not a valid JSON response: {detail}'
+            detail = (
+                response_json if isinstance(response_json, str) else type(response_json)
+            )
+            msg = f"TikTok data request response is not a valid JSON response: {detail}"
             logger.error(msg)
             return False, msg
 
-        error_details = response_json.get('error', {})
-        error_code = error_details.get('code') if isinstance(error_details, dict) else None
+        error_details = response_json.get("error", {})
+        error_code = (
+            error_details.get("code") if isinstance(error_details, dict) else None
+        )
 
-        if error_code and error_code != 'ok':
-            msg = f'TikTok data request returned an error: {error_details})'
+        if error_code and error_code != "ok":
+            msg = f"TikTok data request returned an error: {error_details})"
             logger.warning(msg)
             return False, msg
 
-        response_data = response_json.get('data', {})
-        request_id = response_data.get('request_id') if isinstance(response_data, dict) else None
+        response_data = response_json.get("data", {})
+        request_id = (
+            response_data.get("request_id") if isinstance(response_data, dict) else None
+        )
         if request_id is None:
-            msg = 'Missing "request_id" in TikTok data request response. Response data: %s'
+            msg = 'Missing "request_id" in TikTok data request response. Response data: %s'  # noqa: E501
             logger.warning(msg, response_data)
             return False, msg
 
-        return True, 'ok'
+        return True, "ok"
 
     def poll_data_request_status(self, request_id: int) -> dict:
         """Polls the status of the portability request with TikTok's API.
@@ -407,59 +431,66 @@ class TikTokPortabilityAPIClient:
         """
         url = self.data_request_status_url
         headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.access_token}'
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
         }
         fields = [
-            'request_id',
-            'apply_time',
-            'collect_time',
-            'status',
-            'data_format',
-            'category_selection_list',
+            "request_id",
+            "apply_time",
+            "collect_time",
+            "status",
+            "data_format",
+            "category_selection_list",
         ]
-        params = {'fields': ','.join(fields)}
+        params = {"fields": ",".join(fields)}
         payload = {
-            'request_id': request_id,
+            "request_id": request_id,
         }
         try:
             response = requests.post(
-                url,
-                headers=headers,
-                params=params,
-                json=payload,
-                timeout=30
+                url, headers=headers, params=params, json=payload, timeout=30
             )
             response.raise_for_status()
             poll_result = response.json()
         except requests.exceptions.Timeout as e:
             log_requests_exception(
-                logger, url, e,
-                'Data request status polling timed out',
-                level=logging.ERROR
+                logger,
+                url,
+                e,
+                "Data request status polling timed out",
+                level=logging.ERROR,
             )
-            return {'error': 'Data request status polling timed out'}
+            return {"error": "Data request status polling timed out"}
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, url, e,
-                f'Failed to poll data request status for request with ID {request_id})',
-                level=logging.ERROR
+                logger,
+                url,
+                e,
+                f"Failed to poll data request status for request with ID {request_id})",
+                level=logging.ERROR,
             )
-            return {'error': 'Failed to poll data request status'}
+            return {"error": "Failed to poll data request status"}
 
         logger.info(
-            'Polled data request status for request %s', request_id,
+            "Polled data request status for request %s",
+            request_id,
             extra={
-                'url': self.data_request_status_url,
-                'status_code': getattr(response, 'status_code', 'no status code available'),
-                'response_text': getattr(response, 'text', 'no response text available'),
-            }
+                "url": self.data_request_status_url,
+                "status_code": getattr(
+                    response, "status_code", "no status code available"
+                ),
+                "response_text": getattr(
+                    response, "text", "no response text available"
+                ),
+            },
         )
 
         return poll_result
 
     @staticmethod
-    def poll_data_request_status_response_is_valid(response_json: dict) -> Tuple[bool, str]:
+    def poll_data_request_status_response_is_valid(
+        response_json: dict,
+    ) -> Tuple[bool, str]:
         """Validates the response from a TikTok data request status check.
 
         Checks if:
@@ -477,39 +508,52 @@ class TikTokPortabilityAPIClient:
 
         References:
             https://developers.tiktok.com/doc/data-portability-api-check-status-of-data-request#__response
-        """
+        """  # noqa: E501
         if not isinstance(response_json, dict):
-            detail = response_json if isinstance(response_json, str) else type(response_json)
-            msg = f'Poll data request status response is not a valid JSON response: {detail}'
+            detail = (
+                response_json if isinstance(response_json, str) else type(response_json)
+            )
+            msg = (
+                "Poll data request status response is not "
+                f"a valid JSON response: {detail}"
+            )
             logger.error(msg)
             return False, msg
 
-        error_details = response_json.get('error', {})
-        error_code = error_details.get('code') if isinstance(error_details, dict) else None
+        error_details = response_json.get("error", {})
 
-        if error_code and error_code != 'ok':
-            msg = f'TikTok data request status check returned an error: {error_details}'
+        if isinstance(error_details, dict):
+            error_code = error_details.get("code")
+        else:
+            error_code = None
+
+        if error_code and error_code != "ok":
+            msg = f"TikTok data request status check returned an error: {error_details}"
             logger.warning(msg)
             return False, msg
 
-        response_data = response_json.get('data')
+        response_data = response_json.get("data")
         if response_data is None:
             msg = 'Missing "data" in TikTok data request response.'
             logger.warning(msg)
             return False, msg
 
-        valid_status_codes = ['pending', 'downloading', 'expired', 'cancelled']
-        status_code = response_data.get('status') if isinstance(response_data, dict) else 'missing status code'
+        valid_status_codes = ["pending", "downloading", "expired", "cancelled"]
+
+        if isinstance(response_data, dict):
+            status_code = response_data.get("status")
+        else:
+            status_code = "missing status code"
+
         if status_code not in valid_status_codes:
-            msg = f'Invalid status code in TikTok data request response: {status_code}'
+            msg = f"Invalid status code in TikTok data request response: {status_code}"
             logger.warning(msg)
             return False, msg
 
-        return True, 'ok'
+        return True, "ok"
 
     def stream_download_requested_data(
-            self,
-            data_request: TikTokDataRequest
+        self, data_request: TikTokDataRequest
     ) -> StreamingHttpResponse:
         """Downloads the requested data from TikTok's Portability API as a stream.
 
@@ -530,25 +574,24 @@ class TikTokPortabilityAPIClient:
         """
         request_id = data_request.request_id
         headers = {
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {self.access_token}'
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {self.access_token}",
         }
         payload = {
-            'request_id': request_id,
+            "request_id": request_id,
         }
         try:
             response = requests.post(
-                self.data_download_url,
-                headers=headers,
-                json=payload,
-                stream=True
+                self.data_download_url, headers=headers, json=payload, stream=True
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:
             log_requests_exception(
-                logger, self.data_download_url, e,
-                f'Download failed for request {request_id}',
-                logging.ERROR
+                logger,
+                self.data_download_url,
+                e,
+                f"Download failed for request {request_id}",
+                logging.ERROR,
             )
             raise
 
@@ -560,17 +603,13 @@ class TikTokPortabilityAPIClient:
             except Exception as err:
                 data_request.download_succeeded = False
                 data_request.save()
-                logger.error(
-                    'Download failed for request %s: %s',
-                    request_id, err
-                )
+                logger.error("Download failed for request %s: %s", request_id, err)
                 raise
             else:
                 data_request.download_succeeded = True
                 data_request.save()
                 logger.info(
-                    'Download completed successfully for request %s',
-                    request_id
+                    "Download completed successfully for request %s", request_id
                 )
             finally:
                 # This runs after streaming completes (or fails)
@@ -579,9 +618,9 @@ class TikTokPortabilityAPIClient:
                 data_request.save()
 
         streaming_response = StreamingHttpResponse(
-            stream_with_cleanup(),
-            content_type='application/zip'
+            stream_with_cleanup(), content_type="application/zip"
         )
-        streaming_response['Content-Disposition'] = f'attachment; filename="tiktok_data_{request_id}.zip"'
+        filename = f"tiktok_data_{request_id}.zip"
+        streaming_response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
         return streaming_response

@@ -9,15 +9,15 @@ from digital_meal.tool.models import Teacher, Classroom
 def notify_admins_teacher_created(sender, instance, created, **kwargs):
     """Send email to admins when a new Teacher is created."""
     if created:
-        subject = f'New Teacher Created: {instance.first_name} {instance.name}'
+        subject = f"New Teacher Created: {instance.first_name} {instance.name}"
         message = f"""
         A new Teacher has been created:
-        
+
         Name: {instance.first_name} {instance.name}
         Canton: {instance.get_canton_display()}
-        School: {instance.school_name or 'Not specified'}
+        School: {instance.school_name or "Not specified"}
         Email: {instance.user.email}
-        Date Created: {instance.date_created.strftime('%Y-%m-%d %H:%M:%S')}
+        Date Created: {instance.date_created.strftime("%Y-%m-%d %H:%M:%S")}
         """
         mail_admins(
             subject=subject,
@@ -30,10 +30,10 @@ def notify_admins_teacher_created(sender, instance, created, **kwargs):
 def notify_admins_classroom_created(sender, instance, created, **kwargs):
     """Send email to admins when a new Classroom is created."""
     if created:
-        subject = f'New Classroom Created: {instance.name}'
+        subject = f"New Classroom Created: {instance.name}"
         message = f"""
         A new Classroom has been created:
-        
+
         Classroom Name: {instance.name}
         URL ID: {instance.url_id}
         Owner: {instance.owner.email}
@@ -41,10 +41,10 @@ def notify_admins_classroom_created(sender, instance, created, **kwargs):
         School Year: {instance.school_year}
         Subject: {instance.get_subject_display()}
         Instruction Format: {instance.get_instruction_format_display()}
-        Base Module: {instance.base_module.name if instance.base_module else 'Not assigned'}
-        Date Created: {instance.date_created.strftime('%Y-%m-%d %H:%M:%S')}
-        Expiry Date: {instance.expiry_date.strftime('%Y-%m-%d %H:%M:%S')}
-        """
+        Base Module: {instance.base_module.name if instance.base_module else "Not assigned"}
+        Date Created: {instance.date_created.strftime("%Y-%m-%d %H:%M:%S")}
+        Expiry Date: {instance.expiry_date.strftime("%Y-%m-%d %H:%M:%S")}
+        """  # noqa: E501
         mail_admins(
             subject=subject,
             message=message,

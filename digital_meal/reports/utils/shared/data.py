@@ -15,10 +15,10 @@ from spacy import Language
 
 
 def get_entries_in_date_range(
-        entries: list[dict],
-        date_min: datetime,
-        date_max: datetime = datetime.now(),
-        date_key: str = 'time'
+    entries: list[dict],
+    date_min: datetime,
+    date_max: datetime = datetime.now(),
+    date_key: str = "time",
 ) -> list:
     """
     Filter a series to only keep entries recorded in the given date range.
@@ -42,7 +42,7 @@ def get_entries_in_date_range(
     if date_key not in df.columns:
         return []
 
-    df[date_key] = pd.to_datetime(df[date_key], errors='coerce')
+    df[date_key] = pd.to_datetime(df[date_key], errors="coerce")
     df = df.dropna(subset=[date_key])
 
     # Ensure that dates are timezone aware.
@@ -53,10 +53,12 @@ def get_entries_in_date_range(
         df[date_key] = df[date_key].dt.tz_convert(tz)
 
     mask = (df[date_key] >= date_min) & (df[date_key] <= date_max)
-    return df[mask].to_dict('records')
+    return df[mask].to_dict("records")
 
 
-def make_tz_aware(date: datetime) -> datetime:  # TODO: Check if timezone should be derived from server.
+def make_tz_aware(
+    date: datetime,
+) -> datetime:  # TODO: Check if timezone should be derived from server.
     """
     Check if a date is timezone-aware. If not, add timezone.utc as default.
 
@@ -66,16 +68,14 @@ def make_tz_aware(date: datetime) -> datetime:  # TODO: Check if timezone should
     Returns:
         datetime: Timezone aware date.
     """
-    if (date.tzinfo is not None and
-            date.tzinfo.utcoffset(date) is not None):
+    if date.tzinfo is not None and date.tzinfo.utcoffset(date) is not None:
         return date
     else:
         return date.replace(tzinfo=timezone.utc)
 
 
 def normalize_datetime(
-        date: datetime,
-        mode: Literal['d', 'w', 'm', 'y'] = 'd'
+    date: datetime, mode: Literal["d", "w", "m", "y"] = "d"
 ) -> datetime:
     """
     Normalizes a datetime object to a specific day, week, month, or year.
@@ -95,28 +95,28 @@ def normalize_datetime(
     """
     date = date.date()
 
-    if mode == 'd':
+    if mode == "d":
         return datetime.combine(date, datetime.min.time())
 
-    elif mode == 'w':
+    elif mode == "w":
         week_start = date - timedelta(days=date.weekday())
         return datetime.combine(week_start, datetime.min.time())
 
-    elif mode == 'm':
+    elif mode == "m":
         return datetime.combine(date.replace(day=15), datetime.min.time())
 
-    elif mode == 'y':
+    elif mode == "y":
         return datetime.combine(date.replace(day=1, month=7), datetime.min.time())
 
     else:
-        print('Invalid mode.')
+        print("Invalid mode.")
         return datetime.combine(date, datetime.min.time())
 
 
 def get_summary_counts_per_date(
-        data: list[list[datetime]],
-        ref: Literal['d', 'w', 'm', 'y']  = 'd',
-        base: Literal['sum', 'median', 'mean'] = 'sum'
+    data: list[list[datetime]],
+    ref: Literal["d", "w", "m", "y"] = "d",
+    base: Literal["sum", "median", "mean"] = "sum",
 ) -> dict:
     """
     Summarizes date occurrences across dates and persons.
@@ -147,26 +147,26 @@ def get_summary_counts_per_date(
         person_date_indices.extend([person_idx] * len(normalized))
 
     # Create DataFrame for vectorized operations
-    df = pd.DataFrame({
-        'date': all_dates,
-        'person': person_date_indices
-    })
+    df = pd.DataFrame({"date": all_dates, "person": person_date_indices})
 
-    person_counts = df.groupby(['person', 'date']).size().reset_index(name='count')
-    pivot = person_counts.pivot(index='date', columns='person', values='count').fillna(0)
+    person_counts = df.groupby(["person", "date"]).size().reset_index(name="count")
+    pivot = person_counts.pivot(index="date", columns="person", values="count").fillna(
+        0
+    )
 
     # Apply summary function
-    if base == 'sum':
+    if base == "sum":
         counts = pivot.sum(axis=1).to_dict()
-    elif base == 'mean':
+    elif base == "mean":
         counts = pivot.mean(axis=1).to_dict()
-    elif base == 'median':
+    elif base == "median":
         counts = pivot.median(axis=1).to_dict()
 
     return counts
 
 
-nlp_de = spacy.load('de_core_news_sm', disable=["parser", "ner"])
+nlp_de = spacy.load("de_core_news_sm", disable=["parser", "ner"])
+
 
 def normalize_texts(texts: list[str]) -> list[str]:
     """Normalize a list of texts.
@@ -198,9 +198,7 @@ def normalize_texts(texts: list[str]) -> list[str]:
 
 
 def normalize_batch(
-        texts: list[str],
-        nlp: Language,
-        batch_size: int = 1000
+    texts: list[str], nlp: Language, batch_size: int = 1000
 ) -> list[str]:
     """
     Normalizes texts with a given nlp model in batches by applying
@@ -220,18 +218,20 @@ def normalize_batch(
     """
     results = []
     for doc in nlp.pipe(texts, batch_size=batch_size):
-        normalized = [token.lemma_.lower() for token in doc
-                      if not token.is_stop and not token.is_punct
-                      and len(token.lemma_) >= 2]
+        normalized = [
+            token.lemma_.lower()
+            for token in doc
+            if not token.is_stop and not token.is_punct and len(token.lemma_) >= 2
+        ]
         results += normalized
 
     return results
 
 
 def get_donations(
-        blueprint_names: list[str],
-        project: DonationProject,
-        participants: list[Participant]
+    blueprint_names: list[str],
+    project: DonationProject,
+    participants: list[Participant],
 ) -> dict:
     """
     Retrieve the encrypted data donations related to the provided blueprints
@@ -247,15 +247,13 @@ def get_donations(
             corresponding donation data as the value.
     """
     blueprints = DonationBlueprint.objects.filter(
-        project=project,
-        name__in=blueprint_names
+        project=project, name__in=blueprint_names
     ).prefetch_related(
         Prefetch(
-          'datadonation_set',
-          queryset=DataDonation.objects.filter(
-              participant__in=participants,
-              status='success'
-          )
+            "datadonation_set",
+            queryset=DataDonation.objects.filter(
+                participant__in=participants, status="success"
+            ),
         )
     )
     decryptor = Decryption(project.secret, project.get_salt())
@@ -265,5 +263,6 @@ def get_donations(
         blueprint_donations = blueprint.datadonation_set.all()
         if blueprint_donations:
             donations[blueprint.name] = DonationSerializer(
-                blueprint_donations[0], decryptor=decryptor).data
+                blueprint_donations[0], decryptor=decryptor
+            ).data
     return donations

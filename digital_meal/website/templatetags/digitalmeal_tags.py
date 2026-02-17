@@ -17,8 +17,8 @@ def format_number(value):
     num_str = str(value)
 
     # Split the string into integer and decimal parts.
-    if '.' in num_str:
-        integer_part, decimal_part = num_str.split('.')
+    if "." in num_str:
+        integer_part, decimal_part = num_str.split(".")
     else:
         integer_part, decimal_part = num_str, None
 

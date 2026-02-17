@@ -24,96 +24,115 @@ def generate_unique_classroom_id() -> str:
     """
     allowed_chars = string.ascii_uppercase + string.digits
     while True:
-        unique_id = ''.join(secrets.choice(allowed_chars) for _ in range(10))
+        unique_id = "".join(secrets.choice(allowed_chars) for _ in range(10))
         if not Classroom.objects.filter(url_id=unique_id).exists():
             return unique_id
 
 
 class User(AbstractUser):
-    USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
 
     class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['email'], name='unique email')
-        ]
+        constraints = [models.UniqueConstraint(fields=["email"], name="unique email")]
 
 
 class SwissCantons(models.TextChoices):
-    AG = 'AG', _('Aargau')
-    AR = 'AR', _('Appenzell Ausserrhoden')
-    AI = 'AI', _('Appenzell Innerrhoden')
-    BL = 'BL', _('Basel-Landschaft')
-    BS = 'BS', _('Basel-Stadt')
-    BE = 'BE', _('Bern')
-    FR = 'FR', _('Freiburg')
-    GE = 'GE', _('Genf')
-    GL = 'GL', _('Glarus')
-    GR = 'GR', _('Graubünden')
-    JU = 'JU', _('Jura')
-    LU = 'LU', _('Luzern')
-    NE = 'NE', _('Neuenburg')
-    NW = 'NW', _('Nidwalden')
-    OW = 'OW', _('Obwalden')
-    SH = 'SH', _('Schaffhausen')
-    SZ = 'SZ', _('Schwyz')
-    SO = 'SO', _('Solothurn')
-    SG = 'SG', _('St. Gallen')
-    TI = 'TI', _('Tessin')
-    TG = 'TG', _('Thurgau')
-    UR = 'UR', _('Uri')
-    VD = 'VD', _('Waadt')
-    VS = 'VS', _('Wallis')
-    ZG = 'ZG', _('Zug')
-    ZH = 'ZH', _('Zürich')
+    AG = "AG", _("Aargau")
+    AR = "AR", _("Appenzell Ausserrhoden")
+    AI = "AI", _("Appenzell Innerrhoden")
+    BL = "BL", _("Basel-Landschaft")
+    BS = "BS", _("Basel-Stadt")
+    BE = "BE", _("Bern")
+    FR = "FR", _("Freiburg")
+    GE = "GE", _("Genf")
+    GL = "GL", _("Glarus")
+    GR = "GR", _("Graubünden")
+    JU = "JU", _("Jura")
+    LU = "LU", _("Luzern")
+    NE = "NE", _("Neuenburg")
+    NW = "NW", _("Nidwalden")
+    OW = "OW", _("Obwalden")
+    SH = "SH", _("Schaffhausen")
+    SZ = "SZ", _("Schwyz")
+    SO = "SO", _("Solothurn")
+    SG = "SG", _("St. Gallen")
+    TI = "TI", _("Tessin")
+    TG = "TG", _("Thurgau")
+    UR = "UR", _("Uri")
+    VD = "VD", _("Waadt")
+    VS = "VS", _("Wallis")
+    ZG = "ZG", _("Zug")
+    ZH = "ZH", _("Zürich")
 
 
 class SchoolLevels(models.TextChoices):
-    PRIMARY = 'primary', _('Primarstufe')
-    SECONDARY = 'secondary', _('Sekundarstufe I (z.B. Sekundar- oder Realschule, Bezirksschule oder Untergymnasium)')
-    GYMNASIUM = 'gymnasium', _('Gymnasiale Maturitätsschulen')
-    SPECIALISED_SECONDARY = 'specialised sec.', _('Fachmittelschulen')
-    VOCATIONAL = 'vocational', _('Berufsschulen und Berufsmaturitätsschulen')
-    PEDAGOGICAL = 'pedagogical', _('Pädagogische Hochschulen')
-    SPECIALISED_TERTIARY = 'specialised tert.', _('Fachhochschulen und Höhere Fachhochschulen')
-    UNIVERSITY = 'university', _('Universitäre Hochschulen')
-    OTHER = 'other', _('Andere')
+    PRIMARY = "primary", _("Primarstufe")
+    SECONDARY = (
+        "secondary",
+        _(
+            "Sekundarstufe I (z.B. Sekundar- oder Realschule, "
+            "Bezirksschule oder Untergymnasium)"
+        ),
+    )
+    GYMNASIUM = "gymnasium", _("Gymnasiale Maturitätsschulen")
+    SPECIALISED_SECONDARY = "specialised sec.", _("Fachmittelschulen")
+    VOCATIONAL = "vocational", _("Berufsschulen und Berufsmaturitätsschulen")
+    PEDAGOGICAL = "pedagogical", _("Pädagogische Hochschulen")
+    SPECIALISED_TERTIARY = (
+        "specialised tert.",
+        _("Fachhochschulen und Höhere Fachhochschulen"),
+    )
+    UNIVERSITY = "university", _("Universitäre Hochschulen")
+    OTHER = "other", _("Andere")
 
 
 class InstructionFormats(models.TextChoices):
-    REGULAR = 'regular', _('Regulärer Unterricht')
-    OPTIONAL = 'optional', _('Wahlpflichtfach, Freifach, Kurs, o.ä.')
-    SPECIAL = 'special', _('Sonderwoche o.ä.')
+    REGULAR = "regular", _("Regulärer Unterricht")
+    OPTIONAL = "optional", _("Wahlpflichtfach, Freifach, Kurs, o.ä.")
+    SPECIAL = "special", _("Sonderwoche o.ä.")
 
 
 class SchoolSubjects(models.TextChoices):
-    LANGUAGE = 'languages', _('Sprachunterricht (Deutsch, Französisch, Englisch, etc.)')
-    INFORMATICS = 'informatics and media', _('Medien- und Informatikunterricht, Medienerziehung o.ä.')
-    ETHICS = 'ethics, religion', _('"Ethik, Religion, Gemeinschaft" (ERG), Ethikunterricht oder Gesellschaftskunde')
-    GENERAL = 'general education', _('"Allgemeinbildender Unterricht" (ABU), o.ä.')
-    MATH_TECHNICAL = 'math, nature and technics', _('Mathematik oder "Natur und Technik"')
-    SOCIETY = 'society, history, geography', _('"Räume, Zeiten, Gesellschaften" (RZG), Geschichte, Geografie, o.ä.')
-    OTHER = 'other', _('Anderes')
+    LANGUAGE = "languages", _("Sprachunterricht (Deutsch, Französisch, Englisch, etc.)")
+    INFORMATICS = (
+        "informatics and media",
+        _("Medien- und Informatikunterricht, Medienerziehung o.ä."),
+    )
+    ETHICS = (
+        "ethics, religion",
+        _(
+            '"Ethik, Religion, Gemeinschaft" (ERG), '
+            "Ethikunterricht oder Gesellschaftskunde"
+        ),
+    )
+    GENERAL = "general education", _('"Allgemeinbildender Unterricht" (ABU), o.ä.')
+    MATH_TECHNICAL = (
+        "math, nature and technics",
+        _('Mathematik oder "Natur und Technik"'),
+    )
+    SOCIETY = (
+        "society, history, geography",
+        _('"Räume, Zeiten, Gesellschaften" (RZG), Geschichte, Geografie, o.ä.'),
+    )
+    OTHER = "other", _("Anderes")
 
 
 class Teacher(models.Model):
-    user = models.OneToOneField('tool.User', on_delete=models.CASCADE)
+    user = models.OneToOneField("tool.User", on_delete=models.CASCADE)
     date_created = models.DateTimeField(auto_now_add=True, null=False)
     name = models.CharField(max_length=50, null=False)
     first_name = models.CharField(max_length=50, null=False)
     canton = models.CharField(
-        max_length=2,
-        null=False,
-        choices=SwissCantons.choices,
-        verbose_name=_('Kanton')
+        max_length=2, null=False, choices=SwissCantons, verbose_name=_("Kanton")
     )
     school_name = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-         verbose_name = 'Teacher'
+        verbose_name = "Teacher"
 
     def __str__(self):
-        return f'{self.first_name} {self.name}'
+        return f"{self.first_name} {self.name}"
 
 
 def now_plus_six_months():
@@ -162,7 +181,7 @@ class Classroom(models.Model):
             collect test participations.
     """
 
-    owner = models.ForeignKey('tool.User', on_delete=models.CASCADE)
+    owner = models.ForeignKey("tool.User", on_delete=models.CASCADE)
     name = models.CharField(max_length=100, null=False)
     url_id = models.SlugField(
         max_length=10,
@@ -174,58 +193,53 @@ class Classroom(models.Model):
     expiry_date = models.DateTimeField(default=now_plus_six_months, null=False)
 
     base_module = models.ForeignKey(
-        'tool.BaseModule',
+        "tool.BaseModule",
         on_delete=models.CASCADE,
-        verbose_name='Base Module',
-        null=True
+        verbose_name="Base Module",
+        null=True,
     )
-    sub_modules = models.ManyToManyField('tool.SubModule', blank=True)
+    sub_modules = models.ManyToManyField("tool.SubModule", blank=True)
 
     school_level = models.CharField(
         max_length=20,
         null=False,
-        choices=SchoolLevels.choices,
-        verbose_name=_('Schulstufe')
+        choices=SchoolLevels,
+        verbose_name=_("Schulstufe"),
     )
     school_year = models.IntegerField(
         null=False,
         blank=False,
         validators=[MinValueValidator(1), MaxValueValidator(20)],
-        verbose_name=_('Schuljahr')
+        verbose_name=_("Schuljahr"),
     )
     subject = models.CharField(
         max_length=100,
         null=False,
         blank=False,
-        choices=SchoolSubjects.choices,
-        verbose_name=_('Unterrichtsfach')
+        choices=SchoolSubjects,
+        verbose_name=_("Unterrichtsfach"),
     )
     instruction_format = models.CharField(
         max_length=20,
         null=False,
         blank=False,
-        choices=InstructionFormats.choices,
-        verbose_name=_('Unterrichtsformat')
+        choices=InstructionFormats,
+        verbose_name=_("Unterrichtsformat"),
     )
 
     agb_agree = models.BooleanField(
-        null=False,
-        blank=False,
-        default=False,
-        verbose_name=_('AGBs akzeptiert')
+        null=False, blank=False, default=False, verbose_name=_("AGBs akzeptiert")
     )
 
     report_ref_end_date = models.DateTimeField(null=True, default=None)
 
     is_test_participation_class = models.BooleanField(
         default=False,
-        help_text=(
-            'Select if this class is used to collect test participations.'
-        )
+        help_text=("Select if this class is used to collect test participations."),
     )
 
     class Meta:
-         verbose_name = 'Classroom'
+        verbose_name = "Classroom"
 
     def __str__(self):
         return self.name
@@ -241,7 +255,7 @@ class Classroom(models.Model):
             return False
 
     def get_absolute_url(self):
-        return reverse('class_detail', kwargs={'url_id': self.url_id})
+        return reverse("class_detail", kwargs={"url_id": self.url_id})
 
     def get_related_donation_project(self):
         """Returns Donation Project if it exists, None otherwise."""
@@ -251,7 +265,8 @@ class Classroom(models.Model):
     def get_classroom_participants(self):
         project = self.get_related_donation_project()
         return Participant.objects.filter(
-            project=project, extra_data__url_param__class=self.url_id)
+            project=project, extra_data__url_param__class=self.url_id
+        )
 
     def get_participation_stats(self):
         """
@@ -267,11 +282,11 @@ class Classroom(models.Model):
         """
         if self.base_module is None:
             return {
-                'n_started': 0,
-                'n_finished': 0,
-                'completion_rate': 0,
-                'last_started': None,
-                'last_completed': None
+                "n_started": 0,
+                "n_finished": 0,
+                "completion_rate": 0,
+                "last_started": None,
+                "last_completed": None,
             }
 
         participants = self.get_classroom_participants()
@@ -284,18 +299,17 @@ class Classroom(models.Model):
             completion_rate = 0
 
         date_stats = participants.aggregate(
-            last_started=Max('start_time'),
-            last_completed=Max('end_time')
+            last_started=Max("start_time"), last_completed=Max("end_time")
         )
-        date_last_started = date_stats['last_started']
-        date_last_completed = date_stats['last_completed']
+        date_last_started = date_stats["last_started"]
+        date_last_completed = date_stats["last_completed"]
 
         result = {
-            'n_started': n_started,
-            'n_finished': n_finished,
-            'completion_rate': completion_rate,
-            'last_started': date_last_started,
-            'last_completed': date_last_completed
+            "n_started": n_started,
+            "n_finished": n_finished,
+            "completion_rate": completion_rate,
+            "last_started": date_last_started,
+            "last_completed": date_last_completed,
         }
         return result
 
@@ -310,12 +324,11 @@ class Classroom(models.Model):
 
         project = self.get_related_donation_project()
         dates = DataDonation.objects.filter(
-            project=project,
-            participant__extra_data__url_param__class=self.url_id
+            project=project, participant__extra_data__url_param__class=self.url_id
         )
 
         if dates.exists():
-            return dates.values_list('time_submitted', flat=True)
+            return dates.values_list("time_submitted", flat=True)
 
         else:
             return []
@@ -358,8 +371,8 @@ class Classroom(models.Model):
         31 March 2025).
 
         Returns:
-            (datetime, datetime) | (None, None): A tuple containing the start date and the
-                end date of the reference timespan ('start_date', 'end_date').
+            (datetime, datetime) | (None, None): A tuple containing the start date
+                and the end date of the reference timespan ('start_date', 'end_date').
         """
         if self.is_test_participation_class:
             ref_end_date = timezone.now()
@@ -417,45 +430,33 @@ class BaseModule(models.Model):
             has been created. Creation could be automated in a future iteration.
     """
 
-    id = models.UUIDField(
-        primary_key=True,
-        default=uuid.uuid4,
-        editable=False
-    )
-    name = models.CharField(
-        max_length=50,
-        blank=False,
-        null=False
-    )
-    date_created = models.DateTimeField(
-        auto_now_add=True,
-        null=False
-    )
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    name = models.CharField(max_length=50, blank=False, null=False)
+    date_created = models.DateTimeField(auto_now_add=True, null=False)
     active = models.BooleanField(default=False)
 
     materials_text = CKEditor5Field()
 
     ddm_project_id = models.CharField(
-        max_length=255,
-        verbose_name='DDM project id'
+        max_length=255, verbose_name="DDM project id"
     )  # external ID
-    ddm_path = models.URLField(verbose_name='DDM path')
+    ddm_path = models.URLField(verbose_name="DDM path")
 
     test_class_url_id = models.CharField(
         max_length=10,
         null=True,
         blank=True,
         help_text=(
-            'The url_id of the class that is used to collect the test cases '
-            'for this module (needed for the individual report to work in the '
-            'test participation).'
-        )
+            "The url_id of the class that is used to collect the test cases "
+            "for this module (needed for the individual report to work in the "
+            "test participation)."
+        ),
     )
 
     report_prefix = models.SlugField()
 
     class Meta:
-         verbose_name = 'Base Module'
+        verbose_name = "Base Module"
 
     def __str__(self):
         return self.name
@@ -484,7 +485,8 @@ class SubModule(models.Model):
     """
 
     base_module = models.ForeignKey(
-        'tool.BaseModule', on_delete=models.SET_NULL, null=True)
+        "tool.BaseModule", on_delete=models.SET_NULL, null=True
+    )
 
     name = models.CharField(max_length=50, blank=False, null=False)
     description = models.TextField()
@@ -492,16 +494,13 @@ class SubModule(models.Model):
     materials_text = CKEditor5Field()
 
     url_parameter = models.SlugField(
-        max_length=5,
-        blank=False,
-        null=False,
-        verbose_name='URL parameter'
+        max_length=5, blank=False, null=False, verbose_name="URL parameter"
     )
 
     active = models.BooleanField(default=False)
 
     class Meta:
-         verbose_name = 'Sub Module'
+        verbose_name = "Sub Module"
 
     def __str__(self):
         return self.name

@@ -8,7 +8,7 @@ class RestrictDDMMiddleware(MiddlewareMixin):
     """
 
     def process_request(self, request):
-        if request.path.startswith('/ddm/'):
+        if request.path.startswith("/ddm/"):
             if not request.user.is_authenticated:
                 raise Http404
 

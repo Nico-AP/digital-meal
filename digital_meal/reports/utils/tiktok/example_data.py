@@ -7,14 +7,11 @@ from django.utils import timezone
 from digital_meal.reports.utils.shared.example_data import (
     generate_hourly_shares,
     random_string,
-    random_time_in_range
+    random_time_in_range,
 )
 
 
-def generate_synthetic_watch_history(
-        start_date: date,
-        days: int = 500
-) -> dict:
+def generate_synthetic_watch_history(start_date: date, days: int = 500) -> dict:
     """Generate a synthetic TikTok watch history dataset.
 
     Args:
@@ -39,13 +36,22 @@ def generate_synthetic_watch_history(
 
         # Normalize hourly shares so they sum up to 1 for weighted sampling
         total_share = sum(hourly_shares.values())
-        normalized_shares = {hour: share / total_share for hour, share in hourly_shares.items()}
+        normalized_shares = {
+            hour: share / total_share for hour, share in hourly_shares.items()
+        }
 
         # Assign videos across the 24 hours based on share weights
         viewing_times = []
         for hour, share_weight in normalized_shares.items():
-            num_videos_this_hour = max(0, int(num_entries * share_weight * random.uniform(0.9, 1.1)))  # Add slight randomness
-            viewing_times.extend([random_time_in_range(hour, 0, hour, 59) for _ in range(num_videos_this_hour)])
+            num_videos_this_hour = max(
+                0, int(num_entries * share_weight * random.uniform(0.9, 1.1))
+            )  # Add slight randomness
+            viewing_times.extend(
+                [
+                    random_time_in_range(hour, 0, hour, 59)
+                    for _ in range(num_videos_this_hour)
+                ]
+            )
 
         # Generate entries for the day
         for watch_time in sorted(viewing_times):
@@ -65,7 +71,7 @@ def generate_synthetic_watch_history(
     for _ in range(5):
         entry = {
             "Date": current_date.isoformat(),
-            "Link": f"https://www.tiktok.com/@/video/7486877232867101974/"
+            "Link": "https://www.tiktok.com/@/video/7486877232867101974/",
         }
         history_data.append(entry)
 
@@ -73,14 +79,11 @@ def generate_synthetic_watch_history(
         "time_submitted": timezone.now().isoformat() + "Z",
         "consent": True,
         "status": "success",
-        "data": history_data
+        "data": history_data,
     }
 
 
-def generate_synthetic_search_history(
-        latest_date: date,
-        days: int = 500
-) -> dict:
+def generate_synthetic_search_history(latest_date: date, days: int = 500) -> dict:
     """Generate a synthetic TikTok search history dataset.
 
     Args:
@@ -115,7 +118,7 @@ def generate_synthetic_search_history(
         "time_submitted": timezone.now().isoformat() + "Z",
         "consent": True,
         "status": "success",
-        "data": history_data
+        "data": history_data,
     }
 
 
@@ -125,6 +128,27 @@ def generate_random_search_term() -> str:
     Returns:
         str: A random search term.
     """
-    prefixes = ["Tech", "Gaming", "Vlogs", "Music", "Epic", "NextGen", "Daily", "Mega", "Future", "Weird"]
-    suffixes = ["World", "Stream", "Nation", "Explorer", "Insider", "Central", "Uncut", "Vision", "Channel"]
+    prefixes = [
+        "Tech",
+        "Gaming",
+        "Vlogs",
+        "Music",
+        "Epic",
+        "NextGen",
+        "Daily",
+        "Mega",
+        "Future",
+        "Weird",
+    ]
+    suffixes = [
+        "World",
+        "Stream",
+        "Nation",
+        "Explorer",
+        "Insider",
+        "Central",
+        "Uncut",
+        "Vision",
+        "Channel",
+    ]
     return f"{random.choice(prefixes)} {random.choice(suffixes)}"

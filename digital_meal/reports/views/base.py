@@ -28,9 +28,9 @@ from digital_meal.tool.models import Classroom
 logger = logging.getLogger(__name__)
 
 REPORT_TYPES = {
-    'INDIVIDUAL': 'individual',
-    'CLASS': 'class',
-    'EXAMPLE': 'example',
+    "INDIVIDUAL": "individual",
+    "CLASS": "class",
+    "EXAMPLE": "example",
 }
 
 
@@ -57,8 +57,7 @@ class Report:
     def dispatch(self, request, *args, **kwargs):
         if not self.check_classroom_active():
             redirect_url = reverse_lazy(
-                'class_expired',
-                kwargs={'url_id': self.classroom.url_id}
+                "class_expired", kwargs={"url_id": self.classroom.url_id}
             )
             return redirect(redirect_url)
 
@@ -70,7 +69,7 @@ class Report:
 
     def get_class_id(self) -> str | None:
         """Get the class ID from the URL."""
-        return self.kwargs.get('url_id')
+        return self.kwargs.get("url_id")
 
     def register_classroom(self):
         """Register classroom object."""
@@ -93,26 +92,24 @@ class IndividualReport(Report, DetailView):
     """
 
     model = Participant
-    lookup_field = 'external_id'
-    slug_field = 'external_id'
-    slug_url_kwarg = 'participant_id'
+    lookup_field = "external_id"
+    slug_field = "external_id"
+    slug_url_kwarg = "participant_id"
 
     expiration_date = None
-    report_type = REPORT_TYPES['INDIVIDUAL']
+    report_type = REPORT_TYPES["INDIVIDUAL"]
 
     def get(self, request, *args, **kwargs):
         self.object = self.get_object()
 
         # Check expiration.
         expiration_info = self.check_expiration_date()
-        if expiration_info['expired']:
-            logger.info(
-                'Individual report not rendered: expired report was requested'
-            )
-            redirect_url = reverse_lazy('report_expired')
+        if expiration_info["expired"]:
+            logger.info("Individual report not rendered: expired report was requested")
+            redirect_url = reverse_lazy("report_expired")
             return redirect(redirect_url)
 
-        self.expiration_date = expiration_info['expiration_date']
+        self.expiration_date = expiration_info["expiration_date"]
 
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
@@ -135,44 +132,50 @@ class IndividualReport(Report, DetailView):
             dict: The updated context.
         """
 
-        context.update({
-            'participation_date': self.object.end_time.date(),
-            'expiration_date': self.expiration_date,
-            'class_id': self.get_class_id(),
-            'class_name': self.classroom.name,
-            'participant_id': self.object.external_id,
-        })
+        context.update(
+            {
+                "participation_date": self.object.end_time.date(),
+                "expiration_date": self.expiration_date,
+                "class_id": self.get_class_id(),
+                "class_name": self.classroom.name,
+                "participant_id": self.object.external_id,
+            }
+        )
         return context
 
     def get_object(self, queryset=None) -> Participant:
-        participant_id = self.kwargs.get('participant_id')
-        participant = Participant.objects.filter(
-            external_id=participant_id
-        ).first()
+        participant_id = self.kwargs.get("participant_id")
+        participant = Participant.objects.filter(external_id=participant_id).first()
         if not participant:
             logger.info(
-                'Individual report not rendered: requested for non-existing participant %s.',
-                participant_id
+                "Individual report not rendered: requested for "
+                "non-existing participant %s.",
+                participant_id,
             )
-            raise Http404('Ungültige Teilnahme-ID in der URL')
+            raise Http404("Ungültige Teilnahme-ID in der URL")
 
-        participant_url_param = participant.extra_data.get('url_param')
-        if not participant_url_param or participant_url_param.get('class') is None:
+        participant_url_param = participant.extra_data.get("url_param")
+        if not participant_url_param or participant_url_param.get("class") is None:
             logger.info(
-                'Individual report not rendered: report requested for '
-                'participant without associated class information '
+                "Individual report not rendered: report requested for "
+                "participant without associated class information "
                 '(no "class" field in participant.extra_data.url_param).'
             )
-            raise Http404('Es konnte keine Klasseninformation für diese Teilnahme-ID gefunden werden.')
+            msg = (
+                "Es konnte keine Klasseninformation für "
+                "diese Teilnahme-ID gefunden werden."
+            )
+            raise Http404(msg)
 
-        participant_class_id = participant_url_param.get('class')
+        participant_class_id = participant_url_param.get("class")
         if participant_class_id != self.classroom.url_id:
             logger.info(
-                'Individual report not rendered: class id in URL did not match '
-                'class associated with participant (url: %s, associated: %s).',
-                self.classroom.url_id, participant_class_id
+                "Individual report not rendered: class id in URL did not match "
+                "class associated with participant (url: %s, associated: %s).",
+                self.classroom.url_id,
+                participant_class_id,
             )
-            raise Http404('Die Klassen-ID und die Teilnahme-ID passen nicht zusammen.')
+            raise Http404("Die Klassen-ID und die Teilnahme-ID passen nicht zusammen.")
 
         return participant
 
@@ -187,20 +190,21 @@ class IndividualReport(Report, DetailView):
         """
 
         start_date = self.object.start_time.date()
-        expiration_date = timezone.now() - timedelta(days=settings.DAYS_TO_DONATION_DELETION - 1)
+        expiration_date = timezone.now() - timedelta(
+            days=settings.DAYS_TO_DONATION_DELETION - 1
+        )
 
         if expiration_date.date() > start_date:
             expired = True
         else:
             expired = False
 
-        return {'expired': expired, 'expiration_date': expiration_date}
+        return {"expired": expired, "expiration_date": expiration_date}
 
 
 class ExampleReport(TemplateView):
-
     template_name = None
-    report_type = REPORT_TYPES['EXAMPLE']
+    report_type = REPORT_TYPES["EXAMPLE"]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -220,13 +224,15 @@ class ExampleReport(TemplateView):
             dict: The updated context.
         """
 
-        context.update({
-            'participation_date': timezone.now().date(),
-            'expiration_date': 'Dieser Beispielreport ist unbeschränkt verfügbar',
-            'class_id': '1234567890',
-            'class_name': 'Beispielklasse',
-            'participant_id': 'example',
-        })
+        context.update(
+            {
+                "participation_date": timezone.now().date(),
+                "expiration_date": "Dieser Beispielreport ist unbeschränkt verfügbar",
+                "class_id": "1234567890",
+                "class_name": "Beispielklasse",
+                "participant_id": "example",
+            }
+        )
         return context
 
 
@@ -240,7 +246,7 @@ class ClassReport(Report, ListView):
     """
 
     model = Participant
-    report_type = REPORT_TYPES['CLASS']
+    report_type = REPORT_TYPES["CLASS"]
 
     def dispatch(self, request, *args, **kwargs):
         """Checks that the client requesting the report is the owner of
@@ -248,15 +254,15 @@ class ClassReport(Report, ListView):
         """
         if not request.user.is_authenticated:
             logger.info(
-                'Unauthorized request: Class report requested by unauthenticated user.'
+                "Unauthorized request: Class report requested by unauthenticated user."
             )
-            redirect_url = reverse_lazy('account_login')
-            return redirect(redirect_url + f'?next={request.path}')
+            redirect_url = reverse_lazy("account_login")
+            return redirect(redirect_url + f"?next={request.path}")
 
         if request.user != self.classroom.owner and not request.user.is_superuser:
             logger.warning(
-                'Unauthorized request: Class report requested by authenticated '
-                'user that is not classroom owner.'
+                "Unauthorized request: Class report requested by authenticated "
+                "user that is not classroom owner."
             )
             raise PermissionDenied("Sie haben keinen Zugriff auf diese Klasse.")
 
@@ -278,17 +284,19 @@ class ClassReport(Report, ListView):
         Returns:
             dict: The updated context.
         """
-        context.update({
-            'expiration_date': self.classroom.expiry_date,
-            'class_id': self.classroom.url_id,
-            'class_name': self.classroom.name,
-        })
+        context.update(
+            {
+                "expiration_date": self.classroom.expiry_date,
+                "class_id": self.classroom.url_id,
+                "class_name": self.classroom.name,
+            }
+        )
         return context
 
     def get_queryset(self):
         return Participant.objects.filter(
             project__url_id=self.project.url_id,
-            extra_data__url_param__class=self.classroom.url_id
+            extra_data__url_param__class=self.classroom.url_id,
         )
 
 
@@ -296,11 +304,9 @@ class ReportHtmxMixin:
     """Overrides get() function to only allow htmx requests."""
 
     def get(self, request, **kwargs):
-        is_htmx_request = request.headers.get('HX-Request')
-        if is_htmx_request not in [True, 'true', 'True']:
-            logger.warning(
-                'Non-htmx request received for view based on HTMXMixin.'
-            )
+        is_htmx_request = request.headers.get("HX-Request")
+        if is_htmx_request not in [True, "true", "True"]:
+            logger.warning("Non-htmx request received for view based on HTMXMixin.")
             return None
 
         return super().get(request, **kwargs)
@@ -341,15 +347,11 @@ class GetDonationsMixin:
         """
         raise NotImplementedError
 
-    def clean_donations_from_db(
-            self,
-            blueprints: QuerySet[DonationBlueprint]
-    ) -> dict:
+    def clean_donations_from_db(self, blueprints: QuerySet[DonationBlueprint]) -> dict:
         raise NotImplementedError
 
     def get_donations_from_db(
-            self,
-            participants: list[Participant]
+        self, participants: list[Participant]
     ) -> QuerySet[DonationBlueprint]:
         """
         Retrieve the encrypted data donations related to the provided blueprints
@@ -362,15 +364,13 @@ class GetDonationsMixin:
             QuerySet: A queryset of DonationBlueprints.
         """
         blueprints = DonationBlueprint.objects.filter(
-            project=self.project,
-            name__in=self.blueprint_names
+            project=self.project, name__in=self.blueprint_names
         ).prefetch_related(
             Prefetch(
-              'datadonation_set',
-              queryset=DataDonation.objects.filter(
-                  participant__in=participants,
-                  status='success'
-              )
+                "datadonation_set",
+                queryset=DataDonation.objects.filter(
+                    participant__in=participants, status="success"
+                ),
             )
         )
         return blueprints
@@ -384,14 +384,12 @@ class GetDonationsIndividualMixin(GetDonationsMixin):
 
         if not isinstance(participant, Participant):
             raise TypeError(
-                f'Participant object expected, received {type(participant)}')
+                f"Participant object expected, received {type(participant)}"
+            )
 
         return [participant]
 
-    def clean_donations_from_db(
-            self,
-            blueprints: QuerySet[DonationBlueprint]
-    ) -> None:
+    def clean_donations_from_db(self, blueprints: QuerySet[DonationBlueprint]) -> None:
         """Decrypts blueprint donations and stores them in a result dict.
 
         Args:
@@ -409,7 +407,8 @@ class GetDonationsIndividualMixin(GetDonationsMixin):
 
             if blueprint_donations:
                 donations[blueprint.name] = DonationSerializer(
-                    blueprint_donations[0], decryptor=decryptor).data
+                    blueprint_donations[0], decryptor=decryptor
+                ).data
 
         return donations
 
@@ -425,15 +424,12 @@ class GetDonationsClassMixin(GetDonationsMixin):
 
         if not isinstance(participants[0], Participant):
             raise TypeError(
-                f'Participant object expected, received {type(participants[0])}'
+                f"Participant object expected, received {type(participants[0])}"
             )
 
         return list(participants)
 
-    def clean_donations_from_db(
-            self,
-            blueprints: QuerySet[DonationBlueprint]
-    ) -> dict:
+    def clean_donations_from_db(self, blueprints: QuerySet[DonationBlueprint]) -> dict:
         """Decrypts blueprint donations and stores them in a result dict.
 
         Does not return donations if less than five participants have participated.
@@ -455,11 +451,12 @@ class GetDonationsClassMixin(GetDonationsMixin):
 
             if len(blueprint_donations) >= min_n_donations:
                 clean_donations[blueprint.name] = DonationSerializer(
-                    blueprint_donations, many=True, decryptor=decryptor).data
+                    blueprint_donations, many=True, decryptor=decryptor
+                ).data
 
                 n_available = 0
                 for donation in clean_donations[blueprint.name]:
-                    if donation.get('data'):
+                    if donation.get("data"):
                         n_available += 1
 
                 if n_available < min_n_donations:
@@ -503,24 +500,24 @@ class BlueprintReportMixin:
 
         elif isinstance(blueprint_donation, list):
             for donation in blueprint_donation:
-                if donation.get('data') is None:
+                if donation.get("data") is None:
                     logger.info(
-                        'Empty donation: received empty donation for blueprint %s',
-                        blueprint_name
+                        "Empty donation: received empty donation for blueprint %s",
+                        blueprint_name,
                     )
                     continue
 
                 else:
-                    donation_data.append(donation.get('data'))
+                    donation_data.append(donation.get("data"))
 
         else:
-            if blueprint_donation.get('data') is None:
+            if blueprint_donation.get("data") is None:
                 logger.info(
-                    'Empty donation: received empty donation for blueprint %s',
-                    blueprint_name
+                    "Empty donation: received empty donation for blueprint %s",
+                    blueprint_name,
                 )
             else:
-                donation_data.append(blueprint_donation.get('data'))
+                donation_data.append(blueprint_donation.get("data"))
 
         return donation_data
 
@@ -534,8 +531,7 @@ class BlueprintReportMixin:
     def log_error(self, fun_name, e):
         current_class = type(self).__name__
         logger.error(
-            '%s [%s]: error in %s: %s',
-            current_class, self.report_type, fun_name, e
+            "%s [%s]: error in %s: %s", current_class, self.report_type, fun_name, e
         )
         return
 
@@ -544,50 +540,60 @@ class SendReportLink(View):
     """Sends the link to the open report to a given e-mail address."""
 
     def get(self, request, *args, **kwargs):
-        return HttpResponseNotAllowed(['POST'])
+        return HttpResponseNotAllowed(["POST"])
 
     def post(self, request, *args, **kwargs):
         try:
             post_data = json.loads(request.body)
         except json.JSONDecodeError:
-            return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+            return JsonResponse(
+                {"status": "error", "message": "Invalid JSON"}, status=400
+            )
 
-        email_address = post_data.get('email', None)
-        report_link = post_data.get('link', None)
+        email_address = post_data.get("email", None)
+        report_link = post_data.get("link", None)
 
         if not email_address:
-            return JsonResponse({'status': 'error', 'message': 'Email required'}, status=400)
+            return JsonResponse(
+                {"status": "error", "message": "Email required"}, status=400
+            )
 
         if not self.validate_email(email_address):
-            return JsonResponse({'status': 'error', 'message': 'Invalid email address'}, status=422)
+            return JsonResponse(
+                {"status": "error", "message": "Invalid email address"}, status=422
+            )
 
         if not report_link:
-            return JsonResponse({'status': 'error', 'message': 'Link required'}, status=400)
+            return JsonResponse(
+                {"status": "error", "message": "Link required"}, status=400
+            )
 
         if not self.validate_link(report_link):
-            return JsonResponse({'status': 'error', 'message': 'Invalid link'}, status=403)
+            return JsonResponse(
+                {"status": "error", "message": "Invalid link"}, status=403
+            )
 
-        context = {
-            'report_link': report_link
-        }
+        context = {"report_link": report_link}
 
-        text_content = render_to_string('email/reporturl.txt', context)
-        html_content = render_to_string('email/reporturl.html', context)
+        text_content = render_to_string("email/reporturl.txt", context)
+        html_content = render_to_string("email/reporturl.html", context)
 
         try:
             msg = EmailMultiAlternatives(
-                subject='Digital Meal: Link zur persönlichen Auswertung',
+                subject="Digital Meal: Link zur persönlichen Auswertung",
                 body=text_content,
                 from_email=settings.DEFAULT_FROM_EMAIL,
-                to=[email_address]
+                to=[email_address],
             )
             msg.attach_alternative(html_content, "text/html")
             msg.send()
         except SMTPException as e:
-            logger.error(f'Failed to send email to {email_address}: {e}')
-            return JsonResponse({'status': 'error', 'message': 'Failed to send email'}, status=500)
+            logger.error(f"Failed to send email to {email_address}: {e}")
+            return JsonResponse(
+                {"status": "error", "message": "Failed to send email"}, status=500
+            )
 
-        return JsonResponse({'status': 'success'})
+        return JsonResponse({"status": "success"})
 
     def validate_link(self, link: str) -> bool:
         """Check if the link follows an allowed structure.
@@ -601,7 +607,7 @@ class SendReportLink(View):
         Returns:
             bool: True if the link is allowed, False otherwise.
         """
-        allowed_scheme = ['https']
+        allowed_scheme = ["https"]
         allowed_domains = settings.ALLOWED_REPORT_DOMAINS
 
         parsed_link = urlparse(link)
@@ -631,4 +637,4 @@ class SendReportLink(View):
 
 
 class ReportExpired(TemplateView):
-    template_name = 'reports/report_expired.html'
+    template_name = "reports/report_expired.html"

@@ -6,68 +6,64 @@ from .models import SwissCantons, Teacher, Classroom
 
 
 cantons = SwissCantons.choices
-cantons.insert(0, ('', _('bitte auswählen')))
+cantons.insert(0, ("", _("bitte auswählen")))
 
 
 class SimpleSignupForm(SignupForm):
     name = forms.CharField(
         max_length=50,
-        label=_('Nachname'),
-        widget=forms.TextInput(
-            attrs={'placeholder': _('Ihr Nachname')}
-        )
+        label=_("Nachname"),
+        widget=forms.TextInput(attrs={"placeholder": _("Ihr Nachname")}),
     )
     first_name = forms.CharField(
         max_length=50,
-        label=_('Vorname'),
-        widget=forms.TextInput(
-            attrs={'placeholder': _('Ihr Vorname')}
-        )
+        label=_("Vorname"),
+        widget=forms.TextInput(attrs={"placeholder": _("Ihr Vorname")}),
     )
     canton = forms.ChoiceField(
         choices=cantons,
-        label=_('Kanton'),
-        help_text=_('Kanton, in dem Sie hauptsächlich unterrichten')
+        label=_("Kanton"),
+        help_text=_("Kanton, in dem Sie hauptsächlich unterrichten"),
     )
     school_name = forms.CharField(
         max_length=100,
-        label=_('Schule'),
+        label=_("Schule"),
         widget=forms.TextInput(
-            attrs={'placeholder': _('Name der Schule, an der Sie unterrichten')}
-        )
+            attrs={"placeholder": _("Name der Schule, an der Sie unterrichten")}
+        ),
     )
 
     # Used as honeypot field
     mobile_phone_number = forms.CharField(
         required=False,
         max_length=12,
-        label=_(''),
+        label=_(""),
         widget=forms.TextInput(
             attrs={
-                'placeholder': _('Ihre Mobilnummer'),
-                'class': 'signup-phone-number',
-                'tabindex': '-1',
-                'autocomplete': 'off',
+                "placeholder": _("Ihre Mobilnummer"),
+                "class": "signup-phone-number",
+                "tabindex": "-1",
+                "autocomplete": "off",
             }
-        )
+        ),
     )
 
     field_order = [
-        'first_name',
-        'name',
-        'canton',
-        'school_name',
-        'email',
-        'email2',
-        'password1',
-        'password2',
+        "first_name",
+        "name",
+        "canton",
+        "school_name",
+        "email",
+        "email2",
+        "password1",
+        "password2",
     ]
 
     def clean_mobile_phone_number(self):
         # Catch bots (honeypot field)
-        value = self.cleaned_data.get('mobile_phone_number')
+        value = self.cleaned_data.get("mobile_phone_number")
         if value:
-            raise forms.ValidationError(_('Registrierung fehlgeschlagen.'))
+            raise forms.ValidationError(_("Registrierung fehlgeschlagen."))
         return value
 
     def save(self, request):
@@ -79,10 +75,10 @@ class SimpleSignupForm(SignupForm):
         if form_input.is_valid():
             Teacher.objects.create(
                 user=user,
-                name=form_input.cleaned_data['name'],
-                first_name=form_input.cleaned_data['first_name'],
-                canton=form_input.cleaned_data['canton'],
-                school_name=form_input.cleaned_data['school_name']
+                name=form_input.cleaned_data["name"],
+                first_name=form_input.cleaned_data["first_name"],
+                canton=form_input.cleaned_data["canton"],
+                school_name=form_input.cleaned_data["school_name"],
             )
             user.save()
         return user
@@ -92,58 +88,76 @@ class ClassroomCreateForm(forms.ModelForm):
     class Meta:
         model = Classroom
         fields = [
-            'name', 'school_level', 'school_year', 'subject',
-            'instruction_format', 'agb_agree'
+            "name",
+            "school_level",
+            "school_year",
+            "subject",
+            "instruction_format",
+            "agb_agree",
         ]
         widgets = {
-            'name': forms.TextInput(attrs={'placeholder': _('Name/Bezeichnung der Klasse')}),
-            'base_module': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
-            'school_level': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
-            'subject': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
-            'instruction_format': forms.Select(attrs={'style': 'width: 40%; min-width: 300px;'}),
+            "name": forms.TextInput(
+                attrs={"placeholder": _("Name/Bezeichnung der Klasse")}
+            ),
+            "base_module": forms.Select(
+                attrs={"style": "width: 40%; min-width: 300px;"}
+            ),
+            "school_level": forms.Select(
+                attrs={"style": "width: 40%; min-width: 300px;"}
+            ),
+            "subject": forms.Select(attrs={"style": "width: 40%; min-width: 300px;"}),
+            "instruction_format": forms.Select(
+                attrs={"style": "width: 40%; min-width: 300px;"}
+            ),
         }
         labels = {
-            'school_level': _('Zu welcher Schulstufe gehört die Klasse?'),
-            'school_year': _('In welchem Schuljahr befindet sich die Klasse aktuell?'),
-            'subject': _('In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?'),
-            'instruction_format': _('In welchem Format unterrichten Sie die Klasse?'),
-            'agb_agree': _('Bitte bestätigen Sie, dass Sie unsere Allgemeinen Geschäftsbedingungen (AGB) gelesen haben und ihnen zustimmen:')
+            "school_level": _("Zu welcher Schulstufe gehört die Klasse?"),
+            "school_year": _("In welchem Schuljahr befindet sich die Klasse aktuell?"),
+            "subject": _(
+                "In welchem Fachbereich nutzen Sie das Lernmodul mit Ihrer Klasse?"
+            ),
+            "instruction_format": _("In welchem Format unterrichten Sie die Klasse?"),
+            "agb_agree": _(
+                "Bitte bestätigen Sie, dass Sie unsere Allgemeinen "
+                "Geschäftsbedingungen (AGB) gelesen haben und ihnen zustimmen:"
+            ),
         }
         help_texts = {
-            'agb_agree': _(
-                'Ich bin damit einverstanden, dass ich dieses Modul nur mit Schüler:innen verwende, '
-                'die mindestens 14 Jahre alt sind. Zudem bestätige ich, dass ich die '
-                '<a href="/agb" target="_blank">allgemeinen Geschäftsbedingungen</a> gelesen habe und damit einverstanden bin.'
+            "agb_agree": _(
+                "Ich bin damit einverstanden, dass ich dieses Modul nur mit "
+                "Schüler:innen verwende, die mindestens 14 Jahre alt sind. "
+                "Zudem bestätige ich, dass ich die "
+                '<a href="/agb" target="_blank">allgemeinen Geschäftsbedingungen</a> '
+                "gelesen habe und damit einverstanden bin."
             )
         }
 
     def clean(self):
         cleaned_data = super().clean()
-        agb_agreed = cleaned_data.get('agb_agree')
+        agb_agreed = cleaned_data.get("agb_agree")
         if not agb_agreed:
             self.add_error(
-                'agb_agree',
-                _('Sie müssen bestätigen, dass Sie die Nutzungsbedingungen '
-                  'gelesen haben und mit ihnen einverstanden sind.')
+                "agb_agree",
+                _(
+                    "Sie müssen bestätigen, dass Sie die Nutzungsbedingungen "
+                    "gelesen haben und mit ihnen einverstanden sind."
+                ),
             )
 
 
 class ClassroomModuleForm(forms.ModelForm):
     class Meta:
         model = Classroom
-        fields = [
-            'base_module',
-            'sub_modules'
-        ]
+        fields = ["base_module", "sub_modules"]
 
     def clean(self):
         cleaned_data = super().clean()
-        base_module = cleaned_data.get('base_module')
+        base_module = cleaned_data.get("base_module")
         allowed_sub_modules = base_module.get_active_sub_modules()
         sub_modules = []
-        for sub_module in cleaned_data['sub_modules']:
+        for sub_module in cleaned_data["sub_modules"]:
             if sub_module in allowed_sub_modules:
                 sub_modules.append(sub_module)
 
-        cleaned_data['sub_modules'] = sub_modules
+        cleaned_data["sub_modules"] = sub_modules
         return cleaned_data

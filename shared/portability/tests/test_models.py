@@ -7,12 +7,11 @@ from django.utils import timezone
 from shared.portability.models import (
     OAuthStateToken,
     TikTokAccessToken,
-    TikTokDataRequest
+    TikTokDataRequest,
 )
 
 
 class TestOAuthStateToken(TestCase):
-
     def test_save_generates_token(self):
         token = OAuthStateToken.objects.create()
         self.assertEqual(len(token.token), 50)
@@ -46,16 +45,15 @@ class TestOAuthStateToken(TestCase):
 
 
 class TestTikTokAccessToken(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.token = TikTokAccessToken.objects.create(
-            open_id='test-id',
-            token='test-token',
+            open_id="test-id",
+            token="test-token",
             token_expiration_date=timezone.now(),
-            refresh_token='test-token',
+            refresh_token="test-token",
             refresh_token_expiration_date=timezone.now(),
-            scope='test-scope-a,test-scope-b'
+            scope="test-scope-a,test-scope-b",
         )
 
     def test_is_expired_for_expired_token(self):
@@ -80,16 +78,15 @@ class TestTikTokAccessToken(TestCase):
 
 
 class TestTikTokDataRequest(TestCase):
-
     @classmethod
     def setUpTestData(cls):
         cls.data_request = TikTokDataRequest.objects.create(
-            open_id='test-id',
+            open_id="test-id",
             request_id=1234567890,
         )
 
     def test_is_active_for_inactive_request(self):
-        self.data_request.status = 'expired'
+        self.data_request.status = "expired"
         self.assertFalse(self.data_request.is_active())
 
     def test_is_active_for_downloaded_request(self):
