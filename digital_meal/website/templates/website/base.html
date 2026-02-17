@@ -4,18 +4,18 @@
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>{% block title %}Digital Meal | Home{% endblock %}</title>
-  <meta name="description" content="This is the Digital Meal website.">
+  <title>{% block title %}Digital Meal | Home{% endblock title %}</title>
+  <meta name="description" content="This is the Digital Meal website." />
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/DigitalMeal_favicon.svg' %}">
+  <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/DigitalMeal_favicon.svg' %}" />
 
   {% block site_css %}
-  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'website/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'website/css/base.css' %}" />
   {% endblock site_css %}
 
   {% block cookieconsent_head %}
@@ -31,19 +31,19 @@
 <div id="dm-body" style="display: flex; flex-direction: column">
 
   {% block header %}
-  <div id="header" class="bg-blue">
-    <div class="container">
-      <div class="row">
-        {% block header_content %}
-        {% include "website/components/top-nav.html" %}
-        {% endblock header_content %}
+    <div id="header" class="bg-blue">
+      <div class="container">
+        <div class="row">
+          {% block header_content %}
+            {% include "website/components/top-nav.html" %}
+          {% endblock header_content %}
+        </div>
       </div>
     </div>
-  </div>
   {% endblock header %}
 
   {% block user_nav %}
-  {% include "website/components/user-nav.html" %}
+    {% include "website/components/user-nav.html" %}
   {% endblock user_nav %}
 
   <div id="dm-content">
@@ -51,22 +51,22 @@
 
       <div id="main" class="row main-content">
         {% if messages %}
-        {% include "website/components/messages.html" %}
+          {% include "website/components/messages.html" %}
         {% endif %}
 
         {% block main_content %}
-        <div>
-          <h1>Heading 1</h1>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
-          <h2>Heading 2</h2>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
-          <h3>Heading 3</h3>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
-          <h4>Heading 4</h4>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
-          <h5>Heading 5</h5>
-          <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
-        </div>
+          <div>
+            <h1>Heading 1</h1>
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+            <h2>Heading 2</h2>
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+            <h3>Heading 3</h3>
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+            <h4>Heading 4</h4>
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+            <h5>Heading 5</h5>
+            <p>Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. </p>
+          </div>
         {% endblock main_content %}
       </div>
 
@@ -77,7 +77,7 @@
     <div class="container">
       <div class="row">
         {% block footer_content %}
-        {% include "website/components/footer.html" %}
+          {% include "website/components/footer.html" %}
         {% endblock footer_content %}
       </div>
     </div>

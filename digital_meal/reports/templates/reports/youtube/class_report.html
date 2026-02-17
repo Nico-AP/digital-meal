@@ -3,21 +3,19 @@
 
 {% block page_title %}
   YouTube Klassenreport
-{% endblock %}
+{% endblock page_title %}
 
 {% block report_intro_title %}
   Klassenreport YouTube
-{% endblock %}
+{% endblock report_intro_title %}
 
 {% block report_intro_image_path %}
   {% static 'reports/img/YouTube_logo-sketch.png' %}
-{% endblock %}
-
+{% endblock report_intro_image_path %}
 
 {% block report_intro_text %}
-  In diesem Report erfahrt ihr mehr über die YouTube&#8209;Nutzung in eurer Klasse.
-{% endblock %}
-
+  In diesem Report erfahrt ihr mehr über die YouTube‑Nutzung in eurer Klasse.
+{% endblock report_intro_text %}
 
 {% block report_body %}
   <div id="watch-history-partials"
@@ -39,8 +37,7 @@
   </div>
 {% endblock report_body %}
 
-
 {% block scripts %}
   {{ block.super }}
   {% htmx_script %}
-{% endblock %}
+{% endblock scripts %}

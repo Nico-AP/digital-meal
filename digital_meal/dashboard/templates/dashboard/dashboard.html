@@ -3,15 +3,14 @@
 
 {% block title %}
   Digital Meal | Admin Dashboard
-{% endblock %}
+{% endblock title %}
 
 {% block site_css %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}">
-  <link rel="stylesheet" href="{% static 'reports/css/reports.css' %}">
-  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap-table.min.css' %}">
+  <link rel="stylesheet" href="{% static 'dashboard/css/dashboard.css' %}" />
+  <link rel="stylesheet" href="{% static 'reports/css/reports.css' %}" />
+  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap-table.min.css' %}" />
 {% endblock site_css %}
-
 
 {% block user_nav %}
 {% endblock user_nav %}
@@ -134,4 +133,4 @@
   <script src="{% static 'website/js/bootstrap/bootstrap-table.min.js' %}"></script>
   <script src="{% static 'website/js/bootstrap-tables-with-htmx.js' %}"></script>
 
-{% endblock %}
+{% endblock site_js %}

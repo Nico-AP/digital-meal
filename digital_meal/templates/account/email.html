@@ -2,109 +2,107 @@
 
 {% load i18n %}
 
-{% block head_title %}E-Mail-Adressen{% endblock %}
+{% block head_title %}E-Mail-Adressen{% endblock head_title %}
 
 {% block content %}
 
   {% if can_add_email %}
-<h1>E-Mail-Adresse ändern</h1>
+    <h1>E-Mail-Adresse ändern</h1>
 
-<p class="ff-non-serif">
-  Um Ihre E-Mail-Adresse zu ändern, fügen Sie erst eine neue E-Mail-Adresse hinzu, bestätigen Sie die neue E-Mail-Adresse und legen Sie
-  unten die neu hinzugefügte Adresse als primäre Adresse fest.
-</p>
+    <p class="ff-non-serif">
+      Um Ihre E-Mail-Adresse zu ändern, fügen Sie erst eine neue E-Mail-Adresse hinzu, bestätigen Sie die neue E-Mail-Adresse und legen Sie
+      unten die neu hinzugefügte Adresse als primäre Adresse fest.
+    </p>
 
-<form method="post" action="{% url 'account_email' %}" class="add_email">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button name="action_add" type="submit">E-Mail-Adresse hinzufügen</button>
-</form>
-{% endif %}
+    <form method="post" action="{% url 'account_email' %}" class="add_email">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button name="action_add" type="submit">E-Mail-Adresse hinzufügen</button>
+    </form>
+  {% endif %}
 
+  {% if user.emailaddress_set.all %}
+    <p class="ff-non-serif pt-5">
+      Die folgende E-Mail-Adresse ist mit Ihrem Account verküpft:
+    </p>
 
-{% if user.emailaddress_set.all %}
-<p class="ff-non-serif pt-5">
-  Die folgende E-Mail-Adresse ist mit Ihrem Account verküpft:
-</p>
+    <form action="{% url 'account_email' %}" class="email_list ff-non-serif" method="post">
+      {% csrf_token %}
+      <fieldset class="blockLabels">
 
-<form action="{% url 'account_email' %}" class="email_list ff-non-serif" method="post">
-  {% csrf_token %}
-  <fieldset class="blockLabels">
+        <table>
+          <thead>
+          <tr class="border-bottom">
+            <th class="pe-3"></th>
+            <th class="pe-3" style="width: 250px;">E-Mail</th>
+            <th class="pe-3">Bestätigt</th>
+            <th class="pe-3">Primäre Adresse</th>
+          </tr>
+          </thead>
+          <tbody>
+          {% for emailaddress in user.emailaddress_set.all %}
+            <tr class="border-bottom">
+              <td class="pe-3">
+                <input id="email_radio_{{ forloop.counter }}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{% endif %} value="{{ emailaddress.email }}"/>
+              </td>
+              <td class="pe-3">
+                {{ emailaddress.email }}
+              </td>
+              <td class="pe-3">
+                {% if emailaddress.verified %}
+                  <span class="verified">✓</span>
+                {% else %}
+                  <span class="unverified">{% trans "Unverified" %}</span>
+                {% endif %}
+              </td>
+              <td class="pe-3">
+                {% if emailaddress.primary %}
+                  <span class="primary">✓</span>
+                {% else %}
+                  <span class="primary">✗</span>
+                {% endif %}
+              </td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
 
-    <table>
-      <thead>
-        <tr class="border-bottom">
-          <th class="pe-3"></th>
-          <th class="pe-3" style="width: 250px;">E-Mail</th>
-          <th class="pe-3">Bestätigt</th>
-          <th class="pe-3">Primäre Adresse</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for emailaddress in user.emailaddress_set.all %}
-        <tr class="border-bottom">
-          <td class="pe-3">
-            <input id="email_radio_{{forloop.counter}}" type="radio" name="email" {% if emailaddress.primary or user.emailaddress_set.count == 1 %}checked="checked"{%endif %} value="{{emailaddress.email}}"/>
-          </td>
-          <td class="pe-3">
-            {{ emailaddress.email }}
-          </td>
-          <td class="pe-3">
-            {% if emailaddress.verified %}
-            <span class="verified">&check;</span>
-            {% else %}
-            <span class="unverified">{% trans "Unverified" %}</span>
-            {% endif %}
-          </td>
-          <td class="pe-3">
-            {% if emailaddress.primary %}
-            <span class="primary">&check;</span>
-            {% else %}
-            <span class="primary">&Cross;</span>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        <div class="buttonHolder mt-4">
+          <p><b>Ausgewählte Adresse...</b></p>
+          <p>
+            <span class="pe-2 fs-6"><button class="btn-dark ff-non-serif" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></span>
+          </p>
+          <p>
+            <span class="pe-2 fs-6"><button class="btn-secondary ff-non-serif" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></span>
+          </p>
+          <p>
+            <span><button class="btn-danger ff-non-serif fs-6" type="submit" name="action_remove" >{% trans 'Remove' %}</button></span>
+          </p>
+        </div>
 
-    <div class="buttonHolder mt-4">
-      <p><b>Ausgewählte Adresse...</b></p>
-      <p>
-        <span class="pe-2 fs-6"><button class="btn-dark ff-non-serif" type="submit" name="action_primary" >{% trans 'Make Primary' %}</button></span>
-      </p>
-      <p>
-        <span class="pe-2 fs-6"><button class="btn-secondary ff-non-serif" type="submit" name="action_send" >{% trans 'Re-send Verification' %}</button></span>
-      </p>
-      <p>
-        <span><button class="btn-danger ff-non-serif fs-6" type="submit" name="action_remove" >{% trans 'Remove' %}</button></span>
-      </p>
-    </div>
+      </fieldset>
+    </form>
 
-  </fieldset>
-</form>
+  {% else %}
+    <p><strong>{% trans 'Warning:' %}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
 
-{% else %}
-<p><strong>{% trans 'Warning:'%}</strong> {% trans "You currently do not have any e-mail address set up. You should really add an e-mail address so you can receive notifications, reset your password, etc." %}</p>
+  {% endif %}
 
-{% endif %}
-
-{% endblock %}
-
+{% endblock content %}
 
 {% block site_js %}
-{{ block.super }}
-<script type="text/javascript">
-  (function() {
-    let message = "{% trans 'Do you really want to remove the selected e-mail address?' %}";
-    let actions = document.getElementsByName('action_remove');
-    if (actions.length) {
-      actions[0].addEventListener("click", function(e) {
-        if (! confirm(message)) {
-          e.preventDefault();
-        }
-      });
-    }
-  })();
-</script>
-{% endblock %}
+  {{ block.super }}
+  <script type="text/javascript">
+    (function() {
+      let message = "{% trans 'Do you really want to remove the selected e-mail address?' %}";
+      let actions = document.getElementsByName('action_remove');
+      if (actions.length) {
+        actions[0].addEventListener("click", function(e) {
+          if (! confirm(message)) {
+            e.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
+{% endblock site_js %}

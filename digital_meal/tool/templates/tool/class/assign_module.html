@@ -4,96 +4,93 @@
 
 {% block title %}Modul auswählen{% endblock title %}
 
-
-
 {% block main_content %}
 
-<h1>Wahl der Themenschwerpunkte</h1>
+  <h1>Wahl der Themenschwerpunkte</h1>
 
-<p class="ff-non-serif">
-  Auf dieser Seite können Sie auswählen, auf welche Themenbereiche Sie sich mit
-  Ihrer Klasse fokussieren möchten.
-</p>
-
-<h2>Basismodul</h2>
-<p class="ff-non-serif">
-  Das Basismodul bestimmt, welche Plattform Sie mit Ihrer Klasse bearbeiten möchten.
-  Die Schüler:innen werden im Verlauf des Moduls die Daten von der hier ausgewählten
-  Plattform anfordern und herunterladen.
-</p>
-
-<div id="base-module-container" class="base-module-container row ff-no-serif justify-content-center">
-  {% for module in active_base_modules %}
-  <div class="p-3 col">
-    <div>
-      <input type="radio" name="base-modules" value="{{ module.id }}" id="mt-{{ forloop.counter }}" class="d-none" autocomplete="off"/>
-      <label onclick="showHideSubModules(this); selectModule('{{ module.id }}')" class="m-auto d-flex flex-column justify-content-center align-items-center base-module-label base-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
-        <span>{{ module.name }}</span>
-      </label>
-    </div>
-  </div>
-  {% empty %}
-  <div class="col">
-    <p>Es existiert noch kein Basismodul. Bitte kontaktieren Sie den Betreiber der Webseite.</p>
-  </div>
-  {% endfor %}
-</div>
-
-<h2 class="pt-5">Vertiefungsmodule</h2>
-<div>
   <p class="ff-non-serif">
-    Vertiefungsmodule vertiefen einen bestimmten Themenbereich. Die Vertiefungsmodule
-    sind optional und Sie können beliebig viele Module auswählen.
+    Auf dieser Seite können Sie auswählen, auf welche Themenbereiche Sie sich mit
+    Ihrer Klasse fokussieren möchten.
   </p>
-</div>
 
-<div id="sub-module-placeholder" class="ff-non-serif bg-secondary text-white rounded p-2 m-1">
-  Um die Vertiefungsmodule anzuzeigen, müssen Sie zunächst ein Basismodul auswählen.
-</div>
+  <h2>Basismodul</h2>
+  <p class="ff-non-serif">
+    Das Basismodul bestimmt, welche Plattform Sie mit Ihrer Klasse bearbeiten möchten.
+    Die Schüler:innen werden im Verlauf des Moduls die Daten von der hier ausgewählten
+    Plattform anfordern und herunterladen.
+  </p>
 
-<div id="sub-module-container" class="pb-5">
-  {% for module in active_base_modules %}
-  {% with mt=forloop.counter %}
-
-  <div id="mt-{{ mt }}-sub-modules" class="mt-sub-module-container" style="display: none;">
-    {% for sub_module in module.get_active_sub_modules %}
-
-    {% if forloop.first %}
-    <p>Anzahl ausgewählte Module: <span id="module-counter-{{ mt }}">0</span></p>
-    {% endif %}
-
-    <div class="pb-3">
-      <input type="checkbox" name="sub-modules-{{ mt }}" value="{{ module.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
-      <label onclick="selectSubModule('{{ sub_module.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-module-label sub-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
-        <span>{{ sub_module.name }}</span>
-        <span class="ff-non-serif fs-6 fw-normal">{{ sub_module.description }}</span>
-      </label>
-    </div>
-
+  <div id="base-module-container" class="base-module-container row ff-no-serif justify-content-center">
+    {% for module in active_base_modules %}
+      <div class="p-3 col">
+        <div>
+          <input type="radio" name="base-modules" value="{{ module.id }}" id="mt-{{ forloop.counter }}" class="d-none" autocomplete="off"/>
+          <label onclick="showHideSubModules(this); selectModule('{{ module.id }}')" class="m-auto d-flex flex-column justify-content-center align-items-center base-module-label base-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-5 rounded background-purple" for="mt-{{ forloop.counter }}">
+            <span>{{ module.name }}</span>
+          </label>
+        </div>
+      </div>
     {% empty %}
-    <p>Für das ausgewählte Basismodul existieren keine Vertiefungsmodule.</p>
+      <div class="col">
+        <p>Es existiert noch kein Basismodul. Bitte kontaktieren Sie den Betreiber der Webseite.</p>
+      </div>
     {% endfor %}
+  </div>
+
+  <h2 class="pt-5">Vertiefungsmodule</h2>
+  <div>
     <p class="ff-non-serif">
-      Bitte beachten Sie, dass zusätzliche Module die Anzahl empfohlene Lektionen für das Durchführen erhöhen.
+      Vertiefungsmodule vertiefen einen bestimmten Themenbereich. Die Vertiefungsmodule
+      sind optional und Sie können beliebig viele Module auswählen.
     </p>
   </div>
-  {% endwith %}
-  {% endfor %}
-</div>
 
-
-<form class="dm-form" method="post">
-  {% csrf_token %}
-  <div class="d-none">
-    <table>
-      {{ form.as_p }}
-    </table>
+  <div id="sub-module-placeholder" class="ff-non-serif bg-secondary text-white rounded p-2 m-1">
+    Um die Vertiefungsmodule anzuzeigen, müssen Sie zunächst ein Basismodul auswählen.
   </div>
-  <input type="submit" value="Modul-Auswahl bestätigen" class="button is-light">
-</form>
+
+  <div id="sub-module-container" class="pb-5">
+    {% for module in active_base_modules %}
+      {% with mt=forloop.counter %}
+
+        <div id="mt-{{ mt }}-sub-modules" class="mt-sub-module-container" style="display: none;">
+          {% for sub_module in module.get_active_sub_modules %}
+
+            {% if forloop.first %}
+              <p>Anzahl ausgewählte Module: <span id="module-counter-{{ mt }}">0</span></p>
+            {% endif %}
+
+            <div class="pb-3">
+              <input type="checkbox" name="sub-modules-{{ mt }}" value="{{ module.id }}" id="st-{{ forloop.counter }}-{{ mt }}" class="d-none" />
+              <label onclick="selectSubModule('{{ sub_module.id }}', '{{ mt }}')" class="d-flex flex-column justify-content-center align-items-center sub-module-label sub-module-bg-{{ forloop.counter }} ff-space-grotesk fs-4 fw-bold text-center p-2 w-100" for="st-{{ forloop.counter }}-{{ mt }}">
+                <span>{{ sub_module.name }}</span>
+                <span class="ff-non-serif fs-6 fw-normal">{{ sub_module.description }}</span>
+              </label>
+            </div>
+
+          {% empty %}
+            <p>Für das ausgewählte Basismodul existieren keine Vertiefungsmodule.</p>
+          {% endfor %}
+          <p class="ff-non-serif">
+            Bitte beachten Sie, dass zusätzliche Module die Anzahl empfohlene Lektionen für das Durchführen erhöhen.
+          </p>
+        </div>
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <form class="dm-form" method="post">
+    {% csrf_token %}
+    <div class="d-none">
+      <table>
+        {{ form.as_p }}
+      </table>
+    </div>
+    <input type="submit" value="Modul-Auswahl bestätigen" class="button is-light" />
+  </form>
 {% endblock main_content %}
 
 {% block site_js %}
-{{ block.super }}
-<script src="{% static 'tool/js/module-assign.js' %}"></script>
+  {{ block.super }}
+  <script src="{% static 'tool/js/module-assign.js' %}"></script>
 {% endblock site_js %}

@@ -3,22 +3,20 @@
 
 {% block page_title %}
   YouTube Beispielreport
-{% endblock %}
+{% endblock page_title %}
 
 {% block report_intro_title %}
-  Beispielreport für die personalisierte Auswertung der YouTube&#8209;Nutzung
-{% endblock %}
+  Beispielreport für die personalisierte Auswertung der YouTube‑Nutzung
+{% endblock report_intro_title %}
 
 {% block report_intro_image_path %}
   {% static "reports/img/YouTube_logo-sketch.png" %}
-{% endblock %}
+{% endblock report_intro_image_path %}
 
 {% block report_intro_text %}
-
   Dieser Report basiert auf fiktiven Nutzungsdaten. Er zeigt exemplarisch,
   wie der persönliche Report für Schüler:innen aussieht.
-
-{% endblock %}
+{% endblock report_intro_text %}
 
 {% block report_body %}
 
@@ -36,4 +34,4 @@
        hx-swap="innerHTML swap:400ms settle:400ms">
   </div>
 
-{% endblock %}
+{% endblock report_body %}

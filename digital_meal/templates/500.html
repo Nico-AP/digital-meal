@@ -3,18 +3,18 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="x-ua-compatible" content="ie=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8" />
+  <meta http-equiv="x-ua-compatible" content="ie=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>{% block title %}Digital Meal | Home{% endblock %}</title>
-  <meta name="description" content="This is the Digital Meal website.">
+  <title>{% block title %}Digital Meal | Home{% endblock title %}</title>
+  <meta name="description" content="This is the Digital Meal website." />
 
-  <link rel="shortcut icon" type="image/x-icon" href="https://digital-meal.ch/static/website/img/DigitalMeal_favicon.svg">
+  <link rel="shortcut icon" type="image/x-icon" href="https://digital-meal.ch/static/website/img/DigitalMeal_favicon.svg" />
 
   {% block site_css %}
-  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}">
-  <link rel="stylesheet" href="{% static 'website/css/base.css' %}">
+  <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />
+  <link rel="stylesheet" href="{% static 'website/css/base.css' %}" />
   {% endblock site_css %}
 
   {% block extra_head %}
@@ -34,7 +34,7 @@
                 <img alt="Digital Meal Logo"
                       src="{% static 'website/img/DigitalMeal_logo.svg' %}"
                       height="100px"
-                >
+                />
               </a>
             </div>
           </div>

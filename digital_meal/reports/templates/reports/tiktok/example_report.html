@@ -3,23 +3,20 @@
 
 {% block page_title %}
   TikTok Beispielreport
-{% endblock %}
+{% endblock page_title %}
 
 {% block report_intro_title %}
-  Die personalisierte Auswertung deiner TikTok&#8209;Nutzung
-{% endblock %}
+  Die personalisierte Auswertung deiner TikTok‑Nutzung
+{% endblock report_intro_title %}
 
 {% block report_intro_image_path %}
   {% static 'reports/img/TikTok_logo-sketch.png' %}
-{% endblock %}
+{% endblock report_intro_image_path %}
 
 {% block report_intro_text %}
-
   Dieser Report basiert auf fiktiven Nutzungsdaten. Er zeigt exemplarisch,
   wie der persönliche Report für Schüler:innen aussieht.
-
-{% endblock %}
-
+{% endblock report_intro_text %}
 
 {% block report_body %}
 
@@ -35,9 +32,9 @@
        hx-swap="innerHTML">
   </div>
 
-{% endblock %}
+{% endblock report_body %}
 
 {% block scripts %}
   {{ block.super }}
   {% htmx_script %}
-{% endblock %}
+{% endblock scripts %}

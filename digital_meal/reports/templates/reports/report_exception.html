@@ -1,11 +1,11 @@
 {% extends "reports/base_report.html" %}
 {% load static %}
 
-{% block page_title %}Report konnte nicht geladen werden{% endblock %}
+{% block page_title %}Report konnte nicht geladen werden{% endblock page_title %}
 
-{% block report_intro_title %}Report konnte nicht geladen werden{% endblock %}
+{% block report_intro_title %}Report konnte nicht geladen werden{% endblock report_intro_title %}
 
-{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock %}
+{% block report_intro_image_path %}{% static 'reports/img/YouTube_logo-sketch.png' %}{% endblock report_intro_image_path %}
 
 {% block report_intro_text %}
 <p class="fs-4 mt-0 ff-space-grotesk">
@@ -17,7 +17,7 @@
   kontaktieren Sie bitte den Administrator der Webseite.
   {% endif %}
 </p>
-{% endblock %}
+{% endblock report_intro_text %}
 
 {% block footer %}
 <div class="section-container">
@@ -41,15 +41,15 @@
       <div class="text-center">
         <img alt="Digital Meal Logo"
               src="{% static 'website/img/DigitalMeal_logo.svg' %}"
-              height="70px">
+              height="70px" />
         <img alt="Data Donation Lab Logo"
               src="{% static 'website/img/DataDonationLab_logo.svg' %}"
-              height="70px">
+              height="70px" />
         <img alt="UZH Logo" src="{% static 'website/img/UZH_logo.svg' %}"
-              height="70px">
+              height="70px" />
       </div>
     </div>
   </div>
 
 </div>
-{% endblock %}
+{% endblock footer %}

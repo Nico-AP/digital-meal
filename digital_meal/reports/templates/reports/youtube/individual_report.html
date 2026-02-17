@@ -3,24 +3,21 @@
 
 {% block page_title %}
   YouTube Report
-{% endblock %}
+{% endblock page_title %}
 
 {% block report_intro_title %}
-  Die personalisierte Auswertung deiner YouTube&#8209;Nutzung
-{% endblock %}
+  Die personalisierte Auswertung deiner YouTube‑Nutzung
+{% endblock report_intro_title %}
 
 {% block report_intro_image_path %}
   {% static 'reports/img/YouTube_logo-sketch.png' %}
-{% endblock %}
+{% endblock report_intro_image_path %}
 
 {% block report_intro_text %}
-
   Dieser persönliche Report zeigt, wie Du YouTube in der Vergangenheit genutzt hast.
-
-{% endblock %}
+{% endblock report_intro_text %}
 
 {% block report_body %}
-
   <div id="watch-history-partials"
        hx-get="{% url 'youtube_individual_report_wh_sections' url_id=class_id participant_id=participant_id %}"
        hx-trigger="load"
@@ -32,11 +29,9 @@
        hx-trigger="load delay:2s"
        hx-swap="innerHTML">
   </div>
-
 {% endblock report_body %}
-
 
 {% block scripts %}
   {{ block.super }}
   {% htmx_script %}
-{% endblock %}
+{% endblock scripts %}

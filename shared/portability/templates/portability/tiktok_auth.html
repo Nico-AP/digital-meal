@@ -4,18 +4,18 @@
 
 {% block user_nav %}{% endblock user_nav %}
 
-{% block add_dm_content_class %}d-flex flex-column justify-content-center{% endblock %}
+{% block add_dm_content_class %}d-flex flex-column justify-content-center{% endblock add_dm_content_class %}
 
 {% block main_content %}
   {% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
-      {{ message }}
-      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div class="messages">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
   {% endif %}
 
   <div>
@@ -33,7 +33,7 @@
       <button type="button" data-bs-toggle="modal" data-bs-target="#exampleModal">
         <img alt="Continue with TikTok"
              src="{% static 'portability/img/tiktok/TikTok_Button_Black.svg' %}"
-             width="350px">
+             width="350px" />
       </button>
     </div>
   </div>
@@ -42,7 +42,7 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header bg-darkblue border-0 font-white text-center">
-          <h3 class="modal-title text-center">Verbindung zu deinem TikTok&#8209;Account</h3>
+          <h3 class="modal-title text-center">Verbindung zu deinem TikTok‑Account</h3>
         </div>
         <div class="modal-body">
           <div class="text-center mt-2">
@@ -78,4 +78,4 @@
     </div>
   </div>
 
-{% endblock %}
+{% endblock main_content %}

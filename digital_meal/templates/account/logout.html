@@ -2,24 +2,25 @@
 
 {% load i18n %}
 
-{% block title %}Anmelden{% endblock %}
+{% block title %}Anmelden{% endblock title %}
 
 {% block content %}
 
-<h1>Abmelden</h1>
+  <h1>Abmelden</h1>
 
-<div class="ff-non-serif">
+  <div class="ff-non-serif">
     <p>Sind Sie sicher, dass Sie sich abmelden möchten?</p>
-</div>
+  </div>
 
-<form class="login dm-form" method="POST" action="{% url 'account_logout' %}">
+  <form class="login dm-form" method="post" action="{% url 'account_logout' %}">
     {% csrf_token %}
     {{ form.as_p }}
     <button class="primaryAction" type="submit">Ja, ich möchte mich abmelden
-        &raquo;</button>
-</form>
+      »</button>
+  </form>
 
-<div class="ff-non-serif mt-3"><a href="{% url 'tool_main_page' %}">zurück zum
-        Tool</a></div>
+  <div class="ff-non-serif mt-3">
+    <a href="{% url 'tool_main_page' %}">zurück zum Tool</a>
+  </div>
 
-{% endblock %}
+{% endblock content %}
