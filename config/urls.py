@@ -8,7 +8,6 @@ from django.views.defaults import page_not_found
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),
-    path('cookies/', include('cookie_consent.urls')),
     path('ckeditor5/', include('django_ckeditor_5.urls')),
 ]
 

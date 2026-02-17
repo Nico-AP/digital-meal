@@ -1,0 +1,21 @@
+#cc-main {
+    --cc-font-family: Outfit, sans-serif;
+
+    --cc-btn-primary-bg: #00213f;
+    --cc-btn-primary-border-color: #00213f;
+    --cc-btn-primary-hover-bg: #00172c;
+    --cc-btn-primary-hover-border-color: #00172c;
+
+    --cc-toggle-on-bg: var(--cc-btn-primary-bg);
+}
+
+#cc-main button.pm__btn:hover {
+    background: var(--cc-btn-primary-hover-bg) !important;
+}
+
+.cm__footer {
+    background: #181b1e !important;
+}
+.cm__footer a {
+    color: #eaeff2 !important;
+}

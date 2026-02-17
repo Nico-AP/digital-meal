@@ -1,6 +1,5 @@
-{% load static i18n cookie_consent_tags %}
+{% load static i18n %}
 {% get_current_language as LANGUAGE_CODE %}
-{% url "cookie_consent_cookie_group_list" as url_cookies %}
 
 <!DOCTYPE html>
 <html lang="{{ LANGUAGE_CODE }}">
@@ -18,6 +17,11 @@
   <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'website/css/base.css' %}">
   {% endblock site_css %}
+
+  {% block cookieconsent_head %}
+    <link rel="stylesheet" href="{% static 'website/css/vanilla_cookieconsent/cookieconsent.css' %}" />
+    <link rel="stylesheet" href="{% static 'website/css/vanilla_cookieconsent/custom.css' %}" />
+  {% endblock cookieconsent_head %}
 
   {% block extra_head %}
   {% endblock extra_head %}
@@ -81,8 +85,6 @@
 
 </div>
 
-{% include "website/components/cookie_info.html" %}
-
 {% block webtracker %}
   {% if "digital-meal.ch" in request.get_host %}
     <script src="{% static 'website/js/webtrack_snippet.js' %}"></script>
@@ -92,6 +94,11 @@
 {% block site_js %}
   <script src="{% static 'website/js/bootstrap/bootstrap.bundle.min.js' %}"></script>
 {% endblock site_js %}
+
+{% block cookieconsent_script %}
+  <script src="{% static 'website/js/vanilla_cookieconsent/cookieconsent.umd.js' %}"></script>
+  <script src="{% static 'website/js/vanilla_cookieconsent/cookieconsent-config.js' %}"></script>
+{% endblock cookieconsent_script %}
 
 </body>
 
