@@ -122,7 +122,7 @@ LOGGING = {
             'propagate': False,
             'level': 'INFO',
         },
-        'digital_meal.portability': {
+        'shared.portability': {
             'handlers': ['portability_file', 'error_file', 'console'],
             'propagate': False,
             'level': 'INFO',

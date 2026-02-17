@@ -36,7 +36,7 @@ INSTALLED_APPS = [
     'digital_meal.tool',
     'digital_meal.website',
     'digital_meal.reports',
-    'digital_meal.portability',
+    'shared.portability',
     'digital_meal.dashboard',
     'cookie_consent',
     'wagtail.contrib.forms',
@@ -91,7 +91,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
+        'DIRS': ['digital_meal/templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
