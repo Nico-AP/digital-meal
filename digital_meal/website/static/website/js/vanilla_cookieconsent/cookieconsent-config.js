@@ -34,7 +34,7 @@ CookieConsent.run({
     translations: {
       en: {
         consentModal: {
-          title: 'Cookie Notice',
+          title: 'Cookie Policy',
           description: 'Wir verwenden nur Cookies, die für das Funktionieren dieser Website unbedingt erforderlich sind. Es werden keine Tracking- oder Werbe-Cookies verwendet.',
           acceptAllBtn: 'Verstanden',
           // acceptNecessaryBtn: 'Reject all',
