@@ -142,6 +142,8 @@ ACCOUNT_FORMS = {'signup': 'digital_meal.tool.forms.SimpleSignupForm'}
 ACCOUNT_CONFIRM_EMAIL_ON_GET = True
 ACCOUNT_MAX_EMAIL_ADDRESSES = 2
 
+ALLAUTH_TRUSTED_CLIENT_IP_HEADER = 'X-Real-IP'
+
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
