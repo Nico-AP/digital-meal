@@ -3,7 +3,7 @@ from typing import Literal
 import pandas as pd
 import spacy
 
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 from ddm.datadonation.models import DonationBlueprint, DataDonation
 from ddm.datadonation.serializers import DonationSerializer
@@ -11,7 +11,6 @@ from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from django.db.models import Prefetch
-from django.utils import timezone
 from spacy import Language
 
 
