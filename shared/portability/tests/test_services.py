@@ -6,9 +6,9 @@ from django.test import TestCase
 from django.utils import timezone
 from requests import Timeout, HTTPError
 
-from digital_meal.portability.exceptions import TokenRefreshException
-from digital_meal.portability.models import TikTokAccessToken, TikTokDataRequest
-from digital_meal.portability.services import (
+from shared.portability.exceptions import TokenRefreshException
+from shared.portability.models import TikTokAccessToken, TikTokDataRequest
+from shared.portability.services import (
     TikTokAccessTokenService,
     TikTokPortabilityAPIClient
 )
@@ -31,7 +31,7 @@ class TestTikTokAccessTokenService(TestCase):
 
     # ===== refresh_token() Tests =====
 
-    @patch('digital_meal.portability.services.TikTokAccessTokenService._call_tiktok_api')
+    @patch('shared.portability.services.TikTokAccessTokenService._call_tiktok_api')
     def test_refresh_token_success(self, mock_post):
         mock_post.return_value = {
             'access_token': 'new_access_token',
@@ -64,7 +64,7 @@ class TestTikTokAccessTokenService(TestCase):
         with self.assertRaises(TokenRefreshException) as e:
             self.service.refresh_token(expired_token)
 
-    @patch('digital_meal.portability.services.TikTokAccessTokenService._call_tiktok_api')
+    @patch('shared.portability.services.TikTokAccessTokenService._call_tiktok_api')
     def test_refresh_token_updates_all_fields(self, mock_post):
         """Test that refresh updates all token fields correctly"""
         mock_post.return_value = {
@@ -180,7 +180,7 @@ class TestTikTokAccessTokenService(TestCase):
 
     # ===== exchange_code_for_token() Tests =====
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_exchange_code_for_token_success(self, mock_post):
         """Test successful code exchange"""
         mock_response = Mock()
@@ -201,8 +201,8 @@ class TestTikTokAccessTokenService(TestCase):
         self.assertEqual(result['open_id'], 'user_789')
         mock_post.assert_called_once()
 
-    @patch('digital_meal.portability.services.requests.post')
-    @patch('digital_meal.portability.services.time.sleep')
+    @patch('shared.portability.services.requests.post')
+    @patch('shared.portability.services.time.sleep')
     def test_exchange_code_for_token_retries_on_timeout(self, mock_sleep, mock_post):
         """Test retry logic on timeout"""
         mock_response = Mock()
@@ -216,8 +216,8 @@ class TestTikTokAccessTokenService(TestCase):
         mock_sleep.assert_called_once_with(3)
         self.assertIsNotNone(result)
 
-    @patch('digital_meal.portability.services.requests.post')
-    @patch('digital_meal.portability.services.time.sleep')
+    @patch('shared.portability.services.requests.post')
+    @patch('shared.portability.services.time.sleep')
     def test_exchange_code_for_token_gives_up_after_max_attempts(self, mock_sleep, mock_post):
         """Test stops retrying after max attempts"""
         mock_post.side_effect = Timeout()
@@ -243,7 +243,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
     # ===== make_data_request() Tests =====
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_make_data_request_success(self, mock_post):
         """Test successful data request creation"""
         mock_response = Mock()
@@ -320,7 +320,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
     # ===== poll_data_request_status() Tests =====
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_poll_status_success(self, mock_post):
         """Test successful status polling"""
         mock_response = Mock()
@@ -340,7 +340,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.assertEqual(result['data']['status'], 'downloading')
         self.assertEqual(result['data']['request_id'], 12345)
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_poll_status_timeout(self, mock_post):
         """Test returns error dict on timeout"""
         mock_post.side_effect = Timeout()
@@ -424,7 +424,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
     # ===== stream_download_requested_data() Tests =====
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_stream_download_returns_streaming_response(self, mock_post):
         """Test returns StreamingHttpResponse"""
         mock_response = Mock()
@@ -435,7 +435,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
         self.assertIsInstance(result, StreamingHttpResponse)
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_stream_download_updates_db_on_success(self, mock_post):
         """Test updates TikTokDataRequest on successful download"""
         mock_response = Mock()
@@ -451,7 +451,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.assertTrue(self.test_data_request.download_attempted)
         self.assertIsNotNone(self.test_data_request.downloaded_at)
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_stream_download_marks_failure_on_error(self, mock_post):
         """Test marks download as failed when error occurs during streaming"""
         def failing_iter():
@@ -472,7 +472,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
     # ===== cancel_data_request() Tests =====
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_cancel_data_request_success(self, mock_post):
         mock_response = Mock()
         mock_response.json.return_value = {
@@ -491,7 +491,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.test_data_request.refresh_from_db()
         self.assertEqual(self.test_data_request.status, TikTokDataRequest.State.CANCELLED)
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_cancel_data_request_handles_nonexistent_request(self, mock_post):
         """Test handles case when data request doesn't exist in database"""
         mock_response = Mock()
@@ -506,7 +506,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         result = self.api_client.cancel_data_request(99999)
         self.assertEqual(result['error']['code'], 'ok')
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_cancel_data_request_handles_http_error(self, mock_post):
         """Test returns error dict when HTTP error occurs"""
         mock_post.side_effect = HTTPError('500 Server Error')
@@ -516,7 +516,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         self.assertIn('error', result)
         self.assertIn('Failed to cancel data request', result['error'])
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_cancel_data_request_handles_timeout(self, mock_post):
         """Test returns error dict on timeout"""
         mock_post.side_effect = Timeout()
@@ -525,7 +525,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
 
         self.assertIn('error', result)
 
-    @patch('digital_meal.portability.services.requests.post')
+    @patch('shared.portability.services.requests.post')
     def test_cancel_data_request_does_not_update_db_on_api_failure(self, mock_post):
         """Test database status is NOT updated when API call fails"""
         mock_post.side_effect = HTTPError('500 Server Error')

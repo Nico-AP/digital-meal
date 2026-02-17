@@ -7,9 +7,9 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from digital_meal.portability.models import OAuthStateToken, TikTokAccessToken, TikTokDataRequest
-from digital_meal.portability.tests.utils import get_request_with_session
-from digital_meal.portability.views import (
+from shared.portability.models import OAuthStateToken, TikTokAccessToken, TikTokDataRequest
+from shared.portability.tests.utils import get_request_with_session
+from shared.portability.views import (
     TikTokCallbackView,
     ManageAccessTokenMixin,
     TikTokAuthView, StateTokenMixin, TikTokCheckDownloadAvailabilityView
@@ -61,7 +61,7 @@ class TestTikTokCallbackView(TestCase):
         state_token_obj = OAuthStateToken.objects.create()
         cls.state_token = state_token_obj.token
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_dispatch_missing_state_in_request_calls_redirect_to_auth(
             self,
             mock_redirect
@@ -74,7 +74,7 @@ class TestTikTokCallbackView(TestCase):
 
         mock_redirect.assert_called_once_with(request)
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_dispatch_error_in_request_calls_redirect_to_auth(
             self,
             mock_redirect
@@ -91,7 +91,7 @@ class TestTikTokCallbackView(TestCase):
 
         mock_redirect.assert_called_once_with(request)
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_dispatch_missing_code_in_request_calls_redirect_to_auth(
             self,
             mock_redirect
@@ -119,7 +119,7 @@ class TestTikTokCallbackView(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    @patch('digital_meal.portability.services.TikTokAccessTokenService.exchange_code_for_token')
+    @patch('shared.portability.services.TikTokAccessTokenService.exchange_code_for_token')
     def test_full_flow_happy_case(self, mock_token_exchange):
         mock_token_exchange.return_value = {
             'access_token': 'test-token',
@@ -220,8 +220,8 @@ class TestTikTokCheckDownloadAvailabilityView(TestCase):
             open_id=self.open_id,
         )
 
-    @patch('digital_meal.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
-    @patch('digital_meal.portability.services.TikTokPortabilityAPIClient.make_data_request')
+    @patch('shared.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
+    @patch('shared.portability.services.TikTokPortabilityAPIClient.make_data_request')
     def test_download_await_view_creates_data_request_if_none_exists(
             self,
             mock_request_response,
@@ -255,7 +255,7 @@ class TestTikTokCheckDownloadAvailabilityView(TestCase):
         )
         self.assertEqual(self.view.template_name, self.view.template_pending)
 
-    @patch('digital_meal.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
+    @patch('shared.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
     def test_download_await_view_with_request_status_pending(self, mock_poll_response):
         mock_data = self.mock_poll_data.copy()
         mock_data['data']['status'] = 'pending'
@@ -268,7 +268,7 @@ class TestTikTokCheckDownloadAvailabilityView(TestCase):
         self.assertEqual(self.view.template_name, self.view.template_pending)
         self.assertEqual(data_request.status, 'pending')
 
-    @patch('digital_meal.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
+    @patch('shared.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
     def test_download_await_view_with_request_status_downloading(self, mock_poll_response):
         mock_data = self.mock_poll_data.copy()
         mock_data['data']['status'] = 'downloading'
@@ -281,7 +281,7 @@ class TestTikTokCheckDownloadAvailabilityView(TestCase):
         self.assertEqual(self.view.template_name, self.view.template_success)
         self.assertEqual(data_request.status, 'downloading')
 
-    @patch('digital_meal.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
+    @patch('shared.portability.services.TikTokPortabilityAPIClient.poll_data_request_status')
     def test_download_await_view_with_request_status_expired(self, mock_poll_response):
         mock_data = self.mock_poll_data.copy()
         mock_data['data']['status'] = 'expired'
@@ -305,7 +305,7 @@ class TestTikTokDisconnectView(TestCase):
         self.request.session[ManageAccessTokenMixin.open_id_session_key] = self.open_id
         self.request.session.save()
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_view_deletes_open_id_in_session(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
 
@@ -325,7 +325,7 @@ class TestTikTokDisconnectView(TestCase):
         mock_redirect.assert_called_once()
 
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_view_when_open_id_not_in_session(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
 

@@ -3,7 +3,7 @@ import logging
 from django.core.management import BaseCommand
 from django.utils import timezone
 
-from digital_meal.portability.models import OAuthStateToken, TikTokAccessToken
+from shared.portability.models import OAuthStateToken, TikTokAccessToken
 
 logger = logging.getLogger(__name__)
 

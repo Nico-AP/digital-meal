@@ -53,6 +53,7 @@ custom_ddm_patterns = [
         kwargs={'exception': Exception('Page not Found')},
         name='ddm_logout'
     ),
+    path('portability/', include('shared.portability.urls')),
 ]
 
 urlpatterns += custom_ddm_patterns

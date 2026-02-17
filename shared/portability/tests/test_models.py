@@ -4,7 +4,7 @@ from datetime import timedelta
 from django.test import TestCase
 from django.utils import timezone
 
-from digital_meal.portability.models import (
+from shared.portability.models import (
     OAuthStateToken,
     TikTokAccessToken,
     TikTokDataRequest

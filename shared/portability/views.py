@@ -14,13 +14,13 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from digital_meal.core.logging_utils import log_security_event
-from digital_meal.portability.exceptions import TokenRefreshException
-from digital_meal.portability.models import (
+from shared.portability.exceptions import TokenRefreshException
+from shared.portability.models import (
     OAuthStateToken,
     TikTokAccessToken,
     TikTokDataRequest,
 )
-from digital_meal.portability.services import TikTokPortabilityAPIClient, TikTokAccessTokenService
+from shared.portability.services import TikTokPortabilityAPIClient, TikTokAccessTokenService
 
 logger = logging.getLogger(__name__)
 

@@ -6,11 +6,11 @@ from django.core.management import call_command
 from django.test import TestCase
 from django.utils import timezone
 
-from digital_meal.portability.management.commands.clean_expired_tokens import (
+from shared.portability.management.commands.clean_expired_tokens import (
     clean_oauth_tokens,
     clean_access_tokens
 )
-from digital_meal.portability.models import OAuthStateToken, TikTokAccessToken
+from shared.portability.models import OAuthStateToken, TikTokAccessToken
 
 
 class TestCleanOAuthTokensFunction(TestCase):
@@ -109,8 +109,8 @@ class TestCleanAccessTokensFunction(TestCase):
 class TestCleanExpiredTokensCommand(TestCase):
     """Tests for the clean_expired_tokens management command"""
 
-    @patch('digital_meal.portability.management.commands.clean_expired_tokens.clean_access_tokens')
-    @patch('digital_meal.portability.management.commands.clean_expired_tokens.clean_oauth_tokens')
+    @patch('shared.portability.management.commands.clean_expired_tokens.clean_access_tokens')
+    @patch('shared.portability.management.commands.clean_expired_tokens.clean_oauth_tokens')
     def test_command_calls_both_clean_functions(self, mock_clean_oauth, mock_clean_access):
         """Test command calls both clean_oauth_tokens and clean_access_tokens"""
         call_command('clean_expired_tokens')

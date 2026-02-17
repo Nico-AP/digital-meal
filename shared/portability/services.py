@@ -11,8 +11,8 @@ from django.db import transaction
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 
-from digital_meal.portability.exceptions import TokenRefreshException
-from digital_meal.portability.models import TikTokDataRequest, TikTokAccessToken
+from shared.portability.exceptions import TokenRefreshException
+from shared.portability.models import TikTokDataRequest, TikTokAccessToken
 from digital_meal.core.logging_utils import log_requests_exception
 
 logger = logging.getLogger(__name__)

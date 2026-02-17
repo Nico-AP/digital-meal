@@ -8,9 +8,9 @@ from django.test import TestCase
 from django.utils import timezone
 from django.views.generic import View
 
-from digital_meal.portability.models import OAuthStateToken, TikTokAccessToken
-from digital_meal.portability.tests.utils import get_request_with_session
-from digital_meal.portability.views import (
+from shared.portability.models import OAuthStateToken, TikTokAccessToken
+from shared.portability.tests.utils import get_request_with_session
+from shared.portability.views import (
     StateTokenMixin,
     ManageAccessTokenMixin,
     AuthenticationRequiredMixin,
@@ -189,7 +189,7 @@ class TestAuthenticationRequiredMixin(TestCase):
 
         self.assertEqual(response.status_code, 200)
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_view_without_open_id_calls_redirect_to_auth_view(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
         _ = self.view.dispatch(self.request)
@@ -228,7 +228,7 @@ class TestActiveAccessTokenRequiredMixin(TestCase):
             token_type='bearer',
         )
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_view_without_associated_access_token_calls_redirect_to_auth_view(
             self, mock_redirect
     ):
@@ -239,7 +239,7 @@ class TestActiveAccessTokenRequiredMixin(TestCase):
 
         mock_redirect.assert_called_once_with(self.request)
 
-    @patch('digital_meal.portability.views.redirect_to_auth_view')
+    @patch('shared.portability.views.redirect_to_auth_view')
     def test_inactive_access_token_calls_redirect_to_auth_view(
             self,
             mock_redirect
