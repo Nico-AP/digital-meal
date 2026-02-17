@@ -1,0 +1,5 @@
+{% extends "account/email/base_message.txt" %}
+
+{% block content %}{% autoescape off %}Mit dieser E-Mail-Adresse wurde ein neuer Account auf www.digital-meal.ch erstellt.
+
+Um dies zu bestätigen und die Erstellung des Accounts abzuschliessen, klicken Sie bitte auf den folgenden Link: {{ activate_url }}{% endautoescape %}{% endblock %}

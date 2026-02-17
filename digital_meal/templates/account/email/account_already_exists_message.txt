@@ -1,0 +1,15 @@
+{% extends "account/email/base_message.txt" %}
+{% load i18n %}
+
+{% block content %}
+{% autoescape off %}
+Sie erhalten diese E-Mail, weil Sie oder jemand anderes versucht haben, sich mit der folgenden E-Mail-Adresse für ein neues Konto anzumelden:
+
+{{ email }}
+
+Es existiert jedoch bereits ein Konto mit dieser E-Mail-Adresse.
+Falls Sie Ihr Passwort vergessen haben, verwenden Sie bitte den folgenden Link, um Ihr Passwort zurückzusetzen:
+
+{{ password_reset_url }}
+{% endautoescape %}
+{% endblock content %}
