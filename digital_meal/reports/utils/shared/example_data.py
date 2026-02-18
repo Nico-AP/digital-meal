@@ -63,16 +63,16 @@ def random_time_in_range(
 ) -> datetime.time:
     """Generate a random time object between the given range."""
     return time(
-        hour=random.randint(hour_start, hour_end),
-        minute=random.randint(min_start, min_end),
-        second=random.randint(0, 59),
+        hour=random.randint(hour_start, hour_end),  # noqa: S311
+        minute=random.randint(min_start, min_end),  # noqa: S311
+        second=random.randint(0, 59),  # noqa: S311
     )
 
 
 def random_string(length: int) -> str:
     """Generate a random alphanumeric string."""
     return "".join(
-        random.choices(
+        random.choices(  # noqa: S311
             "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", k=length
         )
     )

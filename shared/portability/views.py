@@ -61,7 +61,7 @@ class StateTokenMixin:
     """
 
     state_token = None
-    state_token_session_key = "state_token"
+    state_token_session_key = "state_token"  # noqa: S105
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -678,7 +678,9 @@ class TikTokDataReviewView(
 
         max_tries = 3
         try:
-            response = requests.get(url, headers=headers, params=params)
+            response = requests.get(
+                url, headers=headers, params=params, timeout=(5, 15)
+            )
             response.raise_for_status()
             return response.json()
 

@@ -60,7 +60,7 @@ class TikTokAccessTokenService:
         headers = {"Accept": "application/x-www-form-urlencoded"}
 
         try:
-            response = requests.post(url, data=data, headers=headers)
+            response = requests.post(url, data=data, headers=headers, timeout=(5, 15))
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -244,7 +244,9 @@ class TikTokPortabilityAPIClient:
         params = {"fields": "request_id"}
         payload = {"data_format": "json", "category_selection_list": ["all_data"]}
         try:
-            response = requests.post(url, headers=headers, params=params, json=payload)
+            response = requests.post(
+                url, headers=headers, params=params, json=payload, timeout=(5, 30)
+            )
             response.raise_for_status()
             request_result = response.json()
         except requests.exceptions.RequestException as e:
@@ -579,7 +581,11 @@ class TikTokPortabilityAPIClient:
         }
         try:
             response = requests.post(
-                self.data_download_url, headers=headers, json=payload, stream=True
+                self.data_download_url,
+                headers=headers,
+                json=payload,
+                stream=True,
+                timeout=(5, 15),
             )
             response.raise_for_status()
         except requests.exceptions.RequestException as e:

@@ -85,7 +85,7 @@ def create_job_logs(cleaning_stats: dict) -> None:
                 exception_type="CRONJOB PARTICIPANT CLEANING",
                 message=message,
             )
-        except:  # noqa: E722  TODO
+        except:  # noqa: E722, S110  TODO
             pass
     return
 

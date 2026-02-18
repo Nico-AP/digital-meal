@@ -44,7 +44,8 @@ def generate_synthetic_watch_history(start_date: date, days: int = 500) -> dict:
         viewing_times = []
         for hour, share_weight in normalized_shares.items():
             num_videos_this_hour = max(
-                0, int(num_entries * share_weight * random.uniform(0.9, 1.1))
+                0,
+                int(num_entries * share_weight * random.uniform(0.9, 1.1)),  # noqa: S311
             )  # Add slight randomness
             viewing_times.extend(
                 [
@@ -98,7 +99,7 @@ def generate_synthetic_search_history(latest_date: date, days: int = 500) -> dic
     current_date = latest_date
 
     for _ in range(days):
-        n_searches = random.randint(0, 5)
+        n_searches = random.randint(0, 5)  # noqa: S311
         search_times = [random_time_in_range(0, 0, 23, 59) for _ in range(n_searches)]
 
         # Generate entries for the day
@@ -151,4 +152,4 @@ def generate_random_search_term() -> str:
         "Vision",
         "Channel",
     ]
-    return f"{random.choice(prefixes)} {random.choice(suffixes)}"
+    return f"{random.choice(prefixes)} {random.choice(suffixes)}"  # noqa: S311

@@ -503,7 +503,7 @@ def get_most_watched_video(watch_history: list[dict]) -> dict:
     max_count = video_counts.max()
 
     most_watched_ids = video_counts[video_counts == max_count]
-    favorite_video = random.choice(most_watched_ids.index.to_list())
+    favorite_video = random.choice(most_watched_ids.index.to_list())  # noqa: S311
     return {"id": favorite_video, "n_watched": max_count}
 
 

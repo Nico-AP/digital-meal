@@ -53,7 +53,8 @@ def generate_synthetic_watch_history(latest_date: date, days: int = 500) -> dict
         viewing_times = []
         for hour, share_weight in normalized_shares.items():
             num_videos_this_hour = max(
-                0, int(num_entries * share_weight * random.uniform(0.9, 1.1))
+                0,
+                int(num_entries * share_weight * random.uniform(0.9, 1.1)),  # noqa: S311
             )  # Add slight randomness
             viewing_times += [
                 random_time_in_range(hour, 0, hour, 59)
@@ -116,7 +117,7 @@ def generate_synthetic_search_history(latest_date: date, days: int = 500) -> dic
     current_date = latest_date
 
     for _ in range(days):
-        n_searches = random.randint(0, 5)
+        n_searches = random.randint(0, 5)  # noqa: S311
         search_times = [random_time_in_range(0, 0, 23, 59) for _ in range(n_searches)]
 
         # Generate entries for the day
@@ -159,7 +160,7 @@ def generate_repeating_titles(
     unique_titles = [
         generate_random_title() for _ in range(int(num_titles * (1 - repeat_fraction)))
     ]
-    repeated_titles = random.choices(
+    repeated_titles = random.choices(  # noqa: S311
         unique_titles, k=int(num_titles * repeat_fraction)
     )  # Choose some titles to repeat
     all_titles = unique_titles + repeated_titles
@@ -188,7 +189,7 @@ def generate_random_title() -> str:
         "Worst",
         "Insane",
     ]
-    return f"{random.choice(words)} {random_string(5)} {random.randint(1, 1000)}"
+    return f"{random.choice(words)} {random_string(5)} {random.randint(1, 1000)}"  # noqa: S311
 
 
 def generate_random_channel_name() -> str:
@@ -221,4 +222,4 @@ def generate_random_channel_name() -> str:
         "Vision",
         "Channel",
     ]
-    return f"{random.choice(prefixes)} {random.choice(suffixes)}"
+    return f"{random.choice(prefixes)} {random.choice(suffixes)}"  # noqa: S311
