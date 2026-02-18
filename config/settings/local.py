@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 import ddm.core
 
@@ -36,10 +37,8 @@ WEBPACK_LOADER = {
     "DDM_UPLOADER": {
         "CACHE": True,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/uploader/",
-        "STATS_FILE": os.path.join(
-            os.path.dirname(ddm.core.__file__),
-            "static/ddm_core/frontend/uploader/webpack-stats.json",
-        ),
+        "STATS_FILE": Path(ddm.core.__file__).parent
+        / "static/ddm_core/frontend/uploader/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
         "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
@@ -47,10 +46,8 @@ WEBPACK_LOADER = {
     "DDM_QUESTIONNAIRE": {
         "CACHE": True,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/questionnaire/",
-        "STATS_FILE": os.path.join(
-            os.path.dirname(ddm.core.__file__),
-            "static/ddm_core/frontend/questionnaire/webpack-stats.json",
-        ),
+        "STATS_FILE": Path(ddm.core.__file__).parent
+        / "static/ddm_core/frontend/questionnaire/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
         "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
@@ -86,14 +83,14 @@ LOGGING = {
         "file": {
             "level": "DEBUG",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "logs", "django.log"),
+            "filename": Path(BASE_DIR) / "logs" / "django.log",
             "maxBytes": 1024 * 1024 * 15,
             "formatter": "verbose",
         },
         "portability_file": {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "logs", "portability.log"),
+            "filename": Path(BASE_DIR) / "logs" / "portability.log",
             "maxBytes": 1024 * 1024 * 15,
             "backupCount": 5,
             "formatter": "json",
@@ -101,7 +98,7 @@ LOGGING = {
         "error_file": {
             "level": "ERROR",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(BASE_DIR, "logs", "errors.log"),
+            "filename": Path(BASE_DIR) / "logs" / "errors.log",
             "maxBytes": 1024 * 1024 * 15,
             "formatter": "verbose",
         },

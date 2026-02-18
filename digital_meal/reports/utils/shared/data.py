@@ -15,7 +15,7 @@ from spacy import Language
 def get_entries_in_date_range(
     entries: list[dict],
     date_min: datetime,
-    date_max: datetime = datetime.now(),
+    date_max: datetime | None = None,
     date_key: str = "time",
 ) -> list:
     """
@@ -33,6 +33,9 @@ def get_entries_in_date_range(
         list[dict]: The list of entries with dates in the date range.
     """
     date_min = make_tz_aware(date_min)
+
+    if not date_max:
+        date_max = datetime.now()
     date_max = make_tz_aware(date_max)
 
     # Convert to dataframe for optimized vectorized parsing and filtering

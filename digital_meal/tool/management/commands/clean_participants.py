@@ -66,7 +66,7 @@ def create_job_logs(cleaning_stats: dict) -> None:
     Returns:
         None
     """
-    for project_pk, stats in cleaning_stats.items():
+    for _project_pk, stats in cleaning_stats.items():
         message = (
             f"Checked {stats['n_checked']} participants.\n"
             f"{stats['n_donations_deleted']} donations deleted due to missing consent.\n"  # noqa: E501

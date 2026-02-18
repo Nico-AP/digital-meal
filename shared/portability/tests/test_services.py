@@ -1,6 +1,7 @@
 from datetime import timedelta
 from unittest.mock import Mock, patch
 
+import requests
 from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.utils import timezone
@@ -226,7 +227,7 @@ class TestTikTokAccessTokenService(TestCase):
         """Test stops retrying after max attempts"""
         mock_post.side_effect = Timeout()
 
-        with self.assertRaises(Exception):
+        with self.assertRaises(requests.exceptions.RequestException):
             self.service.exchange_code_for_token("auth_code_123")
 
         # Should try 3 times (initial + 2 retries)
@@ -465,7 +466,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
         mock_post.return_value = mock_response
 
         result = self.api_client.stream_download_requested_data(self.test_data_request)
-        with self.assertRaises(Exception):
+        with self.assertRaises(Exception):  # noqa: B017
             list(result.streaming_content)
 
         self.test_data_request.refresh_from_db()

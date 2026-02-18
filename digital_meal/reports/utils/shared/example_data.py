@@ -5,7 +5,7 @@ from datetime import time
 import numpy as np
 
 
-def generate_hourly_shares(weekend: bool = False) -> dict:
+def generate_hourly_shares(weekend: bool = False) -> dict:  # noqa: FBT002
     """Generate hourly shares.
 
     Generates a dictionary with 24-hour time slots and their respective random

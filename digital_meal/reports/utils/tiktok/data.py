@@ -16,7 +16,8 @@ class WatchHistoryData(TypedDict):
 
 
 def extract_watch_history_data(
-    watch_histories: list[list[dict]], keep_separate: bool = False
+    watch_histories: list[list[dict]],
+    keep_separate: bool = False,  # noqa: FBT002
 ) -> WatchHistoryData:
     """Create a WatchHistoryData object from a list of watch histories.
 
@@ -96,7 +97,7 @@ class SearchHistoryData(TypedDict):
 
 def extract_search_history_data(
     search_histories: list[list[dict]],
-    keep_separate: bool = False,
+    keep_separate: bool = False,  # noqa: FBT002
 ) -> SearchHistoryData:
     """Create a SearchHistoryData object from a list of search histories.
 

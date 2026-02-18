@@ -115,7 +115,7 @@ USE_I18N = True
 USE_TZ = True
 
 LOCALE_PATHS = [
-    os.path.join(BASE_DIR, "locale"),
+    Path(BASE_DIR) / "locale",
 ]
 
 WAGTAILSIMPLETRANSLATION_SYNC_PAGE_TREE = True
@@ -164,10 +164,10 @@ LOGOUT_REDIRECT_URL = "/"
 # STATIC FILES
 # ------------------------------------------------------------------------------
 STATIC_URL = "/static/"
-STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles/")
+STATIC_ROOT = Path(BASE_DIR) / "staticfiles/"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = os.path.join(BASE_DIR, "media/")
+MEDIA_ROOT = Path(BASE_DIR) / "media/"
 
 
 # DEFAULT PRIMARY KEY FIELD TYPE
@@ -239,9 +239,8 @@ WEBPACK_LOADER = {
     "DDM_UPLOADER": {
         "CACHE": True,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/uploader/",
-        "STATS_FILE": os.path.join(
-            STATIC_ROOT, "ddm_core/frontend/uploader/webpack-stats.json"
-        ),
+        "STATS_FILE": Path(STATIC_ROOT)
+        / "ddm_core/frontend/uploader/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
         "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
@@ -249,9 +248,8 @@ WEBPACK_LOADER = {
     "DDM_QUESTIONNAIRE": {
         "CACHE": True,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/questionnaire/",
-        "STATS_FILE": os.path.join(
-            STATIC_ROOT, "ddm_core/frontend/questionnaire/webpack-stats.json"
-        ),
+        "STATS_FILE": Path(STATIC_ROOT)
+        / "ddm_core/frontend/questionnaire/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
         "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],

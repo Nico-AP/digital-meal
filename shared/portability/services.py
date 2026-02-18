@@ -70,7 +70,8 @@ class TikTokAccessTokenService:
                 e,
                 f"Unable to refresh TikTokAccessToken (pk: {access_token.pk})",
             )
-            raise TokenRefreshError(f"Unable to refresh TikTokAccessToken: {e}")
+            msg = f"Unable to refresh TikTokAccessToken: {e}"
+            raise TokenRefreshError(msg) from e
 
     @staticmethod
     def _update_token(access_token: TikTokAccessToken, data: dict) -> None:
@@ -190,7 +191,7 @@ class TikTokAccessTokenService:
                 time.sleep(3 * attempt)
                 return self.exchange_code_for_token(auth_code, attempt + 1)
             else:
-                raise requests.exceptions.RequestException
+                raise requests.exceptions.RequestException from e
         except requests.exceptions.RequestException as e:
             log_requests_exception(
                 logger,

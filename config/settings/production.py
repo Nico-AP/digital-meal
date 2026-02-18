@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 
 from .base import *  # noqa: F403
 from .base import BASE_DIR
@@ -25,8 +26,8 @@ SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # LOGGING
 # ------------------------------------------------------------------------------
-LOG_DIR = os.path.join(BASE_DIR, "logs")
-os.makedirs(LOG_DIR, exist_ok=True)
+LOG_DIR = Path(BASE_DIR) / "logs"
+Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
 
 LOGGING = {
     "version": 1,
@@ -51,7 +52,7 @@ LOGGING = {
         "file": {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "django.log"),
+            "filename": Path(LOG_DIR) / "django.log",
             "maxBytes": 1024 * 1024 * 15,
             "backupCount": 5,
             "formatter": "verbose",
@@ -59,7 +60,7 @@ LOGGING = {
         "portability_file": {
             "level": "INFO",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "portability.log"),
+            "filename": Path(LOG_DIR) / "portability.log",
             "maxBytes": 1024 * 1024 * 15,
             "backupCount": 5,
             "formatter": "json",
@@ -67,7 +68,7 @@ LOGGING = {
         "error_file": {
             "level": "ERROR",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "errors.log"),
+            "filename": Path(LOG_DIR) / "errors.log",
             "maxBytes": 1024 * 1024 * 15,
             "backupCount": 5,
             "formatter": "verbose",
@@ -75,7 +76,7 @@ LOGGING = {
         "security_file": {
             "level": "WARNING",
             "class": "logging.handlers.RotatingFileHandler",
-            "filename": os.path.join(LOG_DIR, "security.log"),
+            "filename": Path(LOG_DIR) / "security.log",
             "maxBytes": 1024 * 1024 * 10,
             "backupCount": 10,
             "formatter": "verbose",

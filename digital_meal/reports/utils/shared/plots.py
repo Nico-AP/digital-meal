@@ -164,7 +164,15 @@ def get_weekday_use_plot(data: list[datetime]) -> dict:
     y_values_rel = [v / sum(y_values_abs) * 100 for v in y_values_abs]
 
     df = pd.DataFrame(
-        list(zip(x_labels, y_values_abs, y_values_rel, ["00:00"] * len(x_labels))),
+        list(
+            zip(
+                x_labels,
+                y_values_abs,
+                y_values_rel,
+                ["00:00"] * len(x_labels),
+                strict=False,
+            )
+        ),
         columns=["Day", "Count", "Rate", "Dummy"],
     )
     df.replace({"Day": days_en_de}, inplace=True)

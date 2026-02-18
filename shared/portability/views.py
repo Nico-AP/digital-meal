@@ -203,11 +203,12 @@ class ManageAccessTokenMixin:
             # Try to refresh token.
             try:
                 access_token = refresh_service.refresh_token(access_token)
-            except TokenRefreshError:
-                raise ValidationError(
-                    f"TikTokAccessToken is expired and cannot be refreshed "
+            except TokenRefreshError as e:
+                msg = (
+                    "TikTokAccessToken is expired and cannot be refreshed "
                     f"(open_id: {open_id})."
                 )
+                raise ValidationError(msg) from e
 
         return access_token
 
@@ -561,7 +562,7 @@ class TikTokDataDownloadView(
         # Validate request id
         try:
             request_id = int(request_id)
-        except ValueError:
+        except ValueError as e:
             log_security_event(
                 logger,
                 "Received invalid request id",
@@ -571,7 +572,7 @@ class TikTokDataDownloadView(
                 },
             )
 
-            raise Http404
+            raise Http404 from e
 
         # Ensure TikTokDataRequest object exists for the received request ID.
         try:
@@ -579,7 +580,7 @@ class TikTokDataDownloadView(
                 request_id=request_id,
                 open_id=open_id,
             )
-        except TikTokDataRequest.DoesNotExist:
+        except TikTokDataRequest.DoesNotExist as e:
             log_security_event(
                 logger,
                 "Registered attempt to download non-existing request ID",
@@ -590,14 +591,14 @@ class TikTokDataDownloadView(
                 },
             )
 
-            raise Http404  # TODO: Is there a more adequate option to raise here?
+            raise Http404 from e  # TODO: Is there a more adequate option to raise here?
 
         # Download data
         api_client = TikTokPortabilityAPIClient(self.access_token.token)
 
         try:
             return api_client.stream_download_requested_data(data_request)
-        except Exception:
+        except Exception:  # noqa: BLE001  TODO: Improve
             return render_http_400(request, "Download Failed")
             # TODO: Is there a more adequate option to raise here?
 
