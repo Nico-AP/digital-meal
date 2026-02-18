@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from ddm.apis.serializers import ResponseSerializer
 from ddm.datadonation.models import DonationBlueprint, DataDonation
 from ddm.logging.models import ExceptionLogEntry
@@ -6,7 +8,7 @@ from ddm.projects.models import DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import Count, Q, Value
+from django.db.models import Count, Q, Value, QuerySet
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.views.generic import TemplateView
@@ -159,13 +161,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         """Requesting user must pass this test to access view."""
         return self.request.user.is_staff
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        # Get all base modules
-        base_modules = BaseModule.objects.all()
-
-        # Get relevant classrooms
+    def get_classrooms(self) -> QuerySet[Classroom]:
         classrooms = (
             Classroom.objects.exclude(
                 Q(is_test_participation_class=True) | Q(owner__is_staff=True)
@@ -173,27 +169,37 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
             .select_related("base_module")
             .all()
         )
+        return classrooms
 
-        # Pre-group classrooms by module
-        classrooms_by_module = {}
+    def group_classrooms_by_module(
+        self, classrooms: QuerySet[Classroom]
+    ) -> dict[UUID, list[Classroom]]:
+        result = {}
         for classroom in classrooms:
             if classroom.base_module is None:
                 continue
             module_id = classroom.base_module.id
-            if module_id not in classrooms_by_module:
-                classrooms_by_module[module_id] = []
-            classrooms_by_module[module_id].append(classroom.url_id)
+            if module_id not in result:
+                result[module_id] = []
+            result[module_id].append(classroom.url_id)
+        return result
 
-        # Fetch all projects with blueprints
+    def get_relevant_projects(
+        self, base_modules: QuerySet[BaseModule]
+    ) -> QuerySet[DonationProject]:
+        """Get projects related to base modules."""
         project_ids = [m.ddm_project_id for m in base_modules if m.ddm_project_id]
-        donation_projects = DonationProject.objects.filter(
-            url_id__in=project_ids
-        ).prefetch_related("donationblueprint_set")
+        return DonationProject.objects.filter(url_id__in=project_ids).prefetch_related(
+            "donationblueprint_set"
+        )
 
-        # Create a project lookup dict
-        projects_by_url_id = {p.url_id: p for p in donation_projects}
+    def get_relevant_participants(
+        self,
+        donation_projects: QuerySet[DonationProject],
+        classrooms: QuerySet[Classroom],
+    ) -> list[Participant]:
+        """Get participants of selected classrooms."""
 
-        # Get ALL participants for ALL projects at once
         all_participants = list(
             Participant.objects.filter(project__in=donation_projects).select_related(
                 "project"
@@ -206,45 +212,75 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
             if p.extra_data.get("url_param", {}).get("class")
             in classrooms.values_list("url_id", flat=True)
         ]
+        return relevant_participants
 
-        # Group participants by project (since no overlap, this is straightforward)
-        participants_by_project_id = {}
-        for participant in relevant_participants:
+    def group_participants_by_project(
+        self, participants: list[Participant]
+    ) -> dict[str, list[Participant]]:
+        result = {}
+        for participant in participants:
             project_id = participant.project.url_id
-            if project_id not in participants_by_project_id:
-                participants_by_project_id[project_id] = []
-            participants_by_project_id[project_id].append(participant)
+            if project_id not in result:
+                result[project_id] = []
+            result[project_id].append(participant)
+        return result
 
-        # Get ALL donations at once
+    def group_donations_by_blueprint(
+        self,
+        donation_projects: QuerySet[DonationProject],
+        participants: list[Participant],
+    ) -> dict[int, list[str]]:
         donation_info = DataDonation.objects.filter(
             project__in=donation_projects,
             status="success",
             consent=True,
-            participant__in=relevant_participants,
+            participant__in=participants,
         ).values("blueprint_id", "participant__external_id")
 
-        # Group donations by blueprint
-        donations_by_blueprint_id = {}
+        result = {}
         for donation in donation_info:
             blueprint_id = donation["blueprint_id"]
-            if blueprint_id not in donations_by_blueprint_id:
-                donations_by_blueprint_id[blueprint_id] = []
-            donations_by_blueprint_id[blueprint_id].append(
-                donation["participant__external_id"]
-            )
+            if blueprint_id not in result:
+                result[blueprint_id] = []
+            result[blueprint_id].append(donation["participant__external_id"])
+        return result
 
-        # Get ALL responses for ALL participants at once - decrypt only once
+    def get_consent_lookup(self, participants: list[Participant]) -> set:
         relevant_responses = QuestionnaireResponse.objects.filter(
-            participant__in=relevant_participants
+            participant__in=participants
         )
         response_data = ResponseSerializer(relevant_responses, many=True).data
 
-        # Build consent lookup by participant ID
-        consented_participant_ids = {
+        return {
             response["participant"]
             for response in response_data
             if response["response_data"].get("usage_dd_consent") in [1, "1"]
         }
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        base_modules = BaseModule.objects.all()
+
+        classrooms = self.get_classrooms()
+        classrooms_by_module = self.group_classrooms_by_module(classrooms)
+
+        donation_projects = self.get_relevant_projects(base_modules)
+        projects_by_url_id = {p.url_id: p for p in donation_projects}
+
+        relevant_participants = self.get_relevant_participants(
+            donation_projects, classrooms
+        )
+
+        participants_by_project_id = self.group_participants_by_project(
+            relevant_participants
+        )
+
+        donations_by_blueprint_id = self.group_donations_by_blueprint(
+            donation_projects, relevant_participants
+        )
+
+        consented_participant_ids = self.get_consent_lookup()
 
         info_per_module = {}
         for module in base_modules:
