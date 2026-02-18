@@ -6,7 +6,7 @@ from django.test import TestCase
 from django.utils import timezone
 from requests import HTTPError, Timeout
 
-from shared.portability.exceptions import TokenRefreshException
+from shared.portability.exceptions import TokenRefreshError
 from shared.portability.models import TikTokAccessToken, TikTokDataRequest
 from shared.portability.services import (
     TikTokAccessTokenService,
@@ -61,7 +61,7 @@ class TestTikTokAccessTokenService(TestCase):
             token_type="Bearer",
         )
 
-        with self.assertRaises(TokenRefreshException) as e:  # noqa: F841
+        with self.assertRaises(TokenRefreshError) as e:  # noqa: F841
             self.service.refresh_token(expired_token)
 
     @patch("shared.portability.services.TikTokAccessTokenService._call_tiktok_api")

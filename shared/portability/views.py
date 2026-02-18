@@ -13,7 +13,7 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from digital_meal.core.logging_utils import log_security_event
-from shared.portability.exceptions import TokenRefreshException
+from shared.portability.exceptions import TokenRefreshError
 from shared.portability.models import (
     OAuthStateToken,
     TikTokAccessToken,
@@ -203,7 +203,7 @@ class ManageAccessTokenMixin:
             # Try to refresh token.
             try:
                 access_token = refresh_service.refresh_token(access_token)
-            except TokenRefreshException:
+            except TokenRefreshError:
                 raise ValidationError(
                     f"TikTokAccessToken is expired and cannot be refreshed "
                     f"(open_id: {open_id})."

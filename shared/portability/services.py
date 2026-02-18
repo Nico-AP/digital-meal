@@ -10,7 +10,7 @@ from django.http import StreamingHttpResponse
 from django.utils import timezone
 
 from digital_meal.core.logging_utils import log_requests_exception
-from shared.portability.exceptions import TokenRefreshException
+from shared.portability.exceptions import TokenRefreshError
 from shared.portability.models import TikTokAccessToken, TikTokDataRequest
 
 logger = logging.getLogger(__name__)
@@ -32,7 +32,7 @@ class TikTokAccessTokenService:
                 access_token.pk,
                 access_token.refresh_token_expiration_date,
             )
-            raise TokenRefreshException("Refresh token expired")
+            raise TokenRefreshError("Refresh token expired")
 
         response_data = self._call_tiktok_api(access_token.refresh_token)
 
@@ -71,7 +71,7 @@ class TikTokAccessTokenService:
                 e,
                 f"Unable to refresh TikTokAccessToken (pk: {access_token.pk})",
             )
-            raise TokenRefreshException(f"Unable to refresh TikTokAccessToken: {e}")
+            raise TokenRefreshError(f"Unable to refresh TikTokAccessToken: {e}")
 
     @staticmethod
     def _update_token(access_token: TikTokAccessToken, data: dict) -> None:

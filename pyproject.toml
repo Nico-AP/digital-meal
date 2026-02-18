@@ -69,7 +69,7 @@ select = [
   "W",
   "C90",
   "I",
-#  "N",
+  "N",
 #  "UP",
 #  "YTT",
 #  # "ANN", # flake8-annotations: we should support this in the future but 100+ errors atm

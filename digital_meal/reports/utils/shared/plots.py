@@ -169,7 +169,7 @@ def get_weekday_use_plot(data: list[datetime]) -> dict:
     )
     df.replace({"Day": days_en_de}, inplace=True)
 
-    TOOLTIPS = """
+    tooltips = """
         <div style="font-size: 0.8rem; color: black">
             <div>
                 <span style="font-weight: bold;">Anzahl Videos: </span>
@@ -189,7 +189,7 @@ def get_weekday_use_plot(data: list[datetime]) -> dict:
         height=80,
         tools="hover,save,pan,box_zoom,reset,wheel_zoom",
         toolbar_location=None,
-        tooltips=TOOLTIPS,
+        tooltips=tooltips,
         sizing_mode="stretch_width",
     )
 
@@ -248,7 +248,7 @@ def get_day_usetime_plot(data: list[datetime]) -> dict:
     df_grouped = df.groupby(["Day", "Time"]).count().reset_index()
 
     # Create figure.
-    TOOLTIPS = """
+    tooltips = """
         <div style="font-size: 0.8rem; color: black">
             <div>
                 <span style="font-weight: bold;">Anzahl Videos: </span>
@@ -264,7 +264,7 @@ def get_day_usetime_plot(data: list[datetime]) -> dict:
         height=500,
         tools="hover,save,pan,box_zoom,reset,wheel_zoom",
         toolbar_location=None,
-        tooltips=TOOLTIPS,
+        tooltips=tooltips,
         sizing_mode="stretch_width",
     )
     p.border_fill_color = None

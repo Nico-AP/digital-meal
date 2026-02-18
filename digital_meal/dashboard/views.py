@@ -379,18 +379,18 @@ class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        BLUEPRINT_EXCEPTIONS = [
+        blueprint_exception_types = [
             "NO_FILE_MATCH",
             "PARSING_ERROR",
             "STRING_CONVERSION_ERROR",
             "MORE_THAN_ONE_KEY_MATCH",
         ]
-        GENERAL_EXCEPTIONS = [
+        general_exception_types = [
             "ZIP_READ_FAIL",
             "FILE_PROCESSING_FAIL_GENERAL",
         ]
-        BLUEPRINT_EXCEPTIONS.sort()
-        GENERAL_EXCEPTIONS.sort()
+        blueprint_exception_types.sort()
+        general_exception_types.sort()
 
         exc_per_module = {}
 
@@ -419,11 +419,11 @@ class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
             )
 
             # Add module/uploader-level exceptions
-            general_exception_counts = {exc: 0 for exc in GENERAL_EXCEPTIONS}
+            general_exception_counts = {exc: 0 for exc in general_exception_types}
 
             general_actual_counts = (
                 ExceptionLogEntry.objects.filter(
-                    exception_type__in=GENERAL_EXCEPTIONS,
+                    exception_type__in=general_exception_types,
                     participant__in=participants,
                     blueprint=None,
                 )
@@ -441,11 +441,11 @@ class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
 
             blueprint_exceptions = {}
             for blueprint in blueprints:
-                bp_exception_counts = {exc: 0 for exc in BLUEPRINT_EXCEPTIONS}
+                bp_exception_counts = {exc: 0 for exc in blueprint_exception_types}
 
                 bp_actual_counts = (
                     ExceptionLogEntry.objects.filter(
-                        exception_type__in=BLUEPRINT_EXCEPTIONS,
+                        exception_type__in=blueprint_exception_types,
                         participant__in=participants,
                         blueprint=blueprint,
                     )
@@ -461,8 +461,8 @@ class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
             exc_per_module[module.name]["blueprints"] = blueprint_exceptions
             exc_per_module[module.name]["id"] = module.pk
 
-        context["blueprint_exceptions"] = BLUEPRINT_EXCEPTIONS
-        context["general_exceptions"] = GENERAL_EXCEPTIONS
+        context["blueprint_exceptions"] = blueprint_exception_types
+        context["general_exceptions"] = general_exception_types
         context["exceptions_per_module"] = exc_per_module
 
         return context

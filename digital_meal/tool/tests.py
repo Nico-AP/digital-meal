@@ -184,7 +184,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
     def setUp(self):
         QuestionnaireResponse.objects.all().delete()
 
-    def testCleanParticipantsExpiredWithConsent(self):
+    def test_clean_participants_expired_with_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.expired_participant,
@@ -206,7 +206,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
 
-    def testCleanParticipantsExpiredNoConsent(self):
+    def test_clean_participants_expired_no_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.expired_participant,
@@ -228,7 +228,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 0)
 
-    def testCleanParticipantsExpiredMixedConsentA(self):
+    def test_clean_participants_expired_mixed_consent_a(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.expired_participant,
@@ -250,7 +250,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
 
-    def testCleanParticipantsExpiredMixedConsentB(self):
+    def test_clean_participants_expired_mixed_consent_b(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.expired_participant,
@@ -272,7 +272,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 0)
 
-    def testCleanParticipantsExpiredMissingConsent(self):
+    def test_clean_participants_expired_missing_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.expired_participant,
@@ -294,7 +294,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
 
-    def testCleanParticipantsNotExpiredWithConsent(self):
+    def test_clean_participants_not_expired_with_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.non_expired_participant,
@@ -316,7 +316,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
 
-    def testCleanParticipantsNotExpiredNoConsent(self):
+    def test_clean_participants_not_expired_no_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.non_expired_participant,
@@ -338,7 +338,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
         self.assertEqual(n_donations_before, 1)
         self.assertEqual(n_donations_after, 1)
 
-    def testCleanParticipantsNotExpiredMissingConsent(self):
+    def test_clean_participants_not_expired_missing_consent(self):
         QuestionnaireResponse.objects.create(
             project=self.project,
             participant=self.non_expired_participant,
