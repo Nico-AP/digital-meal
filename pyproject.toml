@@ -70,7 +70,7 @@ select = [
   "C90",
   "I",
   "N",
-#  "UP",
+  "UP",
 #  "YTT",
 #  # "ANN", # flake8-annotations: we should support this in the future but 100+ errors atm
 #  "ASYNC",

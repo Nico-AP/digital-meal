@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Literal
 
 import pandas as pd
@@ -69,7 +69,7 @@ def make_tz_aware(
     if date.tzinfo is not None and date.tzinfo.utcoffset(date) is not None:
         return date
     else:
-        return date.replace(tzinfo=timezone.utc)
+        return date.replace(tzinfo=UTC)
 
 
 def normalize_datetime(

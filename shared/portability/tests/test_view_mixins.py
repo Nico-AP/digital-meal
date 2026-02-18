@@ -36,7 +36,7 @@ class TestStateTokenMixin(TestCase):
         self.view.store_state_token_in_session(test_token)
 
         token_in_session = self.request.session[self.session_key]
-        self.assertEquals(token_in_session, test_token)
+        self.assertEqual(token_in_session, test_token)
 
     def test_store_state_token_in_session_overwrites_existing(self):
         old_token = "test-token-new"
@@ -45,7 +45,7 @@ class TestStateTokenMixin(TestCase):
         self.view.store_state_token_in_session(new_token)
         token_in_session = self.request.session[self.session_key]
 
-        self.assertEquals(token_in_session, new_token)
+        self.assertEqual(token_in_session, new_token)
 
     def test_get_or_create_state_token_with_existing_token(self):
         test_token = OAuthStateToken.objects.create()
@@ -126,7 +126,7 @@ class TestManageAccessTokenMixin(TestCase):
 
     def test_get_valid_access_token_from_db_valid(self):
         token = self.view.get_valid_access_token_from_db(self.valid_token.open_id)
-        self.assertEquals(token.token, self.valid_token.token)
+        self.assertEqual(token.token, self.valid_token.token)
 
     def test_get_valid_access_token_from_db_nonexisting(self):
         self.assertRaises(
@@ -144,7 +144,7 @@ class TestManageAccessTokenMixin(TestCase):
 
     def test_store_open_id_in_session(self):
         self.view.store_open_id_in_session(self.valid_token.open_id)
-        self.assertEquals(
+        self.assertEqual(
             self.valid_token.open_id,
             self.request.session.get(self.view.open_id_session_key),
         )
@@ -152,7 +152,7 @@ class TestManageAccessTokenMixin(TestCase):
     def test_get_open_id_from_session(self):
         self.request.session[self.view.open_id_session_key] = self.valid_token.open_id
         open_id = self.view.get_open_id_from_session()
-        self.assertEquals(open_id, self.valid_token.open_id)
+        self.assertEqual(open_id, self.valid_token.open_id)
 
 
 class TestViewAuthenticationRequiredMixin(AuthenticationRequiredMixin, View):

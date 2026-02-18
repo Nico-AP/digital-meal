@@ -1,7 +1,6 @@
 import logging
 import time
 from datetime import timedelta
-from typing import Tuple
 
 import requests
 from django.conf import settings
@@ -364,7 +363,7 @@ class TikTokPortabilityAPIClient:
         return request_result
 
     @staticmethod
-    def data_request_response_is_valid(response_json: dict) -> Tuple[bool, str]:
+    def data_request_response_is_valid(response_json: dict) -> tuple[bool, str]:
         """Validates the response from a TikTok data portability request.
 
         Checks if:
@@ -488,7 +487,7 @@ class TikTokPortabilityAPIClient:
     @staticmethod
     def poll_data_request_status_response_is_valid(
         response_json: dict,
-    ) -> Tuple[bool, str]:
+    ) -> tuple[bool, str]:
         """Validates the response from a TikTok data request status check.
 
         Checks if:
