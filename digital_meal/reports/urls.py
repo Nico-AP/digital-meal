@@ -2,6 +2,7 @@ from django.urls import path
 
 import digital_meal.reports.views.tiktok as tiktok_views
 import digital_meal.reports.views.youtube as youtube_views
+
 from .views.base import ReportExpired, SendReportLink
 
 urlpatterns = [

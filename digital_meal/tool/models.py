@@ -1,20 +1,19 @@
-import uuid
 import secrets
 import string
+import uuid
+from datetime import datetime, timedelta
 
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
-from django.db.models import Max
-from django_ckeditor_5.fields import CKEditor5Field
-
-from datetime import timedelta, datetime
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
+from django.db.models import Max
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 def generate_unique_classroom_id() -> str:

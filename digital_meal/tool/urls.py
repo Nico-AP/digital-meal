@@ -1,7 +1,6 @@
-from django.urls import path, include
+from django.urls import include, path
 
 from . import views
-
 
 urlpatterns = [
     path("", views.ToolMainPage.as_view(), name="tool_main_page"),

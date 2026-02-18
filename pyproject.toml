@@ -66,9 +66,9 @@ extend-exclude = [
 select = [
   "F",
   "E",
-#  "W",
-#  "C90",
-#  "I",
+  "W",
+  "C90",
+  "I",
 #  "N",
 #  "UP",
 #  "YTT",

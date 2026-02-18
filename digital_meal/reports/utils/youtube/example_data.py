@@ -1,13 +1,13 @@
 import random
-from datetime import timedelta, date
+from datetime import date, timedelta
 
 import numpy as np
 from django.utils import timezone
 
 from digital_meal.reports.utils.shared.example_data import (
+    generate_hourly_shares,
     random_string,
     random_time_in_range,
-    generate_hourly_shares,
 )
 
 

@@ -2,8 +2,7 @@ from allauth.account.forms import SignupForm
 from django import forms
 from django.utils.translation import gettext_lazy as _
 
-from .models import SwissCantons, Teacher, Classroom
-
+from .models import Classroom, SwissCantons, Teacher
 
 cantons = SwissCantons.choices
 cantons.insert(0, ("", _("bitte auswählen")))

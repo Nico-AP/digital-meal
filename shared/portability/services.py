@@ -1,19 +1,17 @@
 import logging
 import time
 from datetime import timedelta
-
-import requests
-
 from typing import Tuple
 
+import requests
 from django.conf import settings
 from django.db import transaction
 from django.http import StreamingHttpResponse
 from django.utils import timezone
 
-from shared.portability.exceptions import TokenRefreshException
-from shared.portability.models import TikTokDataRequest, TikTokAccessToken
 from digital_meal.core.logging_utils import log_requests_exception
+from shared.portability.exceptions import TokenRefreshException
+from shared.portability.models import TikTokAccessToken, TikTokDataRequest
 
 logger = logging.getLogger(__name__)
 

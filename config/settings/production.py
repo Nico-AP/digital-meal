@@ -1,6 +1,7 @@
+import os
+
 from .base import *  # noqa: F403
 from .base import BASE_DIR
-import os
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split()
 

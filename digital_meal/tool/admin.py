@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Classroom, User, Teacher, BaseModule, SubModule
+from .models import BaseModule, Classroom, SubModule, Teacher, User
 
 
 @admin.register(User)

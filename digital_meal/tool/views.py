@@ -2,13 +2,13 @@ from ddm.datadonation.models import DonationBlueprint
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
-from django.shortcuts import redirect, get_object_or_404
-from django.urls import reverse_lazy, reverse, NoReverseMatch
-from django.views.generic import TemplateView, ListView, DetailView
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import NoReverseMatch, reverse, reverse_lazy
+from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
 from .forms import ClassroomCreateForm, ClassroomModuleForm
-from .models import Classroom, Teacher, BaseModule
+from .models import BaseModule, Classroom, Teacher
 
 
 class OwnershipRequiredMixin:

@@ -1,9 +1,9 @@
-from .base import *  # noqa: F403
-from .base import BASE_DIR
-
 import os
+
 import ddm.core
 
+from .base import *  # noqa: F403
+from .base import BASE_DIR
 
 ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split()
 

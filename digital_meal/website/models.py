@@ -1,8 +1,8 @@
-from wagtail.models import Page
-from wagtail.fields import StreamField
 from wagtail import blocks
 from wagtail.admin.panels import FieldPanel
+from wagtail.fields import StreamField
 from wagtail.images.blocks import ImageChooserBlock
+from wagtail.models import Page
 from wagtailvideos.blocks import VideoChooserBlock
 
 

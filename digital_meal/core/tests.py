@@ -1,8 +1,9 @@
 import logging
 from unittest.mock import Mock
+
 import requests
 from django.contrib.sessions.middleware import SessionMiddleware
-from django.test import TestCase, RequestFactory
+from django.test import RequestFactory, TestCase
 
 from digital_meal.core.logging_utils import log_requests_exception, log_security_event
 

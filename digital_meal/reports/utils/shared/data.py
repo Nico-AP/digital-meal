@@ -1,11 +1,9 @@
+from datetime import datetime, timedelta, timezone
 from typing import Literal
 
 import pandas as pd
 import spacy
-
-from datetime import datetime, timedelta, timezone
-
-from ddm.datadonation.models import DonationBlueprint, DataDonation
+from ddm.datadonation.models import DataDonation, DonationBlueprint
 from ddm.datadonation.serializers import DonationSerializer
 from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant

@@ -1,18 +1,15 @@
 from collections import Counter
+from datetime import datetime, timedelta
 
 import pandas as pd
-
 from bokeh.embed import components
 from bokeh.layouts import column
-from bokeh.models import RangeTool, BasicTicker, PrintfTickFormatter
+from bokeh.models import BasicTicker, PrintfTickFormatter, RangeTool
 from bokeh.plotting import figure
 from bokeh.transform import linear_cmap
-
-from datetime import timedelta, datetime
-
 from wordcloud import WordCloud
 
-from digital_meal.website.constants import COLORS, COLOR_PALETTES
+from digital_meal.website.constants import COLOR_PALETTES, COLORS
 
 days_de = [
     "Montag",

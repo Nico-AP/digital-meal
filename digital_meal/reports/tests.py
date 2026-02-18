@@ -1,18 +1,17 @@
 import json
 from datetime import datetime
 
-from django.contrib.auth import get_user_model
-from django.test import TestCase, override_settings
-from django.utils import timezone
-from django.urls import reverse
-
-from ddm.datadonation.models import FileUploader, DonationBlueprint, DataDonation
+from ddm.datadonation.models import DataDonation, DonationBlueprint, FileUploader
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject, ResearchProfile
+from django.contrib.auth import get_user_model
+from django.test import TestCase, override_settings
+from django.urls import reverse
+from django.utils import timezone
 
 import digital_meal.reports.utils.tiktok.example_data as tiktok_data
 import digital_meal.reports.utils.youtube.example_data as youtube_data
-from digital_meal.tool.models import Classroom, BaseModule
+from digital_meal.tool.models import BaseModule, Classroom
 
 User = get_user_model()
 

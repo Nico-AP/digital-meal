@@ -1,9 +1,9 @@
 import datetime
+import random
+import re
 from typing import TypedDict
 
 import pandas as pd
-import random
-import re
 
 
 def get_video_ids(watch_history: list[dict]) -> list[str]:

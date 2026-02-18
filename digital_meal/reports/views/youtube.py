@@ -1,28 +1,30 @@
+import logging
 from collections import Counter
 from datetime import datetime, timedelta
 
 import pandas as pd
 from django.utils import timezone
 
+import digital_meal.reports.views.base as base_views
 from digital_meal.reports.utils.shared import (
     data as shared_data_utils,
+)
+from digital_meal.reports.utils.shared import (
     plots as shared_plot_utils,
 )
-from digital_meal.reports.utils.youtube import data as data_utils, plots as plot_utils
-import digital_meal.reports.views.base as base_views
+from digital_meal.reports.utils.youtube import data as data_utils
+from digital_meal.reports.utils.youtube import plots as plot_utils
 from digital_meal.reports.utils.youtube.data import (
-    extract_watch_history_data,
-    WatchHistoryData,
     SearchHistoryData,
+    WatchHistoryData,
     extract_search_history_data,
+    extract_watch_history_data,
 )
 from digital_meal.reports.utils.youtube.example_data import (
-    generate_synthetic_watch_history,
     generate_synthetic_search_history,
+    generate_synthetic_watch_history,
 )
 from digital_meal.tool.models import Classroom
-
-import logging
 
 logger = logging.getLogger(__name__)
 

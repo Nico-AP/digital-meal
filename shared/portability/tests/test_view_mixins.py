@@ -11,10 +11,10 @@ from django.views.generic import View
 from shared.portability.models import OAuthStateToken, TikTokAccessToken
 from shared.portability.tests.utils import get_request_with_session
 from shared.portability.views import (
-    StateTokenMixin,
-    ManageAccessTokenMixin,
-    AuthenticationRequiredMixin,
     ActiveAccessTokenRequiredMixin,
+    AuthenticationRequiredMixin,
+    ManageAccessTokenMixin,
+    StateTokenMixin,
 )
 
 User = get_user_model()

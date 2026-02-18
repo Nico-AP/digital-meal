@@ -1,9 +1,8 @@
-import logging
 import json
+import logging
 from collections import OrderedDict
 
 from django.http import HttpRequest
-
 
 ALLOWED_LOGGING_LEVELS = [
     logging.WARNING,

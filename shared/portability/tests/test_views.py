@@ -14,13 +14,12 @@ from shared.portability.models import (
 )
 from shared.portability.tests.utils import get_request_with_session
 from shared.portability.views import (
-    TikTokCallbackView,
     ManageAccessTokenMixin,
-    TikTokAuthView,
     StateTokenMixin,
+    TikTokAuthView,
+    TikTokCallbackView,
     TikTokCheckDownloadAvailabilityView,
 )
-
 
 User = get_user_model()
 

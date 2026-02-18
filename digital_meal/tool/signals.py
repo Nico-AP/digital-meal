@@ -2,7 +2,7 @@ from django.core.mail import mail_admins
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 
-from digital_meal.tool.models import Teacher, Classroom
+from digital_meal.tool.models import Classroom, Teacher
 
 
 @receiver(post_save, sender=Teacher)

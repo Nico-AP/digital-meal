@@ -1,11 +1,10 @@
 import json
 import logging
-
 from datetime import timedelta
 from smtplib import SMTPException
 from urllib.parse import urlparse
 
-from ddm.datadonation.models import DonationBlueprint, DataDonation
+from ddm.datadonation.models import DataDonation, DonationBlueprint
 from ddm.datadonation.serializers import DonationSerializer
 from ddm.encryption.models import Decryption
 from ddm.participation.models import Participant
@@ -15,8 +14,8 @@ from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.mail import EmailMultiAlternatives
 from django.core.validators import validate_email
 from django.db.models import Prefetch, QuerySet
-from django.http import JsonResponse, HttpResponseNotAllowed, Http404
-from django.shortcuts import redirect, get_object_or_404
+from django.http import Http404, HttpResponseNotAllowed, JsonResponse
+from django.shortcuts import get_object_or_404, redirect
 from django.template.loader import render_to_string
 from django.urls import reverse_lazy
 from django.utils import timezone

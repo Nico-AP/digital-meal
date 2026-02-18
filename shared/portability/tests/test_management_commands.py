@@ -7,8 +7,8 @@ from django.test import TestCase
 from django.utils import timezone
 
 from shared.portability.management.commands.clean_expired_tokens import (
-    clean_oauth_tokens,
     clean_access_tokens,
+    clean_oauth_tokens,
 )
 from shared.portability.models import OAuthStateToken, TikTokAccessToken
 

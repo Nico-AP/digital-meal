@@ -2,17 +2,17 @@ from datetime import timedelta
 
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
-from ddm.projects.models import ResearchProfile, DonationProject
+from ddm.projects.models import DonationProject, ResearchProfile
 from ddm.questionnaire.models import QuestionnaireResponse, SingleChoiceQuestion
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.test import TestCase, override_settings
-from django.utils import timezone
 from django.urls import reverse
+from django.utils import timezone
 
 from .forms import SimpleSignupForm
-from .models import Classroom, BaseModule
+from .models import BaseModule, Classroom
 
 User = get_user_model()
 

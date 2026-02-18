@@ -1,19 +1,19 @@
 from uuid import UUID
 
 from ddm.apis.serializers import ResponseSerializer
-from ddm.datadonation.models import DonationBlueprint, DataDonation
+from ddm.datadonation.models import DataDonation, DonationBlueprint
 from ddm.logging.models import ExceptionLogEntry
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
 from django.contrib.auth import get_user_model
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.db.models import Count, Q, Value, QuerySet
+from django.db.models import Count, Q, QuerySet, Value
 from django.db.models.functions import Concat
 from django.utils import timezone
 from django.views.generic import TemplateView
 
-from digital_meal.tool.models import Classroom, Teacher, BaseModule
+from digital_meal.tool.models import BaseModule, Classroom, Teacher
 
 User = get_user_model()
 

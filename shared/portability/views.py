@@ -2,12 +2,11 @@ import logging
 import time
 
 import requests
-
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import HttpResponse, Http404, HttpResponseRedirect
+from django.http import Http404, HttpResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views import View
@@ -21,8 +20,8 @@ from shared.portability.models import (
     TikTokDataRequest,
 )
 from shared.portability.services import (
-    TikTokPortabilityAPIClient,
     TikTokAccessTokenService,
+    TikTokPortabilityAPIClient,
 )
 
 logger = logging.getLogger(__name__)

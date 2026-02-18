@@ -1,9 +1,8 @@
-from django.urls import path, include
+from django.urls import include, path
 from django.views.generic import TemplateView
 from wagtail.contrib.sitemaps.views import sitemap
 
-from .views import StyleGuide, NewsletterSignupPage
-
+from .views import NewsletterSignupPage, StyleGuide
 
 urlpatterns = [
     path("styleguide", StyleGuide.as_view(), name="styleguide"),

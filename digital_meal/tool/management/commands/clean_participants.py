@@ -2,15 +2,14 @@ import logging
 from datetime import timedelta
 
 from ddm.apis.serializers import ResponseSerializer
-from django.conf import settings
 from ddm.datadonation.models import DataDonation
 from ddm.logging.models import ExceptionLogEntry, ExceptionRaisers
+from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
 from ddm.questionnaire.models import QuestionnaireResponse
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.utils import timezone
-from ddm.participation.models import Participant
-
 
 logger = logging.getLogger(__name__)
 

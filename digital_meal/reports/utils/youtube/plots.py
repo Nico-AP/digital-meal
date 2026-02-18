@@ -1,6 +1,6 @@
 import math
-import pandas as pd
 
+import pandas as pd
 from bokeh.embed import components
 from bokeh.plotting import figure
 

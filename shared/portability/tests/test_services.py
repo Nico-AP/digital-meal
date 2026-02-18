@@ -1,10 +1,10 @@
 from datetime import timedelta
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from django.http import StreamingHttpResponse
 from django.test import TestCase
 from django.utils import timezone
-from requests import Timeout, HTTPError
+from requests import HTTPError, Timeout
 
 from shared.portability.exceptions import TokenRefreshException
 from shared.portability.models import TikTokAccessToken, TikTokDataRequest
