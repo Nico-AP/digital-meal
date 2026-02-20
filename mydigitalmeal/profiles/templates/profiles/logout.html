@@ -1,0 +1,24 @@
+{% extends "userflow/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Abmelden" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+
+        <div class="mdm-text-main">
+          <p>{% translate "Bist du sicher, dass du dich abmelden möchtest?" %}</p>
+        </div>
+
+        <form method="post" action="{% url 'userflow:profiles:logout' %}">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button class="btn mdm-base-btn fs-5" type="submit">{% translate "Ja, abmelden" %}</button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+{% endblock content %}

@@ -1,0 +1,20 @@
+{% extends "userflow/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
+
+{% block content %}
+  <div>
+
+    <p class="mdm-text-main">$
+      {% blocktranslate trimmed %}
+        Zugriff autorisiert!
+        Wir warten nun darauf, dass TikTok deine Daten bereitstellt.
+        Sobald alles bereit ist, kannst du sie prüfen und entscheiden,
+        ob der Report erstellt werden soll.
+      {% endblocktranslate %}
+    </p>
+
+  </div>
+
+{% endblock content %}

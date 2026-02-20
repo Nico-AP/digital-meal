@@ -1,0 +1,20 @@
+{% load static i18n %}
+
+<div class="container text-center pt-5">
+  <div class="row justify-content-md-center">
+
+    {% if request.user.is_authenticated %}
+      <div class="col-12 col-md-4">
+        <a class="link-secondary link-offset-2 link-underline-opacity-25"
+           href="{% url 'userflow:profiles:logout' %}">Abmelden</a>
+      </div>
+    {% endif %}
+
+  </div>
+
+  <div class="row pt-3">
+    <div class="col-12">
+      <small class="text-muted">(c) 2025 Digital Meal | eine Initiative der Universität Zürich</small>
+    </div>
+  </div>
+</div>

@@ -10,7 +10,7 @@ urlpatterns = [
     path("ckeditor5/", include("django_ckeditor_5.urls")),
 ]
 
-custom_ddm_patterns = [
+ddm_patterns = [
     path(
         r"teilnahme/<slug:slug>/",
         include("ddm.participation.urls", namespace="ddm_participation"),
@@ -39,13 +39,14 @@ custom_ddm_patterns = [
         kwargs={"exception": Exception("Page not Found")},
         name="ddm_logout",
     ),
-    path("portability/", include("shared.portability.urls")),
 ]
 
-urlpatterns += custom_ddm_patterns
+urlpatterns += ddm_patterns
 
-# digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
 urlpatterns += [
+    path("portability/", include("shared.portability.urls")),
+    path("my/", include("mydigitalmeal.core.urls")),
+    # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
     path("", include("digital_meal.core.urls")),
 ]
 

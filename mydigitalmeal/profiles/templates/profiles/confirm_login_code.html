@@ -1,0 +1,62 @@
+{% extends "userflow/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Anmeldecode eingeben" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+
+        <div>
+          <p class="mdm-text-main">
+            {% blocktranslate trimmed %}
+              Wir haben einen Anmeldecode an
+              {{ email }} gesendet.
+              Der Code ist 5 Minuten gültig.
+            {% endblocktranslate %}
+          </p>
+        </div>
+
+        <div class="mdm-form-container">
+
+          <form method="post" action="{% url "userflow:profiles:confirm_login_code" %}">
+            {% csrf_token %}
+
+            <div class="pt-2 d-flex justify-content-center">
+              {# <label for="id_code" class="form-label" requiredField>{% translate "Code:" %}</label> #}
+              <div class="mdm-code-input-wrapper mdm-text-input">
+
+                <input type="text"
+                       class="textinput form-control mdm-code-input"
+                       name="code"
+                       autocomplete="one-time-code"
+                       placeholder=""
+                       maxlength="6"
+                       required=""
+                       id="id_code" />
+
+              </div>
+            </div>
+
+            <div class="mdm-btn-container">
+              <button class="btn mdm-base-btn" type="submit">
+                {% translate "Anmelden" %}
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="mdm-container-bottom">
+          <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
+            {% translate "Ich habe keinen Code erhalten" %}
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% include "userflow/modals/modal_email.html" %}
+
+{% endblock content %}

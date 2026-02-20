@@ -1,0 +1,62 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>
+  {% with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0"  %}
+    {% if scroll_threshold_sec <= 3 %}
+      <div>
+        {% translate "Du weisst sofort, was du nicht magst" %}
+      </div>
+
+      <div>
+        {% blocktranslate with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+          Bei {{ pct_display }}% der Videos scrollst du innerhalb von {{ seconds }} Sekunde weiter
+        {% plural %}
+          Bei {{ pct_display }}% der Videos scrollst du innerhalb von {{ seconds }} Sekunden weiter
+        {% endblocktranslate %}
+      </div>
+
+    {% elif scroll_threshold_sec <= 5 %}
+      <div>
+        {% translate "Du weisst, was du magst" %}
+      </div>
+
+      <div>
+        {% blocktranslate with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+          Bei {{ pct_display }}% der Videos scrollst du innerhalb von {{ seconds }} Sekunde weiter
+        {% plural %}
+          Bei {{ pct_display }}% der Videos scrollst du innerhalb von {{ seconds }} Sekunden weiter
+        {% endblocktranslate %}
+      </div>
+
+    {% elif scroll_threshold_sec >= 3 and scroll_threshold_sec < 10 %}
+      <div>
+        {% translate "Du wählst mit Bedacht" %}
+      </div>
+      <div>
+        {% blocktranslate with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+          Du scrollst bei {{ pct_display }}% der Videos innerhalb von {{ seconds }} Sekunde weiter
+        {% plural %}
+          Du scrollst bei {{ pct_display }}% der Videos innerhalb von {{ seconds }} Sekunden weiter
+        {% endblocktranslate %}
+      </div>
+
+    {% elif scroll_threshold_sec >= 10 %}
+      <div>
+        {% translate "Du vertraust TikTok" %}
+      </div>
+      <div>
+        {% blocktranslate with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+          Du scrollst nur bei bei {{ pct_display }}% der Videos innerhalb der ersten Sekunde weiter
+        {% plural %}
+          Du scrollst nur bei bei {{ pct_display }}% der Videos innerhalb der ersten {{ seconds }} Sekunden weiter
+        {% endblocktranslate %}
+      </div>
+
+    {% endif %}
+  {% endwith %}
+  </div>
+
+{% endblock report_content %}

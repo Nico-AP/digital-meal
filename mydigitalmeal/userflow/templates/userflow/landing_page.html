@@ -1,0 +1,71 @@
+{% extends "userflow/base.html" %}
+{% load i18n %}
+
+{% block extra_head %}
+  {% include "mydigitalmeal/partials/_meta_seo.html" %}
+{% endblock extra_head %}
+
+{% block page_title %}{% translate "My Digital Meal" %}{% endblock page_title %}
+
+{% block navbar_top %}
+  {% include "userflow/partials/header_large.html" %}
+{% endblock navbar_top %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+        <div class="mdm-container-landing-top d-flex flex-column justify-content-center align-items-center">
+
+          <div>
+            <p class="mdm-text-lead">
+              {% blocktranslate trimmed %}
+                Du willst mehr über deine TikTok-Nutzung erfahren?
+                Da bist du am richtigen Ort!
+              {% endblocktranslate %}
+            </p>
+          </div>
+
+          <div class="mdm-w-75">
+            <p class="mdm-text-main">
+              {% blocktranslate trimmed %}
+                Verknüpfe deine TikTok Daten mit
+                unserem Tool und erhalte deinen
+                persönlichen Nutzungsreport.
+              {% endblocktranslate %}
+            </p>
+          </div>
+
+          <div class="mdm-btn-container">
+            <a class="btn mdm-base-btn" type="button" href="{% url 'userflow:profiles:auth' %}">
+              {% translate "Los geht's" %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mdm-container-landing-preview">
+  </div>
+
+  <div class="container">
+    <div class="row">
+      <div class="col text-center">
+        <div class="mdm-container-landing-bottom">
+
+          <p class="mdm-text-muted">
+            {% translate "Du willst erst genauer wissen, worum es geht?" %}
+          </p>
+
+          <p class="mdm-text-muted">
+            {% blocktranslate trimmed %}
+              Wir erklären es dir <a href="" target="_blank">hier</a>
+            {% endblocktranslate %}
+          </p>
+
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}

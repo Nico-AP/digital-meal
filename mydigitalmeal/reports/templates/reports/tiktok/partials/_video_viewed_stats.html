@@ -1,0 +1,22 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>
+    {% blocktranslate with n_videos=videos_total|floatformat:"0" count video_counter=videos_total %}
+      in den letzten 30 Tagen hast du insgesamt <strong>{{ n_videos }}</strong> Videos angesehen
+    {% plural %}
+      in den letzten 30 Tagen hast du insgesamt <strong>{{ n_videos }}</strong> Video angesehen
+    {% endblocktranslate %}
+  </div>
+
+  <div>
+    {% blocktranslate with n_videos=videos_per_day|floatformat:"0" count video_counter=videos_per_day %}
+      das ist im Durchschnitt <strong>{{ n_videos }} Video pro Tag</strong>
+    {% plural %}
+      das sind im Durchschnitt <strong>{{ n_videos }} Videos pro Tag</strong>
+    {% endblocktranslate %}
+  </div>
+
+{% endblock report_content %}

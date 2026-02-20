@@ -1,0 +1,18 @@
+<div class="modal fade mdm-modal"
+     id="infoModal"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1"
+     aria-labelledby="infoModalLabel"
+     aria-hidden="true">
+
+  <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">{# djlint:off H023 #}&#x2715;{# djlint:on #}</button>
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+        {% block modal_content %}{% endblock modal_content %}
+      </div>
+    </div>
+  </div>
+</div>

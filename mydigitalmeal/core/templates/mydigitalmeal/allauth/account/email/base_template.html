@@ -1,0 +1,85 @@
+{# djlint:off #}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Your Login Code</title>
+  <style type="text/css">
+    /* Client-specific styles */
+    body {
+      margin: 0;
+      padding: 0;
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    img {
+      border: 0;
+      height: auto;
+      line-height: 100%;
+      outline: none;
+      text-decoration: none;
+      -ms-interpolation-mode: bicubic;
+    }
+
+    table {
+      border-collapse: collapse !important;
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+  </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4;">
+<!-- Wrapper table for email clients -->
+<table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f4f4f4;">
+  <tr>
+    <td align="center" style="padding: 40px 0;">
+      <!-- Main content table -->
+      <table border="0" cellpadding="0" cellspacing="0" width="600"
+             style="background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+
+        <!-- Header -->
+        <tr>
+          <td align="center" style="padding: 40px 40px 20px 40px;">
+            <h1 style="margin: 0; font-size: 24px; font-weight: bold; color: #333333;">
+              {% block header %}ADD HEADER{% endblock header %}
+            </h1>
+          </td>
+        </tr>
+
+        <!-- Body content -->
+        <tr>
+          <td style="padding: 20px 40px; color: #666666; font-size: 16px; line-height: 1.5;">
+            {% block body %}
+              <p style="margin: 0 0 20px 0;">
+                ADD BODY
+              </p>
+            {% endblock body %}
+          </td>
+        </tr>
+
+        {% block extra_rows %}
+        {% endblock extra_rows %}
+
+        <!-- Footer -->
+        <tr>
+          <td
+            style="padding: 30px 40px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px; line-height: 1.5;">
+            <p style="margin: 0 0 10px 0;">
+              Best regards,<br/>
+              The {{ site_name }} Team
+            </p>
+            <p style="margin: 0;">
+              © {% now "Y" %} {{ site_name }}. All rights reserved.
+            </p>
+          </td>
+        </tr>
+
+      </table>
+    </td>
+  </tr>
+</table>
+</body>
+</html>

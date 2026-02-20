@@ -1,13 +1,11 @@
-import os
 from pathlib import Path
 
 import ddm.core
 
 from .base import *  # noqa: F403
-from .base import BASE_DIR
+from .base import env
 
-ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS").split()
-
+ALLOWED_HOSTS = env.str("ALLOWED_HOSTS").split()
 
 # DEBUG
 # ------------------------------------------------------------------------------
@@ -29,6 +27,11 @@ DATABASES = {
 # E-MAIL SETTINGS
 # ------------------------------------------------------------------------------
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+
+
+# CELERY
+# ------------------------------------------------------------------------------
+CELERY_TASK_ALWAYS_EAGER = True  # tasks run inline, no worker needed
 
 
 # DDM SETTINGS
@@ -56,69 +59,4 @@ WEBPACK_LOADER = {
 
 DDM_SETTINGS = {
     "EMAIL_PERMISSION_CHECK": r".*(\.|@).*\.ch$",
-}
-
-
-# LOGGING
-# ------------------------------------------------------------------------------
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "verbose": {
-            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
-            "datefmt": "%d/%b/%Y %H:%M:%S",
-        },
-        "simple": {"format": "%(levelname)s %(message)s"},
-        "json": {
-            "()": "digital_meal.core.logging_utils.JsonFormatter",
-        },
-    },
-    "handlers": {
-        "console": {
-            "level": "INFO",
-            "class": "logging.StreamHandler",
-            "formatter": "verbose",
-        },
-        "file": {
-            "level": "DEBUG",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(BASE_DIR) / "logs" / "django.log",
-            "maxBytes": 1024 * 1024 * 15,
-            "formatter": "verbose",
-        },
-        "portability_file": {
-            "level": "INFO",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(BASE_DIR) / "logs" / "portability.log",
-            "maxBytes": 1024 * 1024 * 15,
-            "backupCount": 5,
-            "formatter": "json",
-        },
-        "error_file": {
-            "level": "ERROR",
-            "class": "logging.handlers.RotatingFileHandler",
-            "filename": Path(BASE_DIR) / "logs" / "errors.log",
-            "maxBytes": 1024 * 1024 * 15,
-            "formatter": "verbose",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["file", "error_file"],
-            "propagate": True,
-            "level": "DEBUG",
-        },
-        "root": {"handlers": ["file", "error_file"], "level": "WARNING"},
-        "digital_meal": {
-            "handlers": ["file", "error_file", "console"],
-            "propagate": False,
-            "level": "INFO",
-        },
-        "shared.portability": {
-            "handlers": ["portability_file", "error_file", "console"],
-            "propagate": False,
-            "level": "INFO",
-        },
-    },
 }

@@ -1,0 +1,36 @@
+{% extends "userflow/base.html" %}
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load render_bundle from webpack_loader %}
+
+{% block extrahead %}
+<link href="{% static 'ddm_questionnaire/css/questionnaire.css' %}" rel="stylesheet" />
+{% endblock extrahead %}
+
+{% block content %}
+
+<div>
+  <form method="post">
+    {% csrf_token %}
+    <div id="qapp"
+         data-questionnaire-config-as-string='{{ q_config }}'
+         data-filter-config-as-string='{{ filter_config }}'
+         data-static-variables='{{ extra_variables }}'
+         data-action-url='{{ request.build_absolute_uri }}'
+         data-language='{{ LANGUAGE_CODE|slice:"0:2" }}'
+         class="text-black"
+    >
+      {# djlint:off #}
+      <qapp></qapp>
+      {# djlint:on #}
+    </div>
+  </form>
+  {% render_bundle "ddm_questionnaire_frontend" config="DDM_QUESTIONNAIRE" %}
+</div>
+{% endblock content %}
+
+{% block extrascripts %}
+  {% for script in extra_scripts %}
+  {{ script|safe }}
+  {% endfor %}
+{% endblock extrascripts %}

@@ -1,10 +1,10 @@
 import json
-import os
 from pathlib import Path
 
-from dotenv import load_dotenv
+from environs import Env
 
-load_dotenv()
+env = Env()
+env.read_env()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
@@ -12,13 +12,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # APPLICATION DEFINITIONS
 # ------------------------------------------------------------------------------
-SECRET_KEY = os.environ["DJANGO_SECRET"]
-SALT_KEY = os.environ["SALT_KEY"]
+SECRET_KEY = env.str("DJANGO_SECRET")
+SALT_KEY = env.str("SALT_KEY")
 
-ADMINS = [tuple(admin) for admin in json.loads(os.environ.get("ADMINS", "[]"))]
-SERVER_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
+ADMINS = [tuple(admin) for admin in json.loads(env.str("ADMINS", "[]"))]
 
-INSTALLED_APPS = [
+SERVER_EMAIL = env.str("DEFAULT_FROM_EMAIL")
+
+DJANGO_CORE = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -27,16 +28,55 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.sitemaps",
     "django.contrib.staticfiles",
+]
+
+DJANGO_THIRD_PARTY = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
-    "taggit",
+    "django_htmx",
+]
+
+DIGITAL_MEAL_EDUCATION_APPS = [
     "digital_meal.core",
     "digital_meal.tool",
     "digital_meal.website",
     "digital_meal.reports",
-    "shared.portability",
     "digital_meal.dashboard",
+    "qr_code",
+]
+
+MY_DIGITAL_MEAL_APPS = [
+    "mydigitalmeal",
+    "mydigitalmeal.core",
+    "mydigitalmeal.reports",
+    "mydigitalmeal.statistics",
+    "mydigitalmeal.userflow",
+    "mydigitalmeal.datadonation",
+    "mydigitalmeal.profiles",
+    "mydigitalmeal.questionnaire",
+]
+
+SHARED_APPS = [
+    "shared.portability",
+]
+
+DDM_APPS = [
+    "ddm",
+    "ddm.auth",
+    "ddm.logging",
+    "ddm.questionnaire",
+    "ddm.datadonation",
+    "ddm.participation",
+    "ddm.projects",
+    "ddm.core",
+    "webpack_loader",
+    "rest_framework",
+    "rest_framework.authtoken",
+    "django_ckeditor_5",
+]
+
+WAGTAIL_APPS = [
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.embeds",
@@ -52,24 +92,21 @@ INSTALLED_APPS = [
     "wagtail",
     "wagtailvideos",
     "wagtail_modeladmin",
-    "qr_code",
-    "django_htmx",
-    # DDM
-    "ddm",
-    "ddm.auth",
-    "ddm.logging",
-    "ddm.questionnaire",
-    "ddm.datadonation",
-    "ddm.participation",
-    "ddm.projects",
-    "ddm.core",
-    "webpack_loader",
-    "rest_framework",
-    "rest_framework.authtoken",
-    "django_ckeditor_5",
+    "taggit",
 ]
 
+INSTALLED_APPS = (
+    DJANGO_CORE
+    + DJANGO_THIRD_PARTY
+    + WAGTAIL_APPS
+    + DDM_APPS
+    + DIGITAL_MEAL_EDUCATION_APPS
+    + MY_DIGITAL_MEAL_APPS
+    + SHARED_APPS
+)
+
 MIDDLEWARE = [
+    # "shared.allauth_integration.middleware.DebugMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -79,6 +116,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+    "shared.allauth_integration.middleware.SubdomainMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "digital_meal.website.middleware.RestrictDDMMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -89,7 +127,9 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": ["digital_meal/templates"],
+        "DIRS": [
+            "digital_meal/templates",
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -132,16 +172,6 @@ AUTHENTICATION_BACKENDS = [
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
 
-ACCOUNT_LOGIN_METHODS = {"email"}
-ACCOUNT_SIGNUP_FIELDS = ["email*", "email2*", "password1*", "password2*"]
-ACCOUNT_EMAIL_VERIFICATION = "mandatory"
-ACCOUNT_EMAIL_SUBJECT_PREFIX = "Digital Meal | "
-ACCOUNT_FORMS = {"signup": "digital_meal.tool.forms.SimpleSignupForm"}
-ACCOUNT_CONFIRM_EMAIL_ON_GET = True
-ACCOUNT_MAX_EMAIL_ADDRESSES = 2
-
-ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",  # noqa: E501
@@ -160,6 +190,43 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGIN_REDIRECT_URL = "/tool/"
 LOGOUT_REDIRECT_URL = "/"
 
+
+# DANGO-ALLAUTH
+# ------------------------------------------------------------------------------
+ACCOUNT_ADAPTER = "shared.allauth_integration.adapters.SubdomainAccountAdapter"
+ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
+
+ACCOUNT_LOGIN_METHODS = {"email"}
+ACCOUNT_SIGNUP_FIELDS = ["email*", "email2*", "password1*", "password2*"]
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+ACCOUNT_LOGOUT_REDIRECT_URL = "/"
+
+ACCOUNT_CONFIRM_EMAIL_ON_GET = True
+ACCOUNT_EMAIL_CONFIRMATION_HMAC = True
+ACCOUNT_MAX_EMAIL_ADDRESSES = 2
+ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_VERIFICATION = "mandatory"
+ACCOUNT_EMAIL_SUBJECT_PREFIX = "Digital Meal | "
+
+ACCOUNT_FORMS = {"signup": "digital_meal.tool.forms.SimpleSignupForm"}
+
+ACCOUNT_PREVENT_ENUMERATION = False
+ACCOUNT_SIGNUP_BY_CODE_ENABLED = True
+ACCOUNT_LOGIN_BY_CODE_ENABLED = True
+ACCOUNT_LOGIN_BY_CODE_TIMEOUT = (
+    5 * 60
+)  # Time in seconds until code expires after sending.
+ACCOUNT_LOGIN_BY_CODE_MAX_ATTEMPTS = 5
+
+# Setting overrides for My Digital Meal
+ALLAUTH_MDM = {
+    "ACCOUNT_SIGNUP_FIELDS": ["email*"],  # has no effect, here for reference
+    "ACCOUNT_EMAIL_VERIFICATION": "none",
+    "ACCOUNT_EMAIL_SUBJECT_PREFIX": "My Digital Meal | ",
+    "ACCOUNT_SIGNUP_BY_CODE_ENABLED": True,
+    "ACCOUNT_LOGOUT_REDIRECT_URL": "/my/",
+}
 
 # STATIC FILES
 # ------------------------------------------------------------------------------
@@ -192,7 +259,7 @@ THUMBNAIL_PROCESSORS = (
 # WAGTAIL
 # ------------------------------------------------------------------------------
 WAGTAIL_SITE_NAME = "Digital Meal"
-WAGTAILADMIN_BASE_URL = os.getenv("WAGTAILADMIN_BASE_URL", None)
+WAGTAILADMIN_BASE_URL = env.str("WAGTAILADMIN_BASE_URL", None)
 
 WAGTAILIMAGES_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp", "svg"]
 
@@ -206,31 +273,56 @@ WAGTAILIMAGES_EXTENSIONS = ["gif", "jpg", "jpeg", "png", "webp", "svg"]
 # ------------------------------------------------------------------------------
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_USE_TLS = True
-EMAIL_HOST = os.environ["EMAIL_HOST"]
-EMAIL_PORT = os.environ["EMAIL_PORT"]
-EMAIL_HOST_USER = os.environ["EMAIL_HOST_USER"]
-EMAIL_HOST_PASSWORD = os.environ["EMAIL_HOST_PASSWORD"]
-DEFAULT_FROM_EMAIL = os.environ["DEFAULT_FROM_EMAIL"]
+EMAIL_HOST = env.str("EMAIL_HOST")
+EMAIL_PORT = env.int("EMAIL_PORT")
+EMAIL_HOST_USER = env.str("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = env.str("EMAIL_HOST_PASSWORD")
+DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL")
+
+
+# CELERY
+# ------------------------------------------------------------------------------
+REDIS_URL = env.str("REDIS_URL", "redis://redis:6379/0")
+REDIS_SSL = REDIS_URL.startswith("rediss://")
+
+if USE_TZ:
+    CELERY_TIMEZONE = TIME_ZONE
+
+CELERY_BROKER_URL = REDIS_URL
+CELERY_RESULT_BACKEND = REDIS_URL
+CELERY_RESULT_EXTENDED = True
+CELERY_RESULT_BACKEND_ALWAYS_RETRY = True
+CELERY_RESULT_BACKEND_MAX_RETRIES = 10
+
+CELERY_ACCEPT_CONTENT = ["json"]
+CELERY_TASK_SERIALIZER = "json"
+CELERY_RESULT_SERIALIZER = "json"
+
+CELERY_TASK_TIME_LIMIT = 10 * 60
+CELERY_TASK_SOFT_TIME_LIMIT = 5 * 60
+CELERY_TASK_SEND_SENT_EVENT = True
+
+CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
 
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
 DAYS_TO_DONATION_DELETION = 180
-ALLOWED_REPORT_DOMAINS = os.environ.get("ALLOWED_REPORT_DOMAINS").split()
+ALLOWED_REPORT_DOMAINS = env.str("ALLOWED_REPORT_DOMAINS").split()
 
 # Portability
-TIKTOK_AUTH_URL = os.environ.get(
+TIKTOK_AUTH_URL = env.str(
     "TIKTOK_AUTH_URL", "https://www.tiktok.com/v2/auth/authorize/"
 )
-TIKTOK_TOKEN_URL = os.environ.get(
+TIKTOK_TOKEN_URL = env.str(
     "TIKTOK_TOKEN_URL", "https://open.tiktokapis.com/v2/oauth/token/"
 )
-TIKTOK_USER_INFO_URL = os.environ.get(
+TIKTOK_USER_INFO_URL = env.str(
     "TIKTOK_USER_INFO_URL", "https://open.tiktokapis.com/v2/user/info/"
 )
-TIKTOK_CLIENT_KEY = os.environ["TIKTOK_CLIENT_KEY"]
-TIKTOK_CLIENT_SECRET = os.environ["TIKTOK_CLIENT_SECRET"]
-TIKTOK_REDIRECT_URL = os.environ["TIKTOK_REDIRECT_URL"]
+TIKTOK_CLIENT_KEY = env.str("TIKTOK_CLIENT_KEY")
+TIKTOK_CLIENT_SECRET = env.str("TIKTOK_CLIENT_SECRET")
+TIKTOK_REDIRECT_URL = env.str("TIKTOK_REDIRECT_URL")
 
 
 # DDM SETTINGS
@@ -268,3 +360,119 @@ CKEDITOR_5_UPLOAD_FILE_TYPES = ["jpeg", "pdf", "png", "mp4"]
 # WAGTAIL-VIDEOS
 # ------------------------------------------------------------------------------
 WAGTAIL_VIDEOS_DISABLE_TRANSCODE = True
+
+
+# LOGGING
+# ------------------------------------------------------------------------------
+LOG_DIR = Path(BASE_DIR) / "logs"
+Path(LOG_DIR).mkdir(parents=True, exist_ok=True)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[%(asctime)s] %(levelname)s [%(name)s:%(lineno)s] %(message)s",
+            "datefmt": "%d/%b/%Y %H:%M:%S",
+        },
+        "simple": {"format": "%(levelname)s %(message)s"},
+        "json": {
+            "()": "digital_meal.core.logging_utils.JsonFormatter",
+        },
+    },
+    "filters": {"require_debug_false": {"class": "django.utils.log.RequireDebugFalse"}},
+    "handlers": {
+        "console": {
+            "level": "INFO",
+            "class": "logging.StreamHandler",
+            "formatter": "verbose",
+        },
+        "file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOG_DIR) / "django.log",
+            "maxBytes": 1024 * 1024 * 15,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "portability_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOG_DIR) / "portability.log",
+            "maxBytes": 1024 * 1024 * 15,
+            "backupCount": 5,
+            "formatter": "json",
+        },
+        "mdm_file": {
+            "level": "INFO",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(BASE_DIR) / "logs" / "mydigitalmeal.log",
+            "maxBytes": 1024 * 1024 * 15,
+            "backupCount": 5,
+            "formatter": "json",
+        },
+        "error_file": {
+            "level": "ERROR",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOG_DIR) / "errors.log",
+            "maxBytes": 1024 * 1024 * 15,
+            "backupCount": 5,
+            "formatter": "verbose",
+        },
+        "security_file": {
+            "level": "WARNING",
+            "class": "logging.handlers.RotatingFileHandler",
+            "filename": Path(LOG_DIR) / "security.log",
+            "maxBytes": 1024 * 1024 * 10,
+            "backupCount": 10,
+            "formatter": "verbose",
+        },
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": False,
+            "filters": ["require_debug_false"],
+        },
+    },
+    "loggers": {
+        "": {
+            "handlers": ["file", "error_file", "console", "mail_admins"],
+            "level": "WARNING",
+        },
+        "django": {
+            "handlers": ["file", "error_file", "mail_admins", "console"],
+            "propagate": False,
+            "level": "WARNING",
+        },
+        "django.server": {
+            "handlers": ["console"],
+            "propagate": False,
+            "level": "INFO",
+        },
+        "django.request": {
+            "handlers": ["error_file", "mail_admins", "console"],
+            "propagate": False,
+            "level": "ERROR",
+        },
+        "django.security": {
+            "handlers": ["security_file", "mail_admins", "console"],
+            "propagate": False,
+            "level": "WARNING",
+        },
+        "digital_meal": {
+            "handlers": ["file", "error_file", "mail_admins", "console"],
+            "propagate": False,
+            "level": "INFO",
+        },
+        "shared.portability": {
+            "handlers": ["portability_file", "error_file", "mail_admins", "console"],
+            "propagate": False,
+            "level": "INFO",
+        },
+        "mydigitalmeal": {
+            "handlers": ["mdm_file", "error_file", "console"],
+            "propagate": False,
+            "level": "INFO",
+        },
+    },
+}

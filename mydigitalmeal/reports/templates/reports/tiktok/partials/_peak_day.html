@@ -1,0 +1,42 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>
+    {% blocktranslate with peak_date=peak_day_date|date:"j.n.Y" peak_name=peak_day_date|date:"l" %}
+      Am aktivsten warst du am {{  peak_name }}, {{ peak_date }}
+    {% endblocktranslate %}
+  </div>
+
+  <div>
+    {% translate "Weisst du, wie viele Videos du an diesem Tag angeschaut hast?" %}
+  </div>
+
+  {% if peak_guesses %}
+    <div>
+      {% for guess_value in peak_guesses %}
+        <button type="button" class="btn btn-warning" data-guess-correct="{{ guess_value }}">{{ guess_value }}</button>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  {# Correct answer #}
+  <div data-response-correct="true">
+    {% blocktranslate count video_count=peak_day_video_count %}
+      Genau! Du hast {{ video_count }} Video angeschaut.
+    {% plural %}
+      Genau! Du hast {{ video_count }} Videos angeschaut.
+    {% endblocktranslate %}
+  </div>
+
+  {# Wrong answer #}
+  <div data-response-correct="true">
+    {% blocktranslate count video_count=peak_day_video_count %}
+      Fast! Du hast {{ video_count }} Video angeschaut.
+    {% plural %}
+      Fast! Du hast {{ video_count }} Videos angeschaut.
+    {% endblocktranslate %}
+  </div>
+
+{% endblock report_content %}

@@ -1,0 +1,39 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>
+    {# Daytime label assignment #}
+
+    {% if routine_start_hour >= 5 and routine_start_hour <= 8 %}
+      {% translate "Dein Wecker macht TikTok" %}
+
+    {% elif routine_start_hour >= 9 and routine_start_hour <= 11 %}
+      {% translate "TikTok am Morgen verscrollt Kummer und Sorgen" %}
+
+    {% elif routine_start_hour == 12 %}
+      {% translate "Bei dir gibt’s TikTok zum Zmittag" %}
+
+    {% elif routine_start_hour >= 13 and routine_start_hour <= 17 %}
+      {% translate "Produktive Nachmittage brauchen Pausen" %}
+
+    {% elif routine_start_hour >= 18 and routine_start_hour <= 19 %}
+      {% translate "Bei dir gibt’s TikTok zum Znacht" %}
+
+    {% elif routine_start_hour >= 20 and routine_start_hour <= 22 %}
+      {% translate "TikTok am Abend ist ganz hervorragend" %}
+
+    {% elif routine_start_hour >= 23 or routine_start_hour <= 4 %}
+      {% translate "Schlafen ist überbewertet" %}
+
+    {% endif %}
+  </div>
+
+  <div>
+    {% blocktranslate %}
+      Am meisten Videos hast du dir zwischen {{ routine_start_hour }} und {{ routine_end_hour }} Uhr angeschaut
+    {% endblocktranslate %}
+  </div>
+
+{% endblock report_content %}

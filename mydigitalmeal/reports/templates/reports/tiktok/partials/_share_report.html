@@ -1,0 +1,14 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>{% translate "Teile deinen Report" %}</div>
+
+  <div>
+    <button type="button" class="btn btn-warning">Instagram</button>
+    <button type="button" class="btn btn-success">WhatsApp</button>
+    <button type="button" class="btn btn-info">TikTok</button>
+  </div>
+
+{% endblock report_content %}

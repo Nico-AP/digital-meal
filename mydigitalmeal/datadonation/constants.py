@@ -1,0 +1,2 @@
+TIKTOK_PROJECT_SLUG = "tiktok"
+TIKTOK_WATCH_HISTORY_BP_NAME = "Angesehene Videos"

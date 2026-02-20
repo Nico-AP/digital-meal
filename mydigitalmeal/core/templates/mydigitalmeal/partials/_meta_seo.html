@@ -1,0 +1,21 @@
+{% load static i18n %}
+
+{# SEO Meta Tags #}
+<meta name="description" content="{% block description %}My Digital Meal{% endblock description %}" />
+<meta name="keywords" content="{% block keywords %}Digital Meal, Media Use, Digital Platforms, Data Report{% endblock keywords %}" />
+
+{# Open Graph / Facebook Meta Tags #}
+<meta property="og:type" content="website" />
+<meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock og_url %}" />
+<meta property="og:title" content="{% block og_title %}My Digital Meal{% endblock og_title %}" />
+<meta property="og:description" content="{% block og_description %}My Digital Meal{% endblock og_description %}" />
+{# TODO: Add image #}
+<meta property="og:image" content="{% block og_image %}{% static 'images/og-image.jpg' %}{% endblock og_image %}" />
+
+{# Twitter Meta Tags #}
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:url" content="{% block twitter_url %}{{ request.build_absolute_uri }}{% endblock twitter_url %}" />
+<meta name="twitter:title" content="{% block twitter_title %}My Digital Meal{% endblock twitter_title %}" />
+<meta name="twitter:description" content="{% block twitter_description %}My Digital Meal{% endblock twitter_description %}" />
+{# TODO: Add image #}
+<meta name="twitter:image" content="{% block twitter_image %}{% static 'images/twitter-image.jpg' %}{% endblock twitter_image %}" />

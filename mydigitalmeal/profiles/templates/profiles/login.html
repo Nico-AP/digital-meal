@@ -1,0 +1,56 @@
+{% extends "userflow/base.html" %}
+{% load i18n %}
+
+{% block page_title %}{% translate "Anmelden" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+        <div>
+          <p class="mdm-text-main">
+            {% blocktranslate trimmed %}
+              Bitte gib als Erstes deine E-Mail-Adresse ein.
+              Wir senden dir dann einen Code, um fortzufahren.
+            {% endblocktranslate %}
+          </p>
+        </div>
+
+        <div class="mdm-form-container">
+          <form method="post" action="{% url "userflow:profiles:auth" %}">
+            {% csrf_token %}
+
+            <div>
+              <input type="email"
+                     id="mdm-input-email"
+                     class="form-control mdm-text-input"
+                     name="login"
+                     autocomplete="email"
+                     placeholder="{% translate "E-Mail-Adresse" %}"
+                     maxlength="320"
+                     required=""
+                     aria-describedby="emailHelp" />
+            </div>
+
+            <div class="mdm-btn-container mt-4">
+              <button class="btn mdm-base-btn" type="submit">
+                {% translate "Code senden" %}
+              </button>
+            </div>
+
+          </form>
+        </div>
+
+        <div class="mdm-container-bottom">
+          <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
+            {% translate "Wofür muss ich meine E-Mail-Adresse angeben?" %}
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  {% include "userflow/modals/modal_email.html" %}
+
+{% endblock content %}

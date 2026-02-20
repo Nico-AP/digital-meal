@@ -1,0 +1,24 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>{% translate "Ein Video scheint dir besonders zu gefallen" %}</div>
+
+  <div>
+    <img src="{{ top_video_thumbnail_url }}"  alt="TikTok video thumbnail" height="400px" />
+  </div>
+
+  <div>
+    {% blocktranslate %}
+      dieses Video hast du {{ top_video_seen_count }} Mal angesehen
+    {% endblocktranslate %}
+  </div>
+
+  <div>
+    {% blocktranslate with last_date=top_video_last_seen_date|date:"j.n.Y" %}
+      zuletzt am {{ last_date }}
+    {% endblocktranslate %}
+  </div>
+
+{% endblock report_content %}

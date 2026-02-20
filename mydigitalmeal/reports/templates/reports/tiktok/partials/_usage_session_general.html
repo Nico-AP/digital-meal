@@ -1,0 +1,36 @@
+{% extends "reports/report_container.html" %}
+{% load i18n %}
+
+{% block report_content %}
+
+  <div>
+    {% translate "Die letzten 30 Tage von TikTok und dir als abstraktes Meisterwerk" %}
+  </div>
+
+  <div>HERE WILL usage_session_image_a BE DISPLAYED </div>
+
+  <div>
+    {% blocktranslate %}
+      Du hast TikTok an {{ usage_session_n_days }} von 30 Tagen genutzt
+    {% endblocktranslate %}
+  </div>
+
+  <div>HERE WILL usage_session_image_days_highlighted BE DISPLAYED </div>
+
+  <div>
+
+    {% blocktranslate with minutes=usage_session_minutes_mean|floatformat:"0" count minutes_counter=usage_session_minutes_mean %}
+      Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minute.
+    {% plural %}
+      Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minuten.
+    {% endblocktranslate %}
+
+    {% blocktranslate with n_videos=usage_session_videos_mean|floatformat:"0" count video_counter=usage_session_videos_mean %}
+      Du schaust dabei {{ n_videos }} Video an.
+    {% plural %}
+      Du schaust dabei {{ n_videos }} Videos an.
+    {% endblocktranslate %}
+
+  </div>
+
+{% endblock report_content %}
