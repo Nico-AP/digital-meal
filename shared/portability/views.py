@@ -426,8 +426,7 @@ class TikTokAwaitDataDownloadView(
 
 
 class TikTokCheckDownloadAvailabilityView(
-    AuthenticationRequiredMixin,
-    ActiveAccessTokenRequiredMixin,
+    ManageAccessTokenMixin,
     PortabilitySessionMixin,
     TemplateView,
 ):
@@ -442,6 +441,24 @@ class TikTokCheckDownloadAvailabilityView(
     template_success = "portability/partials/_data_download_available_msg.html"
     template_error = "portability/partials/_data_download_error_msg.html"
     template_expired = "portability/partials/_data_download_expired_msg.html"
+
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
+        """Redirects unauthenticated requests (open_id not in session)."""
+        open_id = self.port_session.get_tiktok_open_id()
+        if not open_id:
+            msg = "Open ID information missing in session (unauthenticated request)."
+            log_security_event(logger, msg, self.request)
+            return render(request, self.template_error)
+
+        try:
+            access_token = self.get_valid_access_token_from_db(open_id)
+        except (TikTokAccessToken.DoesNotExist, ValidationError) as e:
+            logger.error("Failed to get access token: %s", e)
+            return render(request, self.template_error)
+
+        self.access_token = access_token
+        self.access_token.refresh_from_db()
+        return super().session_dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         """Checks data download availability and prepares appropriate template.
