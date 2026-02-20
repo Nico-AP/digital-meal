@@ -22,7 +22,7 @@
 </head>
 
 <body>
-<div id="dm-body" style="display: flex; flex-direction: column">
+<div id="dm-body" class="d-flex flex-column">
 
   <div id="header" class="bg-blue">
     <div class="container">
@@ -30,7 +30,9 @@
         <div class="d-flex flex-column">
           <div class="row flex-row align-items-stretch d-none d-lg-flex">
             <div class="col">
+              {# djlint:off D018 #}
               <a href="/">
+                {# djlint:on #}
                 <img alt="Digital Meal Logo"
                       src="{% static 'website/img/DigitalMeal_logo.svg' %}"
                       height="100px"
@@ -52,7 +54,7 @@
           <p>Sie können versuchen, die Seite erneut zu laden. Sollte der Fehler weiterhin auftreten, können Sie uns das Problem via
           <a href="mailto:contact@digital-meal.ch">contact@digital-meal.ch</a> schildern.
             Wir versuchen anschliessend schnellstmöglich eine Lösung zu finden.</p>
-          <p><button><a href="/">Zur Hauptseite</a></button></p>
+          <p><button>{# djlint:off D018 #}<a href="/">{# djlint:on #}Zur Hauptseite</a></button></p>
         </div>
       </div>
     </div>

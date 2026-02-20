@@ -10,6 +10,6 @@
   {% else %}
     <p>Leider haben Sie keine Berechtigung auf die Seite, die Sie angefordert haben, zuzugreifen.</p>
   {% endif %}
-  <p><button><a href="/">Zur Hauptseite</a></button></p>
+  <p><button>{# djlint:off D018 #}<a href="/">{# djlint:on #}Zur Hauptseite</a></button></p>
 </div>
 {% endblock main_content %}
