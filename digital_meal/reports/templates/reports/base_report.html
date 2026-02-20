@@ -9,7 +9,11 @@
 
   <title>{% block page_title %}Report Page Title{% endblock page_title %}</title>
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/DigitalMeal_favicon.svg' %}" />
+  {# Favicon #}
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon.svg' %}" type="image/svg+xml" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_512x512.png' %}"  type="image/png" sizes="512x512" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_192x192.png' %}"  type="image/png" sizes="192x192" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_32x32.png' %}"  type="image/png" sizes="32x32" />
 
   {% block site_css %}
   <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />
@@ -24,7 +28,7 @@
 <body>
 <div id="report">
   {% block report_header %}
-    <div class="position-relative" style="padding-top: 25px;">
+    <div class="position-relative pt-4">
       <div class="report-content container">
         <div class="text-end row justify-content-center">
           <div class="col-4 col-sm-auto">
@@ -36,7 +40,7 @@
   {% endblock report_header %}
 
   {% block report_intro %}
-  <div class="report-section position-relative" style="padding-top: 25px; padding-bottom: 50px;">
+  <div class="report-section position-relative pt-4 pb-5">
 
     <div class="report-content container">
       <div class="row justify-content-center">
@@ -142,9 +146,11 @@
                 <div class="d-flex flex-row flex-wrap align-items-start">
                   <div class="pe-4 text-start">
                     <p class="text-small"><b>Digital Meal</b></p>
+                    {# djlint:off D018 #}
                     <p class="text-small">▪ <a href="/agb" target="_blank">AGB</a></p>
                     <p class="text-small">▪ <a href="/dsb" target="_blank">Datenschutzerklärung</a></p>
                     <p class="text-small">▪ <a href="/about">Impressum</a></p>
+                    {# djlint:on #}
                   </div>
                 </div>
               </div>
@@ -173,7 +179,9 @@
         <h4>An welche E-Mail-Adresse soll der Report gesendet werden?</h4>
         <p>
           <input id="email-input" class="w-100 mt-2" name="email" />
+          {# djlint:off H021 #}
           <span id="email-input-error" style="display: none; color: darkred;">Das ist keine gültige E-Mail-Adresse</span>
+          {# djlint:on #}
         </p>
 
       </div>
@@ -191,8 +199,10 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body">
+        {# djlint:off H021 #}
         <p id="send-mail-success" style="display: none;">Der Link wurde an die angegebene E-Mail-Adresse gesendet.</p>
         <p id="send-mail-error" style="display: none;">Der Link konnte nicht an die angegebene E-Mail-Adresse gesendet werden.</p>
+        {# djlint:on #}
       </div>
       <div class="modal-footer">
         <button type="button" data-bs-dismiss="modal">Okay</button>

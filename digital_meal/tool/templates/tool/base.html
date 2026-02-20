@@ -11,7 +11,11 @@
   <title>{% block title %}Digital Meal | Onlinetool{% endblock title %}</title>
   <meta name="description" content="This is the Digital Meal website." />
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/DigitalMeal_favicon.svg' %}" />
+  {# Favicon #}
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon.svg' %}" type="image/svg+xml" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_512x512.png' %}"  type="image/png" sizes="512x512" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_192x192.png' %}"  type="image/png" sizes="192x192" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_32x32.png' %}"  type="image/png" sizes="32x32" />
 
   {% block site_css %}
     <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />

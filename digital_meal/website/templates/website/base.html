@@ -8,10 +8,28 @@
   <meta http-equiv="x-ua-compatible" content="ie=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+  {# SEO Meta Tags #}
   <title>{% block title %}Digital Meal | Home{% endblock title %}</title>
   <meta name="description" content="This is the Digital Meal website." />
 
-  <link rel="shortcut icon" type="image/x-icon" href="{% static 'website/img/DigitalMeal_favicon.svg' %}" />
+  {# Open Graph / Facebook Meta Tags #}
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="{% block og_url %}{{ request.build_absolute_uri }}{% endblock og_url %}" />
+  <meta property="og:title" content="{% block og_title %}Digital Meal Education{% endblock og_title %}" />
+  <meta property="og:description" content="{% block og_description %}Digital Meal Education{% endblock og_description %}" />
+  <meta property="og:image" content="{% block og_image %}{% static 'website/img/og/dm-edu_teaser.png' %}{% endblock og_image %}" />
+
+  {# Twitter Meta Tags #}
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="{% block twitter_url %}{{ request.build_absolute_uri }}{% endblock twitter_url %}" />
+  <meta name="twitter:title" content="{% block twitter_title %}Digital Meal Education{% endblock twitter_title %}" />
+  <meta name="twitter:description" content="{% block twitter_description %}Digital Meal Education{% endblock twitter_description %}" />
+
+  {# Favicon #}
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon.svg' %}" type="image/svg+xml" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_512x512.png' %}"  type="image/png" sizes="512x512" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_192x192.png' %}"  type="image/png" sizes="192x192" />
+  <link rel="icon" href="{% static 'website/img/favicons/dm-edu_favicon_32x32.png' %}"  type="image/png" sizes="32x32" />
 
   {% block site_css %}
     <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />
