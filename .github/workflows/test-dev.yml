@@ -1,0 +1,97 @@
+name: Test Dev Branch
+
+on:
+  push:
+    branches:
+      - dev
+  pull_request:
+    branches:
+      - dev
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: test_db
+          MYSQL_USER: mariadb
+          MYSQL_PASSWORD: mariadb
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h localhost -u root -proot"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m venv .venv/
+          source .venv/bin/activate
+          python -m pip install --upgrade pip
+          pip install -r requirements/production.txt
+          pip install -r requirements/development.txt
+
+      - name: Run migrations
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.ci
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_ENGINE: django.db.backends.mysql
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_NAME: test_db
+          DJANGO_DB_USER: mariadb
+          DJANGO_DB_PW: mariadb
+        run: |
+          source .venv/bin/activate
+          python manage.py migrate --noinput
+
+      - name: Run tests
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.ci
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_ENGINE: django.db.backends.mysql
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_NAME: test_db
+          DJANGO_DB_USER: mariadb
+          DJANGO_DB_PW: mariadb
+        run: |
+          source .venv/bin/activate
+          python manage.py test
+
+      - name: Run linting (ruff and djlint)
+        run: |
+          source .venv/bin/activate
+          ruff check ./digital_meal ./shared ./mydigitalmeal
+          djlint ./digital_meal ./shared ./mydigitalmeal
+
+      - name: Run security check
+        run: |
+          source .venv/bin/activate
+          pip-audit
+
+      - name: Check for missing migrations
+        env:
+          DJANGO_SETTINGS_MODULE: config.settings.ci
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_DB_ENGINE: django.db.backends.mysql
+          DJANGO_DB_HOST: localhost
+          DJANGO_DB_NAME: test_db
+          DJANGO_DB_USER: mariadb
+          DJANGO_DB_PW: mariadb
+        run: |
+          source .venv/bin/activate
+          python manage.py makemigrations --check --dry-run --noinput
