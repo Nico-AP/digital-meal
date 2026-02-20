@@ -15,7 +15,10 @@
   {% block extra_head %}{% endblock extra_head %}
 
   {# Favicon #}
-  <link rel="icon" type="image/x-icon" href="{% static 'mydigitalmeal/img/favicons/digitalmeal_favicon.svg' %}" />
+  <link rel="icon" href="{% static 'mydigitalmeal/img/favicons/mdm_favicon.svg' %}" type="image/svg+xml" />
+  <link rel="icon" href="{% static 'mydigitalmeal/img/favicons/mdm_favicon_512x512.png' %}"  type="image/png" sizes="512x512" />
+  <link rel="icon" href="{% static 'mydigitalmeal/img/favicons/mdm_favicon_192x192.png' %}"  type="image/png" sizes="192x192" />
+  <link rel="icon" href="{% static 'mydigitalmeal/img/favicons/mdm_favicon_32x32.png' %}"  type="image/png" sizes="32x32" />
 
   {# CSS #}
   {% block css %}
