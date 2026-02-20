@@ -27,6 +27,12 @@
   {% endblock css %}
 
   {% block extra_css %}{% endblock extra_css %}
+
+  {% block cookieconsent_head %}
+    <link rel="stylesheet" href="{% static 'mydigitalmeal/css/vanilla_cookieconsent/cookieconsent.css' %}" />
+    <link rel="stylesheet" href="{% static 'mydigitalmeal/css/vanilla_cookieconsent/custom.css' %}" />
+  {% endblock cookieconsent_head %}
+
 </head>
 <body class="{% block bodyclass %}{% endblock bodyclass %}">
 
@@ -38,6 +44,11 @@
 {% block scripts %}
   <script src="{% static 'mydigitalmeal/js/bootstrap_5-3-8/bootstrap.bundle.min.js' %}"></script>
 {% endblock scripts %}
+
+{% block cookieconsent_script %}
+  <script src="{% static 'mydigitalmeal/js/vanilla_cookieconsent/cookieconsent.umd.js' %}"></script>
+  <script src="{% static 'mydigitalmeal/js/vanilla_cookieconsent/cookieconsent-config.js' %}"></script>
+{% endblock cookieconsent_script %}
 
 {% block extra_js %}{% endblock extra_js %}
 
