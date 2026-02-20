@@ -15,4 +15,14 @@ urlpatterns = [
         port_views.PortabilityEntryView.as_view(),
         name="port_tt_connect",
     ),
+    path(
+        "connect/await/",
+        port_views.PortabilityWaitingView.as_view(),
+        name="port_tt_await_data",
+    ),
+    path(
+        "connect/check/",
+        port_views.CheckDownloadAvailabilityView.as_view(),
+        name="port_tt_check_data",
+    ),
 ]

@@ -1,0 +1,29 @@
+{% load i18n %}
+
+<div id="check-download-availability"
+     hx-get="{% url 'userflow:datadonation:port_tt_check_data' %}"
+     hx-trigger="load delay:15s"
+     hx-swap="outerHTML">
+  <div>
+
+    <p class="mdm-text-main">
+      {% blocktranslate trimmed %}
+        <strong>Zugriff autorisiert!</strong><br />
+        Wir warten nun darauf, dass TikTok deine Daten bereitstellt.
+        Sobald alles bereit ist, kannst du sie prüfen und entscheiden,
+        ob der Report erstellt werden soll.
+      {% endblocktranslate %}
+    </p>
+
+    <div class="mb-3 mt-5">
+      <span class="mdm-loader"></span>
+    </div>
+    <div class="mb-2">
+      {% if poll_datetime %}
+        <p class="mb-0 mdm-text-muted">
+          {% translate "Verfügbarkeit zuletzt geprüft am" %} {{ poll_datetime }}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>

@@ -1,0 +1,16 @@
+{% load i18n %}
+
+<div>
+  <p class="mdm-text-main">
+    <strong>{% translate "Leider ist beim Abrufen deiner Daten ein Fehler aufgetreten." %}</strong>
+  </p>
+
+  <p class="mdm-text-main">
+    {% blocktranslate trimmed %}
+      Bitte versuche es noch einmal oder kontaktiere den Support:
+      <a href="mailto:kontakt@digital-meal.ch">kontakt@digital-meal.ch</a>
+    {% endblocktranslate %}
+  </p>
+
+  <p><a href="{% url 'userflow:datadonation:port_tt_connect' %}" class="btn mdm-discreet-btn">Noch einmal versuchen</a></p>
+</div>

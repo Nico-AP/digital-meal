@@ -1,20 +1,21 @@
 {% extends "userflow/base.html" %}
-{% load i18n %}
+{% load i18n django_htmx %}
 
 {% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
 
 {% block content %}
-  <div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-8 col-xl-6 text-center">
 
-    <p class="mdm-text-main">$
-      {% blocktranslate trimmed %}
-        Zugriff autorisiert!
-        Wir warten nun darauf, dass TikTok deine Daten bereitstellt.
-        Sobald alles bereit ist, kannst du sie prüfen und entscheiden,
-        ob der Report erstellt werden soll.
-      {% endblocktranslate %}
-    </p>
+        {% include 'datadonation/portability/await_partials/_data_download_pending_msg.html' %}
 
+      </div>
+    </div>
   </div>
-
 {% endblock content %}
+
+{% block extra_js %}
+  {{ block.super }}
+  {% htmx_script %}
+{% endblock extra_js %}

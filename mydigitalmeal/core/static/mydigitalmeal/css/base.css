@@ -29,6 +29,23 @@ a:hover {
     filter: brightness(70%);
 }
 
+/* Messages */
+
+.mdm-message-container {
+    margin-bottom: 2rem;
+    max-width: 992px;
+}
+
+.mdm-alert {
+    background: white;
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.mdm-alert .btn-close {
+    padding: 1rem 1rem;
+}
+
 /* Container Classes */
 .mdm-container-landing-preview {
     margin-top: 2rem;
@@ -469,4 +486,43 @@ ul.mdm-list {
 .report-container {
     background: black;
     border-radius:20px;
+}
+
+/* Loader */
+
+.mdm-loader {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: inline-block;
+    position: relative;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+
+    background: conic-gradient(
+            from 0deg,
+            transparent 40%,
+            #ff4e22,
+            #ff9bba,
+            #ffe2a5,
+            #89f8c3
+    );
+
+    /* Mask out the center to fake a border */
+    -webkit-mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 8px),
+            #fff calc(100% - 7px)
+    );
+
+    mask: radial-gradient(
+            farthest-side,
+            transparent calc(100% - 8px),
+            #fff calc(100% - 7px)
+    );
+}
+
+@keyframes rotation {
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
