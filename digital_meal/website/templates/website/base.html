@@ -15,6 +15,7 @@
 
   {% block site_css %}
     <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'website/css/bootstrap/bootstrap-icons.css' %}" />
     <link rel="stylesheet" href="{% static 'website/css/base.css' %}" />
   {% endblock site_css %}
 
@@ -28,7 +29,7 @@
 </head>
 
 <body>
-<div id="dm-body" style="display: flex; flex-direction: column">
+<div id="dm-body" class="d-flex flex-column">
 
   {% block header %}
     <div id="header" class="bg-blue">
