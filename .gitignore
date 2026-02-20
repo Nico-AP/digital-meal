@@ -34,3 +34,5 @@ python
 
 #VS Code
 .vscode/
+
+.db_backups
