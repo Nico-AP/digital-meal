@@ -1,33 +1,47 @@
 {% extends "userflow/base.html" %}
 {% load i18n %}
 
-{% block page_title %}{% translate "TikTok-Daten verknüpfen" %}{% endblock page_title %}
+{% block navbar_top %}
+  {% include "userflow/partials/header_large.html" %}
+{% endblock navbar_top %}
+
+{% block page_title %}{% translate "Deine Reports" %}{% endblock page_title %}
 
 {% block content %}
   <div class="container">
     <div class="row justify-content-center">
       <div class="col col-lg-10 col-xl-8 text-center">
-        <div class="mdm-text-main">
-          <h1 class="pb-5">My Digital Meal - Data Donation</h1>
+
+        <div>
+          <a class="btn mdm-base-btn fs-4" type="button" href="{% url 'userflow:reset' %}">{% translate "neuen TikTok Report generieren" %}</a>
         </div>
-        {# TODO: Update #}
-        <p><a class="btn mdm-base-btn fs-4" type="button" href="{% url 'userflow:reset' %}">{% translate "mit DDM fortfahren" %}</a></p>
 
         {% if requests %}
-          <div class="mdm-text-main">
-            <h2>Vorherige Anfragen</h2>
+          <div class="mdm-text-main mt-5">
+            <h2>{% translate "Deine Reports" %}</h2>
           </div>
 
-          {% for request in requests %}
-            <div class="border-1 rounded bg-light m-1 p-1">
-              <div>Requested at: {{ request.requested_at }}</div>
-              <div>Status: {{ request.status }}</div>
-              <div>Status Details: {{ request.status_detail }}</div>
-              <div><a class="text-black" href="{% url 'userflow:resume' request.public_id %}">Resume</a></div>
-            </div>
-          {% endfor %}
+          <div class="row">
+            {% for request in requests %}
+              {% if request.status == "SUCCESS" %}
+              <div class="col-12 col-sm-6 prev-report-card-wrapper">
+                <a class="text-black" href="{% url 'userflow:resume' request.public_id %}">
+                  <div class="prev-report-card">
+                    <div class="fw-bold">{% translate "TikTok Report" %}</div>
+                    <div>{% translate "vom" %} {{ request.requested_at }}</div>
+                  </div>
+                </a>
+              </div>
+              {% endif %}
+            {% endfor %}
+          </div>
 
         {% endif %}
+
+        <div class="mt-5 mb-5">
+          <a class="btn mdm-discreet-btn" href="{% url 'userflow:profiles:logout' %}">{% translate "Abmelden" %}</a>
+        </div>
+
       </div>
     </div>
   </div>
