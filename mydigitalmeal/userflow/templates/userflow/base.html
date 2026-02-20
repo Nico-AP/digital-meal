@@ -5,11 +5,16 @@
 {% endblock extra_head %}
 
 {% block main %}
-  {% block messages %}{% endblock messages %}
 
   {% block navbar_top %}
     {% include "userflow/partials/header_small.html" %}
   {% endblock navbar_top %}
+
+  {% block messages %}
+    {% if messages %}
+      {% include "mydigitalmeal/partials/_messages.html" %}
+    {% endif %}
+  {% endblock messages %}
 
   {% block content %}{% endblock content %}
 

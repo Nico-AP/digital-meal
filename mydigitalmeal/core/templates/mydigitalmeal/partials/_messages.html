@@ -1,0 +1,8 @@
+{% for message in messages %}
+<div class="container mdm-message-container d-flex flex-column justify-content-center">
+  <div class="alert mdm-alert alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+</div>
+{% endfor %}
