@@ -3,7 +3,7 @@ from pathlib import Path
 import ddm.core
 
 from .base import *  # noqa: F403
-from .base import env
+from .base import INSTALLED_APPS, MIDDLEWARE, env
 
 ALLOWED_HOSTS = env.str("ALLOWED_HOSTS").split()
 
@@ -12,6 +12,22 @@ ALLOWED_HOSTS = env.str("ALLOWED_HOSTS").split()
 DEBUG = True
 
 SITE_ID = 1
+
+# django-debug-toolbar - https://github.com/django-commons/django-debug-toolbar
+# ------------------------------------------------------------------------------
+if DEBUG:
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+    DEBUG_TOOLBAR_CONFIG = {
+        "DISABLE_PANELS": [
+            "debug_toolbar.panels.redirects.RedirectsPanel",
+            # Disable profiling panel due to an issue with Python 3.12:
+            # https://github.com/jazzband/django-debug-toolbar/issues/1875
+            "debug_toolbar.panels.profiling.ProfilingPanel",
+        ],
+        "SHOW_TEMPLATE_CONTEXT": True,
+    }
+    INTERNAL_IPS = ["127.0.0.1"]
 
 
 # DATABASE

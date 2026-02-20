@@ -1,3 +1,4 @@
+from debug_toolbar.toolbar import debug_toolbar_urls
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -42,6 +43,10 @@ ddm_patterns = [
 ]
 
 urlpatterns += ddm_patterns
+
+if settings.DEBUG:
+    # Note: Did not work when placed in the settings.DEBUG block at the end.
+    urlpatterns += debug_toolbar_urls()
 
 urlpatterns += [
     path("portability/", include("shared.portability.urls")),
