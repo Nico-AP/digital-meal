@@ -8,7 +8,7 @@ from django.test import TestCase
 from django.utils import timezone
 from django.views import View
 
-from shared.portability.models import OAuthStateToken, TikTokAccessToken
+from shared.portability.models import TikTokAccessToken
 from shared.portability.sessions import (
     PortabilitySessionManager,
     PortabilitySessionMixin,
@@ -18,92 +18,9 @@ from shared.portability.views import (
     ActiveAccessTokenRequiredMixin,
     AuthenticationRequiredMixin,
     ManageAccessTokenMixin,
-    StateTokenMixin,
 )
 
 User = get_user_model()
-
-
-class TestStateTokenMixin(TestCase):
-    def setUp(self):
-        class TestView(PortabilitySessionMixin, StateTokenMixin, View):
-            pass
-
-        self.view = TestView()
-        self.request = get_request_with_session()
-        self.view.request = self.request
-        self.view.port_session = PortabilitySessionManager.from_request(self.request)
-
-    def test_get_or_create_state_token_returns_existing_valid_token(self):
-        token = OAuthStateToken.objects.create()
-        self.view.port_session.update(state_token=token.token)
-
-        retrieved_token = self.view.get_or_create_state_token(self.request)
-
-        self.assertEqual(retrieved_token, token)
-
-    def test_get_or_create_state_token_creates_token_when_none_exists(self):
-        token = self.view.get_or_create_state_token(self.request)
-
-        self.assertIsNotNone(token)
-        self.assertTrue(OAuthStateToken.objects.filter(token=token.token).exists())
-
-    def test_get_or_create_state_token_creates_new_token_when_existing_is_expired(self):
-        token = OAuthStateToken.objects.create()
-        token.created_at = timezone.now() - timedelta(days=1)
-        token.save()
-        self.view.port_session.update(state_token=token.token)
-
-        new_token = self.view.get_or_create_state_token(self.request)
-
-        self.assertNotEqual(new_token.token, token.token)
-
-    def test_get_or_create_state_token_creates_new_token_when_existing_is_used(self):
-        token = OAuthStateToken.objects.create()
-        token.used = True
-        token.save()
-        self.view.port_session.update(state_token=token.token)
-
-        new_token = self.view.get_or_create_state_token(self.request)
-
-        self.assertNotEqual(new_token.token, token.token)
-
-    def test_verify_and_consume_state_token_with_valid_token(self):
-        token = OAuthStateToken.objects.create()
-        self.view.port_session.update(state_token=token.token)
-
-        self.view.verify_and_consume_state_token(token.token)
-        token.refresh_from_db()
-
-        self.assertIsNone(self.view.port_session.get_token())
-        self.assertTrue(token.used)
-
-    def test_verify_and_consume_state_token_does_not_match(self):
-        token = OAuthStateToken.objects.create()
-        self.view.port_session.update(state_token=token.token)
-
-        self.assertRaises(
-            ValidationError, self.view.verify_and_consume_state_token, "wrong-token"
-        )
-
-    def test_verify_and_consume_state_token_inexistent_token(self):
-        self.view.port_session.update(state_token="nonexistent-token")
-
-        self.assertRaises(
-            ValidationError,
-            self.view.verify_and_consume_state_token,
-            "nonexistent-token",
-        )
-
-    def test_verify_and_consume_state_token_expired_token(self):
-        token = OAuthStateToken.objects.create()
-        token.created_at = timezone.now() - timedelta(days=1)
-        token.save()
-        self.view.port_session.update(state_token=token.token)
-
-        self.assertRaises(
-            ValidationError, self.view.verify_and_consume_state_token, token.token
-        )
 
 
 class TestManageAccessTokenMixin(TestCase):

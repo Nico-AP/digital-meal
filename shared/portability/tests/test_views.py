@@ -2,11 +2,13 @@ from datetime import timedelta
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+from shared.portability.constants import PortabilityContexts
 from shared.portability.models import (
     OAuthStateToken,
     TikTokAccessToken,
@@ -24,6 +26,15 @@ User = get_user_model()
 
 
 class TestTikTokAuthView(TestCase):
+    def setUp(self):
+        class TestView(TikTokAuthView):
+            pass
+
+        self.view = TestView()
+        self.request = get_request_with_session()
+        self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
+
     def test_auth_view_200(self):
         url = reverse("tiktok_auth")
         response = self.client.get(url)
@@ -47,6 +58,60 @@ class TestTikTokAuthView(TestCase):
         )
         auth_url = view.build_auth_url()
         self.assertEqual(expected_auth_url, auth_url)
+
+    def test_get_or_create_state_token_returns_existing_valid_token(self):
+        token = OAuthStateToken.objects.create()
+        self.view.port_session.update(state_token=token.token)
+
+        retrieved_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertEqual(retrieved_token, token)
+
+    def test_get_or_create_state_token_creates_token_when_none_exists(self):
+        token = self.view.get_or_create_state_token(self.request)
+
+        self.assertIsNotNone(token)
+        self.assertTrue(OAuthStateToken.objects.filter(token=token.token).exists())
+
+    def test_get_or_create_state_token_creates_new_token_when_existing_is_expired(self):
+        token = OAuthStateToken.objects.create()
+        token.created_at = timezone.now() - timedelta(days=1)
+        token.save()
+        self.view.port_session.update(state_token=token.token)
+
+        new_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertNotEqual(new_token.token, token.token)
+
+    def test_get_or_create_state_token_creates_new_token_when_existing_is_used(self):
+        token = OAuthStateToken.objects.create()
+        token.used = True
+        token.save()
+        self.view.port_session.update(state_token=token.token)
+
+        new_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertNotEqual(new_token.token, token.token)
+
+    def test_get_or_create_token_creates_new_when_current_token_from_different_context(
+        self,
+    ):
+        token = OAuthStateToken.objects.create(context=PortabilityContexts.MY_DM)
+        self.view.port_session.update(state_token=token.token)
+
+        new_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertNotEqual(new_token.token, token.token)
+
+    def test_get_or_create_token_when_current_token_from_same_context(self):
+        token = OAuthStateToken.objects.create(context=PortabilityContexts.DM_EDU)
+        self.view.port_session.update(
+            state_token=token.token, context=PortabilityContexts.DM_EDU
+        )
+
+        retrieved_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertEqual(retrieved_token, token)
 
 
 class TestTikTokCallbackView(TestCase):
@@ -157,6 +222,55 @@ class TestTikTokCallbackView(TestCase):
         self.assertEqual(port_manager.get_tiktok_open_id(), "test-open-id")
         # Verify redirect
         self.assertRedirects(response, reverse("tiktok_await_data_download"))
+
+    def test_verify_and_consume_state_token_with_valid_token(self):
+        self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
+
+        token = OAuthStateToken.objects.create()
+        self.view.port_session.update(state_token=token.token)
+
+        self.view.verify_and_consume_state_token(token.token)
+        token.refresh_from_db()
+
+        self.assertIsNone(self.view.port_session.get_token())
+        self.assertTrue(token.used)
+
+    def test_verify_and_consume_state_token_does_not_match(self):
+        self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
+
+        token = OAuthStateToken.objects.create()
+        self.view.port_session.update(state_token=token.token)
+
+        self.assertRaises(
+            ValidationError, self.view.verify_and_consume_state_token, "wrong-token"
+        )
+
+    def test_verify_and_consume_state_token_inexistent_token(self):
+        self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
+
+        self.view.port_session.update(state_token="nonexistent-token")
+
+        self.assertRaises(
+            ValidationError,
+            self.view.verify_and_consume_state_token,
+            "nonexistent-token",
+        )
+
+    def test_verify_and_consume_state_token_expired_token(self):
+        self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
+
+        token = OAuthStateToken.objects.create()
+        token.created_at = timezone.now() - timedelta(days=1)
+        token.save()
+        self.view.port_session.update(state_token=token.token)
+
+        self.assertRaises(
+            ValidationError, self.view.verify_and_consume_state_token, token.token
+        )
 
 
 class TestTikTokAwaitDownloadView(TestCase):

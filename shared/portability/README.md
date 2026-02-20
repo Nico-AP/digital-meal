@@ -58,7 +58,6 @@ Each authentication attempt generates an `OAuthStateToken` database record. It i
 | Mixin                            | Purpose                                                                                           |
 |----------------------------------|---------------------------------------------------------------------------------------------------|
 | `PortabilitySessionMixin`        | Initialises `self.port_session` on every request.                                                 |
-| `StateTokenMixin`                | Generates and stores a state token at dispatch time. Provides `verify_and_consume_state_token()`. |
 | `AuthenticationRequiredMixin`    | Requires `tiktok_open_id` to be present in the portability session.                               |
 | `ActiveAccessTokenRequiredMixin` | Requires a valid, non-expired `TikTokAccessToken` in the database. Refreshes it if needed.        |
 

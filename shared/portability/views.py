@@ -59,112 +59,9 @@ def redirect_to_auth_view(
     port_context = port_session.get_context()
 
     if port_context == PortabilityContexts.MY_DM:
-        return redirect("tiktok_auth")  # TODO: Update when ready to use correct route
+        return redirect("userflow:datadonation:port_tt_connect")
     else:
         return redirect("tiktok_auth")
-
-
-class StateTokenMixin:
-    """
-    Adds utility function to a view to be able to generate, store, and retrieve
-    state tokens (e.g., to prevent csrf attacks when authenticating with
-    external services without exposing the actual csrf token).
-
-    Should not be used with views that are marked as csrf_exempt.
-
-    Note: Requires PortabilitySessionMixin to be listed after this mixin.
-    """
-
-    state_token: str | None = None
-    port_session: PortabilitySessionManager | None
-
-    def __init_subclass__(cls, **kwargs):
-        super().__init_subclass__(**kwargs)
-        if not any(issubclass(base, PortabilitySessionMixin) for base in cls.__mro__):
-            msg = (
-                f"{cls.__name__} requires PortabilitySessionMixin "
-                "to be listed after it."
-            )
-            raise TypeError(msg)
-
-    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
-        """Generates and stores a state token used in the authentication flow."""
-
-        state_token = self.get_or_create_state_token(request)
-        self.state_token = state_token.token
-        self.port_session.update(
-            state_token=state_token.token,
-            context=state_token.context,
-        )
-        return super().session_dispatch(request, *args, **kwargs)
-
-    def get_or_create_state_token(self, request) -> OAuthStateToken:
-        """Get the state token from the current user's session.
-
-        If no token exists, create a new OAuthStateToken object and return its token.
-        If a session is already assigned a token and the token is still valid,
-        return the existing token.
-
-        Returns:
-            OAuthStateToken: The state token associated with this session.
-        """
-        # Check if session already has an associated token
-        session_token = self.port_session.get_token()
-        if session_token:
-            token = OAuthStateToken.objects.filter(token=session_token).first()
-            if token and not token.is_expired() and not token.used:
-                return token
-
-        # If session has no associated (valid) token
-        context = get_request_context(request)
-        token = OAuthStateToken.objects.create(context=context)
-        return token
-
-    def verify_and_consume_state_token(self, state_token: str) -> None:
-        """Verifies a given state token.
-
-        Verifies that a state token is the same as the one stored in the
-        current session. If the token exists, the token will be deleted from the
-        session and the corresponding OAuthStateToken model will be set to "used".
-
-        Args:
-            state_token: The state token to be verified.
-
-        Returns:
-            None or raises a ValidationError if the token is invalid.
-        """
-        session_token = self.port_session.get_token()
-        if session_token != state_token:
-            log_security_event(
-                logger,
-                "Received state token does not match session state token",
-                self.request,
-                extra={
-                    "state_token": state_token,
-                    "session_token": session_token,
-                },
-            )
-            raise ValidationError("State token does not match the session state token.")
-
-        if not OAuthStateToken.objects.filter(token=session_token).exists():
-            logger.info(
-                "Tried to retrieve non existing OAuthStateToken: %s", session_token
-            )
-            raise ValidationError("Authentication token does not exist.")
-
-        token = OAuthStateToken.objects.get(token=session_token)
-        if token.is_expired() or token.used:
-            logger.info(
-                "Tried to use expired OAuthStateToken: %s (pk: %s)",
-                token.token,
-                token.pk,
-            )
-            raise ValidationError("Authentication token is expired.")
-
-        # If token is valid, set it to used and delete token from session.
-        token.used = True
-        token.save()
-        self.port_session.delete_token()
 
 
 class ManageAccessTokenMixin:
@@ -269,10 +166,53 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
         return super().session_dispatch(request, *args, **kwargs)
 
 
-class TikTokAuthView(StateTokenMixin, PortabilitySessionMixin, TemplateView):
+class TikTokAuthView(PortabilitySessionMixin, TemplateView):
     template_name = "portability/tiktok_auth.html"
+    state_token: str | None = None
 
     # TODO: Add throttling.
+
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
+        """Generates and stores a state token used in the authentication flow."""
+
+        state_token = self.get_or_create_state_token(request)
+        self.state_token = state_token.token
+        self.port_session.update(
+            state_token=state_token.token,
+            context=state_token.context,
+        )
+        return super().session_dispatch(request, *args, **kwargs)
+
+    def get_or_create_state_token(self, request) -> OAuthStateToken:
+        """Get the state token from the current user's session.
+
+        If no token exists, create a new OAuthStateToken object and return its token.
+        If a session is already assigned a token and the token is still valid,
+        return the existing token.
+
+        Returns:
+            OAuthStateToken: The state token associated with this session.
+        """
+
+        session_token = self.port_session.get_token()
+        context = get_request_context(request)
+
+        # Option A: Session has no associated token
+        if not session_token:
+            return OAuthStateToken.objects.create(context=context)
+
+        # Option B: Session has associated token
+        token = OAuthStateToken.objects.filter(token=session_token).first()
+        if token and (token.is_expired() or token.used):
+            return OAuthStateToken.objects.create(context=context)
+
+        # Option B-1: Token was created in current context
+        if token.context == context:
+            return token
+
+        # Option B-2: Token was created in different context
+        token.delete()
+        return OAuthStateToken.objects.create(context=context)
 
     def build_auth_url(self) -> str:
         """Builds the TikTok authentication URL.
@@ -308,9 +248,7 @@ class TikTokAuthView(StateTokenMixin, PortabilitySessionMixin, TemplateView):
         return context
 
 
-class TikTokCallbackView(
-    ManageAccessTokenMixin, StateTokenMixin, PortabilitySessionMixin, View
-):
+class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
     """Handles the callback from TikTok after authentication.
 
     Validates the received data and retrieves the access token from TikTok.
@@ -362,6 +300,52 @@ class TikTokCallbackView(
             return redirect_to_auth_view(request)
 
         return super().session_dispatch(request, *args, **kwargs)
+
+    def verify_and_consume_state_token(self, state_token: str) -> None:
+        """Verifies a given state token.
+
+        Verifies that a state token is the same as the one stored in the
+        current session. If the token exists, the token will be deleted from the
+        session and the corresponding OAuthStateToken model will be set to "used".
+
+        Args:
+            state_token: The state token to be verified.
+
+        Returns:
+            None or raises a ValidationError if the token is invalid.
+        """
+        session_token = self.port_session.get_token()
+        if session_token != state_token:
+            log_security_event(
+                logger,
+                "Received state token does not match session state token",
+                self.request,
+                extra={
+                    "state_token": state_token,
+                    "session_token": session_token,
+                },
+            )
+            raise ValidationError("State token does not match the session state token.")
+
+        if not OAuthStateToken.objects.filter(token=session_token).exists():
+            logger.info(
+                "Tried to retrieve non existing OAuthStateToken: %s", session_token
+            )
+            raise ValidationError("Authentication token does not exist.")
+
+        token = OAuthStateToken.objects.get(token=session_token)
+        if token.is_expired() or token.used:
+            logger.info(
+                "Tried to use expired OAuthStateToken: %s (pk: %s)",
+                token.token,
+                token.pk,
+            )
+            raise ValidationError("Authentication token is expired.")
+
+        # If token is valid, set it to used and delete token from session.
+        token.used = True
+        token.save()
+        self.port_session.delete_token()
 
     def get(self, request, *args, **kwargs):
         """Exchanges the authorization code for an access token and stores it.
