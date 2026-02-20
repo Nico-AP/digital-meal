@@ -6,19 +6,19 @@
 {% endblock title %}
 
 {% block main_content %}
-<div>
-  <h1>Deine TikTok Daten werden abgerufen</h1>
+  <div>
+    <h1>Deine TikTok Daten werden abgerufen</h1>
 
-  <div class="mb-3">
-    Du hast den Zugriff auf deine Daten erfolgreich autorisiert. Wir warten nun darauf,
-    dass die Daten von TikTok abgerufen werden können. Sobald die Daten verfügbar sind,
-    kannst du dir die Daten auf der nächsten Seite in aller Ruhe ansehen und entscheiden,
-    ob wir den Report generieren sollen.
+    <div class="mb-3">
+      Zugriff autorisiert!
+      Wir warten nun darauf, dass TikTok deine Daten bereitstellt.
+      Sobald alles bereit ist, kannst du sie prüfen und entscheiden,
+      ob der Report erstellt werden soll.
+    </div>
+
+    {% include 'portability/partials/_data_download_pending_msg.html' %}
+
   </div>
-
-  {% include 'portability/partials/_data_download_pending_msg.html' %}
-
-</div>
 {% endblock main_content %}
 
 {% block site_js %}

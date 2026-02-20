@@ -13,6 +13,7 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from digital_meal.core.logging_utils import log_security_event
+from shared.portability.constants import PortabilityContexts
 from shared.portability.exceptions import TokenRefreshError
 from shared.portability.models import (
     OAuthStateToken,
@@ -23,6 +24,11 @@ from shared.portability.services import (
     TikTokAccessTokenService,
     TikTokPortabilityAPIClient,
 )
+from shared.portability.sessions import (
+    PortabilitySessionManager,
+    PortabilitySessionMixin,
+)
+from shared.portability.utils import get_request_context
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +54,14 @@ def redirect_to_auth_view(
         msg = "Something went wrong. Please try again."
 
     messages.info(request, msg)
-    return redirect("tiktok_auth")
+
+    port_session = PortabilitySessionManager.from_request(request)
+    port_context = port_session.get_context()
+
+    if port_context == PortabilityContexts.MY_DM:
+        return redirect("tiktok_auth")  # TODO: Update when ready to use correct route
+    else:
+        return redirect("tiktok_auth")
 
 
 class StateTokenMixin:
@@ -57,44 +70,35 @@ class StateTokenMixin:
     state tokens (e.g., to prevent csrf attacks when authenticating with
     external services without exposing the actual csrf token).
 
-    Should not be used with views that are marked as csrf_exempt
+    Should not be used with views that are marked as csrf_exempt.
+
+    Note: Requires PortabilitySessionMixin to be listed after this mixin.
     """
 
-    state_token = None
-    state_token_session_key = "state_token"  # noqa: S105
+    state_token: str | None = None
+    port_session: PortabilitySessionManager | None
 
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Generating and stores a state token used in the authentication flow.
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not any(issubclass(base, PortabilitySessionMixin) for base in cls.__mro__):
+            msg = (
+                f"{cls.__name__} requires PortabilitySessionMixin "
+                "to be listed after it."
+            )
+            raise TypeError(msg)
 
-        The state token is used for CSRF protection during the OAuth callback.
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
+        """Generates and stores a state token used in the authentication flow."""
 
-        Args:
-            request: The HTTP request object.
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
-        """
-        # Get state token used for csrf checks.
-        self.state_token = self.get_or_create_state_token()
-        self.store_state_token_in_session(self.state_token)
-        return super().dispatch(request, *args, **kwargs)
+        state_token = self.get_or_create_state_token(request)
+        self.state_token = state_token.token
+        self.port_session.update(
+            state_token=state_token.token,
+            context=state_token.context,
+        )
+        return super().session_dispatch(request, *args, **kwargs)
 
-    def store_state_token_in_session(
-        self,
-        state_token: str,
-    ) -> None:
-        """Stores a state token in the current user's session.
-
-        Args:
-            state_token: The state token to be stored.
-
-        Returns:
-            None
-        """
-        self.request.session[self.state_token_session_key] = state_token
-        return
-
-    def get_or_create_state_token(self) -> str:
+    def get_or_create_state_token(self, request) -> OAuthStateToken:
         """Get the state token from the current user's session.
 
         If no token exists, create a new OAuthStateToken object and return its token.
@@ -102,18 +106,19 @@ class StateTokenMixin:
         return the existing token.
 
         Returns:
-            str: The retrieved state token if it is found in the session.
+            OAuthStateToken: The state token associated with this session.
         """
         # Check if session already has an associated token
-        session_token = self.request.session.get(self.state_token_session_key)
+        session_token = self.port_session.get_token()
         if session_token:
             token = OAuthStateToken.objects.filter(token=session_token).first()
             if token and not token.is_expired() and not token.used:
-                return token.token
+                return token
 
         # If session has no associated (valid) token
-        token = OAuthStateToken.objects.create()
-        return token.token
+        context = get_request_context(request)
+        token = OAuthStateToken.objects.create(context=context)
+        return token
 
     def verify_and_consume_state_token(self, state_token: str) -> None:
         """Verifies a given state token.
@@ -128,8 +133,8 @@ class StateTokenMixin:
         Returns:
             None or raises a ValidationError if the token is invalid.
         """
-        session_token = self.request.session.get(self.state_token_session_key)
-        if not session_token == state_token:
+        session_token = self.port_session.get_token()
+        if session_token != state_token:
             log_security_event(
                 logger,
                 "Received state token does not match session state token",
@@ -159,13 +164,11 @@ class StateTokenMixin:
         # If token is valid, set it to used and delete token from session.
         token.used = True
         token.save()
-        self.request.session.pop(self.state_token_session_key)
-        return
+        self.port_session.delete_token()
 
 
 class ManageAccessTokenMixin:
     access_token = None
-    open_id_session_key = "tiktok_open_id"
 
     @staticmethod
     def get_valid_access_token_from_db(open_id: str) -> TikTokAccessToken:
@@ -212,54 +215,49 @@ class ManageAccessTokenMixin:
 
         return access_token
 
-    def store_open_id_in_session(self, open_id: str) -> None:
-        """Stores the PK of the related TikTokAccessToken object in the session.
-
-        Args:
-            open_id: Primary key of the token object.
-
-        Returns:
-            None
-        """
-        self.request.session[self.open_id_session_key] = open_id
-        return
-
-    def get_open_id_from_session(self) -> str | None:
-        """Gets the PK of the related TikTokAccessToken object from the session.
-
-        Returns:
-            int | None: Primary key of the token object. None, if session_id did
-                not exist in the session.
-        """
-        return self.request.session.get(self.open_id_session_key)
-
 
 class AuthenticationRequiredMixin(ManageAccessTokenMixin):
-    def dispatch(self, request, *args, **kwargs):
-        """Ensure that the user is authenticated (open_id is in session).
+    """Ensure that the user is authenticated (open_id is in session).
 
-        Redirects to authentication view if not.
-        """
-        # Check if session is authenticated.
-        open_id = self.get_open_id_from_session()
+    Note: Requires PortabilitySessionMixin to be listed after this mixin.
+    """
+
+    port_session: PortabilitySessionManager | None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not any(issubclass(base, PortabilitySessionMixin) for base in cls.__mro__):
+            msg = f"{cls.__name__} requires PortabilitySessionMixin to be loaded after."
+            raise TypeError(msg)
+
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
+        """Redirects unauthenticated requests (open_id not in session)."""
+        open_id = self.port_session.get_tiktok_open_id()
         if not open_id:
             msg = "Open ID information missing in session (unauthenticated request)."
-
             log_security_event(logger, msg, self.request)
-
             return redirect_to_auth_view(request)
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().session_dispatch(request, *args, **kwargs)
 
 
 class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
-    def dispatch(self, request, *args, **kwargs):
-        """Ensure that current session has an active access token.
+    """Ensure that current session has an active access token.
 
-        Redirects to authentication view if not.
-        """
-        # Check if access token exists
-        open_id = self.get_open_id_from_session()
+    Note: Requires PortabilitySessionMixin to be loaded after
+    """
+
+    port_session: PortabilitySessionManager | None
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if not any(issubclass(base, PortabilitySessionMixin) for base in cls.__mro__):
+            msg = f"{cls.__name__} requires PortabilitySessionMixin to be loaded after."
+            raise TypeError(msg)
+
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
+        """Redirects to auth view if session has no active access token."""
+        open_id = self.port_session.get_tiktok_open_id()
         try:
             access_token = self.get_valid_access_token_from_db(open_id)
         except (TikTokAccessToken.DoesNotExist, ValidationError) as e:
@@ -268,10 +266,10 @@ class ActiveAccessTokenRequiredMixin(ManageAccessTokenMixin):
 
         self.access_token = access_token
         self.access_token.refresh_from_db()
-        return super().dispatch(request, *args, **kwargs)
+        return super().session_dispatch(request, *args, **kwargs)
 
 
-class TikTokAuthView(StateTokenMixin, TemplateView):
+class TikTokAuthView(StateTokenMixin, PortabilitySessionMixin, TemplateView):
     template_name = "portability/tiktok_auth.html"
 
     # TODO: Add throttling.
@@ -310,7 +308,9 @@ class TikTokAuthView(StateTokenMixin, TemplateView):
         return context
 
 
-class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
+class TikTokCallbackView(
+    ManageAccessTokenMixin, StateTokenMixin, PortabilitySessionMixin, View
+):
     """Handles the callback from TikTok after authentication.
 
     Validates the received data and retrieves the access token from TikTok.
@@ -320,7 +320,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
     If the validation fails, the user is redirected to an error page.
     """
 
-    def dispatch(self, request, *args, **kwargs):
+    def session_dispatch(self, request, *args, **kwargs) -> HttpResponse | None:
         """Validates the OAuth callback before processing the request.
 
         Performs security checks including:
@@ -334,8 +334,8 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
             **kwargs: Additional keyword arguments.
 
         Returns:
-            HttpResponse: Either an error response (400) if validation fails,
-                or delegates to the GET handler if validation succeeds.
+            HttpResponse | None: An HttpResponse if validation fails,
+                or calls super() to continue the chain.
         """
 
         # Validate state token before any processing
@@ -349,7 +349,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
         except ValidationError:
             return redirect_to_auth_view(request)
 
-        # Check for errors raised by the external service.
+        # Check for errors raised by the external service
         error = request.GET.get("error")
         if error:
             descr = request.GET.get("error_description")
@@ -361,7 +361,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
             logger.info('Request is missing "code" parameter.')
             return redirect_to_auth_view(request)
 
-        return super().dispatch(request, *args, **kwargs)
+        return super().session_dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         """Exchanges the authorization code for an access token and stores it.
@@ -412,13 +412,25 @@ class TikTokCallbackView(ManageAccessTokenMixin, StateTokenMixin, View):
 
         # Regenerate session ID to prevent session hijacking
         request.session.cycle_key()
-        self.store_open_id_in_session(open_id)
+        self.port_session.update(tiktok_open_id=open_id)
 
-        return redirect("tiktok_await_data_download")
+        return self.redirect_success()
+
+    def redirect_success(self):
+        port_context = self.port_session.get_context()
+        if port_context == PortabilityContexts.MY_DM:
+            return redirect(
+                "tiktok_await_data_download"
+            )  # TODO: Update when ready to use correct route
+        else:
+            return redirect("tiktok_await_data_download")
 
 
 class TikTokAwaitDataDownloadView(
-    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
+    AuthenticationRequiredMixin,
+    ActiveAccessTokenRequiredMixin,
+    PortabilitySessionMixin,
+    TemplateView,
 ):
     """Displays a waiting page while TikTok prepares the user's data export.
 
@@ -430,7 +442,10 @@ class TikTokAwaitDataDownloadView(
 
 
 class TikTokCheckDownloadAvailabilityView(
-    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
+    AuthenticationRequiredMixin,
+    ActiveAccessTokenRequiredMixin,
+    PortabilitySessionMixin,
+    TemplateView,
 ):
     """Returns appropriate status for the download availability.
 
@@ -462,7 +477,7 @@ class TikTokCheckDownloadAvailabilityView(
         api_client = TikTokPortabilityAPIClient(self.access_token.token)
 
         # Check if data request has already been issued.
-        open_id = self.get_open_id_from_session()
+        open_id = self.port_session.get_tiktok_open_id()
         data_request = (
             TikTokDataRequest.objects.filter(
                 open_id=open_id,
@@ -529,7 +544,10 @@ class TikTokCheckDownloadAvailabilityView(
 
 
 class TikTokDataDownloadView(
-    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, View
+    AuthenticationRequiredMixin,
+    ActiveAccessTokenRequiredMixin,
+    PortabilitySessionMixin,
+    View,
 ):
     """Handles the actual download of TikTok user data as a ZIP file.
 
@@ -557,7 +575,7 @@ class TikTokDataDownloadView(
             Raises:
                 Http404: If the download fails or data is not available.
         """
-        open_id = self.get_open_id_from_session()
+        open_id = self.port_session.get_tiktok_open_id()
 
         # Validate request id
         try:
@@ -604,7 +622,10 @@ class TikTokDataDownloadView(
 
 
 class TikTokDataReviewView(
-    AuthenticationRequiredMixin, ActiveAccessTokenRequiredMixin, TemplateView
+    AuthenticationRequiredMixin,
+    ActiveAccessTokenRequiredMixin,
+    PortabilitySessionMixin,
+    TemplateView,
 ):
     """Gets user information from the TikTok User Info API."""
 
@@ -702,10 +723,10 @@ class TikTokDataReviewView(
                 raise
 
 
-class TikTokDisconnectView(AuthenticationRequiredMixin, View):
+class TikTokDisconnectView(AuthenticationRequiredMixin, PortabilitySessionMixin, View):
     def get(self, request, *args, **kwargs):
         # Delete open ID from session.
-        request.session.pop(self.open_id_session_key)
+        self.port_session.delete_tiktok_open_id()
         request.session.cycle_key()
 
         msg = "Successfully disconnected from TikTok."

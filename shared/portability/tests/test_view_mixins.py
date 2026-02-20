@@ -6,9 +6,13 @@ from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.test import TestCase
 from django.utils import timezone
-from django.views.generic import View
+from django.views import View
 
 from shared.portability.models import OAuthStateToken, TikTokAccessToken
+from shared.portability.sessions import (
+    PortabilitySessionManager,
+    PortabilitySessionMixin,
+)
 from shared.portability.tests.utils import get_request_with_session
 from shared.portability.views import (
     ActiveAccessTokenRequiredMixin,
@@ -21,74 +25,81 @@ User = get_user_model()
 
 
 class TestStateTokenMixin(TestCase):
-    session_key = StateTokenMixin.state_token_session_key
-
     def setUp(self):
-        class TestView(StateTokenMixin, View):
+        class TestView(PortabilitySessionMixin, StateTokenMixin, View):
             pass
 
         self.view = TestView()
         self.request = get_request_with_session()
         self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
 
-    def test_store_state_token_in_session(self):
-        test_token = "test-token"
-        self.view.store_state_token_in_session(test_token)
+    def test_get_or_create_state_token_returns_existing_valid_token(self):
+        token = OAuthStateToken.objects.create()
+        self.view.port_session.update(state_token=token.token)
 
-        token_in_session = self.request.session[self.session_key]
-        self.assertEqual(token_in_session, test_token)
+        retrieved_token = self.view.get_or_create_state_token(self.request)
 
-    def test_store_state_token_in_session_overwrites_existing(self):
-        old_token = "test-token-new"
-        new_token = "test-token-old"
-        self.view.store_state_token_in_session(old_token)
-        self.view.store_state_token_in_session(new_token)
-        token_in_session = self.request.session[self.session_key]
+        self.assertEqual(retrieved_token, token)
 
-        self.assertEqual(token_in_session, new_token)
+    def test_get_or_create_state_token_creates_token_when_none_exists(self):
+        token = self.view.get_or_create_state_token(self.request)
 
-    def test_get_or_create_state_token_with_existing_token(self):
-        test_token = OAuthStateToken.objects.create()
-        self.request.session[self.session_key] = test_token.token
-        retrieved_token = self.view.get_or_create_state_token()
-        self.assertEqual(retrieved_token, test_token.token)
+        self.assertIsNotNone(token)
+        self.assertTrue(OAuthStateToken.objects.filter(token=token.token).exists())
 
-    def test_get_or_create_state_token_with_nonexistent_token_creates_token(self):
-        retrieved_token = self.view.get_or_create_state_token()
-        self.assertIsNotNone(retrieved_token)
-        self.assertTrue(OAuthStateToken.objects.filter(token=retrieved_token).exists())
+    def test_get_or_create_state_token_creates_new_token_when_existing_is_expired(self):
+        token = OAuthStateToken.objects.create()
+        token.created_at = timezone.now() - timedelta(days=1)
+        token.save()
+        self.view.port_session.update(state_token=token.token)
+
+        new_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertNotEqual(new_token.token, token.token)
+
+    def test_get_or_create_state_token_creates_new_token_when_existing_is_used(self):
+        token = OAuthStateToken.objects.create()
+        token.used = True
+        token.save()
+        self.view.port_session.update(state_token=token.token)
+
+        new_token = self.view.get_or_create_state_token(self.request)
+
+        self.assertNotEqual(new_token.token, token.token)
 
     def test_verify_and_consume_state_token_with_valid_token(self):
         token = OAuthStateToken.objects.create()
+        self.view.port_session.update(state_token=token.token)
 
-        self.request.session[self.session_key] = token.token
         self.view.verify_and_consume_state_token(token.token)
         token.refresh_from_db()
 
-        self.assertNotIn(self.session_key, self.request.session.keys())
+        self.assertIsNone(self.view.port_session.get_token())
         self.assertTrue(token.used)
 
     def test_verify_and_consume_state_token_does_not_match(self):
         token = OAuthStateToken.objects.create()
-        test_token = "test-token"
-        self.request.session[self.session_key] = token.token
+        self.view.port_session.update(state_token=token.token)
 
         self.assertRaises(
-            ValidationError, self.view.verify_and_consume_state_token, test_token
+            ValidationError, self.view.verify_and_consume_state_token, "wrong-token"
         )
 
     def test_verify_and_consume_state_token_inexistent_token(self):
-        test_token = "test-token"
-        self.request.session[self.session_key] = test_token
+        self.view.port_session.update(state_token="nonexistent-token")
 
         self.assertRaises(
-            ValidationError, self.view.verify_and_consume_state_token, test_token
+            ValidationError,
+            self.view.verify_and_consume_state_token,
+            "nonexistent-token",
         )
 
     def test_verify_and_consume_state_token_expired_token(self):
         token = OAuthStateToken.objects.create()
         token.created_at = timezone.now() - timedelta(days=1)
         token.save()
+        self.view.port_session.update(state_token=token.token)
 
         self.assertRaises(
             ValidationError, self.view.verify_and_consume_state_token, token.token
@@ -126,6 +137,7 @@ class TestManageAccessTokenMixin(TestCase):
 
     def test_get_valid_access_token_from_db_valid(self):
         token = self.view.get_valid_access_token_from_db(self.valid_token.open_id)
+
         self.assertEqual(token.token, self.valid_token.token)
 
     def test_get_valid_access_token_from_db_nonexisting(self):
@@ -142,38 +154,21 @@ class TestManageAccessTokenMixin(TestCase):
             self.expired_token.open_id,
         )
 
-    def test_store_open_id_in_session(self):
-        self.view.store_open_id_in_session(self.valid_token.open_id)
-        self.assertEqual(
-            self.valid_token.open_id,
-            self.request.session.get(self.view.open_id_session_key),
-        )
-
-    def test_get_open_id_from_session(self):
-        self.request.session[self.view.open_id_session_key] = self.valid_token.open_id
-        open_id = self.view.get_open_id_from_session()
-        self.assertEqual(open_id, self.valid_token.open_id)
-
-
-class TestViewAuthenticationRequiredMixin(AuthenticationRequiredMixin, View):
-    """Test view that uses the AuthenticationRequiredMixin."""
-
-    def get(self, request):
-        return HttpResponse("Success")
-
 
 class TestAuthenticationRequiredMixin(TestCase):
     def setUp(self):
-        class TestView(AuthenticationRequiredMixin, View):
+        class TestView(AuthenticationRequiredMixin, PortabilitySessionMixin, View):
             def get(self, request):
                 return HttpResponse("Success")
 
         self.view = TestView()
         self.request = get_request_with_session()
         self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
 
     def test_view_with_open_id_calls_super(self):
-        self.view.request.session[self.view.open_id_session_key] = "test-id"
+        self.view.port_session.update(tiktok_open_id="test-id")
+
         response = self.view.dispatch(self.request)
 
         self.assertEqual(response.status_code, 200)
@@ -181,19 +176,22 @@ class TestAuthenticationRequiredMixin(TestCase):
     @patch("shared.portability.views.redirect_to_auth_view")
     def test_view_without_open_id_calls_redirect_to_auth_view(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
+
         _ = self.view.dispatch(self.request)
+
         mock_redirect.assert_called_once_with(self.request)
 
 
 class TestActiveAccessTokenRequiredMixin(TestCase):
     def setUp(self):
-        class TestView(ActiveAccessTokenRequiredMixin, View):
+        class TestView(ActiveAccessTokenRequiredMixin, PortabilitySessionMixin, View):
             def get(self, request):
                 return HttpResponse("Success")
 
         self.view = TestView()
         self.request = get_request_with_session()
         self.view.request = self.request
+        self.view.port_session = PortabilitySessionManager.from_request(self.request)
 
     @classmethod
     def setUpTestData(cls):
@@ -220,8 +218,8 @@ class TestActiveAccessTokenRequiredMixin(TestCase):
         self, mock_redirect
     ):
         mock_redirect.return_value = HttpResponse()
+        self.view.port_session.update(tiktok_open_id="test-id-fails")
 
-        self.view.request.session[self.view.open_id_session_key] = "test-id-fails"
         _ = self.view.dispatch(self.request)
 
         mock_redirect.assert_called_once_with(self.request)
@@ -229,14 +227,15 @@ class TestActiveAccessTokenRequiredMixin(TestCase):
     @patch("shared.portability.views.redirect_to_auth_view")
     def test_inactive_access_token_calls_redirect_to_auth_view(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
+        self.view.port_session.update(tiktok_open_id="test-id-b")
 
-        self.view.request.session[self.view.open_id_session_key] = "test-id-b"
         _ = self.view.dispatch(self.request)
 
         mock_redirect.assert_called_once_with(self.request)
 
     def test_valid_access_token_calls_super(self):
-        self.view.request.session[self.view.open_id_session_key] = "test-id"
+        self.view.port_session.update(tiktok_open_id="test-id")
+
         response = self.view.dispatch(self.request)
 
         self.assertEqual(response.status_code, 200)

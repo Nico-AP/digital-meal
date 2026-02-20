@@ -5,6 +5,8 @@ from django.utils import timezone
 from django.utils.crypto import get_random_string
 from encrypted_fields import EncryptedTextField
 
+from shared.portability.constants import PortabilityContexts
+
 
 class OAuthStateToken(models.Model):
     """Class to store state tokens used for OAuth."""
@@ -12,6 +14,13 @@ class OAuthStateToken(models.Model):
     token = models.CharField(max_length=50, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
+
+    context = models.CharField(
+        max_length=20,
+        choices=PortabilityContexts,
+        default=PortabilityContexts.DM_EDU,
+        help_text="Context of the token (My DM or DM Education)",
+    )
 
     def save(self, *args, **kwargs):
         # On create, generate token

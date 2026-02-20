@@ -12,10 +12,9 @@ from shared.portability.models import (
     TikTokAccessToken,
     TikTokDataRequest,
 )
+from shared.portability.sessions import PortabilitySessionManager
 from shared.portability.tests.utils import get_request_with_session
 from shared.portability.views import (
-    ManageAccessTokenMixin,
-    StateTokenMixin,
     TikTokAuthView,
     TikTokCallbackView,
     TikTokCheckDownloadAvailabilityView,
@@ -64,6 +63,14 @@ class TestTikTokCallbackView(TestCase):
         state_token_obj = OAuthStateToken.objects.create()
         cls.state_token = state_token_obj.token
 
+    def _setup_request_with_token(self, path="/callback/"):
+        """Return a request with the state token stored in the portability session."""
+        request = get_request_with_session(path)
+        PortabilitySessionManager.from_request(request).update(
+            state_token=self.state_token
+        )
+        return request
+
     @patch("shared.portability.views.redirect_to_auth_view")
     def test_dispatch_missing_state_in_request_calls_redirect_to_auth(
         self, mock_redirect
@@ -81,11 +88,10 @@ class TestTikTokCallbackView(TestCase):
         mock_redirect.return_value = HttpResponse()
 
         url = f"/callback/?state={self.state_token}&error=some-error"
-        request = get_request_with_session(url)
-        request.session[self.view.state_token_session_key] = self.state_token
-        request.session.save()
-
+        request = self._setup_request_with_token(url)
         self.view.request = request
+        self.view.port_session = PortabilitySessionManager.from_request(request)
+
         _ = self.view.dispatch(request)
 
         mock_redirect.assert_called_once_with(request)
@@ -97,22 +103,20 @@ class TestTikTokCallbackView(TestCase):
         mock_redirect.return_value = HttpResponse()
 
         url = f"/callback/?state={self.state_token}"
-        request = get_request_with_session(url)
-        request.session[self.view.state_token_session_key] = self.state_token
-        request.session.save()
-
+        request = self._setup_request_with_token(url)
         self.view.request = request
+        self.view.port_session = PortabilitySessionManager.from_request(request)
+
         _ = self.view.dispatch(request)
 
         mock_redirect.assert_called_once_with(request)
 
     def test_dispatch_with_valid_request(self):
         url = f"/callback/?state={self.state_token}&code=some-code"
-        request = get_request_with_session(url)
-        request.session[self.view.state_token_session_key] = self.state_token
-        request.session.save()
-
+        request = self._setup_request_with_token(url)
         self.view.request = request
+        self.view.port_session = PortabilitySessionManager.from_request(request)
+
         response = self.view.dispatch(request)
 
         self.assertEqual(response.status_code, 200)
@@ -131,10 +135,14 @@ class TestTikTokCallbackView(TestCase):
             "token_type": "bearer",
         }
 
-        # Initialize session
+        # Initialize session and store state token via portability session
         self.client.get("/")
         session = self.client.session
-        session[StateTokenMixin.state_token_session_key] = self.state_token
+        session[PortabilitySessionManager.SESSION_KEY] = {
+            "context": "DM_EDU",
+            "state_token": self.state_token,
+            "tiktok_open_id": None,
+        }
         session.save()
 
         url = reverse("tiktok_callback") + f"?state={self.state_token}&code=some-code"
@@ -145,9 +153,8 @@ class TestTikTokCallbackView(TestCase):
             TikTokAccessToken.objects.filter(open_id="test-open-id").exists()
         )
         # Verify session
-        self.assertEqual(
-            self.client.session.get(self.view.open_id_session_key), "test-open-id"
-        )
+        port_manager = PortabilitySessionManager(self.client.session)
+        self.assertEqual(port_manager.get_tiktok_open_id(), "test-open-id")
         # Verify redirect
         self.assertRedirects(response, reverse("tiktok_await_data_download"))
 
@@ -168,7 +175,11 @@ class TestTikTokAwaitDownloadView(TestCase):
         self.client.get("/")
 
         session = self.client.session
-        session[ManageAccessTokenMixin.open_id_session_key] = self.open_id
+        session[PortabilitySessionManager.SESSION_KEY] = {
+            "context": "DM_EDU",
+            "state_token": None,
+            "tiktok_open_id": self.open_id,
+        }
         session.save()
 
         url = reverse("tiktok_auth")
@@ -189,14 +200,14 @@ class TestTikTokCheckDownloadAvailabilityView(TestCase):
             token_type="bearer",
         )
 
-        # Initialize session and store open id
         self.request = get_request_with_session()
-        self.request.session[ManageAccessTokenMixin.open_id_session_key] = self.open_id
-        self.request.session.save()
+        port_manager = PortabilitySessionManager.from_request(self.request)
+        port_manager.update(tiktok_open_id=self.open_id)
 
         self.view = TikTokCheckDownloadAvailabilityView()
         self.view.access_token = self.access_token
         self.view.request = self.request
+        self.view.port_session = port_manager
 
         self.mock_poll_data = {
             "data": {
@@ -296,27 +307,24 @@ class TestTikTokDisconnectView(TestCase):
     def setUp(self):
         self.open_id = "test-open-id"
 
-        # Initialize session and store open id
-        self.request = get_request_with_session()
-        self.request.session[ManageAccessTokenMixin.open_id_session_key] = self.open_id
-        self.request.session.save()
-
     @patch("shared.portability.views.redirect_to_auth_view")
     def test_view_deletes_open_id_in_session(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
 
         self.client.get("/")
-
         session = self.client.session
-        session[ManageAccessTokenMixin.open_id_session_key] = self.open_id
+        session[PortabilitySessionManager.SESSION_KEY] = {
+            "context": "DM_EDU",
+            "state_token": None,
+            "tiktok_open_id": self.open_id,
+        }
         session.save()
 
         url = reverse("tiktok_disconnect")
         self.client.get(url)
 
-        self.assertNotIn(
-            ManageAccessTokenMixin.open_id_session_key, self.client.session.keys()
-        )
+        port_manager = PortabilitySessionManager(self.client.session)
+        self.assertIsNone(port_manager.get_tiktok_open_id())
         mock_redirect.assert_called_once()
 
     @patch("shared.portability.views.redirect_to_auth_view")
@@ -326,7 +334,6 @@ class TestTikTokDisconnectView(TestCase):
         url = reverse("tiktok_disconnect")
         self.client.get(url)
 
-        self.assertNotIn(
-            ManageAccessTokenMixin.open_id_session_key, self.client.session.keys()
-        )
+        port_manager = PortabilitySessionManager(self.client.session)
+        self.assertIsNone(port_manager.get_tiktok_open_id())
         mock_redirect.assert_called_once()
