@@ -1,65 +1,74 @@
 {% extends "userflow/base.html" %}
-{% load i18n %}
+{% load static i18n %}
 
 {% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
 
 {% block content %}
-  <div>
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
 
-    <p class="mdm-text-main">$
-      {% blocktranslate trimmed %}
-        Damit wir deinen persönlichen
-        Nutzungsreport erstellen können,
-        brauchen wir Zugriff auf die
-        folgenden Daten:
-      {% endblocktranslate %}
-    </p>
+        <p class="mdm-text-main">
+          {% blocktranslate trimmed %}
+            Damit wir deinen persönlichen
+            Nutzungsreport erstellen können,
+            brauchen wir Zugriff auf die
+            folgenden Daten:
+          {% endblocktranslate %}
+        </p>
 
-    <div class="mdm-list-container">
-      <ul class="mdm-list">
-        <li class="mdm-list-item">
-          Effekte, Hashtags, Sounds und Videos, welche du zu deinen Favoriten hinzugefügt hast
-        </li>
-        <li class="mdm-list-item">
-          Videos, die dir angezeigt wurden
-        </li>
-        <li class="mdm-list-item">
-          Begriffe, die du gesucht hast
-        </li>
-        <li class="mdm-list-item">
-          Wie oft du selbst postest
-        </li>
-        <li class="mdm-list-item">
-          Wie oft du Inhalte teilst
-        </li>
-      </ul>
+        <div class="mdm-text-main mdm-list-container">
+          <ul class="mdm-list">
+            <li class="mdm-list-item">
+              {% translate "Effekte, Hashtags, Sounds und Videos, welche du zu deinen Favoriten hinzugefügt hast" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Videos, die dir angezeigt wurden" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Begriffe, die du gesucht hast" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Wie oft du selbst postest" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Wie oft du Inhalte teilst" %}
+            </li>
+          </ul>
+        </div>
+
+        <p class="mdm-text-main">
+          {% blocktranslate trimmed %}
+            Dafür leiten wir dich zu TikTok
+            weiter, wo du Digital Meal Zugang
+            zu deinen TikTok-Nutzungsdaten
+            geben kannst.
+          {% endblocktranslate %}
+        </p>
+
+        <div class="mb-2 mt-5">
+          <a href="{{ tt_auth_url }}">
+            <img alt="Continue with TikTok"
+                 src="{% static 'portability/img/tiktok/TikTok_Button_Black.svg' %}"
+                 class="mdm-tiktok-connect-button" />
+          </a>
+        </div>
+
+        <div class="mdm-btn-container">
+          <a class="btn mdm-button" type="submit">
+            {% translate "Weiter zu TikTok" %}
+          </a>
+        </div>
+
+        <div class="mdm-container-bottom mb-5">
+          <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
+            {% translate "Was passiert mit meinen Daten?" %}
+          </a>
+        </div>
+
+      </div>
     </div>
-
-    <p class="mdm-text-main">$
-      {% blocktranslate trimmed %}
-        Dafür leiten wir dich zu TikTok
-        weiter, wo du Digital Meal Zugang
-        zu deinen TikTok-Nutzungsdaten
-        geben kannst.
-      {% endblocktranslate %}
-    </p>
-
-    <div class="mdm-btn-container">
-      <a class="btn mdm-button" type="submit">
-        {% translate "Weiter zu TikTok" %}
-      </a>
-    </div>
-
-    <div class="mdm-container-bottom">
-      {% blocktranslate trimmed %}
-        <a type="button" data-bs-toggle="modal" data-bs-target="#infoModal">
-          {% translate "Was passiert mit meinen Daten?" %}
-        </a>
-      {% endblocktranslate %}
-    </div>
-
   </div>
-
   {% include "userflow/modals/modal_email.html" %}
 
 {% endblock content %}

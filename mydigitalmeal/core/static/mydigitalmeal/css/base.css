@@ -81,6 +81,44 @@ a:hover {
     color: var(--color-font-muted);
 }
 
+.mdm-list-container {
+    padding-left: 5px;
+    padding-right: 5px;
+    text-align: start;
+}
+
+ul.mdm-list {
+    list-style-type: "–";
+}
+
+.mdm-list-item {
+    padding-left: 10px;
+    padding-bottom: 8px;
+    line-height: 2rem;
+}
+
+
+@media (min-width: 576px) {
+    .mdm-list-container {
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+}
+
+@media (min-width: 992px) {
+    .mdm-list-container {
+        padding-left: 10%;
+        padding-right: 10%;
+    }
+}
+
+@media (min-width: 1200px) {
+    .mdm-list-container {
+        padding-left: 15%;
+        padding-right: 15%;
+    }
+}
+
 /* Form Elements */
 
 .mdm-text-input {
@@ -201,6 +239,12 @@ a:hover {
     filter: brightness(70%);
     background: var(--color-accent-green);
 }
+
+.mdm-tiktok-connect-button {
+    max-width: 90%;
+    width: 450px;
+}
+
 /* Header */
 
 .header-logo-large {
