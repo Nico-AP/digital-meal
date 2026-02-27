@@ -307,7 +307,7 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
 DAYS_TO_DONATION_DELETION = 180
-ALLOWED_REPORT_DOMAINS = env.str("ALLOWED_REPORT_DOMAINS").split()
+ALLOWED_REPORT_DOMAINS = env.str("ALLOWED_REPORT_DOMAINS", "").split()
 
 # Portability
 TIKTOK_AUTH_URL = env.str(
