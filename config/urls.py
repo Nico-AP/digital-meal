@@ -47,6 +47,7 @@ urlpatterns += ddm_patterns
 if settings.DEBUG:
     # Note: Did not work when placed in the settings.DEBUG block at the end.
     urlpatterns += debug_toolbar_urls()
+    urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]
 
 urlpatterns += [
     path("portability/", include("shared.portability.urls")),

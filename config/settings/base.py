@@ -106,7 +106,6 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = [
-    # "shared.allauth_integration.middleware.DebugMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

@@ -16,8 +16,15 @@ SITE_ID = 1
 # django-debug-toolbar - https://github.com/django-commons/django-debug-toolbar
 # ------------------------------------------------------------------------------
 if DEBUG:
-    INSTALLED_APPS += ["debug_toolbar"]
-    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
+    INSTALLED_APPS += [
+        "debug_toolbar",
+        "django_watchfiles",
+        "django_browser_reload",
+    ]
+    MIDDLEWARE += [
+        "django_browser_reload.middleware.BrowserReloadMiddleware",
+        "debug_toolbar.middleware.DebugToolbarMiddleware",
+    ]
     DEBUG_TOOLBAR_CONFIG = {
         "DISABLE_PANELS": [
             "debug_toolbar.panels.redirects.RedirectsPanel",

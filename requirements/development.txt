@@ -11,3 +11,5 @@ pre-commit==4.5.1  # https://github.com/pre-commit/pre-commit
 
 django-debug-toolbar==6.2.0  # https://github.com/jazzband/django-debug-toolbar
 django-coverage-plugin==3.2.0  # https://github.com/nedbat/django_coverage_plugin
+django-browser-reload==1.21.0  # https://github.com/adamchainz/django-browser-reload
+django-watchfiles==1.4.0  # https://github.com/adamchainz/django-watchfiles
