@@ -55,10 +55,9 @@ jobs:
         with:
           python-version: '3.12'
           cache: 'pip'
-
-      - name: Grant database privileges
-        run: |
-          mysql -h 127.0.0.1 -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'mariadb'@'%';"
+          cache-dependency-path: |
+            requirements/production.txt
+            requirements/development.txt
 
       - name: Install dependencies
         run: |
@@ -67,6 +66,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements/production.txt
           pip install -r requirements/development.txt
+
+      - name: Run linting (ruff and djlint)
+        run: |
+          source .venv/bin/activate
+          ruff check ./digital_meal ./shared ./mydigitalmeal
+          djlint ./digital_meal ./shared ./mydigitalmeal
+
+      - name: Grant database privileges
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'mariadb'@'%';"
 
       - name: Download spaCy models
         run: |
@@ -78,16 +87,15 @@ jobs:
           source .venv/bin/activate
           python manage.py migrate --noinput
 
+      - name: Run collectstatic
+        run: |
+          source .venv/bin/activate
+          python manage.py collectstatic --noinput
+
       - name: Run tests
         run: |
           source .venv/bin/activate
           python manage.py test
-
-      - name: Run linting (ruff and djlint)
-        run: |
-          source .venv/bin/activate
-          ruff check ./digital_meal ./shared ./mydigitalmeal
-          djlint ./digital_meal ./shared ./mydigitalmeal
 
       - name: Run security check
         run: |
