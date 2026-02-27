@@ -24,19 +24,3 @@ EMAIL_BACKEND = "django.core.mail.backends.locmem.EmailBackend"
 ADMINS = [("Test Admin", "admin@test.com")]
 
 CELERY_TASK_ALWAYS_EAGER = True  # tasks run inline, no worker needed
-
-
-# Override Settings where needed
-SALT_KEY = "ci-mock-salt-123"
-
-SERVER_EMAIL = "ci@test.com"
-
-EMAIL_HOST = "ci.host"
-EMAIL_PORT = 587
-EMAIL_HOST_USER = "ci_host"
-EMAIL_HOST_PASSWORD = "ci_host_pw"  # noqa: S105
-DEFAULT_FROM_EMAIL = "ci@test.com"
-
-TIKTOK_CLIENT_KEY = "ci-mock-key"
-TIKTOK_CLIENT_SECRET = "ci-mock-secret"  # noqa: S105
-TIKTOK_REDIRECT_URL = "https://ci-mock-url.com"

@@ -11,6 +11,24 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: config.settings.ci
+      DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
+      DJANGO_DB_ENGINE: django.db.backends.mysql
+      DJANGO_DB_HOST: localhost
+      DJANGO_DB_NAME: test_db
+      DJANGO_DB_USER: mariadb
+      DJANGO_DB_PW: mariadb
+      SALT_KEY: ci-mock-salt-123
+      SERVER_EMAIL: ci@test.com
+      EMAIL_HOST: ci.host
+      EMAIL_PORT: 587
+      EMAIL_HOST_USER: ci_host
+      EMAIL_HOST_PASSWORD: ci_host_pw
+      DEFAULT_FROM_EMAIL: ci@test.com
+      TIKTOK_CLIENT_KEY: ci-mock-key
+      TIKTOK_CLIENT_SECRET: ci-mock-secret
+      TIKTOK_REDIRECT_URL: https://ci-mock-url.com
 
     services:
       mariadb:
@@ -47,27 +65,11 @@ jobs:
           pip install -r requirements/development.txt
 
       - name: Run migrations
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.ci
-          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_ENGINE: django.db.backends.mysql
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_NAME: test_db
-          DJANGO_DB_USER: mariadb
-          DJANGO_DB_PW: mariadb
         run: |
           source .venv/bin/activate
           python manage.py migrate --noinput
 
       - name: Run tests
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.ci
-          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_ENGINE: django.db.backends.mysql
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_NAME: test_db
-          DJANGO_DB_USER: mariadb
-          DJANGO_DB_PW: mariadb
         run: |
           source .venv/bin/activate
           python manage.py test
@@ -84,14 +86,6 @@ jobs:
           pip-audit
 
       - name: Check for missing migrations
-        env:
-          DJANGO_SETTINGS_MODULE: config.settings.ci
-          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
-          DJANGO_DB_ENGINE: django.db.backends.mysql
-          DJANGO_DB_HOST: localhost
-          DJANGO_DB_NAME: test_db
-          DJANGO_DB_USER: mariadb
-          DJANGO_DB_PW: mariadb
         run: |
           source .venv/bin/activate
           python manage.py makemigrations --check --dry-run --noinput
