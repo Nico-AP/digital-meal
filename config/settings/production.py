@@ -1,8 +1,6 @@
 from .base import *  # noqa: F403
 from .base import env
 
-ALLOWED_HOSTS = env.str("ALLOWED_HOSTS").split()
-
 SITE_ID = 1
 
 # DEBUG

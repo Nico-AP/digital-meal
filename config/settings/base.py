@@ -15,6 +15,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = env.str("DJANGO_SECRET")
 SALT_KEY = env.str("SALT_KEY")
 
+ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", default="localhost 127.0.0.1").split()
+
 ADMINS = [tuple(admin) for admin in json.loads(env.str("ADMINS", "[]"))]
 
 SERVER_EMAIL = env.str("DEFAULT_FROM_EMAIL")

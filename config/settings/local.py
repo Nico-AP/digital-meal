@@ -3,9 +3,7 @@ from pathlib import Path
 import ddm.core
 
 from .base import *  # noqa: F403
-from .base import INSTALLED_APPS, MIDDLEWARE, env
-
-ALLOWED_HOSTS = env.str("ALLOWED_HOSTS").split()
+from .base import INSTALLED_APPS, MIDDLEWARE
 
 # DEBUG
 # ------------------------------------------------------------------------------
