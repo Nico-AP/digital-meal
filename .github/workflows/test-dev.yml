@@ -56,6 +56,10 @@ jobs:
           python-version: '3.12'
           cache: 'pip'
 
+      - name: Grant database privileges
+        run: |
+          mysql -h 127.0.0.1 -u root -proot -e "GRANT ALL PRIVILEGES ON *.* TO 'mariadb'@'%';"
+
       - name: Install dependencies
         run: |
           python -m venv .venv/
