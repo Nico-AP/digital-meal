@@ -15,7 +15,7 @@ jobs:
       DJANGO_SETTINGS_MODULE: config.settings.ci
       DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
       DJANGO_DB_ENGINE: django.db.backends.mysql
-      DJANGO_DB_HOST: localhost
+      DJANGO_DB_HOST: 127.0.0.1
       DJANGO_DB_NAME: test_db
       DJANGO_DB_USER: mariadb
       DJANGO_DB_PW: mariadb
@@ -41,7 +41,7 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd "mysqladmin ping -h localhost -u root -proot"
+          --health-cmd "mysqladmin ping -h 127.0.0.1 -u root -proot"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
