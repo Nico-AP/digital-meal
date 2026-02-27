@@ -1,6 +1,8 @@
 from .production import *  # noqa: F403
 from .production import DATABASES
 
+DEBUG = False
+
 # Disable SSL redirects for testing
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
