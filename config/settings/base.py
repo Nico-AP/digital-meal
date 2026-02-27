@@ -93,7 +93,7 @@ WAGTAIL_APPS = [
     "wagtail.contrib.simple_translation",
     "wagtail",
     "wagtailvideos",
-    "wagtail_modeladmin",
+    # "wagtail_modeladmin",  TODO: Remove properly
     "taggit",
 ]
 
