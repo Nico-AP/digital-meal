@@ -1,8 +1,8 @@
 {% load i18n %}
 
-<div id="check-download-availability"
+<div id="check-download-availability" class="htmx-smooth-transition"
      hx-get="{% url 'userflow:datadonation:port_tt_check_data' %}"
-     hx-trigger="load delay:15s"
+     hx-trigger="load delay:10s"
      hx-swap="outerHTML">
   <div>
 
@@ -16,12 +16,13 @@
     </p>
 
     <div class="mb-3 mt-5">
-      <span class="mdm-loader"></span>
+      {% include "mydigitalmeal/components/m_path_loader.html" %}
     </div>
+
     <div class="mb-2">
       {% if poll_datetime %}
-        <p class="mb-0 mdm-text-muted">
-          {% translate "Verfügbarkeit zuletzt geprüft am" %} {{ poll_datetime }}
+        <p class="mb-0 mdm-text-muted fs-6">
+          {% translate "Verfügbarkeit zuletzt geprüft am" %} {{ poll_datetime|date:"d.m.Y H:i:s" }}
         </p>
       {% endif %}
     </div>

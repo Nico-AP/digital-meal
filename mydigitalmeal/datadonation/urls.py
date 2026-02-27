@@ -25,4 +25,9 @@ urlpatterns = [
         port_views.CheckDownloadAvailabilityView.as_view(),
         name="port_tt_check_data",
     ),
+    path(
+        "connect/review/",
+        port_views.PortabilityReviewView.as_view(),
+        name="port_tt_review_data",
+    ),
 ]

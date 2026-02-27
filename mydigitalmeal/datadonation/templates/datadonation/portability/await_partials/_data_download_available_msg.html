@@ -1,11 +1,12 @@
 {% load i18n %}
 
-<div>
-  <p>{% translate "Deine TikTok-Daten sind nun verfügbar! Klicke auf den Button, um fortzufahren." %}</p>
-  <!-- <p><a class="btn darkblue-button" href="">Daten prüfen</a></p> -->
-  <p>
-    <a href="{% url 'tiktok_download_data' request_id=request_id %}" class="btn darkblue-button">
-      {% translate "Daten Herunterladen" %}
+<div class="htmx-smooth-transition">
+  <p class="mdm-text-lead mb-2">{% translate "Deine TikTok-Daten sind nun verfügbar!" %}</p>
+  <div>
+    {# <a href="{% url 'tiktok_download_data' request_id=request_id %}" class="btn mdm-base-btn"> #}
+    {#   Download #}
+    <a href="{% url 'userflow:datadonation:port_tt_review_data' %}" class="btn mdm-base-btn">
+      {% translate "Fortfahren" %}
     </a>
-  </p>
+  </div>
 </div>

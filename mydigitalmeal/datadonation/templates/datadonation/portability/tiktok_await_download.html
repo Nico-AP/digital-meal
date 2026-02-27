@@ -1,5 +1,5 @@
 {% extends "userflow/base.html" %}
-{% load i18n django_htmx %}
+{% load i18n static django_htmx %}
 
 {% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
 
@@ -18,4 +18,5 @@
 {% block extra_js %}
   {{ block.super }}
   {% htmx_script %}
+  <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
 {% endblock extra_js %}

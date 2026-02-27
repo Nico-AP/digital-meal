@@ -1,8 +1,12 @@
-{% extends "userflow/base.html" %}
-{% load i18n %}
+{% extends "datadonation/base_ddm.html" %}
+{% load i18n static %}
 
 {% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
 
-{% block content %}
-
-{% endblock content %}
+{% block extra_js %}
+  {{ block.super }}
+  {% csrf_token %}
+  <input type="hidden" id="tiktok-download-url" value="{{ tiktok_download_url }}" />
+  <input type="hidden" id="fail-redirect-url" value="{{ fail_redirect_url }}" />
+  <script src="{% static 'datadonation/js/tiktok-download.js' %}"></script>
+{% endblock extra_js %}
