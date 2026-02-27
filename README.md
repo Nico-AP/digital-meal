@@ -1,7 +1,7 @@
 # Digital Meal
 
-**Digital Meal** is a web-based learning and teaching tool designed to foster media literacy among students.  
-The overarching goal of the Digital Meal project is to provide educators with teaching materials and an interactive 
+**Digital Meal** is a web-based learning and teaching tool designed to foster media literacy among students.
+The overarching goal of the Digital Meal project is to provide educators with teaching materials and an interactive
 application that encourage their students' critical reflection on personal media usage.
 
 The core idea behind Digital Meal is to:
@@ -19,14 +19,14 @@ Digital Meal is built using:
 - Python
 - Django
 
-It is developed to be used alongside [django-ddm](https://github.com/uzh/ddm), 
+It is developed to be used alongside [django-ddm](https://github.com/uzh/ddm),
 a web application for collecting data donations and enriching them with questionnaire responses.
 
 ---
 
 ## Usage
 
-> ⚠️ This repository is intended primarily for internal use.  
+> ⚠️ This repository is intended primarily for internal use.
 > It is not yet optimized for external projects or broader integrations.
 
 ---
@@ -118,13 +118,34 @@ Open your browser and navigate to: http://127.0.0.1:8000/
 
 ---
 
+## Development
+
+### Testing TikTok Integration
+
+The callback URL of TikTok is set to the production environment.
+
+To test integration locally, authenticate/request data takeout in the production environment,
+go to /admin and replicate the access token in the dev environment (`python manage.py shell`).
+
+Next, update the current session with the open_id by (1) getting the session ID from the
+browser cookie (use dev tools) and (2) setting the "tiktok_open_id" in the session by using
+`python manage.py edit_session`.
+
+### Compile CSS
+
+My Digital Meal uses sass for css compilation.
+
+When working css, run `cd .sass`; `npm run sass:watch`.
+When ready to commit, run `npm run sass:build`.
+
+
 ## Contributors & Contact
 
-Digital Meal is developed by the [Media Use and Effects division 
-of the University of Zurich](https://www.ikmz.uzh.ch/en/research/divisions/media-use-and-effects.html), 
+Digital Meal is developed by the [Media Use and Effects division
+of the University of Zurich](https://www.ikmz.uzh.ch/en/research/divisions/media-use-and-effects.html),
 with financial support from [Citizen Science Zürich](https://www.citizenscience.uzh.ch/de.html).
 
-Contact: [kontakt@digital-meal.ch](mailto:kontakt@digital-meal.ch). 
+Contact: [kontakt@digital-meal.ch](mailto:kontakt@digital-meal.ch).
 
 ---
 
