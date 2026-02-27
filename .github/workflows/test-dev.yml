@@ -49,7 +49,7 @@ jobs:
       - name: Run migrations
         env:
           DJANGO_SETTINGS_MODULE: config.settings.ci
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
           DJANGO_DB_ENGINE: django.db.backends.mysql
           DJANGO_DB_HOST: localhost
           DJANGO_DB_NAME: test_db
@@ -62,7 +62,7 @@ jobs:
       - name: Run tests
         env:
           DJANGO_SETTINGS_MODULE: config.settings.ci
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
           DJANGO_DB_ENGINE: django.db.backends.mysql
           DJANGO_DB_HOST: localhost
           DJANGO_DB_NAME: test_db
@@ -86,7 +86,7 @@ jobs:
       - name: Check for missing migrations
         env:
           DJANGO_SETTINGS_MODULE: config.settings.ci
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DJANGO_SECRET: ${{ secrets.SECRET_KEY }}
           DJANGO_DB_ENGINE: django.db.backends.mysql
           DJANGO_DB_HOST: localhost
           DJANGO_DB_NAME: test_db
