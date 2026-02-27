@@ -10,22 +10,33 @@
 
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col col-lg-10 col-xl-8 text-center mdm-text-lead">
+      <div class="col col-lg-10 col-xl-8 text-center mdm-text-lead htmx-smooth-transition">
 
-        <div id="report-statistics"
+        <div id="report-statistics" class="htmx-smooth-transition"
              hx-get="{% url 'userflow:reports:tiktok_statistics' %}"
-             hx-trigger="load, every 5s"
-             hx-swap="outerHTML">
+             hx-trigger="every 5s"
+             hx-swap="outerHTML swap:500ms settle:500ms">
           <div>
+            {% include "mydigitalmeal/components/m_path_loader.html" %}
+
             {% translate "Dein Report wird gerade erstellt. Dies kann einige Sekunden dauern." %}
           </div>
         </div>
       </div>
     </div>
+
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center mdm-text-lead">
+        <a class="fs-6 mdm-text-muted" href="{% url 'userflow:overview' %}">Zur Reportübersicht</a>
+      </div>
+    </div>
+
   </div>
 
 {% endblock content %}
 
 {% block extra_js %}
   <script src="{% static 'reports/js/carousel_init.js' %}"></script>
+  <script src="{% static 'reports/js/peak_day_guess_utils.js' %}"></script>
+  <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
 {% endblock extra_js %}

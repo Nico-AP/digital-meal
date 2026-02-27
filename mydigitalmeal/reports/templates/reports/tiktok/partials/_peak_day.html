@@ -3,26 +3,31 @@
 
 {% block report_content %}
 
-  <div>
-    {% blocktranslate with peak_date=peak_day_date|date:"j.n.Y" peak_name=peak_day_date|date:"l" %}
-      Am aktivsten warst du am {{  peak_name }}, {{ peak_date }}
-    {% endblocktranslate %}
-  </div>
-
-  <div>
-    {% translate "Weisst du, wie viele Videos du an diesem Tag angeschaut hast?" %}
-  </div>
-
-  {% if peak_guesses %}
+  <div id="peak-day-guess-question-container">
     <div>
-      {% for guess_value in peak_guesses %}
-        <button type="button" class="btn btn-warning" data-guess-correct="{{ guess_value }}">{{ guess_value }}</button>
-      {% endfor %}
+      {% blocktranslate with peak_date=peak_day_date|date:"j.n.Y" peak_name=peak_day_date|date:"l" %}
+        Am aktivsten warst du am {{  peak_name }}, {{ peak_date }}
+      {% endblocktranslate %}
     </div>
-  {% endif %}
+
+    <div>
+      {% translate "Weisst du, wie viele Videos du an diesem Tag angeschaut hast?" %}
+    </div>
+
+    {% if peak_guesses %}
+      <div>
+        {% for guess_value in peak_guesses %}
+          <div>
+            <button type="button" class="btn mdm-base-btn guess-btn" data-guess-value="{{ guess_value }}">{{ guess_value }}</button>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
 
   {# Correct answer #}
-  <div data-response-correct="true">
+  <div id="peak-day-guess-correct">
     {% blocktranslate count video_count=peak_day_video_count %}
       Genau! Du hast {{ video_count }} Video angeschaut.
     {% plural %}
@@ -31,12 +36,14 @@
   </div>
 
   {# Wrong answer #}
-  <div data-response-correct="true">
+  <div id="peak-day-guess-wrong">
     {% blocktranslate count video_count=peak_day_video_count %}
       Fast! Du hast {{ video_count }} Video angeschaut.
     {% plural %}
       Fast! Du hast {{ video_count }} Videos angeschaut.
     {% endblocktranslate %}
   </div>
+
+  <input type="hidden" id="peak-day-correct-guess" value="{{ peak_day_video_count }}" />
 
 {% endblock report_content %}

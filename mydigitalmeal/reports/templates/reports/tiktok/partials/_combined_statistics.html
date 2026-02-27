@@ -1,57 +1,59 @@
 {% load i18n %}
 
-{% if statistics_ready %}
-  <h1>{% translate "Dein persönlicher TikTok Report" %}</h1>
+<div id="report-statistics" class="htmx-smooth-transition">
+  {% if statistics_ready %}
+    <h1>{% translate "Dein persönlicher TikTok Report" %}</h1>
 
-  <div id="reportCarousel" class="carousel slide">
+    <div id="reportCarousel" class="carousel slide">
 
-    <div id="reportCarouselIndicators" class="carousel-indicators">
-      {# Is populated by JS #}
+      <div id="reportCarouselIndicators" class="carousel-indicators">
+        {# Is populated by JS #}
+      </div>
+
+      <div class="carousel-inner">
+
+        {% if video_viewed_stats_available %}
+          {% include "reports/tiktok/partials/_video_viewed_stats.html" %}
+        {% endif %}
+
+        {% if daily_routine_available %}
+          {% include "reports/tiktok/partials/_daily_routine.html" %}
+        {% endif %}
+
+        {% if usage_session_scrolling_available %}
+          {% include "reports/tiktok/partials/_usage_session_scrolling.html" %}
+        {% endif %}
+
+        {% if top_video_available %}
+          {% include "reports/tiktok/partials/_top_video.html" %}
+        {% endif %}
+
+        {% if peak_day_available %}
+          {% include "reports/tiktok/partials/_peak_day.html" %}
+        {% endif %}
+
+        {% if usage_session_general_available %}
+          {% include "reports/tiktok/partials/_usage_session_general.html" %}
+        {% endif %}
+
+        {% include "reports/tiktok/partials/_share_report.html" %}
+
+      </div>
+
+      <button class="carousel-control-prev" type="button" data-bs-target="#reportCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+      </button>
+      <button class="carousel-control-next" type="button" data-bs-target="#reportCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+      </button>
     </div>
 
-    <div class="carousel-inner">
-
-      {% if video_viewed_stats_available %}
-        {% include "reports/tiktok/partials/_video_viewed_stats.html" %}
-      {% endif %}
-
-      {% if daily_routine_available %}
-        {% include "reports/tiktok/partials/_daily_routine.html" %}
-      {% endif %}
-
-      {% if usage_session_scrolling_available %}
-        {% include "reports/tiktok/partials/_usage_session_scrolling.html" %}
-      {% endif %}
-
-      {% if top_video_available %}
-        {% include "reports/tiktok/partials/_top_video.html" %}
-      {% endif %}
-
-      {% if peak_day_available %}
-        {% include "reports/tiktok/partials/_peak_day.html" %}
-      {% endif %}
-
-      {% if usage_session_general_available %}
-        {% include "reports/tiktok/partials/_usage_session_general.html" %}
-      {% endif %}
-
-      {% include "reports/tiktok/partials/_share_report.html" %}
-
+  {% else %}
+    <div>
+      {% translate "Report wird gerade erstellt. Dies kann einige Sekunden dauern" %}
     </div>
 
-    <button class="carousel-control-prev" type="button" data-bs-target="#reportCarousel" data-bs-slide="prev">
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Previous</span>
-    </button>
-    <button class="carousel-control-next" type="button" data-bs-target="#reportCarousel" data-bs-slide="next">
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="visually-hidden">Next</span>
-    </button>
-  </div>
-
-{% else %}
-  <div>
-    {% translate "Report wird gerade erstellt. Dies kann einige Sekunden dauern" %}
-  </div>
-
-{% endif %}
+  {% endif %}
+</div>
