@@ -77,6 +77,8 @@ class TikTokAccessToken(models.Model):
         Returns:
             bool: True if token is expired (or expiring soon)
         """
+        if not self.token_expiration_date:
+            return True
         expiration_time = self.token_expiration_date - timedelta(seconds=threshold)
         return timezone.now() > expiration_time
 
@@ -90,6 +92,8 @@ class TikTokAccessToken(models.Model):
         Returns:
             bool: True if token is expired (or expiring soon)
         """
+        if not self.refresh_token_expiration_date:
+            return True
         expiration_time = self.refresh_token_expiration_date - timedelta(
             seconds=threshold
         )
@@ -109,6 +113,7 @@ class TikTokDataRequest(models.Model):
     class State(models.TextChoices):
         NOT_POLLED = "not polled", "not polled"
         PENDING = "pending", "pending"
+        READY = "downloading", "downloading"
         EXPIRED = "expired", "expired"
         CANCELLED = "cancelled", "cancelled"
 

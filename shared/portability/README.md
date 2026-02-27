@@ -1,6 +1,8 @@
 # Digital Meal Portability
 
-A shared Django application that connects Digital Meal with the portability APIs of external platforms (currently TikTok). It handles OAuth authentication, access token management, data export requests, and session state — in a way that is reusable across the two consumer apps: **Digital Meal Education** (DM EDU) and **My Digital Meal** (My DM).
+A shared Django application that connects Digital Meal with the portability APIs of external platforms (currently TikTok).
+It handles OAuth authentication, access token management, data export requests, and session state —
+in a way that is reusable across the two consumer apps: **Digital Meal Education** (DM EDU) and **My Digital Meal** (My DM).
 
 
 ## Architecture
@@ -30,20 +32,27 @@ The context is resolved from the request path at auth time and stored in the ses
 
 Portability state for a user's request is stored in Django's session under a single key (`"portability"`). The state is represented by three components:
 
-- **`PortabilitySession`** — a dataclass with three fields: `context`, `state_token`, and `tiktok_open_id`. Handles type coercion of the context string to a `PortabilityContexts` enum member on deserialisation.
-- **`PortabilitySessionManager`** — wraps the Django session and provides typed read/write access to the `PortabilitySession` fields (`get`, `update`, `reset`, `delete`, `get_token`, `get_context`, `get_tiktok_open_id`).
-- **`PortabilitySessionMixin`** — a view mixin that initialises a `PortabilitySessionManager` instance as `self.port_session` at the start of each request. Must be listed after any mixin that accesses `self.port_session` in a view's inheritance chain.
+- **`PortabilitySession`** — a dataclass with three fields: `context`, `state_token`, and `tiktok_open_id`.
+Handles type coercion of the context string to a `PortabilityContexts` enum member on deserialisation.
+- **`PortabilitySessionManager`** — wraps the Django session and provides typed read/write access to the
+`PortabilitySession` fields (`get`, `update`, `reset`, `delete`, `get_token`, `get_context`, `get_tiktok_open_id`).
+- **`PortabilitySessionMixin`** — a view mixin that initialises a `PortabilitySessionManager` instance as `self.port_session`
+at the start of each request. Must be listed after any mixin that accesses `self.port_session` in a view's inheritance chain.
 
 
 ## TikTok Integration
 
 ### Authentication Flow
 
-1. **Auth initiation** (`TikTokAuthView`): A state token is generated and stored in the portability session. The user is redirected to TikTok's authorisation page with the state token embedded in the URL.
+1. **Auth initiation** (`TikTokAuthView`): A state token is generated and stored in the portability session.
+The user is redirected to TikTok's authorisation page with the state token embedded in the URL.
 
-2. **OAuth callback** (`TikTokCallbackView`): TikTok redirects the user back with an authorisation code. The state token is validated and consumed (CSRF protection). The authorisation code is exchanged for an access token via the TikTok API, and the resulting `TikTokAccessToken` is written to the database. The user's TikTok `open_id` is stored in the portability session.
+2. **OAuth callback** (`TikTokCallbackView`): TikTok redirects the user back with an authorisation code. The state token is validated and consumed (CSRF protection).
+The authorisation code is exchanged for an access token via the TikTok API, and the resulting `TikTokAccessToken` is written to the database.
+The user's TikTok `open_id` is stored in the portability session.
 
-3. **Data request** (`TikTokAwaitDataDownloadView` / `TikTokCheckDownloadAvailabilityView`): A data export request is issued to TikTok's Portability API. The status of the request is polled and surfaced to the user.
+3. **Data request** (`TikTokAwaitDataDownloadView` / `TikTokCheckDownloadAvailabilityView`):
+A data export request is issued to TikTok's Portability API. The status of the request is polled and surfaced to the user.
 
 4. **Data download** (`TikTokDataDownloadView`): Once TikTok has prepared the export, the ZIP file is streamed directly to the user.
 
@@ -51,7 +60,9 @@ Portability state for a user's request is stored in Django's session under a sin
 
 ### State Token
 
-Each authentication attempt generates an `OAuthStateToken` database record. It is single-use, expires after 10 minutes, and is tied to a portability context. It protects the callback endpoint against CSRF without exposing Django's CSRF token to an external redirect.
+Each authentication attempt generates an `OAuthStateToken` database record. It is single-use, expires after 10 minutes,
+and is tied to a portability context. It protects the callback endpoint against CSRF without exposing Django's
+CSRF token to an external redirect.
 
 ### View Mixins
 

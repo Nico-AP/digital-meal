@@ -430,6 +430,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
     def test_stream_download_returns_streaming_response(self, mock_post):
         """Test returns StreamingHttpResponse"""
         mock_response = Mock()
+        mock_response.headers = {"Content-Type": "application/json"}
         mock_response.iter_content.return_value = iter([b"chunk1", b"chunk2"])
         mock_post.return_value = mock_response
 
@@ -441,6 +442,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
     def test_stream_download_updates_db_on_success(self, mock_post):
         """Test updates TikTokDataRequest on successful download"""
         mock_response = Mock()
+        mock_response.headers = {"Content-Type": "application/json"}
         mock_response.iter_content.return_value = iter([b"data"])
         mock_post.return_value = mock_response
 
@@ -462,6 +464,7 @@ class TestTikTokPortabilityAPIClient(TestCase):
             raise Exception("Streaming error")
 
         mock_response = Mock()
+        mock_response.headers = {"Content-Type": "application/json"}
         mock_response.iter_content.return_value = failing_iter()
         mock_post.return_value = mock_response
 

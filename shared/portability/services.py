@@ -600,23 +600,21 @@ class TikTokPortabilityAPIClient:
             raise
 
         def stream_with_cleanup():
+            succeeded = False
             try:
                 for chunk in response.iter_content(chunk_size=8192):
                     if chunk:
                         yield chunk
-            except Exception as err:
-                data_request.download_succeeded = False
-                data_request.save()
-                logger.error("Download failed for request %s: %s", request_id, err)
-                raise
-            else:
-                data_request.download_succeeded = True
-                data_request.save()
+                succeeded = True
                 logger.info(
                     "Download completed successfully for request %s", request_id
                 )
+            except Exception as err:
+                logger.error("Download failed for request %s: %s", request_id, err)
+                raise
             finally:
                 # This runs after streaming completes (or fails)
+                data_request.download_succeeded = succeeded
                 data_request.download_attempted = True
                 data_request.downloaded_at = timezone.now()
                 data_request.save()
@@ -626,5 +624,8 @@ class TikTokPortabilityAPIClient:
         )
         filename = f"tiktok_data_{request_id}.zip"
         streaming_response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+        if "Content-Length" in response.headers:
+            streaming_response["Content-Length"] = response.headers["Content-Length"]
 
         return streaming_response

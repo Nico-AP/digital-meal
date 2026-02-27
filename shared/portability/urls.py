@@ -21,9 +21,14 @@ urlpatterns = [
         name="tiktok_check_download_availability",
     ),
     path(
-        "tiktok/download-data/<int:request_id>",
+        "tiktok/download-data/",
         views.TikTokDataDownloadView.as_view(),
         name="tiktok_download_data",
+    ),
+    path(
+        "tiktok/download-mock-data/",
+        views.TikTokDataDownloadMockView.as_view(),
+        name="tiktok_download_mock_data",
     ),
     path(
         "tiktok/review", views.TikTokDataReviewView.as_view(), name="tiktok_data_review"

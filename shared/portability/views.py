@@ -1,12 +1,20 @@
+import io
+import json
 import logging
 import time
+import zipfile
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
-from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http import (
+    Http404,
+    HttpResponse,
+    HttpResponseRedirect,
+    StreamingHttpResponse,
+)
 from django.shortcuts import redirect, render
 from django.utils import timezone
 from django.views import View
@@ -529,12 +537,14 @@ class TikTokCheckDownloadAvailabilityView(
         data_request.save()
 
         # Use the matching template.
-        if request_status == "pending":
+        if request_status == TikTokDataRequest.State.PENDING:
             self.template_name = self.template_pending
-        elif request_status == "downloading":
-            context["request_id"] = request_id
+        elif request_status == TikTokDataRequest.State.READY:
             self.template_name = self.template_success
-        elif request_status in ["expired", "cancelled"]:
+        elif request_status in [
+            TikTokDataRequest.State.EXPIRED,
+            TikTokDataRequest.State.CANCELLED,
+        ]:
             self.template_name = self.template_expired
         else:
             self.template_name = self.template_error
@@ -550,76 +560,125 @@ class TikTokDataDownloadView(
     PortabilitySessionMixin,
     View,
 ):
-    """Handles the actual download of TikTok user data as a ZIP file.
+    """Handles the actual download of TikTok user data as a ZIP file."""
 
-    This view downloads the prepared data from TikTok's API and streams it
-    to the user as a downloadable ZIP file.
-    """
-
-    def get(self, request, request_id, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         """Downloads and returns the TikTok data as a ZIP file.
 
-        Retrieves the request_id from query parameters, downloads the data
-        from TikTok's API, and returns it as an HTTP response with appropriate
+        Downloads the data from TikTok's API,
+        and returns it as an HTTP response with appropriate
         headers for file download.
 
-        Args:
-            request: The HTTP request object.
-            request_id: The request ID (usually passed as URL path parameter).
-            *args: Additional positional arguments.
-            **kwargs: Additional keyword arguments.
+        Returns:
+             StreamingHttpResponse: A response containing the ZIP file data with
+                appropriate content-type and content-disposition headers.
 
-            Returns:
-                HttpResponse: A response containing the ZIP file data with
-                    appropriate content-type and content-disposition headers.
-
-            Raises:
-                Http404: If the download fails or data is not available.
+        Raises:
+            Http404: If the download fails or data is not available.
+            Http502: If downloading fails.
         """
         open_id = self.port_session.get_tiktok_open_id()
+        data_request = TikTokDataRequest.objects.filter(
+            open_id=open_id,
+            download_succeeded=False,
+            status=TikTokDataRequest.State.READY,
+        ).first()
 
-        # Validate request id
-        try:
-            request_id = int(request_id)
-        except ValueError as e:
+        if not data_request:
             log_security_event(
                 logger,
-                "Received invalid request id",
+                "Registered download attempt without ready data request.",
                 self.request,
                 extra={
-                    "request_id": request_id,
-                },
-            )
-
-            raise Http404 from e
-
-        # Ensure TikTokDataRequest object exists for the received request ID.
-        try:
-            data_request = TikTokDataRequest.objects.get(
-                request_id=request_id,
-                open_id=open_id,
-            )
-        except TikTokDataRequest.DoesNotExist as e:
-            log_security_event(
-                logger,
-                "Registered attempt to download non-existing request ID",
-                self.request,
-                extra={
-                    "request_id": request_id,
                     "open_id": open_id,
                 },
             )
-
-            raise Http404 from e  # TODO: Is there a more adequate option to raise here?
+            raise Http404(request, "Data request not found.")
 
         # Download data
         api_client = TikTokPortabilityAPIClient(self.access_token.token)
 
         try:
             return api_client.stream_download_requested_data(data_request)
-        except Exception:  # noqa: BLE001  TODO: Improve
-            return render_http_400(request, "Download Failed")
-            # TODO: Is there a more adequate option to raise here?
+        except Exception:  # noqa: BLE001
+            logger.exception(
+                "Failed to stream TikTok data download",
+                extra={
+                    "request_id": data_request.request_id,
+                    "open_id": open_id,
+                },
+            )
+            return HttpResponse("Download Failed", status=502)
+
+
+class TikTokDataDownloadMockView(
+    PortabilitySessionMixin,
+    View,
+):
+    """Mocks the download for testing purposes."""
+
+    def post(self, request, *args, **kwargs):
+        """Returns a mock file"""
+
+        zip_buffer = self._create_mock_zip()
+
+        def stream_zip():
+            yield zip_buffer.getvalue()
+
+        streaming_response = StreamingHttpResponse(
+            stream_zip(), content_type="application/zip"
+        )
+        filename = "tiktok_data_mock.zip"
+        streaming_response["Content-Disposition"] = f'attachment; filename="{filename}"'
+        streaming_response["Content-Length"] = len(zip_buffer.getvalue())
+
+        return streaming_response
+
+    def _create_mock_zip(self):
+        zip_buffer = io.BytesIO()
+
+        mock_data = {
+            "Your Activity": {
+                "Favorite Videos": {
+                    "FavoriteVideoList": [
+                        {
+                            "Date": "2024-01-15 10:23:45 UTC",
+                            "Link": "https://www.tiktokv.com/share/video/1234567890/",
+                        }
+                    ]
+                },
+                "Searches": {
+                    "SearchList": [
+                        {"Date": "2024-02-10 11:00:00 UTC", "SearchTerm": "funny cats"},
+                        {
+                            "Date": "2024-02-11 12:00:00 UTC",
+                            "SearchTerm": "cooking recipes",
+                        },
+                    ]
+                },
+                "Watch History": {
+                    "VideoList": [
+                        {
+                            "Date": "2024-01-15 10:23:45 UTC",
+                            "Link": "https://www.tiktokv.com/share/video/1234567890/",
+                        },
+                        {
+                            "Date": "2024-01-16 12:24:45 UTC",
+                            "Link": "https://www.tiktokv.com/share/video/9876543210/",
+                        },
+                    ]
+                },
+            },
+        }
+
+        with zipfile.ZipFile(zip_buffer, "w", zipfile.ZIP_DEFLATED) as zf:
+            zf.writestr(
+                "user_data_tiktok.json",
+                json.dumps(mock_data, indent=2, ensure_ascii=False),
+            )
+
+        zip_buffer.seek(0)
+        return zip_buffer
 
 
 class TikTokDataReviewView(
