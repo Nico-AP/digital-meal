@@ -64,6 +64,11 @@ jobs:
           pip install -r requirements/production.txt
           pip install -r requirements/development.txt
 
+      - name: Download spaCy models
+        run: |
+          source .venv/bin/activate
+          python -m spacy download de_core_news_sm
+
       - name: Run migrations
         run: |
           source .venv/bin/activate
