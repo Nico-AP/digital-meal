@@ -1,0 +1,83 @@
+<svg class="phone-frame" viewBox="0 0 320 650" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <!-- Phone body gradient -->
+      <linearGradient id="bodyGrad" x1="0" y1="0" x2="320" y2="650" gradientUnits="userSpaceOnUse">
+        <stop offset="0%" stop-color="#28282f"/>
+        <stop offset="100%" stop-color="#141418"/>
+      </linearGradient>
+
+      <!-- Edge highlight gradient -->
+      <linearGradient id="edgeLeft" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#3a3a48"/>
+        <stop offset="100%" stop-color="#1a1a1f"/>
+      </linearGradient>
+      <linearGradient id="edgeRight" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#1a1a1f"/>
+        <stop offset="100%" stop-color="#3a3a48"/>
+      </linearGradient>
+
+      <!-- Screen mask to perfectly cut the screen hole -->
+      <mask id="screenMask">
+        <rect width="320" height="650" fill="white"/>
+        <!-- Screen cutout — matches .phone-screen position exactly -->
+        <rect x="18" y="58" width="284" height="534" rx="4" fill="black"/>
+      </mask>
+
+      <!-- Gloss overlay -->
+      <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="white" stop-opacity="0.06"/>
+        <stop offset="50%" stop-color="white" stop-opacity="0"/>
+      </linearGradient>
+    </defs>
+
+    <!-- ── Phone body (with screen hole cut out) ── -->
+    <rect x="0" y="0" width="320" height="650" rx="44" fill="url(#bodyGrad)" mask="url(#screenMask)"/>
+
+    <!-- ── Screen bezel inner shadow ── -->
+    <rect x="18" y="58" width="284" height="534" rx="4"
+      fill="none"
+      stroke="rgba(0,0,0,0.6)"
+      stroke-width="1"/>
+
+    <!-- ── Screen outer ring (thin) ── -->
+    <rect x="16" y="56" width="288" height="538" rx="5"
+      fill="none"
+      stroke="rgba(255,255,255,0.04)"
+      stroke-width="1"/>
+
+    <!-- ── Phone outer border ── -->
+    <rect x="0.5" y="0.5" width="319" height="649" rx="43.5"
+      fill="none"
+      stroke="rgba(255,255,255,0.08)"
+      stroke-width="1"/>
+
+    <!-- ── Inner edge highlight ── -->
+    <rect x="1.5" y="1.5" width="317" height="647" rx="42.5"
+      fill="none"
+      stroke="rgba(255,255,255,0.03)"
+      stroke-width="1"/>
+
+    <!-- ── Gloss sheen on top half ── -->
+    <rect x="0" y="0" width="320" height="325" rx="44"
+      fill="url(#gloss)"
+      mask="url(#screenMask)"/>
+
+    <!-- ── Dynamic island / notch ── -->
+    <rect x="116" y="22" width="88" height="28" rx="14"
+      fill="#0a0a0c"/>
+    <!-- Camera dot inside island -->
+    <circle cx="182" cy="36" r="5" fill="#111116"/>
+    <circle cx="182" cy="36" r="2.5" fill="#0a0a0c"/>
+    <circle cx="183.5" cy="34.5" r="0.8" fill="rgba(255,255,255,0.15)"/>
+
+    <!-- ── Side buttons ── -->
+    <!-- Volume up -->
+    <rect x="-2" y="140" width="5" height="36" rx="2.5"
+      fill="#2a2a32"/>
+    <!-- Volume down -->
+    <rect x="-2" y="188" width="5" height="36" rx="2.5"
+      fill="#2a2a32"/>
+    <!-- Power button -->
+    <rect x="317" y="162" width="5" height="60" rx="2.5"
+      fill="#2a2a32"/>
+  </svg>

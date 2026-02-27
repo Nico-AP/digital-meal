@@ -119,6 +119,10 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
     def get(self, request, *args, **kwargs):
         self.reset_participant_in_session()
         self.userflow_session.reset()
+
+        method = request.GET.get("method", "ddm")
+        if method == "port-api":
+            return redirect(URLShortcut.DONATION_PORTABILITY)
         return redirect(URLShortcut.DONATION_DDM)
 
     def get_donation_project(self):

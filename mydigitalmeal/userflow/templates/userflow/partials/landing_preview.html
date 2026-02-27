@@ -1,0 +1,30 @@
+{% load i18n static %}
+
+<div class="mdm-container-landing-preview">
+  <div class="container">
+    <div class="row justify-content-center align-items-center">
+      <div class="mdm-phone-wrapper">
+        <div class="mdm-phone-screen">
+
+          <div class="mdm-phone-screen-top">
+            <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
+                 alt="My Digital Meal Logo"
+                 height="30px" />
+          </div>
+
+          <div class="mdm-phone-screen-main">
+            <p class="text-center fs-08">
+              {% blocktranslate trimmed %}
+                Am <b>meisten Videos</b> hast du dir <b>zwischen 5–8 Uhr</b> angeschaut
+              {% endblocktranslate %}
+            </p>
+          </div>
+
+        </div>
+        <div class="mdm-phone-frame">
+          {% include "userflow/components/phone_overlay.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

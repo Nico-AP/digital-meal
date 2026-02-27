@@ -1,5 +1,5 @@
 {% extends "userflow/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block extra_head %}
   {% include "mydigitalmeal/partials/_meta_seo.html" %}
@@ -46,8 +46,7 @@
     </div>
   </div>
 
-  <div class="mdm-container-landing-preview">
-  </div>
+  {% include "userflow/partials/landing_preview.html" %}
 
   <div class="container">
     <div class="row">
