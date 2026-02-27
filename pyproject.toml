@@ -56,10 +56,11 @@ indent_size = 2
 
 [tool.ruff]
 target-version = "py312"
-# Exclude a variety of commonly ignored directories.
 extend-exclude = [
     "*/migrations/*.py",
     "staticfiles/*",
+    ".sass",
+    "*.css.map"
 ]
 
 [tool.ruff.lint]

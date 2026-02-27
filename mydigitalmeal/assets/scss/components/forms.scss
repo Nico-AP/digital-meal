@@ -1,0 +1,70 @@
+.mdm-text-input {
+    background: var(--mdm-color-black);
+    color: var(--mdm-font-color-main);
+    border-radius: 7px;
+    font-size: 1.5rem;
+    text-align: center;
+    border: none;
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+}
+
+.mdm-text-input:focus {
+    color: var(--mdm-font-color-main);
+    background: var(--mdm-color-black);
+    box-shadow: 0 0 0 .1rem var(--mdm-font-color-main);
+}
+
+.mdm-text-input::placeholder {
+    color: var(--mdm-font-color-muted);
+}
+
+.mdm-text-input:focus::placeholder {
+    color: var(--mdm-color-grey);
+}
+
+.mdm-code-input-wrapper {
+    width: 450px;
+    padding-left: 50px;
+    padding-right: 0.5rem;
+    padding-bottom: 1rem;
+}
+
+.mdm-code-input {
+    font-family: monospace !important; /* TODO: Load specific font */
+    color: var(--mdm-font-color-main);
+    background-color: transparent;
+    border: none;
+    outline: none;
+    font-size: 2.5rem;
+    letter-spacing: 2.35rem;
+    padding-left: 0.8rem;
+    background-image: repeating-linear-gradient(
+            90deg,
+            #666 0px,
+            #666 44px,
+            transparent 44px,
+            transparent 60px
+    );
+    background-size: 360px 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    caret-color: transparent;
+    line-height: 1rem;
+}
+
+.mdm-code-input:focus {
+    color: var(--mdm-font-color-main);
+    background: var(--mdm-color-black);
+    background-image: repeating-linear-gradient(
+            90deg,
+            #e5e5e7 0px,
+            #e5e5e7 44px,
+            transparent 44px,
+            transparent 60px
+    );
+    background-size: 360px 2px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    box-shadow: none;
+}

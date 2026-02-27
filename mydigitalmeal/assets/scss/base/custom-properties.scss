@@ -1,0 +1,28 @@
+:root {
+  // Colors
+  --mdm-color-main: blue;
+
+  --mdm-color-black: #000000;
+  --mdm-color-darkgrey: #212121;
+  --mdm-color-grey: #999999;
+  --mdm-color-white: #ffffff;
+
+  --mdm-color-accent-green: #89f8c3;
+  --mdm-color-accent-pink: #ff9bba;
+  --mdm-color-accent-yellow: #ffe2a5;
+  --mdm-color-accent-red: #ff4e22;
+
+  // Fonts & Text
+  --mdm-ff-space-grotesk: "Space Grotesk", sans-serif;
+
+  --mdm-ff-main: var(--mdm-ff-space-grotesk);
+  --mdm-ff-headers: var(--mdm-ff-space-grotesk);
+  --mdm-ff-buttons: var(--mdm-ff-space-grotesk);
+  --mdm-ff-mono: var(--mdm-ff-space-grotesk);
+
+  --mdm-font-color-main: var(--mdm-color-white);
+  --mdm-font-color-muted: var(--mdm-color-grey);
+
+  // Elements
+  --mdm-body-bg-color: var(--mdm-color-darkgrey);
+}

@@ -1,0 +1,19 @@
+.htmx-smooth-transition {
+  .htmx-swapping {
+    animation: htmx-fade-out 0.3s ease forwards;
+  }
+
+  .htmx-added {
+    animation: htmx-fade-in 0.3s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+  }
+}
+
+@keyframes htmx-fade-out {
+  0%   { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(0); }
+}
+
+@keyframes htmx-fade-in {
+  0%   { opacity: 0; transform: scale(0.2); }
+  100% { opacity: 1; transform: scale(1); }
+}

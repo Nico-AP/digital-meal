@@ -1,0 +1,27 @@
+@use '../abstracts/index' as *;
+
+#footer-container {
+  background: var(--mdm-color-black);
+  margin-top: 2rem;
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+  font-family: var(--mdm-ff-space-grotesk);
+  font-size: 1.2rem;
+}
+
+.footer-logo {
+  max-width: 250px;
+  width: 30vw;
+}
+
+.footer-item {
+  padding-bottom: 0.5rem;
+  font-size: 1rem;
+
+  @media (min-width: $bp-md) {
+    font-size: 1.2rem;
+  }
+  @media (min-width: $bp-lg) {
+    max-width: 250px;
+  }
+}

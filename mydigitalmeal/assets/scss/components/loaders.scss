@@ -1,0 +1,55 @@
+.mdm-loader {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+
+  background: conic-gradient(
+                  from 0deg,
+                  transparent 40%,
+                  var(--mdm-color-accent-red),
+                  var(--mdm-color-accent-pink),
+                  var(--mdm-color-accent-yellow),
+                  var(--mdm-color-accent-green)
+  );
+
+  /* Mask out the center to fake a border */
+  -webkit-mask: radial-gradient(
+                  farthest-side,
+                  transparent calc(100% - 8px),
+                  #fff calc(100% - 7px)
+  );
+
+  mask: radial-gradient(
+                  farthest-side,
+                  transparent calc(100% - 8px),
+                  #fff calc(100% - 7px)
+  );
+}
+
+@keyframes rotation {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.m-loader-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  svg.loader {
+    overflow: visible;
+  }
+
+  .draw-path {
+    fill: none;
+    stroke-width: 19;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke: url(#loaderGradient);
+  }
+}

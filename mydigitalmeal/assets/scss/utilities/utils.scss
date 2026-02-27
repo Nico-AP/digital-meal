@@ -1,0 +1,9 @@
+@use '../abstracts/index' as *;
+
+.mdm-w-75 {
+  width: 100%;
+
+  @media (min-width: $bp-lg) {
+    width: 75%;
+  }
+}

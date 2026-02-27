@@ -1,0 +1,10 @@
+{
+  "private": true,
+  "scripts": {
+    "sass:watch": "sass --watch ../mydigitalmeal/assets/scss/main.scss:../mydigitalmeal/core/static/mydigitalmeal/css/mydigitalmeal.css",
+    "sass:build": "sass ../mydigitalmeal/assets/scss/main.scss:../mydigitalmeal/core/static/mydigitalmeal/css/mydigitalmeal.css --style=compressed --no-source-map"
+  },
+  "devDependencies": {
+    "sass": "^1.89.0"
+  }
+}

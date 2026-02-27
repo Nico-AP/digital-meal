@@ -1,0 +1,22 @@
+.mdm-message-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.mdm-message-container {
+  position: absolute;
+  top: 150px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 0;
+}
+
+.mdm-alert {
+  background: white;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.mdm-alert .btn-close {
+  padding: 1rem 1rem;
+}

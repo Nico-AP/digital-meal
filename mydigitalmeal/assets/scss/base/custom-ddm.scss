@@ -1,0 +1,104 @@
+.uploader-container {
+  background: white;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  border-radius: 5px;
+}
+
+.uploader-section .border-success {
+  background: var(--mdm-color-accent-green);
+  background: linear-gradient(
+                  108deg,var(--mdm-color-accent-green) 0%,
+                  var(--mdm-color-accent-yellow) 65%,
+                  var(--mdm-color-accent-pink) 100%
+  );
+  border: none !important;
+}
+
+.uploader-section .border-success .text-success {
+  color: var(--mdm-color-black) !important;
+}
+
+.uploader-section .text-success {
+  color: #47a577 !important;
+}
+
+.uploader-section .selected-donate-agree.donation-btn {
+  background: #47a577 !important;
+}
+
+.uploader-section .selected-donate-disagree.donation-btn {
+  background: var(--mdm-color-accent-pink) !important;
+}
+
+.flow-btn {
+  color: var(--mdm-color-black) !important;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10em;
+  font-family: Space Grotesk, sans-serif;
+  font-size: 2rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  font-weight: bold;
+  background: var(--mdm-color-grey);
+  background-color: var(--mdm-color-grey);
+}
+.flow-btn:hover {
+  color: var(--mdm-color-black) !important;
+  filter: brightness(200%);
+}
+
+.custom-flow-btn {
+  float: right;
+}
+
+#processingModal .custom-modal-content {
+  background: var(--mdm-color-accent-red) !important;
+  background: linear-gradient(
+                  108deg,var(--mdm-color-accent-red) 0%,
+                  var(--mdm-color-accent-pink) 55%,
+                  var(--mdm-color-accent-yellow) 100%
+  ) !important;
+  color: var(--mdm-color-black) !important;
+}
+
+#processingModal .dot-floating,
+#processingModal .dot-floating::before,
+#processingModal .dot-floating::after {
+  background-color: var(--mdm-color-black);
+  color: var(--mdm-color-black);
+}
+
+.ddm-uploader {
+  .uploader-name {
+    color: white;
+    font-family: var(--mdm-ff-space-grotesk);
+    font-size: 2.25rem !important;
+    padding-bottom: .5rem;
+    text-align: center;
+  }
+
+  .section-heading {
+    font-family: var(--mdm-ff-space-grotesk);
+    font-weight: 500;
+  }
+
+  .section-icon {
+    color: #999;
+  }
+
+  .uploader-section {
+    button {
+      display: none;
+    }
+
+    .text-success,
+    .fs-5.fw-bold.pb-2,
+    .donation-btn {
+      font-family: var(--mdm-ff-space-grotesk);
+    }
+
+  }
+
+}

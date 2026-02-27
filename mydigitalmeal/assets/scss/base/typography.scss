@@ -1,0 +1,72 @@
+@use '../abstracts/index' as *;
+
+// Hyperlinks
+a {
+  text-decoration: underline;
+  text-underline-offset: 5px;
+  text-decoration-thickness: 2px;
+  color: var(--mdm-font-color-main);
+
+  &:hover {
+    color: var(--mdm-font-color-main);
+    filter: brightness(70%);
+  }
+}
+
+// Text Classes
+.mdm-text-lead {
+  font-size: 2rem;
+  color: var(--mdm-font-color-main);
+  font-family: var(--mdm-ff-space-grotesk);
+  margin-bottom: 2rem;
+}
+
+.mdm-text-main {
+  font-size: 1.5rem;
+  color: var(--mdm-font-color-main);
+  font-family: var(--mdm-ff-space-grotesk);
+  margin-bottom: 2rem;
+}
+
+.mdm-text-muted {
+  font-size: 1.5rem;
+  color: var(--mdm-font-color-muted);
+  font-family: var(--mdm-ff-space-grotesk);
+
+  a {
+    color: var(--mdm-font-color-muted);
+  }
+}
+
+// Lists
+.mdm-list-container {
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: start;
+
+  @media (min-width: $bp-sm) {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
+
+  @media (min-width: $bp-lg) {
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+
+  @media (min-width: $bp-xl) {
+    padding-left: 15%;
+    padding-right: 15%;
+  }
+
+}
+
+ul.mdm-list {
+  list-style-type: "–";
+}
+
+.mdm-list-item {
+  padding-left: 10px;
+  padding-bottom: 8px;
+  line-height: 2rem;
+}
