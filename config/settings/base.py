@@ -306,6 +306,14 @@ CELERY_TASK_SEND_SENT_EVENT = True
 
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "socket_keepalive": True,
+    "socket_keepalive_options": {
+        "TCP_KEEPIDLE": 60,
+        "TCP_KEEPINTVL": 10,
+        "TCP_KEEPCNT": 5,
+    },
+}
 
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------
