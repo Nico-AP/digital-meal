@@ -1,3 +1,5 @@
+{# djlint:off H021, H023 #}
+
 <div class="section-container">
   <div class="report-section bg-orange">
     <div class="report-content row">
@@ -31,7 +33,7 @@
         {% endif %}
       </div>
       <div class="col-12 col-lg-7 detailed-use-plot p-0">
-        <!-- TODO(optimization): Berechnungsgrundlage Mean -->
+        {# TODO(optimization): Berechnungsgrundlage Mean  #}
         <div class="d-flex justify-content-center">{{ weekday_use_plot_div | safe }}</div>
         <div class="d-flex justify-content-center">{{ hours_plot_div | safe }}</div>
       </div>

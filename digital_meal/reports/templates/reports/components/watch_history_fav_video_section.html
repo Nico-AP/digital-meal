@@ -1,3 +1,5 @@
+{# djlint:off H021 #}
+
 {% load digitalmeal_tags %}
 
 <div class="section-container">
@@ -31,10 +33,10 @@
             <div class="bg-yellow-darker" style="padding: 20px; transform: rotate(15deg);">
               <div class="bg-yellow-brighter" style="padding: 20px; transform: rotate(195deg);">
                 {% if platform == "YouTube" %}
-                  <img src="https://i.ytimg.com/vi/{{ fav_vid.id }}/mqdefault.jpg" height="300px;" style="padding: 20px; transform: rotate(15deg);" />
+                  <img src="https://i.ytimg.com/vi/{{ fav_vid.id }}/mqdefault.jpg" alt="Favorite Video Thumbnail" height="300px;" style="padding: 20px; transform: rotate(15deg);" />
                 {% elif platform == "TikTok" %}
                   {% if fav_vid.thumbnail %}
-                    <img src="{{ fav_vid.thumbnail }}" height="300px;" style="padding: 20px; transform: rotate(15deg);" />
+                    <img src="{{ fav_vid.thumbnail }}" alt="Favorite Video Thumbnail" height="300px;" style="padding: 20px; transform: rotate(15deg);" />
                   {% else %}
                     <p class="text-center">Leider scheint das Video nicht mehr online zu sein</p>
                   {% endif %}
@@ -57,46 +59,109 @@
 
         {% if platform == "YouTube" %}
           <div class="col-12 col-lg-3 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
-            <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.1.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(-5deg);" /></div>
+            <div>
+              <img
+                  class="p-3"
+                  src="https://i.ytimg.com/vi/{{ fav_vid.1.id }}/mqdefault.jpg"
+                  alt="Second Favorite Video Thumbnail"
+                  height="150px;"
+                  style="transform: rotate(-5deg);"
+              />
+            </div>
             <div class="podium-title">{{ fav_vid.1.title }}</div>
             <div class="text-white fs-1 fw-bold bg-blue-darker" style="min-height: 105px;">2</div>
           </div>
           <div class="col-12 col-lg-3 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
-            <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.0.id }}/mqdefault.jpg" height="150px;" /></div>
+            <div>
+              <img
+                  class="p-3"
+                  src="https://i.ytimg.com/vi/{{ fav_vid.0.id }}/mqdefault.jpg"
+                  alt="Favorite Video Thumbnail"
+                  height="150px;"
+              />
+            </div>
             <div class="podium-title">{{ fav_vid.0.title }}</div>
             <div class="text-white fs-1 fw-bold bg-blue-darkest" style="min-height: 135px;">1</div>
           </div>
           <div class="col-12 col-lg-3 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
-            <div><img class="p-3" src="https://i.ytimg.com/vi/{{ fav_vid.2.id }}/mqdefault.jpg" height="150px;" style="transform: rotate(5deg);" /></div>
+            <div>
+              <img
+                  class="p-3"
+                  src="https://i.ytimg.com/vi/{{ fav_vid.2.id }}/mqdefault.jpg"
+                  alt="Third Favorite Video Thumbnail"
+                  height="150px;"
+                  style="transform: rotate(5deg);"
+              />
+            </div>
             <div class="podium-title">{{ fav_vid.2.title }}</div>
             <div class="text-white fs-1 fw-bold bg-blue" style="min-height: 75px;">3</div>
           </div>
 
         {% elif platform == "TikTok" %}
           <div class="col-12 col-lg-3 order-2 order-lg-1 p-0 d-flex flex-column justify-content-end podium-col">
-            <div>{% if fav_vid.1.thumbnail %}<img class="p-3" src="{{ fav_vid.1.thumbnail }}" height="200px;" style="transform: rotate(-5deg);" />{% endif %}</div>
-            <div class="podium-title">{% if fav_vid.1.channel %}von {{ fav_vid.1.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+            <div>
+              {% if fav_vid.1.thumbnail %}
+                <img
+                    class="p-3"
+                    src="{{ fav_vid.1.thumbnail }}"
+                    alt="Second Favorite Video Thumbnail"
+                    height="200px;"
+                    style="transform: rotate(-5deg);"
+                />
+              {% endif %}
+            </div>
+            <div class="podium-title">
+              {% if fav_vid.1.channel %}von {{ fav_vid.1.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}
+            </div>
             <div class="text-white fs-1 fw-bold bg-blue-darker" style="min-height: 105px;">2</div>
-            <p>{% if fav_vid.1.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.1.id }}/" target="_blank">Video auf TikTok ansehen</a>{% endif %}</p>
+            <p>
+              {% if fav_vid.1.channel %}
+                <a href="https://www.tiktok.com/@/video/{{ fav_vid.1.id }}/" target="_blank">Video auf TikTok ansehen</a>
+              {% endif %}
+            </p>
           </div>
           <div class="col-12 col-lg-3 order-1 order-lg-2 p-0 d-flex flex-column justify-content-end podium-col">
-            <div>{% if fav_vid.0.thumbnail %}<img class="p-3" src="{{ fav_vid.0.thumbnail }}" height="200px;" />{% endif %}</div>
-            <div class="podium-title">{% if fav_vid.0.channel %}von {{ fav_vid.0.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+            <div>
+              {% if fav_vid.0.thumbnail %}
+                <img class="p-3" src="{{ fav_vid.0.thumbnail }}" height="200px;" alt="Favorite Video Thumbnail" />
+              {% endif %}
+            </div>
+            <div class="podium-title">
+              {% if fav_vid.0.channel %}von {{ fav_vid.0.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}
+            </div>
             <div class="text-white fs-1 fw-bold bg-blue-darkest" style="min-height: 135px;">1</div>
-            <p>{% if fav_vid.0.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.0.id }}/" target="_blank">Video auf TikTok ansehen</a>{% endif %}</p>
+            <p>
+              {% if fav_vid.0.channel %}
+                <a href="https://www.tiktok.com/@/video/{{ fav_vid.0.id }}/" target="_blank">Video auf TikTok ansehen</a>
+              {% endif %}
+            </p>
           </div>
           <div class="col-12 col-lg-3 order-3 order-lg-3 p-0 d-flex flex-column justify-content-end podium-col">
-            <div>{% if fav_vid.2.thumbnail %}<img class="p-3" src="{{ fav_vid.2.thumbnail }}" height="200px;" style="transform: rotate(5deg);" />{% endif %}</div>
-            <div class="podium-title">{% if fav_vid.2.channel %}von {{ fav_vid.2.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}</div>
+            <div>
+              {% if fav_vid.2.thumbnail %}
+                <img class="p-3" src="{{ fav_vid.2.thumbnail }}" height="200px;" style="transform: rotate(5deg);" alt="Third Favorite Video Thumbnail" />
+              {% endif %}
+            </div>
+            <div class="podium-title">
+              {% if fav_vid.2.channel %}von {{ fav_vid.2.channel }}{% else %}Das Video ist nicht mehr verfügbar{% endif %}
+            </div>
             <div class="text-white fs-1 fw-bold bg-blue" style="min-height: 75px;">3</div>
-            <p>{% if fav_vid.2.channel %}<a href="https://www.tiktok.com/@/video/{{ fav_vid.2.id }}/" target="_blank">Video auf TikTok ansehen</a>{% else %}&nbsp;{% endif %}</p>
+            <p>
+              {% if fav_vid.2.channel %}
+                <a href="https://www.tiktok.com/@/video/{{ fav_vid.2.id }}/" target="_blank">Video auf TikTok ansehen</a>
+              {% else %}
+                &nbsp;
+              {% endif %}
+            </p>
           </div>
 
         {% endif %}
 
       </div>
 
-      <p class="report-explanation pt-5 mb-0 font-blue-darkest">Es werden diejenigen Videos angezeigt, welche bei den meisten von euch im Wiedergabeverlauf erscheinen.</p>
+      <p class="report-explanation pt-5 mb-0 font-blue-darkest">
+        Es werden diejenigen Videos angezeigt, welche bei den meisten von euch im Wiedergabeverlauf erscheinen.
+      </p>
 
     </div>
   {% endif %}
