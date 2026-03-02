@@ -12,6 +12,9 @@ SECURE_HSTS_PRELOAD = False
 SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 SECURE_PROXY_SSL_HEADER = None
 
+ALLAUTH_TRUSTED_CLIENT_IP_HEADER = None
+ACCOUNT_RATE_LIMITS = {}  # disable all rate limits in CI
+
 DATABASES["default"]["OPTIONS"] = {"init_command": "SET sql_mode='STRICT_TRANS_TABLES'"}
 
 # Speed up password hashing in tests
