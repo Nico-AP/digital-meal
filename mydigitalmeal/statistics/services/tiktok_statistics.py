@@ -221,13 +221,20 @@ class WatchHistoryStatisticsGenerator:
             self.durations_per_video = durations_per_video
 
         stats = {
-            "avg_session_duration_seconds": session_stats["duration_seconds"].mean(),
-            "avg_videos_per_session": session_stats["num_entries"].mean(),
-            "avg_seconds_per_video": durations_per_video.mean(),
+            "avg_session_duration_seconds": self._safe_mean(
+                session_stats["duration_seconds"]
+            ),
+            "avg_videos_per_session": self._safe_mean(session_stats["num_entries"]),
+            "avg_seconds_per_video": self._safe_mean(durations_per_video),
         }
         self.stats.update(stats)
 
         return stats
+
+    @staticmethod
+    def _safe_mean(series: pd.Series) -> float | None:
+        result = series.mean()
+        return None if pd.isna(result) else result
 
     def compute_scrolling_statistics(
         self,
@@ -265,7 +272,11 @@ class WatchHistoryStatisticsGenerator:
         # Fallback: use median
         if not found_meaningful_threshold and total_videos > 0:
             scroll_percentage = 50
-            scroll_seconds = round(durations_per_video.median())
+            scroll_seconds = (
+                round(durations_per_video.median())
+                if not durations_per_video.empty
+                else None
+            )
 
         stats = {
             "scroll_threshold_pct": scroll_percentage,
