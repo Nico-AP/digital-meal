@@ -1,4 +1,5 @@
 import json
+import socket
 from pathlib import Path
 
 from environs import Env
@@ -309,9 +310,9 @@ CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 CELERY_BROKER_TRANSPORT_OPTIONS = {
     "socket_keepalive": True,
     "socket_keepalive_options": {
-        "TCP_KEEPIDLE": 60,
-        "TCP_KEEPINTVL": 10,
-        "TCP_KEEPCNT": 5,
+        socket.TCP_KEEPIDLE: 60,
+        socket.TCP_KEEPINTVL: 10,
+        socket.TCP_KEEPCNT: 5,
     },
 }
 
