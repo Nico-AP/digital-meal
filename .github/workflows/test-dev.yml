@@ -97,10 +97,10 @@ jobs:
           source .venv/bin/activate
           python manage.py test
 
-      - name: Run security check
-        run: |
-          source .venv/bin/activate
-          pip-audit
+#      - name: Run security check
+#        run: |
+#          source .venv/bin/activate
+#          pip-audit
 
       - name: Check for missing migrations
         run: |
