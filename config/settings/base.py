@@ -284,7 +284,7 @@ DEFAULT_FROM_EMAIL = env.str("DEFAULT_FROM_EMAIL")
 
 # CELERY
 # ------------------------------------------------------------------------------
-REDIS_URL = env.str("REDIS_URL", "redis://redis:6379/0")
+REDIS_URL = env.str("REDIS_URL", "redis://127.0.0.1:6379/0")
 REDIS_SSL = REDIS_URL.startswith("rediss://")
 
 if USE_TZ:
