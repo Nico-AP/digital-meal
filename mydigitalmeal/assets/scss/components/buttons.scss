@@ -1,51 +1,96 @@
 .mdm-base-btn {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 10em;
-    font-family: var(--mdm-ff-buttons);
-    font-size: 2rem;
-    font-weight: bold;
-    color: var(--mdm-color-black);
-    padding-left: 3rem;
-    padding-right: 3rem;
-    background: var(--mdm-color-accent-green);
-    background: linear-gradient(
-            108deg,var(--mdm-color-accent-green) 0%,
-            var(--mdm-color-accent-yellow) 65%,
-            var(--mdm-color-accent-pink) 100%
-    );
-    background-clip: padding-box;
-}
-.mdm-base-btn:hover {
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  border-radius: 10em;
+  font-family: var(--mdm-ff-buttons);
+  font-size: 2rem;
+  font-weight: bold;
+  color: var(--mdm-color-black);
+  padding-left: 3rem;
+  padding-right: 3rem;
+  background: var(--mdm-color-accent-green);
+  background: linear-gradient(
+                  108deg,var(--mdm-color-accent-green) 0%,
+                  var(--mdm-color-accent-yellow) 65%,
+                  var(--mdm-color-accent-pink) 100%
+  );
+  background-clip: padding-box;
+  background-repeat: no-repeat;
+  background-size: cover;
+  border: none;
+
+  &:hover {
     filter: brightness(70%);
     background: var(--mdm-color-accent-green);
     background: linear-gradient(
-            108deg,var(--mdm-color-accent-green) 0%,
-            var(--mdm-color-accent-yellow) 65%,
-            var(--mdm-color-accent-pink) 100%
+                    108deg,var(--mdm-color-accent-green) 0%,
+                    var(--mdm-color-accent-yellow) 65%,
+                    var(--mdm-color-accent-pink) 100%
     );
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: none;
+    color: black;
+  }
+
+}
+
+.mdm-color-btn-v1 {
+  @extend .mdm-base-btn;
+  background-image: url("../img/backgrounds/mdm_bg_1.svg");
+
+  &:hover {
+    background-image: url("../img/backgrounds/mdm_bg_1.svg");
+  }
+}
+
+.mdm-color-btn-v2 {
+  @extend .mdm-base-btn;
+  background-image: url("../img/backgrounds/mdm_bg_2.svg");
+
+  &:hover {
+    background-image: url("../img/backgrounds/mdm_bg_2.svg");
+  }
+}
+
+.mdm-color-btn-v3 {
+  @extend .mdm-base-btn;
+  background-image: url("../img/backgrounds/mdm_bg_3.svg");
+
+  &:hover {
+    background-image: url("../img/backgrounds/mdm_bg_3.svg");
+  }
+}
+
+.mdm-color-btn-v4 {
+  @extend .mdm-base-btn;
+  background-image: url("../img/backgrounds/mdm_bg_4.svg");
+
+  &:hover {
+    background-image: url("../img/backgrounds/mdm_bg_4.svg");
+  }
 }
 
 .mdm-discreet-btn {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-    padding-left: 2rem;
-    padding-right: 2rem;
-    border-radius: 10em;
-    font-family: var(--mdm-ff-buttons);
-    font-size: 1.5rem;
-    font-weight: bold;
-    color: var(--mdm-color-black);
-    background: var(--mdm-color-accent-green);
-    background-clip: padding-box;
-}
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
+  border-radius: 10em;
+  font-family: var(--mdm-ff-buttons);
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--mdm-color-black);
+  background: var(--mdm-color-accent-green);
+  background-clip: padding-box;
 
-.mdm-discreet-btn:hover {
+  &:hover {
     filter: brightness(70%);
     background: var(--mdm-color-accent-green);
+  }
 }
 
 .mdm-tiktok-connect-button {
-    max-width: 90%;
-    width: 450px;
+  max-width: 90%;
+  width: 450px;
 }

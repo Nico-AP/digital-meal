@@ -13,7 +13,7 @@ const observer = new MutationObserver(() => {
       radio.addEventListener('change', () => {
         const flowBtn = document.querySelector('.flow-btn, .custom-flow-btn');
         flowBtn.classList.remove('flow-btn');
-        flowBtn.classList.add('btn', 'mdm-base-btn', 'custom-flow-btn');
+        flowBtn.classList.add('btn', 'mdm-color-btn-v2', 'custom-flow-btn');
         flowBtn.textContent = 'Weiter';
       });
     });
@@ -21,7 +21,7 @@ const observer = new MutationObserver(() => {
     if (document.querySelectorAll('input[name="agreement-null"]').length === 0) {
       const flowBtn = document.querySelector('.flow-btn, .custom-flow-btn');
       if (flowBtn) {
-        flowBtn.classList.remove('btn', 'mdm-base-btn', 'custom-flow-btn');
+        flowBtn.classList.remove('btn', 'mdm-color-btn-v2', 'custom-flow-btn');
         flowBtn.classList.add('flow-btn');
         flowBtn.textContent = 'Skip';
       }

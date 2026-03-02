@@ -12,6 +12,9 @@
                   var(--mdm-color-accent-pink) 55%,
                   var(--mdm-color-accent-yellow) 100%
   );
+  background-image: url("../img/backgrounds/mdm_bg_2.svg");
+  background-repeat: no-repeat;
+  background-size: cover;
 
   .mdm-phone-wrapper {
     position: relative;
