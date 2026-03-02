@@ -7,6 +7,11 @@
   padding-bottom: 3rem;
   font-family: var(--mdm-ff-space-grotesk);
   font-size: 1.2rem;
+  color: var(--mdm-color-white);
+
+  a {
+    color: var(--mdm-color-white);
+  }
 }
 
 .footer-logo {
@@ -16,11 +21,9 @@
 
 .footer-item {
   padding-bottom: 0.5rem;
-  font-size: 1rem;
+  font-size: 24px;
+  line-height: 32px;
 
-  @media (min-width: $bp-md) {
-    font-size: 1.2rem;
-  }
   @media (min-width: $bp-lg) {
     max-width: 250px;
   }

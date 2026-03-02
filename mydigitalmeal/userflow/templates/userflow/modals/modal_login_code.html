@@ -3,11 +3,22 @@
 {% load i18n %}
 
 {% block modal_content %}
+
+  {% url 'userflow:profiles:auth' as login_url %}
   {% blocktranslate trimmed %}
-    Wenn du keinen Code erhalten hast, kannst du versuchen,
-    den Code erneut anzufordern. Kehre dafür zum Login zurück.
-    Sollte das Problem bestehen bleiben, versuche es später erneut
-    oder schreib uns eine Nachricht an
-    <a href="mailto:kontakt@digital-meal.ch">kontakt@digital-meal.ch</a>.
+    <p>
+      Warte einige Minuten und prüfe auch deinen Spam-Ordner.
+    </p>
+
+    <p>
+      Wenn du keinen Code erhalten hast, kannst du versuchen,
+      den Code erneut anzufordern.
+      Kehre dafür zum <a href="{{ login_url }}">Login</a> zurück.
+    </p>
+
+    <p>
+      Wenn das Problem weiterhin besteht, versuche es später erneut oder
+      schreib uns eine Nachricht an <a href="mailto:kontak@digital-meal.ch">kontak@digital-meal.ch</a>.
+    </p>
   {% endblocktranslate %}
 {% endblock modal_content %}

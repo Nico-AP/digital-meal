@@ -75,4 +75,6 @@ class PortabilityReviewView(
         context["fail_redirect_url"] = reverse(
             "userflow:datadonation:port_tt_await_data"
         )
+
+        context["portability_view"] = True
         return context

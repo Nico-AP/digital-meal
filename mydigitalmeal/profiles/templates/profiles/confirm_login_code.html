@@ -11,10 +11,15 @@
       <div class="col col-lg-10 col-xl-8 text-center">
 
         <div>
-          <p class="mdm-text-main">
+          <p class="mdm-text">
             {% blocktranslate trimmed %}
               Wir haben einen Anmeldecode an
               {{ email }} gesendet.
+            {% endblocktranslate %}
+          </p>
+
+          <p class="mdm-text pt-4">
+            {% blocktranslate trimmed %}
               Der Code ist 5 Minuten gültig.
             {% endblocktranslate %}
           </p>
@@ -26,7 +31,7 @@
             {% csrf_token %}
 
             <div class="pt-2 d-flex justify-content-center">
-              <div class="mdm-code-input-wrapper mdm-text-input">
+              <div class="mdm-code-input-wrapper mdm-text-input mt-4 mb-4">
 
                 <input type="text"
                        class="textinput form-control mdm-code-input"
@@ -49,7 +54,7 @@
           </form>
         </div>
 
-        <div class="mdm-container-bottom">
+        <div class="mdm-container-bottom pt-5 pb-5">
           <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
             {% translate "Ich habe keinen Code erhalten" %}
           </a>
@@ -58,6 +63,6 @@
       </div>
     </div>
   </div>
-  {% include "userflow/modals/modal_email.html" %}
+  {% include "userflow/modals/modal_login_code.html" %}
 
 {% endblock content %}

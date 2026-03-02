@@ -16,7 +16,7 @@
 {% block content %}
   <div class="container">
     <div id="uapp"
-         class="container text-black ps-0 pe-0"
+         class="container text-black ps-0 pe-0{% if portability_view %} ddm-portability{% endif %}"
          data-uploader-configs-as-string='{{ uploader_configs }}'
          data-action-url='{{ request.build_absolute_uri }}'
          data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'

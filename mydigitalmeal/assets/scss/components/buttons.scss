@@ -3,11 +3,11 @@
   margin-bottom: 1rem;
   border-radius: 10em;
   font-family: var(--mdm-ff-buttons);
-  font-size: 2rem;
+  font-size: 37px;
+  line-height: 43px;
   font-weight: bold;
   color: var(--mdm-color-black);
-  padding-left: 3rem;
-  padding-right: 3rem;
+  padding: 1.5rem 5rem;
   background: var(--mdm-color-accent-green);
   background: linear-gradient(
                   108deg,var(--mdm-color-accent-green) 0%,
@@ -92,5 +92,5 @@
 
 .mdm-tiktok-connect-button {
   max-width: 90%;
-  width: 450px;
+  width: 950px;
 }

@@ -14,27 +14,99 @@ a {
 }
 
 // Text Classes
-.mdm-text-lead {
-  font-size: 2rem;
+.mdm-title {
+  font-size: 50px;
+  line-height: 60px;
+  font-family: var(--mdm-ff-headers-participation);
+  font-weight: bold;
   color: var(--mdm-font-color-main);
-  font-family: var(--mdm-ff-space-grotesk);
-  margin-bottom: 2rem;
 }
 
-.mdm-text-main {
-  font-size: 1.5rem;
+.mdm-subtitle {
+  font-size: 37px;
+  line-height: 48px;
+  font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-lg) {
+    font-size: 35px;
+    line-height: 42px;
+  }
+}
+
+.mdm-lead {
+  font-size: 37px;
+  line-height: 48px;
+  font-family: var(--mdm-ff-headers-participation);
+  color: var(--mdm-font-color-main);
+  margin-bottom: 3.5rem;
+
+  @media (min-width: $bp-lg) {
+    font-size: 53px;
+    line-height: 68px;
+  }
+}
+
+.mdm-text {
+  font-size: 30px;
+  line-height: 39px;
   font-family: var(--mdm-ff-space-grotesk);
-  margin-bottom: 2rem;
+  color: var(--mdm-font-color-main);
 }
 
 .mdm-text-muted {
-  font-size: 1.5rem;
+  @extend .mdm-text;
+
   color: var(--mdm-font-color-muted);
-  font-family: var(--mdm-ff-space-grotesk);
 
   a {
     color: var(--mdm-font-color-muted);
+  }
+}
+
+.mdm-list-participation {
+  font-size: 30px;
+  line-height: 39px;
+  font-family: var(--mdm-ff-text-participation);
+  color: var(--mdm-font-color-main);
+
+  li {
+    padding-left: 30px;
+  }
+}
+
+.mdm-info-lead {
+  font-size: 37px;
+  line-height: 48px;
+  font-family: var(--mdm-ff-headers-participation);
+  color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-lg) {
+    font-size: 35px;
+    line-height: 42px;
+  }
+}
+
+.mdm-info-text {
+  font-size: 24px;
+  line-height: 32px;
+  font-family: var(--mdm-ff-text-info);
+  color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-lg) {
+    font-size: 24px;
+    line-height: 29px;
+  }
+}
+
+.mdm-list-info {
+  font-size: 24px;
+  line-height: 32px;
+  font-family: var(--mdm-ff-text-participation);
+  color: var(--mdm-font-color-main);
+
+  li {
+    padding-left: 30px;
   }
 }
 

@@ -1,10 +1,8 @@
 :root {
   // Colors
-  --mdm-color-main: blue;
-
   --mdm-color-black: #000000;
   --mdm-color-darkgrey: #212121;
-  --mdm-color-grey: #999999;
+  --mdm-color-grey: #999999;  // = 40% black
   --mdm-color-white: #ffffff;
 
   --mdm-color-accent-green: #89f8c3;
@@ -14,13 +12,19 @@
 
   // Fonts & Text
   --mdm-ff-space-grotesk: "Space Grotesk", sans-serif;
+  --mdm-ff-work-sans: "Work Sans", sans-serif;
 
-  --mdm-ff-main: var(--mdm-ff-space-grotesk);
-  --mdm-ff-headers: var(--mdm-ff-space-grotesk);
+  --mdm-ff-text-info: var(--mdm-ff-work-sans);
+  --mdm-ff-headers-info: var(--mdm-ff-space-grotesk);
+
+  --mdm-ff-text-participation: var(--mdm-ff-space-grotesk);
+  --mdm-ff-headers-participation: var(--mdm-ff-space-grotesk);
+
   --mdm-ff-buttons: var(--mdm-ff-space-grotesk);
   --mdm-ff-mono: var(--mdm-ff-space-grotesk);
 
   --mdm-font-color-main: var(--mdm-color-white);
+  --mdm-font-color-modal: var(--mdm-color-black);
   --mdm-font-color-muted: var(--mdm-color-grey);
 
   // Elements

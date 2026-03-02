@@ -1,4 +1,18 @@
 @font-face {
-    font-family: "Space Grotesk";
-    src: url("../fonts/space_grotesk/SpaceGrotesk-VariableFont_wght.ttf");
+  font-family: "Space Grotesk";
+  src: url("../fonts/space_grotesk/SpaceGrotesk-VariableFont_wght.ttf") format('truetype');
+  font-weight: 300 700;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("../fonts/work_sans/WorkSans-VariableFont_wght.ttf") format('truetype');;
+  font-weight: 100 900;
+}
+
+@font-face {
+  font-family: "Work Sans";
+  src: url("../fonts/work_sans/WorkSans-VariableFont_wght.ttf") format('truetype');;
+  font-style: italic;
+  font-weight: 100 900;
 }

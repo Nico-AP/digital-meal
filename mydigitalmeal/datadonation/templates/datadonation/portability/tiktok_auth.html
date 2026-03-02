@@ -8,7 +8,7 @@
     <div class="row justify-content-center">
       <div class="col col-lg-10 col-xl-8 text-center">
 
-        <p class="mdm-text-main">
+        <p class="mdm-text">
           {% blocktranslate trimmed %}
             Damit wir deinen persönlichen
             Nutzungsreport erstellen können,
@@ -17,7 +17,7 @@
           {% endblocktranslate %}
         </p>
 
-        <div class="mdm-text-main mdm-list-container">
+        <div class="mdm-text mdm-list-participation mdm-list-container pt-4 pb-4">
           <ul class="mdm-list">
             <li class="mdm-list-item">
               {% translate "Effekte, Hashtags, Sounds und Videos, welche du zu deinen Favoriten hinzugefügt hast" %}
@@ -37,7 +37,7 @@
           </ul>
         </div>
 
-        <p class="mdm-text-main">
+        <p class="mdm-text">
           {% blocktranslate trimmed %}
             Dafür leiten wir dich zu TikTok
             weiter, wo du Digital Meal Zugang
@@ -69,6 +69,6 @@
       </div>
     </div>
   </div>
-  {% include "userflow/modals/modal_email.html" %}
+  {% include "userflow/modals/modal_tiktok_connect.html" %}
 
 {% endblock content %}
