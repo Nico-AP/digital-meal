@@ -57,6 +57,7 @@ MY_DIGITAL_MEAL_APPS = [
     "mydigitalmeal.datadonation",
     "mydigitalmeal.profiles",
     "mydigitalmeal.questionnaire",
+    "mydigitalmeal.infopages",
 ]
 
 SHARED_APPS = [

@@ -1,6 +1,6 @@
 {% load static i18n %}
 
-<div id="footer-container">
+<div id="footer-container" class="mt-0">
   <div class="container">
     <div class="row h-100">
 
@@ -22,16 +22,25 @@
 
       <div class="col-6 col-md-4 d-flex flex-column justify-content-center">
 
-        <div class="footer-item mdm-text-muted">
-          <a href="{% url 'infopages:about' %}" target="_blank">
-            {% translate "über Digital Meal" %}
+        <div class="footer-item">
+          <a href="{% url 'infopages:about' %}">
+            {% translate "Impressum" %}
           </a>
         </div>
-        <div class="footer-item mdm-text-muted">
+        <div class="footer-item">
+          <a href="{% url 'infopages:tos' %}">
+            {% translate "AGBs" %}
+          </a>
+        </div>
+        <div class="footer-item">
+          <a href="{% url 'infopages:dps' %}">
+            {% translate "Datenschutzerklärung" %}
+          </a>
+        </div>
+        <div class="footer-item">
           <a href="#" data-cc="show-preferencesModal">
             {% translate "Cookie Notice" %}
           </a>
-
         </div>
       </div>
 

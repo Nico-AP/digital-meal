@@ -114,6 +114,7 @@ jobs:
             mydigitalmeal_datadonation \
             mydigitalmeal_profiles \
             mydigitalmeal_questionnaire \
+            mydigitalmeal_infopages \
             core \
             reports \
             tool \

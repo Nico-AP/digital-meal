@@ -2,5 +2,6 @@ User-Agent: *
 
 Allow: /tool/$
 Disallow: /tool/
+Disallow: /my/
 
 Sitemap: https://digital-meal.ch/sitemap.xml

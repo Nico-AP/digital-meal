@@ -14,17 +14,20 @@
   }
 }
 
+.footer-logo-container {
+  width: 25vw;
+  max-width: 450px;
+  padding: 15px;
+}
+
 .footer-logo {
   max-width: 250px;
-  width: 30vw;
+  width: 100%;
 }
 
 .footer-item {
   padding-bottom: 0.5rem;
   font-size: 24px;
   line-height: 32px;
-
-  @media (min-width: $bp-lg) {
-    max-width: 250px;
-  }
+  overflow-wrap: break-word;
 }

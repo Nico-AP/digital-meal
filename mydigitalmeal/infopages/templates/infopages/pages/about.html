@@ -1,0 +1,138 @@
+{% extends "infopages/base.html" %}
+{% load i18n static %}
+
+{% block page_title %}{% translate "Über Digital Meal" %}{% endblock page_title %}
+
+{% block content %}
+
+  <div class="info-intro-container">
+    <h1 class="mdm-title">
+      My Digital Meal
+    </h1>
+  </div>
+
+  <div class="info-main-text-container">
+    <div class="info-container">
+      <p class="mdm-info-text">
+        My Digital Meal ist ein Projekt der
+        Universität Zürich, geleitet von der Abteilung
+        «Mediennutzung & Medienwirkung» am
+        Institut für Kommunikationswissenschaft und
+        Medienforschung (IKMZ).
+      </p>
+    </div>
+
+    <div class="info-container">
+      <p class="mdm-info-text">
+        Ziel des Projekts ist es einerseits, TikTok-
+        Nutzer:innen ihre eigene Mediennutzung zu
+        veranschaulichen und die Reflektion über das
+        eigene Mediennutzungsverhalten anzuregen.
+        Andererseits hat My Digital Meal zum Ziel,
+        besser zu verstehen, wie Personen TikTok
+        nutzen und welchen Inhalten sie dabei
+        begegnen.
+      </p>
+    </div>
+
+    <div class="info-container">
+      <p class="mdm-info-text">
+        Dies trägt zum übergeordneten Forschungsziel
+        bei, besser zu verstehen, welche Auswirkungen
+        soziale Medien auf Wissen, Einstellungen
+        und persönliches Verhalten in Bezug auf
+        Themen wie Substanzkonsum (Alkohol, Tabak,
+        Cannabis), körperliche Aktivität, Ernährung
+        sowie Wohlbefinden haben. Ziel ist, relevantes
+        Wissen zu diesen Themen zu generieren, um
+        den wissenschaftlichen Diskurs voranzutreiben
+        und politische Entscheidungsträger, weitere
+        Stakeholder sowie die breite Öffentlichkeit zu
+        informieren.
+      </p>
+    </div>
+
+    <div class="info-container">
+      <p class="mdm-info-text">
+        Dies trägt zum übergeordneten Forschungsziel
+        bei, besser zu verstehen, welche Auswirkungen
+        soziale Medien auf Wissen, Einstellungen
+        und persönliches Verhalten in Bezug auf
+        Themen wie Substanzkonsum (Alkohol, Tabak,
+        Cannabis), körperliche Aktivität, Ernährung
+        sowie Wohlbefinden haben. Ziel ist, relevantes
+        Wissen zu diesen Themen zu generieren, um
+        den wissenschaftlichen Diskurs voranzutreiben
+        und politische Entscheidungsträger, weitere
+        Stakeholder sowie die breite Öffentlichkeit zu
+        informieren.
+      </p>
+    </div>
+
+    <div class="info-container">
+      <h2 class="mdm-info-text">
+        Verwandte Projekte
+      </h2>
+
+      <p class="mdm-info-text">
+        My Digital Meal ist Teil der «Digital Meal»
+        Initiative, zu welcher unter anderem «Digital
+        Meal Education» und das «Digital Meal Panel»
+        gehören.
+      </p>
+
+      <div>
+        <img
+            src="{% static 'mydigitalmeal/img/logos/digitalmeal_education_logo_white.svg' %}"
+            alt="Digital Meal Education Logo"
+        />
+      </div>
+
+      <div>
+        <img
+            src="{% static 'mydigitalmeal/img/logos/digitalmeal_panel_logo_white.svg' %}"
+            alt="Digital Meal Panelstudie Logo"
+        />
+      </div>
+    </div>
+
+    <div class="info-container">
+      <h2 class="mdm-info-text">
+        Team
+      </h2>
+
+      <div class="team-card-container">
+        <div class="team-card">
+          <div class="team-card-img">Placeholder</div>
+          <div class="team-card-name">Prof. Dr. Thomas Friemel</div>
+          <div class="team-card-info">Projektleitung</div>
+        </div>
+
+        <div class="team-card">
+          <div class="team-card-img">Placeholder</div>
+          <div class="team-card-name">Dr. Nico Pfiffner</div>
+          <div class="team-card-info">Operative Umsetzung</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="info-container">
+      <h2 class="mdm-info-text">
+        Kontakt
+      </h2>
+
+      <p class="mdm-info-text">
+        Universität Zürich<br />
+        Institut für Kommunikationswissenschaft<br />
+        und Medienforschung (IKMZ)<br />
+        Abteilung Mediennutzung & Medienwirkung<br />
+        Andreasstrasse 15<br />
+        CH-8050 Zürich<br />
+        <a href="mailto:kontakt@digital-meal.ch">kontakt@digital-meal.ch</a><br />
+        <a href="https://www.ikmz.uzh.ch/de/research/divisions/media-use-and-effects.html" target="_blank">www.ikmz.uzh.ch</a>
+      </p>
+
+    </div>
+
+  </div>
+{% endblock content %}

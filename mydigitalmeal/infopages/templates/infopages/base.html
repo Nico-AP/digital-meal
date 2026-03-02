@@ -1,0 +1,31 @@
+{% extends "mydigitalmeal/base.html" %}
+{% load static %}
+
+{% block extra_head %}
+  {% include "mydigitalmeal/partials/_meta_seo.html" %}
+{% endblock extra_head %}
+
+{% block main %}
+
+  {% block navbar_top %}
+    {% include "infopages/partials/header.html" %}
+  {% endblock navbar_top %}
+
+  <div class="container">
+    <div class="base-info-container">
+      {% block content %}{% endblock content %}
+    </div>
+  </div>
+
+  {% block cta %}
+    {% include "infopages/partials/cta.html" %}
+  {% endblock cta %}
+
+  {% block footer %}
+    {% include "infopages/partials/footer.html" %}
+  {% endblock footer %}
+{% endblock main %}
+
+{% block extra_js %}
+  <script src="{% static 'infopages/js/header-utils.js' %}"></script>
+{% endblock extra_js %}

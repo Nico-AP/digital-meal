@@ -1,3 +1,5 @@
+@use '../abstracts/index' as *;
+
 .mdm-container-landing-preview {
   margin-top: 2rem;
   margin-bottom: 2rem;
@@ -75,4 +77,60 @@
 
 .mdm-btn-container {
   margin-top: 1.5rem;
+}
+
+
+// Info Pages
+.base-info-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-content: center;
+  align-items: center;
+
+  padding-top: 60px;
+  padding-left: 15px;
+  padding-right: 15px;
+  width: 100%;
+
+  .info-intro-container {
+    text-align: center;
+    padding-top: 3rem;
+    padding-bottom: 3rem;
+    width: 100%;
+    max-width: 950px;
+
+        @media (min-width: $bp-lg) {
+      width: 80%;
+    }
+
+    h1 {
+      padding-bottom: 2rem;
+    }
+
+  }
+
+  .info-main-text-container {
+    width: 90%;
+    max-width: 950px;
+
+    @media (min-width: $bp-lg) {
+      width: 50%;
+    }
+
+    img {
+      max-width: 100%;
+    }
+  }
+
+  .info-container {
+    margin-bottom: 3rem;
+
+    h2 {
+      font-weight: bold;
+      font-family: var(--mdm-ff-headers-info);
+    }
+  }
+
+
 }

@@ -1,0 +1,52 @@
+<div class="modal fade mdm-modal mobile-nav-modal"
+     id="navModal"
+     data-bs-backdrop="static"
+     data-bs-keyboard="false"
+     tabindex="-1"
+     aria-labelledby="navModalLabel"
+     aria-hidden="true">
+
+  <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">{# djlint:off H023 #}&#x2715;{# djlint:on #}</button>
+
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-body">
+
+        <div class="nav-el-mobile">
+          {% url 'infopages:background' as background_url %}
+          <a
+              href="{{ background_url }}"
+              class="{% if request.path == background_url %}active{% endif %} %}"
+          >
+            So funktioniert's
+          </a>
+        </div>
+
+        <div class="nav-el-mobile">
+          {% url 'infopages:dataprotection' as dataprotection_url %}
+          <a
+              href="{{ dataprotection_url }}"
+              class="{% if request.path == dataprotection_url %}active{% endif %} %}"
+          >
+            Datenschutz
+          </a>
+        </div>
+
+        <div class="nav-el-mobile">
+          {% url 'infopages:about' as about_url %}
+          <a
+              href="{{ about_url }}"
+              class="{% if request.path == about_url %}active{% endif %} %}"
+          >
+            Über Digital Meal
+          </a>
+        </div>
+
+        <div>
+          <a href="{% url 'userflow:landing_page' %}" class="btn mdm-color-btn-v2">zum Start</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>

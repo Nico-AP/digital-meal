@@ -58,8 +58,9 @@
           </p>
 
           <p class="mdm-text-muted">
+            {% url 'infopages:background' as info_url %}
             {% blocktranslate trimmed %}
-              Wir erklären es dir <a href="" target="_blank">hier</a>
+              Wir erklären es dir <a href="{{ info_url }}" target="_blank">hier</a>
             {% endblocktranslate %}
           </p>
 
@@ -67,4 +68,19 @@
       </div>
     </div>
   </div>
+
+  {% include "userflow/modals/modal_test_warning.html" %}
+
 {% endblock content %}
+
+{% block extra_js %}
+  {# TODO: Roll back when ready #}
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      setTimeout(() => {
+        const modal = new bootstrap.Modal(document.querySelector('#warningModal'));
+        modal.show();
+      }, 500); // delay in ms
+    });
+  </script>
+{% endblock extra_js %}

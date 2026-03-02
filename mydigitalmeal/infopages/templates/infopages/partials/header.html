@@ -1,0 +1,79 @@
+{% load static i18n %}
+
+<div class="mdm-info-header">
+  <div class="container header-container">
+    <div class="header-container">
+
+      <div class="header-logo-container">
+        <a class="header-logo-link" href="{% url 'userflow:landing_page' %}">
+          <img
+              src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_logo_white.svg' %}"
+              alt="My Digital Meal Logo"
+              class="header-logo"
+          />
+
+          <img
+              src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
+              alt="My Digital Meal Icon"
+              class="header-icon"
+          />
+        </a>
+      </div>
+
+      <div class="header-container-right">
+        <div class="header-nav-container pb-3 pt-3">
+
+          <div class="nav-el">
+
+            {% url 'infopages:background' as background_url %}
+            <a
+                href="{{ background_url }}"
+                class="{% if request.path == background_url %}active{% endif %} %}"
+            >
+              So funktioniert's
+            </a>
+          </div>
+
+          <div class="nav-el">
+            {% url 'infopages:dataprotection' as dataprotection_url %}
+            <a
+                href="{{ dataprotection_url }}"
+                class="{% if request.path == dataprotection_url %}active{% endif %} %}"
+            >
+              Datenschutz
+            </a>
+          </div>
+
+          <div class="nav-el">
+            {% url 'infopages:about' as about_url %}
+            <a
+                href="{{ about_url }}"
+                class="{% if request.path == about_url %}active{% endif %} %}"
+            >
+              Über Digital Meal
+            </a>
+          </div>
+
+        </div>
+
+        <div class="header-nav-btn-container">
+          <a
+              href="{% url 'userflow:landing_page' %}"
+              class="btn mdm-color-btn-v2 mdm-header-btn"
+          >
+            zum Start
+          </a>
+        </div>
+      </div>
+
+      <div class="nav-mobile-toggle">
+        <a type="button" data-bs-toggle="modal" data-bs-target="#navModal">
+          ☰
+        </a>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% include "infopages/partials/mobile_nav_modal.html" %}
