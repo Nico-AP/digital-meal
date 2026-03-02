@@ -30,12 +30,11 @@ class OverviewView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, Templa
     login_url = reverse_lazy(URLShortcut.LOGIN)
 
     def get(self, request, *args, **kwargs):
-        profile = self.get_user_profile()
-        n_stats_requests = StatisticsRequest.objects.filter(
-            profile=profile,
-        ).count()
-        if n_stats_requests == 0:
-            return redirect(URLShortcut.DONATION_DDM)
+        # TODO: Set up redirect when tested
+        # profile = self.get_user_profile()  # noqa: ERA001
+        # n_stats_requests = StatisticsRequest.objects.filter(profile=profile).count()  # noqa: ERA001, E501
+        # if n_stats_requests == 0:
+        #     return redirect(URLShortcut.DONATION_DDM)  # noqa: ERA001
 
         return super().get(request, *args, **kwargs)
 
