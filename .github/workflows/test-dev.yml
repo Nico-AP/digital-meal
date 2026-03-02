@@ -105,10 +105,18 @@ jobs:
       - name: Check for missing migrations
         run: |
           source .venv/bin/activate
-          APPS=$(python manage.py shell -c "
-          from django.apps import apps
-          configs = apps.get_app_configs()
-          relevant_apps = ('digital_meal', 'mydigitalmeal', 'shared')
-          print(' '.join(a.label for a in configs if a.name.startswith(relevant_apps)))
-          ")
-          python manage.py makemigrations --check --dry-run --noinput $APPS
+          python manage.py makemigrations --check --dry-run --noinput \
+            mydigitalmeal \
+            mydigitalmeal_core \
+            mydigitalmeal_reports \
+            mydigitalmeal_statistics \
+            mydigitalmeal_userflow \
+            mydigitalmeal_datadonation \
+            mydigitalmeal_profiles \
+            mydigitalmeal_questionnaire \
+            core \
+            reports \
+            tool \
+            website \
+            dashboard \
+            portability
