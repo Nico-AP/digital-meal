@@ -382,7 +382,13 @@ LOGGING = {
             "()": "digital_meal.core.logging_utils.JsonFormatter",
         },
     },
-    "filters": {"require_debug_false": {"class": "django.utils.log.RequireDebugFalse"}},
+    "filters": {
+        "require_debug_false": {"class": "django.utils.log.RequireDebugFalse"},
+        "throttle_admin_email": {
+            "()": "config.logging_utils.ThrottledAdminEmailFilter",
+            "throttle_seconds": 180,
+        },
+    },
     "handlers": {
         "console": {
             "level": "INFO",
@@ -433,7 +439,7 @@ LOGGING = {
             "level": "ERROR",
             "class": "django.utils.log.AdminEmailHandler",
             "include_html": False,
-            "filters": ["require_debug_false"],
+            "filters": ["require_debug_false", "throttle_admin_email"],
         },
     },
     "loggers": {
