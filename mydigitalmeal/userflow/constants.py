@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 
 USERFLOW_SESSION_KEY = "mdm_session"
 
 
-class URLShortcut(str, Enum):
+class URLShortcut(StrEnum):
     LANDING = "userflow:landing_page"
     LOGIN = "userflow:profiles:auth"
     CONFIRM_LOGIN = "userflow:profiles:confirm_login_code"

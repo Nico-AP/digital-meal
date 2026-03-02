@@ -10,7 +10,7 @@ class LoginAndProfileRequiredMixin(AccessMixin):
         if not request.user.is_authenticated:
             return self.handle_no_permission()
 
-        profile, created = MDMProfile.objects.get_or_create(user=request.user)
+        profile, _ = MDMProfile.objects.get_or_create(user=request.user)
         request.mdm_profile = profile
 
         # TODO: If profile is newly created, redirect to donation step/entry

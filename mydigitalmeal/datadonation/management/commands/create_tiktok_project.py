@@ -524,7 +524,7 @@ class Command(BaseCommand):
             return
 
         # Get or create research profile
-        owner_profile, created = ResearchProfile.objects.get_or_create(user=user)
+        owner_profile, _ = ResearchProfile.objects.get_or_create(user=user)
 
         # Create Project
         project = DonationProject.objects.create(
