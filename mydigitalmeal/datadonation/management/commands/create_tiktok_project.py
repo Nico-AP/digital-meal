@@ -17,7 +17,7 @@ PROJECT_CONFIG = {
     "name": "TikTok",
     "contact_information": "",
     "data_protection_statement": "",
-    "slug": "tiktok",
+    "slug": TIKTOK_PROJECT_SLUG,
     "briefing_text": "",
     "briefing_consent_enabled": False,
     "briefing_consent_label_yes": "Ja",
