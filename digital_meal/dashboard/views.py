@@ -280,7 +280,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
             donation_projects, relevant_participants
         )
 
-        consented_participant_ids = self.get_consent_lookup()
+        consented_participant_ids = self.get_consent_lookup(relevant_participants)
 
         info_per_module = {}
         for module in base_modules:
