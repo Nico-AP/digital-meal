@@ -35,7 +35,7 @@
           </div>
 
           <div class="nav-el">
-            {% url 'infopages:dataprotection' as dataprotection_url %}
+            {% url 'infopages:data_protection' as dataprotection_url %}
             <a
                 href="{{ dataprotection_url }}"
                 class="{% if request.path == dataprotection_url %}active{% endif %} %}"
