@@ -1,2 +1,2 @@
-TIKTOK_PROJECT_SLUG = "tiktok"
+TIKTOK_PROJECT_SLUG = "tik-tok"
 TIKTOK_WATCH_HISTORY_BP_NAME = "Angesehene Videos"
