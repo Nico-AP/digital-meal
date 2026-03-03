@@ -1,0 +1,11 @@
+{% extends "mydigitalmeal/account/email/base_message.txt" %}
+{% load account %}
+{% load i18n %}
+
+{% block content %}{% autoescape off %}Dies ist dein Anmeldecode:{% endautoescape %}
+
+{{ code }}
+
+Bitte gib diesen Code ihn deinem geöffneten Browserfenster ein um deine Anmeldung abzuschliessen.
+
+{% endblock content %}

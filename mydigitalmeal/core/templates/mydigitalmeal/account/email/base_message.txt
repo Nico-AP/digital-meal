@@ -1,0 +1,6 @@
+{% load i18n %}{% autoescape off %}Hallo vom Digital Meal Team!
+
+{% block content %}{% endblock content %}
+
+https://digital-meal.ch/my/
+{% endautoescape %}

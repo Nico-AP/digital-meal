@@ -1,11 +1,12 @@
 {# djlint:off #}
+{# TODO: Currently, not used #}
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
   <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Your Login Code</title>
+  <title>{% block title %}ADD TITLE{% endblock title %}</title>
   <style type="text/css">
     /* Client-specific styles */
     body {
@@ -68,11 +69,11 @@
           <td
             style="padding: 30px 40px; border-top: 1px solid #eeeeee; color: #999999; font-size: 12px; line-height: 1.5;">
             <p style="margin: 0 0 10px 0;">
-              Best regards,<br/>
-              The {{ site_name }} Team
+              Beste Grüsse,<br/>
+              Das Digital Meal Team
             </p>
             <p style="margin: 0;">
-              © {% now "Y" %} {{ site_name }}. All rights reserved.
+              © {% now "Y" %} Digital Meal
             </p>
           </td>
         </tr>
