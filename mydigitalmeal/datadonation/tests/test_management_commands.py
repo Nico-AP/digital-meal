@@ -46,7 +46,7 @@ class TestCreateTikTokProjectCommand(TestCase):
         DonationProject.objects.create(
             name="test project",
             owner=owner,
-            slug="tiktok",
+            slug="tik-tok",
         )
 
         out = StringIO()
