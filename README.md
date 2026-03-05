@@ -1,14 +1,24 @@
 # Digital Meal
 
-**Digital Meal** is a web-based learning and teaching tool designed to foster media literacy among students.
-The overarching goal of the Digital Meal project is to provide educators with teaching materials and an interactive
-application that encourage their students' critical reflection on personal media usage.
+This repository includes the websites and tools for Digital Meal Education and My Digital Meal.
 
-The core idea behind Digital Meal is to:
+For further information, see [here](docs/overview.md)
 
-- Instruct students on how to request and download personal data collected by digital platforms (e.g., from YouTube and TikTok).
-- Provide an application that generates personalized usage reports based on the retrieved platform data.
-- Offer learning and teaching materials to guide (self-)reflection and discussions about media use.
+Digital Meal is developed by the [Media Use and Effects division of the University of Zurich](https://www.ikmz.uzh.ch/en/research/divisions/media-use-and-effects.html),
+and was financially supported by [Citizen Science Zürich](https://www.citizenscience.uzh.ch/de.html).
+
+> This repository is intended primarily for internal use and is not yet optimised for external projects
+> or broader integrations.
+
+
+
+
+
+
+
+
+
+
 
 ---
 
