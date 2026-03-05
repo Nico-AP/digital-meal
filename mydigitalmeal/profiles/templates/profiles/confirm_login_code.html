@@ -27,7 +27,7 @@
 
         <div class="mdm-form-container">
 
-          <form method="post" action="{% url "userflow:profiles:confirm_login_code" %}">
+          <form method="post" action="{% url "mdm:userflow:profiles:confirm_login_code" %}">
             {% csrf_token %}
 
             <div class="pt-2 d-flex justify-content-center">

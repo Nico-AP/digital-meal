@@ -12,7 +12,7 @@
           <p>{% translate "Bist du sicher, dass du dich abmelden möchtest?" %}</p>
         </div>
 
-        <form method="post" action="{% url 'userflow:profiles:logout' %}">
+        <form method="post" action="{% url 'mdm:userflow:profiles:logout' %}">
           {% csrf_token %}
           {{ form.as_p }}
           <button class="btn mdm-color-btn-v4 " type="submit">{% translate "Ja, abmelden" %}</button>

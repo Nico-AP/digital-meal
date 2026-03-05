@@ -13,11 +13,11 @@
       <div class="col col-lg-10 col-xl-8 text-center">
 
         <div>
-          <a class="btn mdm-color-btn-v1 fs-4" type="button" href="{% url 'userflow:reset' %}?method=ddm">{% translate "neuen TikTok Report generieren (Datenspende)" %}</a>
+          <a class="btn mdm-color-btn-v1 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=ddm">{% translate "neuen TikTok Report generieren (Datenspende)" %}</a>
         </div>
 
         <div>
-          <a class="btn mdm-color-btn-v2 fs-4" type="button" href="{% url 'userflow:reset' %}?method=port-api">{% translate "neuen TikTok Report generieren (Portability)" %}</a>
+          <a class="btn mdm-color-btn-v2 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=port-api">{% translate "neuen TikTok Report generieren (Portability)" %}</a>
         </div>
 
         {% if requests %}
@@ -29,7 +29,7 @@
             {% for request in requests %}
               {% if request.status == "SUCCESS" %}
               <div class="col-12 col-sm-6 prev-report-card-wrapper">
-                <a class="text-black" href="{% url 'userflow:resume' request.public_id %}">
+                <a class="text-black" href="{% url 'mdm:userflow:resume' request.public_id %}">
                   <div class="prev-report-card">
                     <div class="fw-bold">{% translate "TikTok Report" %}</div>
                     <div>{% translate "vom" %} {{ request.requested_at }}</div>
@@ -43,7 +43,7 @@
         {% endif %}
 
         <div class="mt-5 mb-5">
-          <a class="btn mdm-discreet-btn" href="{% url 'userflow:profiles:logout' %}">{% translate "Abmelden" %}</a>
+          <a class="btn mdm-discreet-btn" href="{% url 'mdm:userflow:profiles:logout' %}">{% translate "Abmelden" %}</a>
         </div>
 
       </div>

@@ -4,26 +4,26 @@ from django.urls import reverse
 
 class InfoPagesViewTests(TestCase):
     def test_about_page(self):
-        url = reverse("infopages:about")
+        url = reverse("mdm:infopages:about")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_background_page(self):
-        url = reverse("infopages:background")
+        url = reverse("mdm:infopages:background")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_data_protection_page(self):
-        url = reverse("infopages:data_protection")
+        url = reverse("mdm:infopages:data_protection")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_tos_page(self):
-        url = reverse("infopages:tos")
+        url = reverse("mdm:infopages:tos")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
     def test_dps_page(self):
-        url = reverse("infopages:dps")
+        url = reverse("mdm:infopages:dps")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)

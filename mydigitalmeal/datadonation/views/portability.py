@@ -28,7 +28,7 @@ class PortabilityWaitingView(
         """Redirect to report if statistics request ID in session."""
         userflow_session = self.userflow_session.get()
         if userflow_session.request_id:
-            return HttpResponseRedirect(reverse("userflow:reports:tiktok_report"))
+            return HttpResponseRedirect(reverse("mdm:userflow:reports:tiktok_report"))
         return None
 
 
@@ -73,7 +73,7 @@ class PortabilityReviewView(
 
         context["tiktok_download_url"] = download_url
         context["fail_redirect_url"] = reverse(
-            "userflow:datadonation:port_tt_await_data"
+            "mdm:userflow:datadonation:port_tt_await_data"
         )
 
         context["portability_view"] = True

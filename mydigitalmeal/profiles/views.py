@@ -91,7 +91,7 @@ class MDMConfirmLoginCodeView(ConfirmLoginCodeView):
             self.stage
         )
         if not self._process:
-            return HttpResponseRedirect(reverse("userflow:profiles:auth"))
+            return HttpResponseRedirect(reverse("mdm:userflow:profiles:auth"))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):

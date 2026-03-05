@@ -37,7 +37,7 @@
           </div>
 
           <div class="mdm-btn-container pb-5">
-            <a class="btn mdm-color-btn-v1" type="button" href="{% url 'userflow:profiles:auth' %}">
+            <a class="btn mdm-color-btn-v1" type="button" href="{% url 'mdm:userflow:profiles:auth' %}">
               {% translate "Los geht's" %}
             </a>
           </div>
@@ -58,7 +58,7 @@
           </p>
 
           <p class="mdm-text-muted">
-            {% url 'infopages:background' as info_url %}
+            {% url 'mdm:infopages:background' as info_url %}
             {% blocktranslate trimmed %}
               Wir erklären es dir <a href="{{ info_url }}" target="_blank">hier</a>
             {% endblocktranslate %}

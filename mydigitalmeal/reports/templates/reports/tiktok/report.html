@@ -13,7 +13,7 @@
       <div class="col col-lg-10 col-xl-8 text-center mdm-lead htmx-smooth-transition">
 
         <div id="report-statistics" class="htmx-smooth-transition"
-             hx-get="{% url 'userflow:reports:tiktok_statistics' %}"
+             hx-get="{% url 'mdm:userflow:reports:tiktok_statistics' %}"
              hx-trigger="every 5s"
              hx-swap="outerHTML swap:500ms settle:500ms">
           <div>
@@ -27,7 +27,7 @@
 
     <div class="row justify-content-center">
       <div class="col col-lg-10 col-xl-8 text-center mdm-lead">
-        <a class="fs-6 mdm-text-muted" href="{% url 'userflow:overview' %}">Zur Reportübersicht</a>
+        <a class="fs-6 mdm-text-muted" href="{% url 'mdm:userflow:overview' %}">Zur Reportübersicht</a>
       </div>
     </div>
 

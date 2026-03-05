@@ -72,7 +72,7 @@ class TestMDMQuestionnaireView(TestCase):
         self.client.login(**self.user_creds)
         self.add_participant_to_session()
 
-        response = self.client.get(reverse("userflow:questionnaire:questionnaire"))
+        response = self.client.get(reverse("mdm:userflow:questionnaire:questionnaire"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "mdm_questionnaire/questionnaire.html")
@@ -84,16 +84,16 @@ class TestMDMQuestionnaireView(TestCase):
         self.client.login(**self.user_creds)
         self.add_participant_to_session()
 
-        response = self.client.get(reverse("userflow:questionnaire:questionnaire"))
+        response = self.client.get(reverse("mdm:userflow:questionnaire:questionnaire"))
 
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response,
-            reverse("userflow:datadonation:datadonation_ddm"),
+            reverse("mdm:userflow:datadonation:datadonation_ddm"),
         )
 
     def test_not_accessible_to_unauthenticated_user(self):
-        response = self.client.get(reverse("userflow:questionnaire:questionnaire"))
+        response = self.client.get(reverse("mdm:userflow:questionnaire:questionnaire"))
 
         self.assertEqual(response.status_code, 302)
 
@@ -101,7 +101,7 @@ class TestMDMQuestionnaireView(TestCase):
         self.project.delete()
         self.client.login(**self.user_creds)
 
-        response = self.client.get(reverse("userflow:questionnaire:questionnaire"))
+        response = self.client.get(reverse("mdm:userflow:questionnaire:questionnaire"))
 
         self.assertEqual(response.status_code, 404)
 
@@ -111,7 +111,7 @@ class TestMDMQuestionnaireView(TestCase):
         self.participant.current_step = 2
         self.participant.save()
 
-        response = self.client.get(reverse("userflow:questionnaire:questionnaire"))
+        response = self.client.get(reverse("mdm:userflow:questionnaire:questionnaire"))
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse("userflow:reports:tiktok_report"))
+        self.assertRedirects(response, reverse("mdm:userflow:reports:tiktok_report"))

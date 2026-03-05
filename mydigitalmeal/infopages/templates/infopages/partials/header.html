@@ -5,7 +5,7 @@
     <div class="header-container">
 
       <div class="header-logo-container">
-        <a class="header-logo-link" href="{% url 'userflow:landing_page' %}">
+        <a class="header-logo-link" href="{% url 'mdm:userflow:landing_page' %}">
           <img
               src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_logo_white.svg' %}"
               alt="My Digital Meal Logo"
@@ -25,7 +25,7 @@
 
           <div class="nav-el">
 
-            {% url 'infopages:background' as background_url %}
+            {% url 'mdm:infopages:background' as background_url %}
             <a
                 href="{{ background_url }}"
                 class="{% if request.path == background_url %}active{% endif %} %}"
@@ -35,7 +35,7 @@
           </div>
 
           <div class="nav-el">
-            {% url 'infopages:data_protection' as dataprotection_url %}
+            {% url 'mdm:infopages:data_protection' as dataprotection_url %}
             <a
                 href="{{ dataprotection_url }}"
                 class="{% if request.path == dataprotection_url %}active{% endif %} %}"
@@ -45,7 +45,7 @@
           </div>
 
           <div class="nav-el">
-            {% url 'infopages:about' as about_url %}
+            {% url 'mdm:infopages:about' as about_url %}
             <a
                 href="{{ about_url }}"
                 class="{% if request.path == about_url %}active{% endif %} %}"
@@ -58,7 +58,7 @@
 
         <div class="header-nav-btn-container">
           <a
-              href="{% url 'userflow:landing_page' %}"
+              href="{% url 'mdm:userflow:landing_page' %}"
               class="btn mdm-color-btn-v2 mdm-header-btn"
           >
             zum Start

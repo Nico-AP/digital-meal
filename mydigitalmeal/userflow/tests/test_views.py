@@ -15,7 +15,7 @@ User = get_user_model()
 
 class TestLandingPageView(TestCase):
     def test_landing_page_is_accessible(self):
-        response = self.client.get(reverse("userflow:landing_page"))
+        response = self.client.get(reverse("mdm:userflow:landing_page"))
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "userflow/landing_page.html")
@@ -102,7 +102,8 @@ class TestUserflowResumeView(TestCase):
 
     def test_correctly_updates_session(self):
         url = reverse(
-            "userflow:resume", kwargs={"request_id": str(self.stats_request.public_id)}
+            "mdm:userflow:resume",
+            kwargs={"request_id": str(self.stats_request.public_id)},
         )
 
         self.client.force_login(self.user)
@@ -164,7 +165,7 @@ class TestUserflowResetView(TestCase):
         }
         self.client.session.modified = True
 
-        _ = self.client.get(reverse("userflow:reset"))
+        _ = self.client.get(reverse("mdm:userflow:reset"))
 
         self.assertNotEqual(
             self.client.session[project_session_id].get("participant_id"),

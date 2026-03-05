@@ -1,7 +1,7 @@
 {% load i18n %}
 
 <div id="check-download-availability" class="htmx-smooth-transition"
-     hx-get="{% url 'userflow:datadonation:port_tt_check_data' %}"
+     hx-get="{% url 'mdm:userflow:datadonation:port_tt_check_data' %}"
      hx-trigger="load delay:10s"
      hx-swap="outerHTML">
   <div>

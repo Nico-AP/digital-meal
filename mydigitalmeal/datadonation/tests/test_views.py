@@ -82,7 +82,9 @@ class TestDonationViewDDM(TestCase):
 
     def test_correct_template_used(self):
         self.client.login(email="test@mail.com", password="testpass")
-        response = self.client.get(reverse("userflow:datadonation:datadonation_ddm"))
+        response = self.client.get(
+            reverse("mdm:userflow:datadonation:datadonation_ddm")
+        )
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "datadonation/base_ddm.html")
@@ -138,14 +140,14 @@ class TestDonationViewDDM(TestCase):
 
         self.client.login(email="test@mail.com", password="testpass")
 
-        url = reverse("userflow:datadonation:datadonation_ddm")
+        url = reverse("mdm:userflow:datadonation:datadonation_ddm")
         self.client.get(url)
         response = self.client.post(url, data=files)
 
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response,
-            reverse("userflow:questionnaire:questionnaire"),
+            reverse("mdm:userflow:questionnaire:questionnaire"),
             target_status_code=302,  # Redirects to report if no questionnaire exists
         )
 

@@ -13,7 +13,7 @@
       <div class="modal-body">
 
         <div class="nav-el-mobile">
-          {% url 'infopages:background' as background_url %}
+          {% url 'mdm:infopages:background' as background_url %}
           <a
               href="{{ background_url }}"
               class="{% if request.path == background_url %}active{% endif %} %}"
@@ -23,7 +23,7 @@
         </div>
 
         <div class="nav-el-mobile">
-          {% url 'infopages:dataprotection' as dataprotection_url %}
+          {% url 'mdm:infopages:dataprotection' as dataprotection_url %}
           <a
               href="{{ dataprotection_url }}"
               class="{% if request.path == dataprotection_url %}active{% endif %} %}"
@@ -33,7 +33,7 @@
         </div>
 
         <div class="nav-el-mobile">
-          {% url 'infopages:about' as about_url %}
+          {% url 'mdm:infopages:about' as about_url %}
           <a
               href="{{ about_url }}"
               class="{% if request.path == about_url %}active{% endif %} %}"
@@ -43,7 +43,7 @@
         </div>
 
         <div>
-          <a href="{% url 'userflow:landing_page' %}" class="btn mdm-color-btn-v2">zum Start</a>
+          <a href="{% url 'mdm:userflow:landing_page' %}" class="btn mdm-color-btn-v2">zum Start</a>
         </div>
 
       </div>
