@@ -4,15 +4,15 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.template import TemplateDoesNotExist
 from django.template.loader import get_template
 
-from .context import current_request_var
-from .settings import AppPrefixes
+from shared.routing.allauth_integration.context import current_request_var
+from shared.routing.allauth_integration.settings import AuthContexts
 
 MDM_SETTINGS = settings.ALLAUTH_MDM
 
 
 class SubdomainAccountAdapter(DefaultAccountAdapter):
     def _is_dm_education(self, request):
-        return getattr(request, "template_prefix", "") == AppPrefixes.DM_EDUCATION
+        return getattr(request, "template_prefix", "") == AuthContexts.DM_EDUCATION
 
     def _get_domain_template_prefix(self, request):
         return getattr(request, "template_prefix", "")

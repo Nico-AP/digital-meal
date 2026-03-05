@@ -16,7 +16,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = env.str("DJANGO_SECRET")
 SALT_KEY = env.str("SALT_KEY")
 
-ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", default="localhost 127.0.0.1").split()
+ALLOWED_HOSTS = env.str("ALLOWED_HOSTS", default="127.0.0.1 localhost").split()
 
 ADMINS = [tuple(admin) for admin in json.loads(env.str("ADMINS", "[]"))]
 
@@ -63,6 +63,7 @@ MY_DIGITAL_MEAL_APPS = [
 
 SHARED_APPS = [
     "shared.portability",
+    "shared.routing",
 ]
 
 DDM_APPS = [
@@ -110,6 +111,7 @@ INSTALLED_APPS = (
 )
 
 MIDDLEWARE = [
+    "shared.routing.middleware.SubdomainRoutingMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.middleware.locale.LocaleMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
@@ -119,7 +121,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
-    "shared.allauth_integration.middleware.SubdomainMiddleware",
+    "shared.routing.allauth_integration.middleware.SubdomainAuthMiddleware",
     "allauth.account.middleware.AccountMiddleware",
     "digital_meal.website.middleware.RestrictDDMMiddleware",
     "django_htmx.middleware.HtmxMiddleware",
@@ -194,9 +196,25 @@ LOGIN_REDIRECT_URL = "/tool/"
 LOGOUT_REDIRECT_URL = "/"
 
 
+# ROUTING CONFIGURATION (shared.routing)
+# ------------------------------------------------------------------------------
+MDM_ROUTING_TYPE = env.str("DJANGO_ROUTING_TYPE", "URL_PREFIX")
+# either "SUBDOMAIN" or "URL_PREFIX"
+
+MAIN_DOMAIN = env.str("DJANGO_MAIN_DOMAIN", ALLOWED_HOSTS[0])
+MDM_SUBDOMAIN = env.str("MY_DIGITAL_MEAL_HOST", "")  # e.g., "my.site.com";
+# Relevant when MDM_ROUTING_TYPE == "SUBDOMAIN"; e.g., "my.site.com";
+# don't forget to add subdomain to ALLOWED_HOSTS
+
+MDM_URL_PREFIX = env.str("MDM_URL_ID", "my/")
+# Relevant, when MDM_ROUTING_TYPE == "URL_PREFIX"; the URL path that identifies
+#  My Digital Meal pages; e.g., when MDM is available under site.com/my/<views>
+#  this has to be defined as "my/" (the inclusion of ending slash is important).
+
+
 # DANGO-ALLAUTH
 # ------------------------------------------------------------------------------
-ACCOUNT_ADAPTER = "shared.allauth_integration.adapters.SubdomainAccountAdapter"
+ACCOUNT_ADAPTER = "shared.routing.allauth_integration.adapters.SubdomainAccountAdapter"
 ACCOUNT_ALLOW_REGISTRATION = env.bool("DJANGO_ACCOUNT_ALLOW_REGISTRATION", True)
 
 ACCOUNT_LOGIN_METHODS = {"email"}

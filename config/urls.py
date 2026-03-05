@@ -4,6 +4,8 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views.defaults import page_not_found
 
+from shared.routing.urls import get_mdm_urlpatterns
+
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
@@ -42,22 +44,19 @@ ddm_patterns = [
 ]
 
 urlpatterns += ddm_patterns
+urlpatterns += get_mdm_urlpatterns()
 
 if settings.DEBUG:
     from debug_toolbar.toolbar import debug_toolbar_urls
 
-    # Note: Did not work when placed in the settings.DEBUG block at the end.
+    urlpatterns += static(
+        settings.STATIC_URL, document_root=settings.STATIC_ROOT
+    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += debug_toolbar_urls()
     urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]
 
 urlpatterns += [
-    path("portability/", include("shared.portability.urls")),
-    path("my/", include("mydigitalmeal.core.urls")),
-    # digital_meal.urls should be last (otherwise urls seem not to be properly loaded.)
     path("", include("digital_meal.core.urls")),
+    path("portability/", include("shared.portability.urls")),
+    path("", include("wagtail.urls")),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(
-        settings.STATIC_URL, document_root=settings.STATIC_ROOT
-    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
