@@ -54,6 +54,8 @@ indent_size = 2
 [tool.djlint.js]
 indent_size = 2
 
+
+# ==== ruff ====
 [tool.ruff]
 target-version = "py312"
 extend-exclude = [
@@ -165,7 +167,6 @@ force-single-line = false
     "SLF",
     "SLOT",
     "SIM",
-    "TID",
     "TC",
     "INT",
     "PTH",
@@ -202,7 +203,6 @@ force-single-line = false
     "SLF",
     "SLOT",
     "SIM",
-    "TID",
     "TC",
     "INT",
     "PTH",
