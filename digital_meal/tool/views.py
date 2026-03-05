@@ -7,8 +7,8 @@ from django.urls import NoReverseMatch, reverse, reverse_lazy
 from django.views.generic import DetailView, ListView, TemplateView
 from django.views.generic.edit import CreateView, UpdateView
 
-from .forms import ClassroomCreateForm, ClassroomModuleForm
-from .models import BaseModule, Classroom, Teacher
+from digital_meal.tool.forms import ClassroomCreateForm, ClassroomModuleForm
+from digital_meal.tool.models import BaseModule, Classroom, Teacher
 
 
 class OwnershipRequiredMixin:

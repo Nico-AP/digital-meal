@@ -1,5 +1,7 @@
 from allauth.account.forms import SignupForm
+from allauth.account.internal import flows
 from django import forms
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from .models import Classroom, SwissCantons, Teacher
@@ -66,10 +68,33 @@ class SimpleSignupForm(SignupForm):
         return value
 
     def save(self, request):
+        if not self.teacher_already_exists():
+            email = self.cleaned_data.get("email")
+            password = self.cleaned_data.get("password1")
+            if email and password:
+                # An account with this email exists but has no Teacher profile.
+                # Update the password in-place instead of delegating to allauth,
+                # which would try to INSERT a duplicate row and hit the unique
+                # email constraint.
+                User = get_user_model()  # noqa: N806
+                try:
+                    existing_user = User.objects.get(email=email)
+                    existing_user.set_password(password)
+                    existing_user.save()
+                    self.create_teacher(request, existing_user)
+                    return existing_user
+                except User.DoesNotExist:
+                    pass
+            # No pre-existing account — fall through to standard allauth signup.
+            self.account_already_exists = False
         user = super().save(request)
         if not user:
             return None
 
+        self.create_teacher(request, user)
+        return user
+
+    def create_teacher(self, request, user):
         form_input = SimpleSignupForm(request.POST)
         if form_input.is_valid():
             Teacher.objects.create(
@@ -80,7 +105,29 @@ class SimpleSignupForm(SignupForm):
                 school_name=form_input.cleaned_data["school_name"],
             )
             user.save()
-        return user
+
+    def teacher_already_exists(self) -> bool:
+        email = self.cleaned_data.get("email")
+        return Teacher.objects.filter(user__email=email).exists()
+
+    def try_save(self, request):
+        """Allow registration and setting of password, if user has an account
+        but no teacher profile yet.
+
+        Note: Overrides the parent method to allow registration and setting of password,
+        if user has no teacher profile yet.
+        """
+        if self.account_already_exists and self.teacher_already_exists():
+            email = self.cleaned_data.get("email")
+            phone = None
+            if "phone" in self._signup_fields:
+                phone = self.cleaned_data.get("phone")
+            resp = flows.signup.prevent_enumeration(request, email=email, phone=phone)
+            user = None
+        else:
+            user = self.save(request)
+            resp = None
+        return user, resp
 
 
 class ClassroomCreateForm(forms.ModelForm):

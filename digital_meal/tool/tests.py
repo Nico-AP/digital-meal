@@ -1,4 +1,5 @@
 from datetime import timedelta
+from unittest.mock import MagicMock, patch
 
 from ddm.datadonation.models import DataDonation
 from ddm.participation.models import Participant
@@ -6,13 +7,15 @@ from ddm.projects.models import DonationProject, ResearchProfile
 from ddm.questionnaire.models import QuestionnaireResponse, SingleChoiceQuestion
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.contrib.auth.models import AnonymousUser
+from django.contrib.sessions.middleware import SessionMiddleware
 from django.core.management import call_command
-from django.test import TestCase, override_settings
+from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
-from .forms import SimpleSignupForm
-from .models import BaseModule, Classroom
+from digital_meal.tool.forms import SimpleSignupForm
+from digital_meal.tool.models import BaseModule, Classroom, Teacher
 
 User = get_user_model()
 
@@ -398,3 +401,220 @@ class TestSimpleSignupForm(TestCase):
         """Honeypot field should not appear in the explicit field order."""
         form = SimpleSignupForm()
         self.assertNotIn("mobile_phone_number", form.field_order)
+
+
+class TestSimpleSignupFormFieldValidation(TestCase):
+    def setUp(self):
+        self.valid_data = {
+            "first_name": "Max",
+            "name": "Muster",
+            "canton": "AG",
+            "school_name": "Testschule",
+            "email": "test@example.com",
+            "email2": "test@example.com",
+            "password1": "SecurePass123!",
+            "password2": "SecurePass123!",
+        }
+
+    def test_form_invalid_when_canton_is_placeholder_value(self):
+        # The first entry in the canton choices is ("", "bitte auswählen")
+        data = {**self.valid_data, "canton": ""}
+        form = SimpleSignupForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("canton", form.errors)
+
+    def test_form_invalid_when_canton_is_unrecognised(self):
+        data = {**self.valid_data, "canton": "XX"}
+        form = SimpleSignupForm(data=data)
+        self.assertFalse(form.is_valid())
+        self.assertIn("canton", form.errors)
+
+
+class TestSimpleSignupFormTeacherAlreadyExists(TestCase):
+    """Unit tests for teacher_already_exists()."""
+
+    BASE_DATA = {
+        "first_name": "Max",
+        "name": "Muster",
+        "canton": "AG",
+        "school_name": "Testschule",
+        "password1": "SecurePass123!",
+        "password2": "SecurePass123!",
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.teacher_user = User.objects.create_user(
+            username="teacher@example.com", password="pass", email="teacher@example.com"
+        )
+        Teacher.objects.create(
+            user=cls.teacher_user, name="Muster", first_name="Max", canton="AG"
+        )
+
+    def _form_with_email(self, email):
+        """Return an unbound form with cleaned_data pre-set to bypass email validation.
+
+        teacher_already_exists() only reads cleaned_data['email'] — it has no
+        dependency on the rest of the signup-form validation pipeline, so
+        triggering is_valid() (which rejects already-registered addresses) would
+        give a false negative and obscure what we are actually testing.
+        """
+        form = SimpleSignupForm()
+        form.cleaned_data = {"email": email}
+        return form
+
+    def test_returns_true_when_teacher_with_email_exists(self):
+        form = self._form_with_email("teacher@example.com")
+        self.assertTrue(form.teacher_already_exists())
+
+    def test_returns_false_when_no_teacher_with_email(self):
+        form = self._form_with_email("nobody@example.com")
+        self.assertFalse(form.teacher_already_exists())
+
+
+class TestSimpleSignupFormTrySave(TestCase):
+    """Unit tests for try_save() branching logic."""
+
+    BASE_DATA = {
+        "first_name": "Max",
+        "name": "Muster",
+        "canton": "AG",
+        "school_name": "Testschule",
+        "password1": "SecurePass123!",
+        "password2": "SecurePass123!",
+    }
+
+    @classmethod
+    def setUpTestData(cls):
+        cls.teacher_user = User.objects.create_user(
+            username="teacher", password="pass", email="teacher@example.com"
+        )
+        Teacher.objects.create(
+            user=cls.teacher_user, name="Muster", first_name="Max", canton="AG"
+        )
+
+    def _valid_form(self, email):
+        data = {**self.BASE_DATA, "email": email, "email2": email}
+        form = SimpleSignupForm(data=data)
+        form.is_valid()
+        return form
+
+    def test_calls_save_when_account_exists_but_no_teacher(self):
+        form = self._valid_form("new@example.com")
+        form.account_already_exists = True
+        mock_user = MagicMock()
+        mock_request = MagicMock()
+
+        with patch.object(form, "save", return_value=mock_user) as mock_save:
+            user, resp = form.try_save(mock_request)
+
+        mock_save.assert_called_once_with(mock_request)
+        self.assertIs(user, mock_user)
+        self.assertIsNone(resp)
+
+    def test_calls_save_when_account_does_not_exist(self):
+        form = self._valid_form("new@example.com")
+        form.account_already_exists = False
+        mock_user = MagicMock()
+        mock_request = MagicMock()
+
+        with patch.object(form, "save", return_value=mock_user) as mock_save:
+            user, resp = form.try_save(mock_request)
+
+        mock_save.assert_called_once_with(mock_request)
+        self.assertIs(user, mock_user)
+        self.assertIsNone(resp)
+
+
+class TestSimpleSignupFormSave(TestCase):
+    """Unit tests for save() — flag management and delegation to create_teacher."""
+
+    BASE_DATA = {
+        "first_name": "Max",
+        "name": "Muster",
+        "canton": "AG",
+        "school_name": "Testschule",
+        "password1": "SecurePass123!",
+        "password2": "SecurePass123!",
+    }
+
+    def _valid_form(self, email="new@example.com"):
+        data = {**self.BASE_DATA, "email": email, "email2": email}
+        form = SimpleSignupForm(data=data)
+        form.is_valid()
+        return form
+
+    def test_returns_none_when_super_save_returns_none(self):
+        form = self._valid_form()
+
+        with patch("allauth.account.forms.SignupForm.save", return_value=None):
+            result = form.save(MagicMock())
+
+        print(result)
+        self.assertIsNone(result)
+
+    def test_calls_create_teacher_with_request_and_user(self):
+        form = self._valid_form()
+        mock_user = MagicMock()
+        mock_request = MagicMock()
+
+        with (
+            patch("allauth.account.forms.SignupForm.save", return_value=mock_user),
+            patch.object(form, "create_teacher") as mock_create,
+        ):
+            form.save(mock_request)
+
+        mock_create.assert_called_once_with(mock_request, mock_user)
+
+    def test_does_not_call_create_teacher_when_super_returns_none(self):
+        form = self._valid_form()
+
+        with (
+            patch("allauth.account.forms.SignupForm.save", return_value=None),
+            patch.object(form, "create_teacher") as mock_create,
+        ):
+            form.save(MagicMock())
+
+        mock_create.assert_not_called()
+
+    def test_returns_user_from_super_save(self):
+        form = self._valid_form()
+        mock_user = MagicMock()
+
+        with (
+            patch("allauth.account.forms.SignupForm.save", return_value=mock_user),
+            patch.object(form, "create_teacher"),
+        ):
+            result = form.save(MagicMock())
+
+        self.assertIs(result, mock_user)
+
+    @override_settings(
+        ACCOUNT_PREVENT_ENUMERATION=True,
+        ACCOUNT_EMAIL_VERIFICATION="mandatory",
+    )
+    def test_user_password_is_set_for_existing_account_without_teacher(self):
+        """Existing account with no Teacher profile should have its password updated."""
+        user = User.objects.create_user(
+            username="nopwd@example.com", email="nopwd@example.com"
+        )
+        user.set_unusable_password()
+        user.save()
+
+        new_password = self.BASE_DATA["password1"]
+        post_data = {
+            **self.BASE_DATA,
+            "email": "nopwd@example.com",
+            "email2": "nopwd@example.com",
+        }
+        form = self._valid_form(email="nopwd@example.com")
+
+        request = RequestFactory().post("/accounts/signup/", data=post_data)
+        SessionMiddleware(lambda r: None).process_request(request)
+        request.session.save()
+        request.user = AnonymousUser()
+
+        form.try_save(request)
+
+        user.refresh_from_db()
+        self.assertTrue(user.check_password(new_password))
