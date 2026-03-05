@@ -37,6 +37,7 @@ from shared.portability.sessions import (
     PortabilitySessionMixin,
 )
 from shared.portability.utils import get_request_context
+from shared.routing.urls import absolute_reverse
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,8 @@ def redirect_to_auth_view(
     port_context = port_session.get_context()
 
     if port_context == PortabilityContexts.MY_DM:
-        return redirect("userflow:datadonation:port_tt_connect")
+        redirect_url = absolute_reverse("mdm:userflow:datadonation:port_tt_connect")
+        return redirect(redirect_url)
     else:
         return redirect("tiktok_auth")
 
