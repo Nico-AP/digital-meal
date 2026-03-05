@@ -10,6 +10,8 @@ urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("allauth.urls")),
     path("ckeditor5/", include("django_ckeditor_5.urls")),
+    path("", include("digital_meal.core.urls")),
+    path("portability/", include("shared.portability.urls")),
 ]
 
 ddm_patterns = [
@@ -56,7 +58,7 @@ if settings.DEBUG:
     urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]
 
 urlpatterns += [
-    path("", include("digital_meal.core.urls")),
-    path("portability/", include("shared.portability.urls")),
+    path("cms/", include("wagtail.admin.urls")),
+    path("documents/", include("wagtail.documents.urls")),
     path("", include("wagtail.urls")),
 ]

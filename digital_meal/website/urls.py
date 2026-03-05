@@ -7,8 +7,6 @@ from .views import NewsletterSignupPage, StyleGuide
 urlpatterns = [
     path("styleguide", StyleGuide.as_view(), name="styleguide"),
     path("ckeditor5/", include("django_ckeditor_5.urls")),
-    path("cms/", include("wagtail.admin.urls")),
-    path("documents/", include("wagtail.documents.urls")),
     path("newsletter/", NewsletterSignupPage.as_view(), name="newsletter"),
     path(
         "robots.txt",
@@ -31,5 +29,4 @@ urlpatterns = [
         ),
         name="tiktok_dev_verification",
     ),
-    path("", include("wagtail.urls")),
 ]
