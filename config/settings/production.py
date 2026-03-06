@@ -30,7 +30,8 @@ DATABASES = {
         "USER": env.str("DJANGO_DB_USER"),
         "PASSWORD": env.str("DJANGO_DB_PW"),
         "OPTIONS": {
-            "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
+            "init_command": "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_unicode_520_ci'",
+            "charset": "utf8mb4",
         },
     }
 }
