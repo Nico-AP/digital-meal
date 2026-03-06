@@ -198,15 +198,15 @@ LOGOUT_REDIRECT_URL = "/"
 
 # ROUTING CONFIGURATION (shared.routing)
 # ------------------------------------------------------------------------------
-MDM_ROUTING_TYPE = env.str("DJANGO_ROUTING_TYPE", "URL_PREFIX")
+MDM_ROUTING_TYPE = env.str("MDM_ROUTING_TYPE", "URL_PREFIX")
 # either "SUBDOMAIN" or "URL_PREFIX"
 
 MAIN_DOMAIN = env.str("DJANGO_MAIN_DOMAIN", ALLOWED_HOSTS[0])
-MDM_SUBDOMAIN = env.str("MY_DIGITAL_MEAL_HOST", "")  # e.g., "my.site.com";
+MDM_SUBDOMAIN = env.str("MDM_SUBDOMAIN", "")  # e.g., "my.site.com";
 # Relevant when MDM_ROUTING_TYPE == "SUBDOMAIN"; e.g., "my.site.com";
 # don't forget to add subdomain to ALLOWED_HOSTS
 
-MDM_URL_PREFIX = env.str("MDM_URL_ID", "my/")
+MDM_URL_PREFIX = env.str("MDM_URL_PREFIX", "my/")
 # Relevant, when MDM_ROUTING_TYPE == "URL_PREFIX"; the URL path that identifies
 #  My Digital Meal pages; e.g., when MDM is available under site.com/my/<views>
 #  this has to be defined as "my/" (the inclusion of ending slash is important).
