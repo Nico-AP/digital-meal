@@ -1,12 +1,15 @@
-from django.http import Http404
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
 from shared.routing.constants import MDMRoutingTypes
-from shared.routing.middleware import SubdomainRoutingMiddleware
+from shared.routing.middleware import (
+    _MAIN_URLCONF,
+    _MDM_URLCONF,
+    SubdomainRoutingMiddleware,
+)
 
 
-@override_settings(ALLOWED_HOSTS=["my.dm.com", "dm.com"])
+@override_settings(ALLOWED_HOSTS=["my.dm.com", "dm.com", "other.dm.com"])
 class SubdomainRoutingMiddlewareTests(TestCase):
     def setUp(self):
         self.factory = RequestFactory()
@@ -20,56 +23,66 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         """In URL_PREFIX mode, middleware does nothing regardless of host."""
         request = self.factory.get("/my/", HTTP_HOST="dm.com")
         middleware = SubdomainRoutingMiddleware(self.get_response)
-        middleware(request)  # should not raise
+        middleware(request)
+        self.assertFalse(hasattr(request, "urlconf"))
 
     @override_settings(
         MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.dm.com",
+        MDM_MAIN_DOMAIN="dm.com",
     )
-    def test_mdm_url_on_wrong_host_raises_404(self):
-        """MDM URL accessed from main domain is blocked."""
-        url = reverse("mdm:userflow:landing_page")
-        request = self.factory.get(url, HTTP_HOST="dm.com")
-        middleware = SubdomainRoutingMiddleware(self.get_response)
-        with self.assertRaises(Http404):
-            middleware(request)
-
-    @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
-        MDM_SUBDOMAIN="my.dm.com",
-    )
-    def test_mdm_url_on_correct_host_does_not_raise(self):
-        """MDM URL accessed from MDM subdomain passes through."""
-        url = reverse("mdm:userflow:landing_page")
-        request = self.factory.get(url, HTTP_HOST="my.dm.com")
-        middleware = SubdomainRoutingMiddleware(self.get_response)
-        middleware(request)  # should not raise
-
-    @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
-        MDM_SUBDOMAIN="my.dm.com",
-    )
-    def test_host_with_port_is_handled(self):
-        """Port number is stripped before host comparison."""
-        url = reverse("mdm:userflow:landing_page")
-        request = self.factory.get(url, HTTP_HOST="my.dm.com:8000")
-        middleware = SubdomainRoutingMiddleware(self.get_response)
-        middleware(request)  # should not raise
-
-    @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
-        MDM_SUBDOMAIN="my.dm.com",
-    )
-    def test_non_mdm_url_on_main_domain_is_not_blocked(self):
-        """Non-MDM URLs on the main domain are never blocked by this middleware."""
+    def test_main_domain_gets_main_urlconf(self):
+        """Requests on the main domain use the main URL conf."""
         url = reverse("newsletter")
         request = self.factory.get(url, HTTP_HOST="dm.com")
         middleware = SubdomainRoutingMiddleware(self.get_response)
-        middleware(request)  # should not raise
+        middleware(request)
+        self.assertEqual(request.urlconf, _MAIN_URLCONF)
+
+    @override_settings(
+        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_SUBDOMAIN="my.dm.com",
+        MDM_MAIN_DOMAIN="dm.com",
+    )
+    def test_mdm_subdomain_gets_mdm_urlconf(self):
+        """Requests on the MDM subdomain use the MDM URL conf."""
+        url = reverse("mdm:infopages:background")
+        request = self.factory.get(url, HTTP_HOST="my.dm.com")
+        middleware = SubdomainRoutingMiddleware(self.get_response)
+        middleware(request)
+        self.assertEqual(request.urlconf, _MDM_URLCONF)
+
+    @override_settings(
+        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_SUBDOMAIN="my.dm.com",
+        MDM_MAIN_DOMAIN="dm.com",
+    )
+    def test_host_with_port_is_handled(self):
+        """Port number is stripped before host comparison."""
+        url = reverse("mdm:infopages:background")
+        request = self.factory.get(url, HTTP_HOST="my.dm.com:8000")
+        middleware = SubdomainRoutingMiddleware(self.get_response)
+        middleware(request)
+        self.assertEqual(request.urlconf, _MDM_URLCONF)
+
+    @override_settings(
+        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_SUBDOMAIN="my.dm.com",
+        MDM_MAIN_DOMAIN="dm.com",
+    )
+    def test_unknown_host_keeps_default_urlconf(self):
+        """Hosts that are neither the MDM subdomain nor the main domain are
+        unaffected.
+        """
+        url = reverse("newsletter")
+        request = self.factory.get(url, HTTP_HOST="other.dm.com")
+        middleware = SubdomainRoutingMiddleware(self.get_response)
+        middleware(request)
+        self.assertFalse(hasattr(request, "urlconf"))
 
 
 @override_settings(
-    ROOT_URLCONF="config.urls",
+    ROOT_URLCONF="config.urls.main_conf",
     MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX,
     MDM_URL_PREFIX="my/",
 )
@@ -78,7 +91,7 @@ class URLModeIntegrationTests(TestCase):
         self.client = Client()
 
     def test_mdm_prefix_resolves(self):
-        url = reverse("mdm:userflow:landing_page")
+        url = reverse("mdm:infopages:background")
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
 
@@ -88,9 +101,10 @@ class URLModeIntegrationTests(TestCase):
 
 
 @override_settings(
-    ROOT_URLCONF="config.urls",
+    ROOT_URLCONF="config.urls.main_conf",
     MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
     MDM_SUBDOMAIN="my.dm.com",
+    MDM_MAIN_DOMAIN="dm.com",
     ALLOWED_HOSTS=["my.dm.com", "dm.com"],
 )
 class SubdomainModeIntegrationTests(TestCase):
@@ -98,12 +112,16 @@ class SubdomainModeIntegrationTests(TestCase):
         self.client = Client()
 
     def test_mdm_view_reachable_from_mdm_subdomain(self):
-        url = reverse("mdm:userflow:landing_page")
+        # Resolve with the MDM subdomain URL conf so the path matches its
+        # root-based patterns.
+        url = reverse("mdm:infopages:background", urlconf="config.urls.mdm_conf")
         response = self.client.get(url, headers={"host": "my.dm.com"})
         self.assertEqual(response.status_code, 200)
 
     def test_mdm_view_blocked_from_main_domain(self):
-        url = reverse("mdm:userflow:landing_page")
+        # Same path as above; on the main domain Wagtail (catch-all) intercepts
+        # it → 404.
+        url = reverse("mdm:infopages:background", urlconf="config.urls.main_conf")
         response = self.client.get(url, headers={"host": "dm.com"})
         self.assertEqual(response.status_code, 404)
 

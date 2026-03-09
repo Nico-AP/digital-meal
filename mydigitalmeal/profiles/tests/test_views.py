@@ -4,11 +4,11 @@ from allauth.account.models import EmailAddress
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.test import Client, RequestFactory, TestCase
-from django.urls import reverse
 
 from mydigitalmeal.profiles.forms import MDMAuthForm
 from mydigitalmeal.profiles.views import MDMConfirmLoginCodeView
 from mydigitalmeal.userflow.constants import URLShortcut
+from shared.routing.urls import absolute_reverse
 
 User = get_user_model()
 
@@ -18,7 +18,7 @@ class TestMDMAuthView(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.url = reverse(URLShortcut.LOGIN)
+        self.url = absolute_reverse(URLShortcut.LOGIN)
         self.test_email = "test@example.com"
 
     def test_view_uses_correct_template(self):
@@ -58,7 +58,6 @@ class TestMDMAuthView(TestCase):
         mock_form_instance.is_valid.return_value = True
         mock_form_instance._user = None
         mock_request_code_form.return_value = mock_form_instance
-
         _ = self.client.post(self.url, {"login": self.test_email})
 
         user = User.objects.get(email=self.test_email)
@@ -103,7 +102,7 @@ class TestMDMAuthView(TestCase):
 
         # Should redirect to code confirmation page
         self.assertEqual(response.status_code, 302)
-        redirect_target = reverse(URLShortcut.CONFIRM_LOGIN)
+        redirect_target = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
         self.assertRedirects(
             response,
             redirect_target,
@@ -123,7 +122,7 @@ class TestMDMAuthView(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse(URLShortcut.OVERVIEW))
+        self.assertEqual(response.url, absolute_reverse(URLShortcut.OVERVIEW))
 
     @patch("allauth.account.views.ConfirmLoginCodeView.form_valid")
     def test_user_with_active_confirmation_code_is_redirected_to_confirm_view(
@@ -137,11 +136,11 @@ class TestMDMAuthView(TestCase):
         mock_request_code.return_value = mock_form_instance
 
         response = self.client.post(self.url, {"login": self.test_email})
-        self.assertRedirects(response, reverse(URLShortcut.CONFIRM_LOGIN))
+        self.assertRedirects(response, absolute_reverse(URLShortcut.CONFIRM_LOGIN))
 
         # Login view should now redirect to confirm view
         response = self.client.get(self.url)
-        self.assertRedirects(response, reverse(URLShortcut.CONFIRM_LOGIN))
+        self.assertRedirects(response, absolute_reverse(URLShortcut.CONFIRM_LOGIN))
 
 
 class TestMDMConfirmLoginView(TestCase):
@@ -150,8 +149,8 @@ class TestMDMConfirmLoginView(TestCase):
     def setUp(self):
         self.client = Client()
         self.factory = RequestFactory()
-        self.url = reverse(URLShortcut.CONFIRM_LOGIN)
-        self.auth_url = reverse(URLShortcut.LOGIN)
+        self.url = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
+        self.auth_url = absolute_reverse(URLShortcut.LOGIN)
         self.test_email = "test@example.com"
 
         self.user = User.objects.create_user(
@@ -171,7 +170,7 @@ class TestMDMConfirmLoginView(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(
             response,
-            reverse(URLShortcut.LOGIN),
+            absolute_reverse(URLShortcut.LOGIN),
             fetch_redirect_response=False,
         )
 
@@ -183,7 +182,7 @@ class TestMDMConfirmLoginView(TestCase):
         view = MDMConfirmLoginCodeView()
         next_url = view.get_next_url()
 
-        expected_url = reverse(URLShortcut.OVERVIEW)
+        expected_url = absolute_reverse(URLShortcut.OVERVIEW)
         self.assertEqual(next_url, expected_url)
 
     def test_invalid_code_shows_error(self):
@@ -202,7 +201,7 @@ class TestMDMConfirmLoginView(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse(URLShortcut.OVERVIEW))
+        self.assertEqual(response.url, absolute_reverse(URLShortcut.OVERVIEW))
 
 
 # Integration test for full flow
@@ -211,8 +210,8 @@ class TestAuthenticationFlow(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.auth_url = reverse(URLShortcut.LOGIN)
-        self.confirm_url = reverse(URLShortcut.CONFIRM_LOGIN)
+        self.auth_url = absolute_reverse(URLShortcut.LOGIN)
+        self.confirm_url = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
         self.test_email = "test@example.com"
 
     @patch("mydigitalmeal.profiles.forms.RequestLoginCodeForm")
@@ -239,7 +238,7 @@ class TestAuthenticationFlow(TestCase):
 
         # Step 2: User verifies code
         mock_confirm_valid.return_value = HttpResponseRedirect(
-            reverse(URLShortcut.OVERVIEW),
+            absolute_reverse(URLShortcut.OVERVIEW),
         )
 
         self.client.force_login(user)

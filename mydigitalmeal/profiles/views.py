@@ -12,8 +12,10 @@ from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import never_cache
 
+from mydigitalmeal.core.utils import to_relative_url
 from mydigitalmeal.profiles.forms import MDMAuthForm
 from mydigitalmeal.userflow.constants import URLShortcut
+from shared.routing.urls import absolute_reverse
 
 User = get_user_model()
 
@@ -30,8 +32,8 @@ class MDMAuthView(LoginView):
         # Intercept default allauth redirection.
         if isinstance(result, HttpResponseRedirect):
             allauth_confirm_url = reverse("account_confirm_login_code")
-            if result.url == allauth_confirm_url:
-                actual_confirm_url = reverse(URLShortcut.CONFIRM_LOGIN)
+            if to_relative_url(result.url) == to_relative_url(allauth_confirm_url):
+                actual_confirm_url = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
                 return HttpResponseRedirect(actual_confirm_url)
 
         return result
@@ -39,16 +41,16 @@ class MDMAuthView(LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["passwordless_enabled"] = True
-        context["request_login_code_url"] = reverse(URLShortcut.CONFIRM_LOGIN)
+        context["request_login_code_url"] = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
         context["LOGIN_BY_CODE_ENABLED"] = True
         return context
 
     def get_success_url(self):
-        return reverse(URLShortcut.CONFIRM_LOGIN)
+        return absolute_reverse(URLShortcut.CONFIRM_LOGIN)
 
     def get_authenticated_redirect_url(self):
         # TODO: Later maybe redirect to report, if user has already donated
-        return reverse(URLShortcut.OVERVIEW)
+        return absolute_reverse(URLShortcut.OVERVIEW)
 
 
 def login_stage_required_custom(stage: str, redirect_urlname: str):
@@ -61,10 +63,10 @@ def login_stage_required_custom(stage: str, redirect_urlname: str):
         def _wrapper_view(request, *args, **kwargs):
             if request.user.is_authenticated:
                 # TODO: Later maybe redirect to report, if user has already donated
-                return HttpResponseRedirect(reverse(URLShortcut.OVERVIEW))
+                return HttpResponseRedirect(absolute_reverse(URLShortcut.OVERVIEW))
             login_stage = LoginStageController.enter(request, stage)
             if not login_stage:
-                return HttpResponseRedirect(reverse(redirect_urlname))
+                return HttpResponseRedirect(absolute_reverse(redirect_urlname))
             request._login_stage = login_stage  # noqa: SLF001
             return view_func(request, *args, **kwargs)
 
@@ -91,7 +93,7 @@ class MDMConfirmLoginCodeView(ConfirmLoginCodeView):
             self.stage
         )
         if not self._process:
-            return HttpResponseRedirect(reverse("mdm:userflow:profiles:auth"))
+            return HttpResponseRedirect(absolute_reverse("mdm:userflow:profiles:auth"))
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -117,11 +119,11 @@ class MDMConfirmLoginCodeView(ConfirmLoginCodeView):
         )
 
         # Changed to custom view.
-        return HttpResponseRedirect(reverse(URLShortcut.LOGIN))
+        return HttpResponseRedirect(absolute_reverse(URLShortcut.LOGIN))
 
     def get_next_url(self):
         """Redirect to donation step."""
-        return reverse(URLShortcut.OVERVIEW)
+        return absolute_reverse(URLShortcut.OVERVIEW)
 
 
 class MDMLogoutView(LogoutView):

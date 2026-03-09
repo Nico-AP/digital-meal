@@ -94,13 +94,67 @@ npm install
 cd ..
 ```
 
-### 10. Run the development server
+### 10. Local Domain Setup for Development
 
+To test subdomain routing locally, you need to map custom domains to your
+local machine by editing your hosts file.
+
+#### Unix (macOS / Linux)
+
+Open `/etc/hosts` with sudo:
 ```bash
-python manage.py runserver
+sudo nano /etc/hosts
 ```
 
-The application is available at http://127.0.0.1:8000/.
+Add the following lines:
+```
+127.0.0.1 domain.test
+127.0.0.1 sub.domain.test
+```
+
+Save with `Ctrl+O`, exit with `Ctrl+X`, then flush the DNS cache:
+```bash
+# macOS
+sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder
+
+# Linux
+sudo systemd-resolve --flush-caches
+```
+
+#### Windows 11
+
+Open Notepad as Administrator (search for Notepad, right-click → "Run as
+administrator"), then open the file:
+```
+C:\Windows\System32\drivers\etc\hosts
+```
+
+Add the following lines:
+```
+127.0.0.1 domain.test
+127.0.0.1 sub.domain.test
+```
+
+Save the file. It may be that you then have to flush the DNS cache by running in Command Prompt:
+```
+ipconfig /flushdns
+```
+
+### 11. Running the Dev Server
+
+Start Django binding to all interfaces:
+```bash
+python manage.py runserver 0.0.0.0:8000
+```
+
+Then access the app at:
+- `http://domain.test:8000`
+- `http://sub.domain.test:8000`
+
+Make sure both domains are in `ALLOWED_HOSTS` in your local settings:
+```python
+ALLOWED_HOSTS = ['domain.test', 'sub.domain.test']
+```
 
 ---
 
@@ -145,12 +199,13 @@ Local development uses the console email backend — no SMTP configuration neede
 
 ### Routing
 
-| Variable             | Description                                                                                                       |
-|----------------------|-------------------------------------------------------------------------------------------------------------------|
-| `MDM_ROUTING_TYPE`   | `URL_PREFIX` (default) or `SUBDOMAIN`. See [Routing Modes](#routing-modes).                                       |
-| `DJANGO_MAIN_DOMAIN` | Primary domain of the Digital Meal site (e.g. `digital-meal.ch`).                                                 |
-| `MDM_SUBDOMAIN`      | Subdomain for My Digital Meal (e.g. `my.digital-meal.ch`). Used when `MDM_ROUTING_TYPE=SUBDOMAIN`.                |
-| `MDM_URL_PREFIX`     | URL prefix for My Digital Meal (e.g. `my/`). Used when `MDM_ROUTING_TYPE=URL_PREFIX`. Include the trailing slash. |
+| Variable              | Description                                                                                                         |
+|-----------------------|---------------------------------------------------------------------------------------------------------------------|
+| `MDM_ROUTING_TYPE`    | `URL_PREFIX` (default) or `SUBDOMAIN`. See [Routing Modes](#routing-modes).                                         |
+| `MDM_ROUTING_SCHEME`  | Whether to use `http` (for testing and local development) or `https` (for stage/production);                        |
+| `MDM_MAIN_DOMAIN`     | Primary domain of the Digital Meal site (e.g. `digital-meal.ch`).                                                   |
+| `MDM_SUBDOMAIN`       | Subdomain for My Digital Meal (e.g. `my.digital-meal.ch`). Used when `MDM_ROUTING_TYPE=SUBDOMAIN`.                  |
+| `MDM_URL_PREFIX`      | URL prefix for My Digital Meal (e.g. `my/`). Used when `MDM_ROUTING_TYPE=URL_PREFIX`. Include the trailing slash.   |
 
 ### TikTok / Portability
 
@@ -215,7 +270,7 @@ Set in `.env`:
 
 ```
 MDM_ROUTING_TYPE=SUBDOMAIN
-DJANGO_MAIN_DOMAIN=digital-meal.ch
+MDM_MAIN_DOMAIN=digital-meal.ch
 MDM_SUBDOMAIN=my.digital-meal.ch
 ```
 

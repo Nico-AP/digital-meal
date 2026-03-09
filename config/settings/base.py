@@ -127,7 +127,7 @@ MIDDLEWARE = [
     "django_htmx.middleware.HtmxMiddleware",
 ]
 
-ROOT_URLCONF = "config.urls"
+ROOT_URLCONF = "config.urls.main_conf"
 
 TEMPLATES = [
     {
@@ -201,7 +201,9 @@ LOGOUT_REDIRECT_URL = "/"
 MDM_ROUTING_TYPE = env.str("MDM_ROUTING_TYPE", "URL_PREFIX")
 # either "SUBDOMAIN" or "URL_PREFIX"
 
-MAIN_DOMAIN = env.str("DJANGO_MAIN_DOMAIN", ALLOWED_HOSTS[0])
+MDM_ROUTING_SCHEME = env.str("MDM_ROUTING_SCHEME", "http")
+
+MDM_MAIN_DOMAIN = env.str("MDM_MAIN_DOMAIN", ALLOWED_HOSTS[0])
 MDM_SUBDOMAIN = env.str("MDM_SUBDOMAIN", "")  # e.g., "my.site.com";
 # Relevant when MDM_ROUTING_TYPE == "SUBDOMAIN"; e.g., "my.site.com";
 # don't forget to add subdomain to ALLOWED_HOSTS

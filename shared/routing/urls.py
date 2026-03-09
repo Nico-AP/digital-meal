@@ -22,21 +22,34 @@ def _build_absolute_url(path: str, viewname: str) -> str:
     if settings.MDM_ROUTING_TYPE != MDMRoutingTypes.SUBDOMAIN:
         return path
 
-    scheme = "http" if settings.DEBUG else "https"
+    scheme = settings.MDM_ROUTING_SCHEME
 
-    if isinstance(viewname, str) and viewname.startswith("mdm:"):
-        return f"{scheme}://{settings.MDM_SUBDOMAIN}{path}"
+    if (
+        viewname.startswith("mdm:")
+        and settings.MDM_ROUTING_TYPE == MDMRoutingTypes.SUBDOMAIN
+    ):
+        domain = settings.MDM_SUBDOMAIN
+    else:
+        domain = settings.MDM_MAIN_DOMAIN
 
-    return f"{scheme}://{settings.MAIN_DOMAIN}{path}"
+    return f"{scheme}://{domain}{path}"
 
 
-def absolute_reverse(viewname, *args, **kwargs):
-    path = reverse(viewname, *args, **kwargs)
+def absolute_reverse(viewname, urlconf=None, *args, **kwargs):
+    # Always use the root URL conf so that cross-domain reversals work
+    # regardless of which per-domain URL conf is active on the current request.
+    if not urlconf:
+        urlconf = settings.ROOT_URLCONF
+
+    path = reverse(viewname, *args, urlconf=urlconf, **kwargs)
     return _build_absolute_url(path, viewname)
 
 
-def absolute_reverse_lazy(viewname, *args, **kwargs):
+def absolute_reverse_lazy(viewname, urlconf=None, *args, **kwargs):
+    if not urlconf:
+        urlconf = settings.ROOT_URLCONF
+
     return lazy(_build_absolute_url, str)(
-        reverse_lazy(viewname, *args, **kwargs),
+        reverse_lazy(viewname, *args, urlconf=urlconf, **kwargs),
         viewname,
     )

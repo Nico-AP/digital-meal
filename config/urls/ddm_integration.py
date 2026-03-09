@@ -1,18 +1,5 @@
-from django.conf import settings
-from django.conf.urls.static import static
-from django.contrib import admin
 from django.urls import include, path
 from django.views.defaults import page_not_found
-
-from shared.routing.urls import get_mdm_urlpatterns
-
-urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("accounts/", include("allauth.urls")),
-    path("ckeditor5/", include("django_ckeditor_5.urls")),
-    path("", include("digital_meal.core.urls")),
-    path("portability/", include("shared.portability.urls")),
-]
 
 ddm_patterns = [
     path(
@@ -31,6 +18,12 @@ ddm_patterns = [
     path(r"logs/", include("ddm.logging.urls", namespace="ddm_logging")),
     path(r"ddm/", include("ddm.auth.urls", namespace="ddm_auth")),
     path(r"ddm-api/", include("ddm.apis.urls", namespace="ddm_apis")),
+]
+
+# DDM's login/logout names are stubbed out so reverse() always finds them.
+# Placed after MDM patterns so that in SUBDOMAIN mode (MDM at root) the MDM
+# login view wins; these stubs only fire when no MDM pattern has matched first.
+ddm_auth_stubs = [
     path(
         "login/",
         page_not_found,
@@ -43,22 +36,4 @@ ddm_patterns = [
         kwargs={"exception": Exception("Page not Found")},
         name="ddm_logout",
     ),
-]
-
-urlpatterns += ddm_patterns
-urlpatterns += get_mdm_urlpatterns()
-
-if settings.DEBUG:
-    from debug_toolbar.toolbar import debug_toolbar_urls
-
-    urlpatterns += static(
-        settings.STATIC_URL, document_root=settings.STATIC_ROOT
-    ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-    urlpatterns += debug_toolbar_urls()
-    urlpatterns += [path("__reload__/", include("django_browser_reload.urls"))]
-
-urlpatterns += [
-    path("cms/", include("wagtail.admin.urls")),
-    path("documents/", include("wagtail.documents.urls")),
-    path("", include("wagtail.urls")),
 ]

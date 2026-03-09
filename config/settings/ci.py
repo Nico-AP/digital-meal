@@ -3,6 +3,15 @@ from .production import DATABASES
 
 DEBUG = False
 
+ALLOWED_HOSTS = ["domain.com", "my.domain.com", "127.0.0.1", "localhost"]
+
+# ROUTING SETUP
+MDM_ROUTING_TYPE = "SUBDOMAIN"
+MDM_ROUTING_SCHEME = "http"
+MDM_MAIN_DOMAIN = "domain.com"
+MDM_SUBDOMAIN = "my.domain.com"
+MDM_URL_PREFIX = "my/"
+
 # Disable SSL redirects for testing
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False

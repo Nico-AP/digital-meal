@@ -128,7 +128,8 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
         try:
             project = DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
         except DonationProject.DoesNotExist as e:
-            raise Http404 from e
+            msg = "Required DDM project could not be found."
+            raise Http404(msg) from e
         return project
 
     def reset_participant_in_session(self):

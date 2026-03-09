@@ -258,6 +258,7 @@ class TestShouldUseMDMContext(TestCase):
 # SubdomainAuthMiddleware - __call__  ------------------------------------------
 
 
+@override_settings(MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX, MDM_URL_PREFIX="my/")
 class TestSubdomainAuthMiddlewareCall(TestCase):
     def setUp(self):
         self.get_response = MagicMock(return_value=MagicMock())
