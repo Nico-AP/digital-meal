@@ -13,7 +13,6 @@ User = get_user_model()
 
 
 PROJECT_CONFIG = {
-    "url_id": "MrafiNWg",
     "name": "TikTok",
     "contact_information": "",
     "data_protection_statement": "",
