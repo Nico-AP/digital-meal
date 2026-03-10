@@ -64,6 +64,11 @@ class StatisticsView(
 
         self._stats = self.load_statistics()
 
+        if self._stats is None:
+            # TODO: Optimize this
+            msg = "Something went wrong - report could not be generated"
+            raise Http404(msg)
+
         context |= self._get_video_viewed_stats()
         context |= self._get_daily_routine_stats()
         context |= self._get_usage_session_scrolling()
