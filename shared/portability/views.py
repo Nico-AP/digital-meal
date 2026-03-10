@@ -413,9 +413,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
     def redirect_success(self):
         port_context = self.port_session.get_context()
         if port_context == PortabilityContexts.MY_DM:
-            return redirect(
-                "tiktok_await_data_download"
-            )  # TODO: Update when ready to use correct route
+            return redirect("mdm:datadonation:port_tt_await_data")
         else:
             return redirect("tiktok_await_data_download")
 
