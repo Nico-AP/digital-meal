@@ -2,43 +2,38 @@ from django.conf import settings
 from django.urls import include, path, reverse, reverse_lazy
 from django.utils.functional import lazy
 
-from shared.routing.constants import MDMRoutingTypes
+from shared.routing.constants import _MAIN_URLCONF, _MDM_URLCONF, MDMRoutingModes
 
 
-def get_mdm_urlpatterns():
+def get_mdm_urlpatterns(url_path: str):
     """Called from main urls.py"""
-    if settings.MDM_ROUTING_TYPE == MDMRoutingTypes.URL_PREFIX:
-        return [
-            path(
-                settings.MDM_URL_PREFIX,
-                include("mydigitalmeal.core.urls", namespace="mdm"),
-            )
-        ]
-    return [path("", include("mydigitalmeal.core.urls", namespace="mdm"))]
+    return [path(url_path, include("mydigitalmeal.core.urls", namespace="mdm"))]
 
 
 def _build_absolute_url(path: str, viewname: str) -> str:
     """Apply domain prefix in SUBDOMAIN mode."""
-    if settings.MDM_ROUTING_TYPE != MDMRoutingTypes.SUBDOMAIN:
+    if settings.MDM_ROUTING_MODE != MDMRoutingModes.SUBDOMAIN:
         return path
 
     scheme = settings.MDM_ROUTING_SCHEME
 
-    if (
-        viewname.startswith("mdm:")
-        and settings.MDM_ROUTING_TYPE == MDMRoutingTypes.SUBDOMAIN
-    ):
-        domain = settings.MDM_SUBDOMAIN
-    else:
-        domain = settings.MDM_MAIN_DOMAIN
+    if viewname.startswith("mdm:"):
+        # Re-reverse against the MDM urlconf to get the correct path
+        path = reverse(viewname, urlconf=_MDM_URLCONF)
+        if not path.endswith("/"):
+            path = path + "/"
+        return f"{scheme}://{settings.MDM_SUBDOMAIN}{path}"
 
-    return f"{scheme}://{domain}{path}"
+    path = reverse(viewname, urlconf=_MAIN_URLCONF)
+    if not path.endswith("/"):
+        path = path + "/"
+    return f"{scheme}://{settings.MDM_MAIN_DOMAIN}{path}"
 
 
 def absolute_reverse(viewname, urlconf=None, *args, **kwargs):
-    # Always use the root URL conf so that cross-domain reversals work
-    # regardless of which per-domain URL conf is active on the current request.
-    if not urlconf:
+    if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
+        urlconf = _MDM_URLCONF if viewname.startswith("mdm:") else _MAIN_URLCONF
+    else:
         urlconf = settings.ROOT_URLCONF
 
     path = reverse(viewname, *args, urlconf=urlconf, **kwargs)
@@ -46,7 +41,9 @@ def absolute_reverse(viewname, urlconf=None, *args, **kwargs):
 
 
 def absolute_reverse_lazy(viewname, urlconf=None, *args, **kwargs):
-    if not urlconf:
+    if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
+        urlconf = _MDM_URLCONF if viewname.startswith("mdm:") else _MAIN_URLCONF
+    else:
         urlconf = settings.ROOT_URLCONF
 
     return lazy(_build_absolute_url, str)(

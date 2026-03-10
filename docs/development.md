@@ -199,13 +199,13 @@ Local development uses the console email backend — no SMTP configuration neede
 
 ### Routing
 
-| Variable              | Description                                                                                                         |
-|-----------------------|---------------------------------------------------------------------------------------------------------------------|
-| `MDM_ROUTING_TYPE`    | `URL_PREFIX` (default) or `SUBDOMAIN`. See [Routing Modes](#routing-modes).                                         |
-| `MDM_ROUTING_SCHEME`  | Whether to use `http` (for testing and local development) or `https` (for stage/production);                        |
-| `MDM_MAIN_DOMAIN`     | Primary domain of the Digital Meal site (e.g. `digital-meal.ch`).                                                   |
-| `MDM_SUBDOMAIN`       | Subdomain for My Digital Meal (e.g. `my.digital-meal.ch`). Used when `MDM_ROUTING_TYPE=SUBDOMAIN`.                  |
-| `MDM_URL_PREFIX`      | URL prefix for My Digital Meal (e.g. `my/`). Used when `MDM_ROUTING_TYPE=URL_PREFIX`. Include the trailing slash.   |
+| Variable             | Description                                                                                                       |
+|----------------------|-------------------------------------------------------------------------------------------------------------------|
+| `MDM_ROUTING_MODE`   | `URL_PREFIX` (default) or `SUBDOMAIN`. See [Routing Modes](#routing-modes).                                       |
+| `MDM_ROUTING_SCHEME` | Whether to use `http` (for testing and local development) or `https` (for stage/production);                      |
+| `MDM_MAIN_DOMAIN`    | Primary domain of the Digital Meal site (e.g. `digital-meal.ch`).                                                 |
+| `MDM_SUBDOMAIN`      | Subdomain for My Digital Meal (e.g. `my.digital-meal.ch`). Used when `MDM_ROUTING_MODE=SUBDOMAIN`.                |
+| `MDM_URL_PREFIX`     | URL prefix for My Digital Meal (e.g. `my/`). Used when `MDM_ROUTING_MODE=URL_PREFIX`. Include the trailing slash. |
 
 ### TikTok / Portability
 
@@ -237,7 +237,7 @@ or Celery worker is needed for local development unless you specifically need to
 
 ## Routing Modes
 
-The `MDM_ROUTING_TYPE` setting controls how Digital Meal and My Digital Meal are served:
+The `MDM_ROUTING_MODE` setting controls how Digital Meal and My Digital Meal are served:
 
 ### `URL_PREFIX` (default, recommended for development)
 
@@ -251,7 +251,7 @@ site.com/my/            → My Digital Meal (students)
 Set in `.env`:
 
 ```
-MDM_ROUTING_TYPE=URL_PREFIX
+MDM_ROUTING_MODE=URL_PREFIX
 MDM_URL_PREFIX=my/
 ```
 
@@ -269,7 +269,7 @@ my.digital-meal.ch/     → My Digital Meal (students)
 Set in `.env`:
 
 ```
-MDM_ROUTING_TYPE=SUBDOMAIN
+MDM_ROUTING_MODE=SUBDOMAIN
 MDM_MAIN_DOMAIN=digital-meal.ch
 MDM_SUBDOMAIN=my.digital-meal.ch
 ```

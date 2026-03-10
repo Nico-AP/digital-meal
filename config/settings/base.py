@@ -198,18 +198,18 @@ LOGOUT_REDIRECT_URL = "/"
 
 # ROUTING CONFIGURATION (shared.routing)
 # ------------------------------------------------------------------------------
-MDM_ROUTING_TYPE = env.str("MDM_ROUTING_TYPE", "URL_PREFIX")
+MDM_ROUTING_MODE = env.str("MDM_ROUTING_MODE", "URL_PREFIX")
 # either "SUBDOMAIN" or "URL_PREFIX"
 
 MDM_ROUTING_SCHEME = env.str("MDM_ROUTING_SCHEME", "http")
 
 MDM_MAIN_DOMAIN = env.str("MDM_MAIN_DOMAIN", ALLOWED_HOSTS[0])
 MDM_SUBDOMAIN = env.str("MDM_SUBDOMAIN", "")  # e.g., "my.site.com";
-# Relevant when MDM_ROUTING_TYPE == "SUBDOMAIN"; e.g., "my.site.com";
+# Relevant when MDM_ROUTING_MODE == "SUBDOMAIN"; e.g., "my.site.com";
 # don't forget to add subdomain to ALLOWED_HOSTS
 
 MDM_URL_PREFIX = env.str("MDM_URL_PREFIX", "my/")
-# Relevant, when MDM_ROUTING_TYPE == "URL_PREFIX"; the URL path that identifies
+# Relevant, when MDM_ROUTING_MODE == "URL_PREFIX"; the URL path that identifies
 #  My Digital Meal pages; e.g., when MDM is available under site.com/my/<views>
 #  this has to be defined as "my/" (the inclusion of ending slash is important).
 
@@ -248,7 +248,9 @@ ALLAUTH_MDM = {
     "ACCOUNT_EMAIL_VERIFICATION": "none",
     "ACCOUNT_EMAIL_SUBJECT_PREFIX": "My Digital Meal | ",
     "ACCOUNT_SIGNUP_BY_CODE_ENABLED": True,
-    "ACCOUNT_LOGOUT_REDIRECT_URL": "/my/",
+    "ACCOUNT_LOGOUT_REDIRECT_URL": "/"
+    if MDM_ROUTING_MODE == "SUBDOMAIN"
+    else MDM_URL_PREFIX,
 }
 
 # STATIC FILES

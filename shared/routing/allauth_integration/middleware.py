@@ -4,7 +4,7 @@ from django.contrib.auth import get_user_model, logout
 from shared.routing.allauth_integration.context import current_request_var
 from shared.routing.allauth_integration.sessions import AuthSessionManager
 from shared.routing.allauth_integration.settings import AuthContexts
-from shared.routing.constants import MDMRoutingTypes
+from shared.routing.constants import MDMRoutingModes
 
 User = get_user_model()
 
@@ -42,10 +42,10 @@ class SubdomainAuthMiddleware:
         return self.get_response(request)
 
     def should_use_mdm_context(self, request) -> bool:
-        if settings.MDM_ROUTING_TYPE == MDMRoutingTypes.SUBDOMAIN:
+        if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
             host = request.get_host().split(":")[0].lower()
             return host == settings.MDM_SUBDOMAIN
-        if settings.MDM_ROUTING_TYPE == MDMRoutingTypes.URL_PREFIX:
+        if settings.MDM_ROUTING_MODE == MDMRoutingModes.URL_PREFIX:
             return request.path.startswith(f"/{settings.MDM_URL_PREFIX}")
         return False
 

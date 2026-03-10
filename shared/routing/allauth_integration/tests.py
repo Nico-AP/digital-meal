@@ -12,7 +12,7 @@ from shared.routing.allauth_integration.context import current_request_var
 from shared.routing.allauth_integration.middleware import SubdomainAuthMiddleware
 from shared.routing.allauth_integration.sessions import AuthSession, AuthSessionManager
 from shared.routing.allauth_integration.settings import AuthContexts
-from shared.routing.constants import MDMRoutingTypes
+from shared.routing.constants import MDMRoutingModes
 
 User = get_user_model()
 
@@ -217,7 +217,7 @@ class TestShouldUseMDMContext(TestCase):
         self.middleware = SubdomainAuthMiddleware(get_response=lambda r: None)
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX, MDM_URL_PREFIX="my/"
+        MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX, MDM_URL_PREFIX="my/"
     )
     def test_returns_true_for_mdm_url_prefix(self):
         request = _get_request_with_session("/my/dashboard/")
@@ -225,7 +225,7 @@ class TestShouldUseMDMContext(TestCase):
         self.assertTrue(result)
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX, MDM_URL_PREFIX="my/"
+        MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX, MDM_URL_PREFIX="my/"
     )
     def test_returns_false_for_non_mdm_url_prefix(self):
         request = _get_request_with_session("/dashboard/")
@@ -234,7 +234,7 @@ class TestShouldUseMDMContext(TestCase):
 
     @override_settings(
         ALLOWED_HOSTS=["my.site.com", "site.com"],
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.site.com",
     )
     def test_returns_true_for_mdm_subdomain(self):
@@ -245,7 +245,7 @@ class TestShouldUseMDMContext(TestCase):
 
     @override_settings(
         ALLOWED_HOSTS=["my.site.com", "site.com"],
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.site.com",
     )
     def test_returns_false_for_non_mdm_subdomain(self):
@@ -258,7 +258,7 @@ class TestShouldUseMDMContext(TestCase):
 # SubdomainAuthMiddleware - __call__  ------------------------------------------
 
 
-@override_settings(MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX, MDM_URL_PREFIX="my/")
+@override_settings(MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX, MDM_URL_PREFIX="my/")
 class TestSubdomainAuthMiddlewareCall(TestCase):
     def setUp(self):
         self.get_response = MagicMock(return_value=MagicMock())

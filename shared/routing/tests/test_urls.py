@@ -1,14 +1,14 @@
 from django.conf import settings
 from django.test import TestCase, override_settings
 
-from shared.routing.constants import MDMRoutingTypes
+from shared.routing.constants import MDMRoutingModes
 from shared.routing.urls import absolute_reverse, absolute_reverse_lazy
 
 URL_SCHEME = settings.MDM_ROUTING_SCHEME
 
 
 @override_settings(
-    MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX,
+    MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX,
     MDM_URL_PREFIX="my/",
     MDM_SUBDOMAIN="my.dm.com",
     MDM_MAIN_DOMAIN="dm.com",
@@ -24,7 +24,7 @@ class ReverseURLPrefixModeTests(TestCase):
 
 
 @override_settings(
-    MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+    MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
     MDM_SUBDOMAIN="my.dm.com",
     MDM_MAIN_DOMAIN="dm.com",
 )
@@ -47,7 +47,7 @@ class ReverseSubdomainModeTests(TestCase):
 
 
 @override_settings(
-    MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+    MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
     MDM_SUBDOMAIN="my.dm.com",
     MDM_MAIN_DOMAIN="dm.com",
 )
@@ -67,7 +67,7 @@ class ReverseLazySubdomainModeTests(TestCase):
 
 
 @override_settings(
-    MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX,
+    MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX,
     MDM_URL_PREFIX="my/",
     MDM_SUBDOMAIN="my.dm.com",
     MDM_MAIN_DOMAIN="dm.com",

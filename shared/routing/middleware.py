@@ -2,10 +2,7 @@ from django.conf import settings
 from django.http import Http404
 from django.urls import Resolver404, resolve
 
-from shared.routing.constants import MDMRoutingTypes
-
-_MAIN_URLCONF = "config.urls.main_conf"
-_MDM_URLCONF = "config.urls.mdm_conf"
+from shared.routing.constants import _MAIN_URLCONF, _MDM_URLCONF, MDMRoutingModes
 
 
 class SubdomainRoutingMiddleware:
@@ -25,7 +22,7 @@ class SubdomainRoutingMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        if settings.MDM_ROUTING_TYPE == MDMRoutingTypes.SUBDOMAIN:
+        if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
             host = request.get_host().split(":")[0].lower()
             if host == settings.MDM_SUBDOMAIN:
                 request.urlconf = _MDM_URLCONF

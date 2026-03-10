@@ -1,6 +1,9 @@
 from enum import StrEnum
 
+_MDM_URLCONF = "config.urls.mdm_conf"
+_MAIN_URLCONF = "config.urls.main_conf"
 
-class MDMRoutingTypes(StrEnum):
+
+class MDMRoutingModes(StrEnum):
     URL_PREFIX = "URL_PREFIX"
     SUBDOMAIN = "SUBDOMAIN"

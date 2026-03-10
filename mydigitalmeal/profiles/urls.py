@@ -10,12 +10,12 @@ urlpatterns = [
         name="auth",
     ),
     path(
-        "login/confirm",
+        "login/confirm/",
         views.MDMConfirmLoginCodeView.as_view(),
         name="confirm_login_code",
     ),
     path(
-        "logout/confirm",
+        "logout/confirm/",
         views.MDMLogoutView.as_view(),
         name="logout",
     ),

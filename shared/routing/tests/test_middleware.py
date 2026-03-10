@@ -1,7 +1,7 @@
 from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 
-from shared.routing.constants import MDMRoutingTypes
+from shared.routing.constants import MDMRoutingModes
 from shared.routing.middleware import (
     _MAIN_URLCONF,
     _MDM_URLCONF,
@@ -16,7 +16,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         self.get_response = lambda request: None  # dummy response
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX,
+        MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX,
         MDM_URL_PREFIX="my/",
     )
     def test_url_mode_middleware_is_noop(self):
@@ -27,7 +27,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         self.assertFalse(hasattr(request, "urlconf"))
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.dm.com",
         MDM_MAIN_DOMAIN="dm.com",
     )
@@ -40,7 +40,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         self.assertEqual(request.urlconf, _MAIN_URLCONF)
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.dm.com",
         MDM_MAIN_DOMAIN="dm.com",
     )
@@ -53,7 +53,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         self.assertEqual(request.urlconf, _MDM_URLCONF)
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.dm.com",
         MDM_MAIN_DOMAIN="dm.com",
     )
@@ -66,7 +66,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
         self.assertEqual(request.urlconf, _MDM_URLCONF)
 
     @override_settings(
-        MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+        MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
         MDM_SUBDOMAIN="my.dm.com",
         MDM_MAIN_DOMAIN="dm.com",
     )
@@ -83,7 +83,7 @@ class SubdomainRoutingMiddlewareTests(TestCase):
 
 @override_settings(
     ROOT_URLCONF="config.urls.main_conf",
-    MDM_ROUTING_TYPE=MDMRoutingTypes.URL_PREFIX,
+    MDM_ROUTING_MODE=MDMRoutingModes.URL_PREFIX,
     MDM_URL_PREFIX="my/",
 )
 class URLModeIntegrationTests(TestCase):
@@ -102,7 +102,7 @@ class URLModeIntegrationTests(TestCase):
 
 @override_settings(
     ROOT_URLCONF="config.urls.main_conf",
-    MDM_ROUTING_TYPE=MDMRoutingTypes.SUBDOMAIN,
+    MDM_ROUTING_MODE=MDMRoutingModes.SUBDOMAIN,
     MDM_SUBDOMAIN="my.dm.com",
     MDM_MAIN_DOMAIN="dm.com",
     ALLOWED_HOSTS=["my.dm.com", "dm.com"],

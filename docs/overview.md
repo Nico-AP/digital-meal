@@ -79,7 +79,7 @@ Settings are split into a base module and environment-specific overrides that im
 - Core Digital Meal Education routes (`/tool/`, `/reports/`, `/dashboard/`, `/`).
 - My Digital Meal routes, dynamically mounted by `shared.routing.urls.get_mdm_urlpatterns()`
   either under a path prefix (e.g. `/my/`) or at the root of a subdomain, depending on
-  `MDM_ROUTING_TYPE`.
+  `MDM_ROUTING_MODE`.
 - DDM participation, projects, questionnaire, and API routes.
 - Wagtail CMS and documents (registered last, as a catch-all).
 - In debug mode: static/media file serving, Django Debug Toolbar, and browser auto-reload.
@@ -229,7 +229,7 @@ See [CSS / SASS](#css--sass) in the development guide for build instructions.
 
 Handles the multi-context serving of Digital Meal and My Digital Meal from a single Django project.
 
-Supports two deployment modes (controlled by `MDM_ROUTING_TYPE`):
+Supports two deployment modes (controlled by `MDM_ROUTING_MODE`):
 
 - **`URL_PREFIX`** (default) – My Digital Meal is served under a URL path prefix, e.g. `site.com/my/`.
 - **`SUBDOMAIN`** – My Digital Meal is served on a separate subdomain, e.g. `my.site.com`.
@@ -238,7 +238,7 @@ Supports two deployment modes (controlled by `MDM_ROUTING_TYPE`):
 Key components:
 
 - `middleware.py` – `SubdomainRoutingMiddleware`: blocks cross-domain access in subdomain mode.
-- `urls.py` – `get_mdm_urlpatterns()` dynamically builds MDM URL patterns based on `MDM_ROUTING_TYPE`.
+- `urls.py` – `get_mdm_urlpatterns()` dynamically builds MDM URL patterns based on `MDM_ROUTING_MODE`.
   Also provides `absolute_reverse()` and `absolute_reverse_lazy()` helpers that prepend the correct
   domain in subdomain mode.
 - `constants.py` – `MDMRoutingTypes` enum.

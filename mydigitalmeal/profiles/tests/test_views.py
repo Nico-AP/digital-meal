@@ -1,6 +1,7 @@
 from unittest.mock import MagicMock, patch
 
 from allauth.account.models import EmailAddress
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.http import HttpResponseRedirect
 from django.test import Client, RequestFactory, TestCase
@@ -8,16 +9,23 @@ from django.test import Client, RequestFactory, TestCase
 from mydigitalmeal.profiles.forms import MDMAuthForm
 from mydigitalmeal.profiles.views import MDMConfirmLoginCodeView
 from mydigitalmeal.userflow.constants import URLShortcut
+from shared.routing.constants import MDMRoutingModes
 from shared.routing.urls import absolute_reverse
 
 User = get_user_model()
+
+
+def initialize_client():
+    if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
+        return Client(headers={"host": settings.MDM_SUBDOMAIN})
+    return Client()
 
 
 class TestMDMAuthView(TestCase):
     """Tests for MDMAuthView (signup/login)."""
 
     def setUp(self):
-        self.client = Client()
+        self.client = initialize_client()
         self.url = absolute_reverse(URLShortcut.LOGIN)
         self.test_email = "test@example.com"
 
@@ -147,7 +155,7 @@ class TestMDMConfirmLoginView(TestCase):
     """Tests for MDMConfirmLoginView (code verification)."""
 
     def setUp(self):
-        self.client = Client()
+        self.client = initialize_client()
         self.factory = RequestFactory()
         self.url = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
         self.auth_url = absolute_reverse(URLShortcut.LOGIN)
@@ -209,7 +217,7 @@ class TestAuthenticationFlow(TestCase):
     """Integration tests for the complete auth flow."""
 
     def setUp(self):
-        self.client = Client()
+        self.client = initialize_client()
         self.auth_url = absolute_reverse(URLShortcut.LOGIN)
         self.confirm_url = absolute_reverse(URLShortcut.CONFIRM_LOGIN)
         self.test_email = "test@example.com"

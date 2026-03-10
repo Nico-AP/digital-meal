@@ -7,7 +7,7 @@ or a URL prefix (e.g. site.com/my/),
 controlled entirely via environment variables with no code changes required.
 
 Configuration:
-    MDM_ROUTING_TYPE: "SUBDOMAIN" or "URL_PREFIX"
+    MDM_ROUTING_MODE: "SUBDOMAIN" or "URL_PREFIX"
     MDM_SUBDOMAIN:    the subdomain to match in SUBDOMAIN mode, e.g. "my.site.com"
     MDM_URL_PREFIX:   the URL prefix to use in URL_PREFIX mode, e.g. "my/"
     MAIN_DOMAIN:      the main site domain, e.g. "site.com"
