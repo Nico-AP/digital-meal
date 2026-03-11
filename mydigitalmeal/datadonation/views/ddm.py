@@ -160,19 +160,21 @@ class DonationViewDDM(
         # Added this:
         self.initialize_statistic_computation(file_data)
 
-    def initialize_statistic_computation(self, file_data: dict):
-        statistics_request = self.initialize_statistics_request()
+    def initialize_statistic_computation(self):
+        # TODO: Optimize this logic
+        statistics_request_interval = self.initialize_statistics_request()
+        statistics_request_full = self.initialize_statistics_request()
         self.userflow_session.update(
-            statistics_requested=True, request_id=statistics_request.public_id
+            statistics_requested=True, request_id=statistics_request_interval.public_id
         )
 
         job = group(
             compute_tiktok_wh_statistics_from_donation.s(
-                statistics_request_id=statistics_request.pk,
+                statistics_request_id=statistics_request_full.pk,
                 statistics_scope=StatisticsScope.FULL,
             ),
             compute_tiktok_wh_statistics_from_donation.s(
-                statistics_request_id=statistics_request.pk,
+                statistics_request_id=statistics_request_interval.pk,
                 statistics_scope=StatisticsScope.INTERVAL,
             ),
         )
