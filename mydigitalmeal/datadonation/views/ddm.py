@@ -158,7 +158,7 @@ class DonationViewDDM(
             blueprint.process_donation(blueprint_data, self.participant)
 
         # Added this:
-        self.initialize_statistic_computation(file_data)
+        self.initialize_statistic_computation()
 
     def initialize_statistic_computation(self):
         # TODO: Optimize this logic

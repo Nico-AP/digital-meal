@@ -225,16 +225,7 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
         mock_group_instance = MagicMock()
         mock_group.return_value = mock_group_instance
 
-        extracted_data = [{"date": "2024-01-01", "link": "https://example.com"}]
-        file_data = {
-            str(self.blueprint.pk): {
-                "consent": True,
-                "status": "success",
-                "extractedData": extracted_data,
-            },
-        }
-
-        self.view.initialize_statistic_computation(file_data)
+        self.view.initialize_statistic_computation()
 
         self.assertEqual(mock_group.call_count, 1)
         group_args = mock_group.call_args[0]

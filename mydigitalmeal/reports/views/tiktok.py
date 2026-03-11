@@ -52,6 +52,10 @@ class StatisticsView(
             # Statistics computation failed
             # TODO: Handle this better
             msg = "Statistics could not be computed"
+            logger.info(
+                "Statistics request %s has failed and could not be retrieved",
+                self.statistics_request.public_id,
+            )
             raise Http404(msg)
         return super().get(request, *args, **kwargs)
 
@@ -66,6 +70,10 @@ class StatisticsView(
 
         if self._stats is None:
             # TODO: Optimize this
+            logger.info(
+                "Statistics request %s: Unable to load statistics.",
+                self.statistics_request.public_id,
+            )
             msg = "Something went wrong - report could not be generated"
             raise Http404(msg)
 
