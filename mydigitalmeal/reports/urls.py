@@ -7,12 +7,12 @@ urlpatterns = []
 
 tiktok_report_views = [
     path(
-        "tiktok",
+        "tiktok/",
         tiktok_views.MainReportView.as_view(),
         name="tiktok_report",
     ),
     path(
-        "tiktok/partials/statistics",
+        "tiktok/partials/statistics/",
         tiktok_views.StatisticsView.as_view(),
         name="tiktok_statistics",
     ),
