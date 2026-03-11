@@ -1,15 +1,24 @@
-{% extends "mydigitalmeal/base_private.html" %}
+{% extends "userflow/base.html" %}
+{% load i18n static %}
 
-{% block title %}
-  Forbidden (403)
-{% endblock title %}
+{% block extra_head %}
+  {% include "mydigitalmeal/partials/_meta_private.html" %}
+{% endblock extra_head %}
+
+{% block page_title %}{% translate "My Digital Meal" %}{% endblock page_title %}
+
+{% block navbar_top %}
+  {% include "userflow/partials/header_large.html" %}
+{% endblock navbar_top %}
+
 {% block content %}
-  <h1>Forbidden (403)</h1>
+  <h1>{% translate "Du hast keinen Zugriff auf diese Seite" %}</h1>
   <p>
-    {% if exception %}
-      {{ exception }}
-    {% else %}
-      You're not allowed to access this page.
-    {% endif %}
+    {% blocktranslate %}
+      Falls du glaubst, dass das ein Fehler ist, wende dich bitte an den <a href="mailto:kontakt@digital-meal.ch">Support</a>.
+    {% endblocktranslate %}
+  </p>
+  <p>
+    <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
   </p>
 {% endblock content %}

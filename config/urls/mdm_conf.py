@@ -24,3 +24,8 @@ else:
     mdm_prefix = ""
 
 urlpatterns = list(base_urlpatterns) + get_mdm_urlpatterns(mdm_prefix)
+
+handler400 = "shared.views.custom_400"
+handler403 = "shared.views.custom_403"
+handler404 = "shared.views.custom_404"
+handler500 = "shared.views.custom_500"
