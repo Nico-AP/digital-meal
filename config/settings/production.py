@@ -11,7 +11,9 @@ DEBUG = False
 # SECURITY SETTINGS
 # ------------------------------------------------------------------------------
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_DOMAIN = env.str("SESSION_COOKIE_DOMAIN", default=None)
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = env.str("CSRF_COOKIE_DOMAIN", default=None)
 X_FRAME_OPTIONS = "DENY"
 
 SECURE_HSTS_SECONDS = 3600
