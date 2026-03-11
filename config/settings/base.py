@@ -214,6 +214,11 @@ MDM_URL_PREFIX = env.str("MDM_URL_PREFIX", "my/")
 #  this has to be defined as "my/" (the inclusion of ending slash is important).
 
 
+# MY DIGITAL MEAL
+# ------------------------------------------------------------------------------
+MDM_DDM_TIKTOK_PROJECT_SLUG = env.str("MDM_DDM_TIKTOK_PROJECT_SLUG", "tik-tok")
+MDM_DDM_TIKTOK_WH_BP_NAME = env.str("MDM_DDM_TIKTOK_WH_BP_NAME", "Angesehene Videos")
+
 # DANGO-ALLAUTH
 # ------------------------------------------------------------------------------
 ACCOUNT_ADAPTER = "shared.routing.allauth_integration.adapters.SubdomainAccountAdapter"

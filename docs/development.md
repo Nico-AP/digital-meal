@@ -207,6 +207,13 @@ Local development uses the console email backend — no SMTP configuration neede
 | `MDM_SUBDOMAIN`      | Subdomain for My Digital Meal (e.g. `my.digital-meal.ch`). Used when `MDM_ROUTING_MODE=SUBDOMAIN`.                |
 | `MDM_URL_PREFIX`     | URL prefix for My Digital Meal (e.g. `my/`). Used when `MDM_ROUTING_MODE=URL_PREFIX`. Include the trailing slash. |
 
+### My Digital Meal DDM Setup
+
+| Variable                      | Description                                                       |
+|-------------------------------|-------------------------------------------------------------------|
+| `MDM_DDM_TIKTOK_PROJECT_SLUG` | Unique slug of the DDM project used for data donation collection. |
+| `MDM_DDM_TIKTOK_WH_BP_NAME`   | Name of the blueprint used to collect the TikTok watch history.   |
+
 ### TikTok / Portability
 
 | Variable               | Description                                   |

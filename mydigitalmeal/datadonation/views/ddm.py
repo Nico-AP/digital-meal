@@ -3,10 +3,12 @@ import logging
 import zipfile
 from json import JSONDecodeError
 
+from celery import group
 from ddm.datadonation.models import DonationBlueprint
 from ddm.logging.utils import log_server_exception
 from ddm.participation.views import DataDonationView, create_participation_session
 from ddm.projects.models import DonationProject
+from django.db import transaction
 from django.http import Http404, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -20,7 +22,7 @@ from mydigitalmeal.datadonation.constants import (
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.profiles.models import MDMProfile
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
-from mydigitalmeal.statistics.tasks import compute_tiktok_wh_statistics
+from mydigitalmeal.statistics.tasks import compute_tiktok_wh_statistics_from_donation
 from mydigitalmeal.userflow.constants import URLShortcut
 from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 
@@ -149,6 +151,10 @@ class DonationViewDDM(
                 )
                 log_server_exception(self.object, msg)
                 return
+
+            if blueprint.name == TIKTOK_WATCH_HISTORY_BP_NAME:
+                self.validate_received_data(blueprint, blueprint_data)
+
             blueprint.process_donation(blueprint_data, self.participant)
 
         # Added this:
@@ -160,37 +166,21 @@ class DonationViewDDM(
             statistics_requested=True, request_id=statistics_request.public_id
         )
 
-        wh_blueprint = self.get_watch_history_blueprint()
-        if wh_blueprint is None:
-            msg = "No TikTok watch history blueprint in received data."
-            statistics_request.set_failed(msg)
-            return
-
-        wh_data = file_data.get(str(wh_blueprint.pk))
-        if not self.validate_received_data(wh_blueprint, wh_data):
-            msg = f"Invalid watch history data received: {wh_data}"
-            statistics_request.set_failed(msg)
-            return
-
-        extracted_data = wh_data.get("extractedData")
-
-        task_full_stats = compute_tiktok_wh_statistics.delay(
-            watch_history_data=extracted_data,
-            statistics_request_id=statistics_request.pk,
-            statistics_scope=StatisticsScope.FULL,
+        job = group(
+            compute_tiktok_wh_statistics_from_donation.s(
+                statistics_request_id=statistics_request.pk,
+                statistics_scope=StatisticsScope.FULL,
+            ),
+            compute_tiktok_wh_statistics_from_donation.s(
+                statistics_request_id=statistics_request.pk,
+                statistics_scope=StatisticsScope.INTERVAL,
+            ),
         )
-
-        task_interval_stats = compute_tiktok_wh_statistics.delay(
-            watch_history_data=extracted_data,
-            statistics_request_id=statistics_request.pk,
-            statistics_scope=StatisticsScope.INTERVAL,
-        )
+        transaction.on_commit(job.delay)
 
         logger.info(
-            "Scheduled statistics computation for participant %s. Task IDs: %s, %s",
+            "Scheduled statistics computation for participant %s.",
             self.participant.pk,
-            task_full_stats.id,
-            task_interval_stats.id,
         )
 
     def initialize_statistics_request(self) -> StatisticsRequest:
@@ -200,17 +190,6 @@ class DonationViewDDM(
             profile=profile,
             participant=self.participant,
         )
-
-    def get_watch_history_blueprint(self) -> DonationBlueprint | None:
-        try:
-            return DonationBlueprint.objects.get(
-                project=self.object,
-                name=TIKTOK_WATCH_HISTORY_BP_NAME,
-            )
-        except DonationBlueprint.DoesNotExist:
-            msg = "Could not find watch history blueprint in database."
-            logger.warning(msg)
-            return None
 
     def validate_received_data(self, wh_blueprint, wh_data) -> bool:
         if not self.validate_watch_history_data(wh_blueprint, wh_data):

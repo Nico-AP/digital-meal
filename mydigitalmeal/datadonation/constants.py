@@ -1,2 +1,4 @@
-TIKTOK_PROJECT_SLUG = "tik-tok"
-TIKTOK_WATCH_HISTORY_BP_NAME = "Angesehene Videos"
+from django.conf import settings
+
+TIKTOK_PROJECT_SLUG = settings.MDM_DDM_TIKTOK_PROJECT_SLUG
+TIKTOK_WATCH_HISTORY_BP_NAME = settings.MDM_DDM_TIKTOK_WH_BP_NAME

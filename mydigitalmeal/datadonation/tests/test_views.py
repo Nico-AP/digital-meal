@@ -20,7 +20,7 @@ from mydigitalmeal.datadonation.constants import (
 )
 from mydigitalmeal.datadonation.views.ddm import DonationViewDDM
 from mydigitalmeal.profiles.models import MDMProfile
-from mydigitalmeal.statistics.models import StatisticsRequest
+from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
 from mydigitalmeal.userflow.sessions import UserflowSessionManager
 
 User = get_user_model()
@@ -198,16 +198,6 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
         self.assertEqual(statistics_request.profile, self.mdm_profile)
         self.assertEqual(statistics_request.participant, self.participant)
 
-    def test_get_watch_history_blueprint(self):
-        blueprint = self.view.get_watch_history_blueprint()
-        self.assertEqual(blueprint, self.blueprint)
-
-    def test_get_watch_history_blueprint_does_not_exist(self):
-        """Should log warning and return early if blueprint doesn't exist"""
-        self.blueprint.delete()
-        blueprint = self.view.get_watch_history_blueprint()
-        self.assertIsNone(blueprint)
-
     def test_validate_received_data_valid(self):
         bp_data = {
             "consent": True,
@@ -227,11 +217,13 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
         is_valid = self.view.validate_received_data(self.blueprint, bp_data)
         self.assertFalse(is_valid)
 
-    @patch("mydigitalmeal.statistics.tasks.compute_tiktok_wh_statistics.delay")
+    @patch("mydigitalmeal.datadonation.views.ddm.group")
     @patch.object(DonationBlueprint, "validate_donation")
-    def test_successful_task_scheduling(self, mock_validate, mock_task):
+    def test_successful_task_scheduling(self, mock_validate, mock_group):
         mock_validate.return_value = True
-        mock_task.return_value = MagicMock(id="test-task-id")
+
+        mock_group_instance = MagicMock()
+        mock_group.return_value = mock_group_instance
 
         extracted_data = [{"date": "2024-01-01", "link": "https://example.com"}]
         file_data = {
@@ -243,4 +235,13 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
         }
 
         self.view.initialize_statistic_computation(file_data)
-        self.assertEqual(mock_task.call_count, 2)
+
+        self.assertEqual(mock_group.call_count, 1)
+        group_args = mock_group.call_args[0]
+        self.assertEqual(len(group_args), 2)
+
+        # Check both scopes are present
+        signatures = list(group_args)
+        scopes = [sig.kwargs["statistics_scope"] for sig in signatures]
+        self.assertIn(StatisticsScope.FULL, scopes)
+        self.assertIn(StatisticsScope.INTERVAL, scopes)
