@@ -198,7 +198,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
         interval_length = (interval_max - interval_min).days
 
         wh_interval = shared_data_utils.get_entries_in_date_range(
-            watch_history, interval_min, interval_max, "Date"
+            watch_history, interval_min, interval_max, "(D|d)ate"
         )
         wh_interval_ids = [e["id"] for e in wh_interval]
 
@@ -428,7 +428,7 @@ class SearchHistorySectionsMixin(base_views.BlueprintReportMixin):
         """
 
         sh_interval = shared_data_utils.get_entries_in_date_range(
-            search_history, reference_interval[0], reference_interval[1], "Date"
+            search_history, reference_interval[0], reference_interval[1], "(D|d)ate"
         )
 
         return {

@@ -59,8 +59,8 @@ def generate_synthetic_watch_history(start_date: date, days: int = 500) -> dict:
             watch_datetime = timezone.datetime.combine(current_date, watch_time)
 
             entry = {
-                "Date": watch_datetime.isoformat(),
-                "Link": f"https://www.tiktok.com/@/video/{random_string(19)}/",
+                "(D|d)ate": watch_datetime.isoformat(),
+                "(L|l)ink": f"https://www.tiktok.com/@/video/{random_string(19)}/",
             }
 
             history_data.append(entry)
@@ -71,8 +71,8 @@ def generate_synthetic_watch_history(start_date: date, days: int = 500) -> dict:
     # Add favorite video
     for _ in range(5):
         entry = {
-            "Date": current_date.isoformat(),
-            "Link": "https://www.tiktok.com/@/video/7486877232867101974/",
+            "(D|d)ate": current_date.isoformat(),
+            "(L|l)ink": "https://www.tiktok.com/@/video/7486877232867101974/",
         }
         history_data.append(entry)
 
@@ -107,7 +107,7 @@ def generate_synthetic_search_history(latest_date: date, days: int = 500) -> dic
             search_datetime = timezone.datetime.combine(current_date, search_time)
             entry = {
                 "SearchTerm": generate_random_search_term(),
-                "Date": search_datetime.isoformat(),
+                "(D|d)ate": search_datetime.isoformat(),
             }
 
             history_data.append(entry)

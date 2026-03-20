@@ -156,10 +156,10 @@ def extract_search_history_data(
 
 def get_video_id(watch_entry: dict) -> str | None:
     """Get the video id from a watch history entry."""
-    if "Link" not in watch_entry:
+    if "(L|l)ink" not in watch_entry:
         return None
 
-    link_parts = watch_entry["Link"].split("/")
+    link_parts = watch_entry["(L|l)ink"].split("/")
     # Get last non-empty part
     video_id = link_parts[-1] if link_parts[-1] else link_parts[-2]
     return video_id
@@ -167,10 +167,10 @@ def get_video_id(watch_entry: dict) -> str | None:
 
 def get_watch_date(watch_entry: dict) -> str | None:
     """Get the watch date from a watch history entry."""
-    if "Date" not in watch_entry:
+    if "(D|d)ate" not in watch_entry:
         return None
 
-    date_str = watch_entry["Date"]
+    date_str = watch_entry["(D|d)ate"]
     return date_str
 
 
