@@ -87,6 +87,7 @@ class SimpleSignupForm(SignupForm):
                     pass
             # No pre-existing account — fall through to standard allauth signup.
             self.account_already_exists = False
+        self.cleaned_data["username"] = self.cleaned_data.get("email", None)
         user = super().save(request)
         if not user:
             return None
@@ -95,6 +96,7 @@ class SimpleSignupForm(SignupForm):
         return user
 
     def create_teacher(self, request, user):
+        # TODO: Check if can be simplified (use self.cleaned_data directly)
         form_input = SimpleSignupForm(request.POST)
         if form_input.is_valid():
             Teacher.objects.create(
@@ -125,6 +127,7 @@ class SimpleSignupForm(SignupForm):
             resp = flows.signup.prevent_enumeration(request, email=email, phone=phone)
             user = None
         else:
+            self.cleaned_data["username"] = self.cleaned_data.get("email", None)
             user = self.save(request)
             resp = None
         return user, resp
