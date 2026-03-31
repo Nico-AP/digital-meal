@@ -294,6 +294,11 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
         try:
             self.verify_and_consume_state_token(state)
         except ValidationError:
+            # TODO: Delete after debugging
+            logger.warning(
+                f"Error occurred with the following "
+                f"session data: {dict(request.session.items())}"
+            )
             return redirect_to_auth_view(request)
 
         # Check for errors raised by the external service
@@ -332,6 +337,7 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
                 extra={
                     "state_token": state_token,
                     "session_token": session_token,
+                    "port_session": self.port_session,
                 },
             )
             raise ValidationError("State token does not match the session state token.")
