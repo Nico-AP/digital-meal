@@ -27,7 +27,7 @@ class PortabilityWaitingView(
     ) -> HttpResponseRedirect | None:
         """Redirect to report if statistics request ID in session."""
         userflow_session = self.userflow_session.get()
-        if userflow_session.request_id:
+        if getattr(userflow_session, "request_id", None):
             return HttpResponseRedirect(reverse("mdm:userflow:reports:tiktok_report"))
         return None
 
