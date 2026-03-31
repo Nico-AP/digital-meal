@@ -1,4 +1,5 @@
 from django.contrib.auth.mixins import AccessMixin
+from django.shortcuts import redirect
 
 from mydigitalmeal.profiles.models import MDMProfile
 
@@ -18,3 +19,7 @@ class LoginAndProfileRequiredMixin(AccessMixin):
         # route user to
 
         return super().dispatch(request, *args, **kwargs)
+
+    def handle_no_permission(self):
+        """Redirect unauthenticated users to landing page."""
+        return redirect("/")

@@ -2,15 +2,17 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 
 from mydigitalmeal.datadonation.views.ddm import DonationViewDDM
+from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 from shared.portability import views as port_views
 
 
-class PortabilityEntryView(port_views.TikTokAuthView):
+class PortabilityEntryView(LoginAndProfileRequiredMixin, port_views.TikTokAuthView):
     template_name = "datadonation/portability/tiktok_auth.html"
 
 
 class PortabilityWaitingView(
+    LoginAndProfileRequiredMixin,
     AddUserflowSessionMixin,
     port_views.TikTokAwaitDataDownloadView,
 ):
