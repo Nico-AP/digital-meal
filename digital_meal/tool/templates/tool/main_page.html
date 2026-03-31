@@ -5,79 +5,100 @@
 {% block main_content %}
 
   <div class="row">
-    <div class="col me-3 pe-4">
-      <h1>Willkommen im Digital Meal Onlinetool</h1>
-      <p class="ff-non-serif">
-        Hier können Sie neue Klassen für den interaktiven Unterricht erfassen und
-        finden weitere Informationsmaterialien.
-      </p>
-    </div>
-    <div class="col ms-4 m-3 p-3 bg-orange ff-non-serif">
-      <h3>Materialien</h3>
-
-      <p>
-        Hier finden Sie Links zu den allgemeinen Lehrmaterialien.
-      </p>
-      <ul>
-        <li>
-          <a href="https://digital-meal.ch/handbuch"
-             target="_blank">Handbuch</a>
-        </li>
-      </ul>
-      <p>
-        Arbeits- und Unterrichtsmaterialien, die zu spezifischen Modulen passen,
-        finden Sie in den Klassen.
-      </p>
-    </div>
-  </div>
-
-  <div class="mt-4 row">
-    <h3>Meine Klassen</h3>
-
-    <div class="col m-3 p-3 bg-green">
-      <h4>Aktive Klassen</h4>
-      <p>Dies sind Ihre aktiven Klassen:</p>
-      {% if active_classes %}
-        <div class="row row-cols-2">
-          {% for class in active_classes %}
-            <div class="col p-2">
-              <a href="{{ class.get_absolute_url }}" class="link-card">
-                <div class="p-3 bg-yellow">
-                  <b>{{ class.name }}</b><br />
-                  Erstellt am {{ class.date_created|date:"d.m.Y" }}
-                </div>
-              </a>
-            </div>
-          {% endfor %}
-        </div>
-
-      {% else %}
-        <p class="ff-non-serif">Keine aktiven Klassen</p>
-      {% endif %}
+    <div class="col-12 col-md pe-lg-3">
+      <div class="p-3">
+        <h1>Willkommen im Digital Meal Onlinetool</h1>
+        <p class="ff-non-serif">
+          Hier können Sie neue Klassen für den interaktiven Unterricht erfassen und
+          finden weitere Informationsmaterialien.
+        </p>
+      </div>
     </div>
 
-    <div class="col m-3 p-3 bg-purple">
-      <h4>Archiv</h4>
-      <p>
-        Klassen werden 180 Tage nach ihrer Erstellung automatisch archiviert.
-        Archivierte Klassen können nicht mehr bearbeitet werden und die Reports
-        sind nicht länger verfügbar.
-      </p>
-      {% if archived_classes %}
+    <div class="col-12 col-md ps-lg-3">
+      <div class="p-3 bg-orange ff-non-serif">
+        <h3>Materialien</h3>
+
+        <p>
+          Hier finden Sie Links zu den allgemeinen Lehrmaterialien.
+        </p>
         <ul>
-          {% for class in archived_classes %}
-            <li><a href="{{ class.get_absolute_url }}">{{ class.name }}</a></li>
-          {% endfor %}
+          <li>
+            <a href="https://digital-meal.ch/handbuch"
+               target="_blank">Handbuch</a>
+          </li>
         </ul>
-      {% else %}
-        <p class="ff-non-serif">Keine archivierten Klassen</p>
-      {% endif %}
+        <p>
+          Arbeits- und Unterrichtsmaterialien, die zu spezifischen Modulen passen,
+          finden Sie in den Klassen.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4 row gy-3">
+    <div class="col-12">
+      <h3>Meine Klassen</h3>
     </div>
 
-  </div>
-  <div class="mt-4">
-    <p><a class="button" href="{% url 'class_create' %}">Neue Klasse erstellen</a>
-    </p>
+    <div class="col-12 col-lg pe-lg-3">
+      <div class="bg-green p-3">
+        <h4>Aktive Klassen</h4>
+        <p>Dies sind Ihre aktiven Klassen:</p>
+        {% if active_classes %}
+          <div class="row row-cols-2">
+            {% for class in active_classes %}
+              <div class="col p-2">
+                <a href="{{ class.get_absolute_url }}" class="link-card">
+                  <div class="p-3 bg-yellow">
+                    <b>{{ class.name }}</b><br />
+                    Erstellt am {{ class.date_created|date:"d.m.Y" }}
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+
+        {% else %}
+          <p class="ff-non-serif">Keine aktiven Klassen</p>
+        {% endif %}
+      </div>
+      <div class="mt-4">
+        <p>
+          <a class="button" href="{% url 'class_create' %}">
+            Neue Klasse erstellen
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg ps-lg-3">
+      <div class="bg-purple p-3">
+        <h4>Archiv</h4>
+        <p>
+          Klassen werden 180 Tage nach ihrer Erstellung automatisch archiviert.
+          Archivierte Klassen können nicht mehr bearbeitet werden und die Reports
+          sind nicht länger verfügbar.
+        </p>
+        {% if archived_classes %}
+
+          <div class="row">
+            {% for class in archived_classes %}
+              <div class="col-6 p-2">
+                <a href="{{ class.get_absolute_url }}">
+                  <div class="bg-blue p-2 h-100">
+                    {{ class.name }}
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p class="ff-non-serif">Keine archivierten Klassen</p>
+        {% endif %}
+      </div>
+    </div>
+
   </div>
 
 {% endblock main_content %}
