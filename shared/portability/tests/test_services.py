@@ -239,7 +239,17 @@ class TestTikTokPortabilityAPIClient(TestCase):
     """Tests for TikTokPortabilityAPIClient"""
 
     def setUp(self):
-        self.api_client = TikTokPortabilityAPIClient(access_token="test_token")
+        access_token = TikTokAccessToken.objects.create(
+            open_id="test_id",
+            token="test_token",
+            token_expiration_date=timezone.now() + timedelta(hours=1),
+            refresh_token="refresh_token",
+            refresh_token_expiration_date=timezone.now() + timedelta(days=30),
+            scope="some_scope",
+            token_type="Bearer",
+        )
+
+        self.api_client = TikTokPortabilityAPIClient(access_token=access_token)
         self.test_data_request = TikTokDataRequest.objects.create(
             open_id="test_user", request_id=12345, status="pending"
         )

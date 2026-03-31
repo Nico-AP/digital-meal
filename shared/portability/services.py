@@ -209,7 +209,7 @@ class TikTokAccessTokenService:
 
 
 class TikTokPortabilityAPIClient:
-    def __init__(self, access_token: str):
+    def __init__(self, access_token: TikTokAccessToken):
         self.access_token = access_token
         self.data_request_url = "https://open.tiktokapis.com/v2/user/data/add/"
         self.data_request_status_url = "https://open.tiktokapis.com/v2/user/data/check/"
@@ -240,7 +240,7 @@ class TikTokPortabilityAPIClient:
         url = self.data_request_url
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.access_token.token}",
         }
         params = {"fields": "request_id"}
         payload = {"data_format": "json", "category_selection_list": ["all_data"]}
@@ -258,14 +258,14 @@ class TikTokPortabilityAPIClient:
                 f"Failed to make data request to {url}",
                 extra={
                     "request_params": params,
-                    "access_token": self.access_token,
+                    "access_token": self.access_token.pk,
                 },
             )
             return {"error": "Failed to make data request", "details": e}
 
         logger.info(
             "Issued data request for access token %s (pk)",
-            self.access_token,
+            self.access_token.pk,
             extra={
                 "url": self.data_request_url,
                 "status_code": getattr(
@@ -303,7 +303,7 @@ class TikTokPortabilityAPIClient:
         url = self.cancel_data_request_url
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.access_token.token}",
         }
         payload = {
             "request_id": request_id,
@@ -320,7 +320,7 @@ class TikTokPortabilityAPIClient:
                 f"Failed to cancel data request at {url} (request {request_id})",
                 extra={
                     "request_id": request_id,
-                    "access_token": self.access_token,
+                    "access_token": self.access_token.pk,
                 },
             )
             return {"error": "Failed to cancel data request", "details": e}
@@ -432,7 +432,7 @@ class TikTokPortabilityAPIClient:
         url = self.data_request_status_url
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.access_token.token}",
         }
         fields = [
             "request_id",
@@ -575,7 +575,7 @@ class TikTokPortabilityAPIClient:
         request_id = data_request.request_id
         headers = {
             "Content-Type": "application/json",
-            "Authorization": f"Bearer {self.access_token}",
+            "Authorization": f"Bearer {self.access_token.token}",
         }
         payload = {
             "request_id": request_id,

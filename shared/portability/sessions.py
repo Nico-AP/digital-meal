@@ -1,4 +1,3 @@
-import logging
 from dataclasses import asdict, dataclass, replace
 
 from shared.portability.constants import PortabilityContexts
@@ -16,7 +15,6 @@ class PortabilitySession:
 
 
 PORTABILITY_SESSION_KEY = "portability"
-logger = logging.getLogger(__name__)  # TODO: Delete after debugging
 
 
 class PortabilitySessionManager:
@@ -96,8 +94,6 @@ class PortabilitySessionMixin:
         response = self.session_dispatch(request, *args, **kwargs)
         if response:
             return response
-        # TODO: Delete after debugging
-        logger.warning(f"Registered session data: {dict(request.session.items())}")
         return super().dispatch(request, *args, **kwargs)
 
     def session_dispatch(self, request, *args, **kwargs) -> None:

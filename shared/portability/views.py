@@ -294,11 +294,6 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
         try:
             self.verify_and_consume_state_token(state)
         except ValidationError:
-            # TODO: Delete after debugging
-            logger.warning(
-                f"Error occurred with the following "
-                f"session data: {dict(request.session.items())}"
-            )
             return redirect_to_auth_view(request)
 
         # Check for errors raised by the external service
@@ -495,7 +490,7 @@ class TikTokCheckDownloadAvailabilityView(
         """
         context = super().get_context_data(**kwargs)
 
-        api_client = TikTokPortabilityAPIClient(self.access_token.token)
+        api_client = TikTokPortabilityAPIClient(self.access_token)
 
         # Check if data request has already been issued.
         open_id = self.port_session.get_tiktok_open_id()
@@ -608,7 +603,7 @@ class TikTokDataDownloadView(
             raise Http404(request, "Data request not found.")
 
         # Download data
-        api_client = TikTokPortabilityAPIClient(self.access_token.token)
+        api_client = TikTokPortabilityAPIClient(self.access_token)
 
         try:
             return api_client.stream_download_requested_data(data_request)
