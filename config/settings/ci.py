@@ -13,6 +13,7 @@ MDM_SUBDOMAIN = "my.domain.com"
 MDM_URL_PREFIX = "my/"
 
 # Disable SSL redirects for testing
+SESSION_COOKIE_DOMAIN = ".domain.com"
 SECURE_SSL_REDIRECT = False
 SESSION_COOKIE_SECURE = False
 CSRF_COOKIE_SECURE = False
