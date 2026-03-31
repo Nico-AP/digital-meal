@@ -12,13 +12,19 @@
 {% endblock navbar_top %}
 
 {% block content %}
-  <h1>{% translate "Seite konnte nicht gefunden werden" %}</h1>
-  <p>
-    {% if exception %}
-      {{ exception }}
-    {% endif %}
-  </p>
-  <p>
-    <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
-  </p>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{% translate "Seite konnte nicht gefunden werden" %}</h1>
+        <p>
+          {% if exception %}
+            {{ exception }}
+          {% endif %}
+        </p>
+        <p>
+          <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
+        </p>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

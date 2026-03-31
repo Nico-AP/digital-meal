@@ -12,14 +12,20 @@
 {% endblock navbar_top %}
 
 {% block content %}
-  <h1>{% translate "Ungültige Anfrage" %}</h1>
-  <p>
-    {% blocktranslate %}
-      Die Seite konnte nicht geladen werden, weil die Anfrage fehlerhaft war.
-      Das kann passieren, wenn ein Link veraltet ist oder ein Formular doppelt abgeschickt wurde.
-    {% endblocktranslate %}
-  </p>
-  <p>
-    <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
-  </p>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{% translate "Ungültige Anfrage" %}</h1>
+        <p>
+          {% blocktranslate %}
+            Die Seite konnte nicht geladen werden, weil die Anfrage fehlerhaft war.
+            Das kann passieren, wenn ein Link veraltet ist oder ein Formular doppelt abgeschickt wurde.
+          {% endblocktranslate %}
+        </p>
+        <p>
+          <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
+        </p>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

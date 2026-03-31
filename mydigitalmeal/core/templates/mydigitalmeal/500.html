@@ -12,14 +12,20 @@
 {% endblock navbar_top %}
 
 {% block content %}
-  <h1>{% translate "Ein unerwarteter Fehler ist aufgetreten" %}</h1>
-  <p>
-    {% blocktranslate %}
-      Unser Team wurde automatisch über das Problem informiert.
-      Am besten versuchst du es später noch einmal.
-    {% endblocktranslate %}
-  </p>
-  <p>
-    <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
-  </p>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{% translate "Ein unerwarteter Fehler ist aufgetreten" %}</h1>
+        <p>
+          {% blocktranslate %}
+            Unser Team wurde automatisch über das Problem informiert.
+            Am besten versuchst du es später noch einmal.
+          {% endblocktranslate %}
+        </p>
+        <p>
+          <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
+        </p>
+      </div>
+    </div>
+  </div>
 {% endblock content %}

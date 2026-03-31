@@ -12,13 +12,19 @@
 {% endblock navbar_top %}
 
 {% block content %}
-  <h1>{% translate "Du hast keinen Zugriff auf diese Seite" %}</h1>
-  <p>
-    {% blocktranslate %}
-      Falls du glaubst, dass das ein Fehler ist, wende dich bitte an den <a href="mailto:kontakt@digital-meal.ch">Support</a>.
-    {% endblocktranslate %}
-  </p>
-  <p>
-    <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
-  </p>
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <h1>{% translate "Du hast keinen Zugriff auf diese Seite" %}</h1>
+        <p>
+          {% blocktranslate %}
+            Falls du glaubst, dass das ein Fehler ist, wende dich bitte an den <a href="mailto:kontakt@digital-meal.ch">Support</a>.
+          {% endblocktranslate %}
+        </p>
+        <p>
+          <a href="{% url 'mdm:userflow:landing_page' %}">zur Startseite</a>
+        </p>
+      </div>
+    </div>
+  </div>
 {% endblock content %}
