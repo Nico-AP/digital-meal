@@ -1,5 +1,6 @@
 from datetime import timedelta
 from unittest.mock import patch
+from urllib.parse import parse_qs, urlparse
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
@@ -49,15 +50,19 @@ class TestTikTokAuthView(TestCase):
         view = TikTokAuthView()
         view.state_token = "mock-state"
 
-        expected_auth_url = (
-            "https://www.tiktok.com/auth/?client_key=test-client-key-123"
-            "&scope=user.info.basic,portability.all.single"
-            "&redirect_uri=https://www.some-url.com/callback/"
-            f"&state={view.state_token}"
-            "&response_type=code"
-        )
         auth_url = view.build_auth_url()
-        self.assertEqual(expected_auth_url, auth_url)
+        parsed = urlparse(auth_url)
+        params = parse_qs(parsed.query)
+
+        self.assertEqual(
+            parsed.scheme + "://" + parsed.netloc + parsed.path,
+            "https://www.tiktok.com/auth/",
+        )
+        self.assertEqual(params["client_key"], ["test-client-key-123"])
+        self.assertEqual(params["scope"], ["user.info.basic,portability.all.single"])
+        self.assertEqual(params["redirect_uri"], ["https://www.some-url.com/callback/"])
+        self.assertEqual(params["state"], ["mock-state"])
+        self.assertEqual(params["response_type"], ["code"])
 
     def test_get_or_create_state_token_returns_existing_valid_token(self):
         token = OAuthStateToken.objects.create()

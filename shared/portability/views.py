@@ -3,12 +3,14 @@ import json
 import logging
 import time
 import zipfile
+from urllib.parse import urlencode
 
 import requests
 from django.conf import settings
 from django.contrib import messages
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
+from django.db import transaction
 from django.http import (
     Http404,
     HttpResponse,
@@ -66,6 +68,15 @@ def redirect_to_auth_view(
 
     port_session = PortabilitySessionManager.from_request(request)
     port_context = port_session.get_context()
+
+    # Fall back to the DB token's context when the session context is unavailable
+    # (e.g. after a cross-subdomain session flush during the OAuth callback).
+    if port_context is None:
+        state = request.GET.get("state")
+        if state:
+            token_obj = OAuthStateToken.objects.filter(token=state).first()
+            if token_obj:
+                port_context = token_obj.context
 
     if port_context == PortabilityContexts.MY_DM:
         redirect_url = absolute_reverse("mdm:userflow:datadonation:port_tt_connect")
@@ -230,26 +241,14 @@ class TikTokAuthView(PortabilitySessionMixin, TemplateView):
         Returns:
             str: The TikTok authentication URL.
         """
-        auth_url = settings.TIKTOK_AUTH_URL
-        client_key = settings.TIKTOK_CLIENT_KEY
-        scope = "user.info.basic,portability.all.single"
-        redirect_uri = settings.TIKTOK_REDIRECT_URL
-        state = self.state_token
-        response_type = "code"
-
-        return (
-            auth_url
-            + "?client_key="
-            + client_key
-            + "&scope="
-            + scope
-            + "&redirect_uri="
-            + redirect_uri
-            + "&state="
-            + state
-            + "&response_type="
-            + response_type
-        )
+        params = {
+            "client_key": settings.TIKTOK_CLIENT_KEY,
+            "scope": "user.info.basic,portability.all.single",
+            "redirect_uri": settings.TIKTOK_REDIRECT_URL,
+            "state": self.state_token,
+            "response_type": "code",
+        }
+        return f"{settings.TIKTOK_AUTH_URL}?{urlencode(params)}"
 
     def get_context_data(self, **kwargs):
         """Adds the TikTok authentication URL to the template context."""
@@ -337,24 +336,28 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
             )
             raise ValidationError("State token does not match the session state token.")
 
-        if not OAuthStateToken.objects.filter(token=session_token).exists():
-            logger.info(
-                "Tried to retrieve non existing OAuthStateToken: %s", session_token
-            )
-            raise ValidationError("Authentication token does not exist.")
+        with transaction.atomic():
+            try:
+                token = OAuthStateToken.objects.select_for_update().get(
+                    token=session_token
+                )
+            except OAuthStateToken.DoesNotExist as e:
+                logger.info(
+                    "Tried to retrieve non existing OAuthStateToken: %s", session_token
+                )
+                raise ValidationError("Authentication token does not exist.") from e
 
-        token = OAuthStateToken.objects.get(token=session_token)
-        if token.is_expired() or token.used:
-            logger.info(
-                "Tried to use expired OAuthStateToken: %s (pk: %s)",
-                token.token,
-                token.pk,
-            )
-            raise ValidationError("Authentication token is expired.")
+            if token.is_expired() or token.used:
+                logger.info(
+                    "Tried to use expired OAuthStateToken: %s (pk: %s)",
+                    token.token,
+                    token.pk,
+                )
+                raise ValidationError("Authentication token is expired.")
 
-        # If token is valid, set it to used and delete token from session.
-        token.used = True
-        token.save()
+            token.used = True
+            token.save()
+
         self.port_session.delete_token()
 
     def get(self, request, *args, **kwargs):

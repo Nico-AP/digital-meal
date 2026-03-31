@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model, logout
+from django.urls import Resolver404, resolve
 
 from shared.routing.allauth_integration.context import current_request_var
 from shared.routing.allauth_integration.sessions import AuthSessionManager
@@ -22,6 +23,9 @@ class SubdomainAuthMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
+        if self.is_exempt(request):
+            return self.get_response(request)
+
         if self.should_use_mdm_context(request):
             current_ctxt = AuthContexts.MY_DM
             request.template_prefix = AuthContexts.MY_DM
@@ -57,6 +61,17 @@ class SubdomainAuthMiddleware:
         if curr_context == AuthContexts.MY_DM:
             return False
         return prev_context != curr_context
+
+    def is_exempt(self, request) -> bool:
+        """Return True if this request should bypass the middleware entirely.
+
+        Views that are legitimately reached via a cross-domain redirect (e.g.
+        OAuth callbacks) should be exempt so their session is not disturbed.
+        """
+        try:
+            return resolve(request.path_info).url_name in {"tiktok_callback"}
+        except Resolver404:
+            return False
 
     def should_logout_user(self, user: User) -> bool:
         """Return True if the user should be logged out on a context switch."""

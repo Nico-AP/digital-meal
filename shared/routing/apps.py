@@ -6,3 +6,6 @@ class SharedRoutingConfig(AppConfig):
     name = "shared.routing"
     label = "routing"
     verbose_name = "Digital Meal Routing"
+
+    def ready(self):
+        from shared.routing import checks  # noqa: F401, PLC0415

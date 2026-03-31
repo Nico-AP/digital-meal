@@ -3,13 +3,15 @@ from pathlib import Path
 import ddm.core
 
 from .base import *  # noqa: F403
-from .base import INSTALLED_APPS, MIDDLEWARE
+from .base import INSTALLED_APPS, MIDDLEWARE, env
 
 # DEBUG
 # ------------------------------------------------------------------------------
 DEBUG = True
 
 SITE_ID = 1
+
+SESSION_COOKIE_DOMAIN = env.str("SESSION_COOKIE_DOMAIN", default=None)
 
 # django-debug-toolbar - https://github.com/django-commons/django-debug-toolbar
 # ------------------------------------------------------------------------------

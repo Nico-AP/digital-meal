@@ -5,6 +5,7 @@ from django.contrib.auth.models import AnonymousUser
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.template import TemplateDoesNotExist
 from django.test import RequestFactory, TestCase, override_settings
+from django.urls import reverse
 
 from digital_meal.tool.models import Teacher
 from shared.routing.allauth_integration.adapters import SubdomainAccountAdapter
@@ -139,6 +140,28 @@ class TestAuthSessionManager(TestCase):
 
     def test_delete_is_noop_when_session_absent(self):
         self.manager.delete()  # must not raise
+
+
+# SubdomainAuthMiddleware - is_exempt ------------------------------------------
+
+
+class TestIsExempt(TestCase):
+    def setUp(self):
+        self.middleware = SubdomainAuthMiddleware(get_response=lambda r: None)
+
+    def test_tiktok_callback_url_is_exempt(self):
+        """Fails if tiktok_callback is renamed without updating is_exempt."""
+        callback_path = reverse("tiktok_callback")
+        request = _get_request_with_session(callback_path)
+        self.assertTrue(self.middleware.is_exempt(request))
+
+    def test_non_callback_path_is_not_exempt(self):
+        request = _get_request_with_session("/portability/tiktok/auth/")
+        self.assertFalse(self.middleware.is_exempt(request))
+
+    def test_unknown_path_is_not_exempt(self):
+        request = _get_request_with_session("/this/does/not/exist/")
+        self.assertFalse(self.middleware.is_exempt(request))
 
 
 # SubdomainAuthMiddleware - should_enforce_context_change ----------------------
