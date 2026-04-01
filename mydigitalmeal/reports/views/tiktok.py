@@ -1,9 +1,8 @@
 import logging
 import random
 
-from django.http import Http404
-from django.shortcuts import redirect
-from django.urls import reverse_lazy
+from django.http import HttpResponse
+from django.urls import reverse, reverse_lazy
 from django.views.generic import TemplateView
 
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
@@ -20,6 +19,10 @@ class MainReportView(LoginAndProfileRequiredMixin, TemplateView):
     login_url = reverse_lazy(URLShortcut.LOGIN)
 
 
+class NoReportView(LoginAndProfileRequiredMixin, TemplateView):
+    template_name = "reports/report_not_available.html"
+
+
 class StatisticsView(
     LoginAndProfileRequiredMixin, AddUserflowSessionMixin, TemplateView
 ):
@@ -31,9 +34,14 @@ class StatisticsView(
         """Redirect to entry view if no statistics request ID in session"""
         session = self.userflow_session.get()
         if not session.statistics_requested or session.request_id is None:
-            return redirect(self.session_invalid_redirect)
+            return self.htmx_redirect(self.session_invalid_redirect)
 
         return None
+
+    def htmx_redirect(self, url_name: str):
+        response = HttpResponse()
+        response["HX-Redirect"] = reverse(url_name)
+        return response
 
     def get(self, request, *args, **kwargs):
         session = self.userflow_session.get()
@@ -46,17 +54,18 @@ class StatisticsView(
                 "StatisticsRequest with ID %s from userflow session not found",
                 session.request_id,
             )
-            return redirect(self.session_invalid_redirect)
+            return self.htmx_redirect(self.session_invalid_redirect)
 
         if self.statistics_request.has_failed():
             # Statistics computation failed
-            # TODO: Handle this better
-            msg = "Statistics could not be computed"
             logger.info(
-                "Statistics request %s has failed and could not be retrieved",
+                "Statistics request %s has failed and could not be "
+                "retrieved (status details: %s)",
                 self.statistics_request.public_id,
+                self.statistics_request.status_detail,
             )
-            raise Http404(msg)
+            return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -69,13 +78,12 @@ class StatisticsView(
         self._stats = self.load_statistics()
 
         if self._stats is None:
-            # TODO: Optimize this
             logger.info(
-                "Statistics request %s: Unable to load statistics.",
+                "Statistics request %s: Unable to load statistics (status details: %s)",
                 self.statistics_request.public_id,
+                self.statistics_request.status_detail,
             )
-            msg = "Something went wrong - report could not be generated"
-            raise Http404(msg)
+            return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
 
         context |= self._get_video_viewed_stats()
         context |= self._get_daily_routine_stats()

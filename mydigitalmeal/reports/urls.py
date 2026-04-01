@@ -16,6 +16,11 @@ tiktok_report_views = [
         tiktok_views.StatisticsView.as_view(),
         name="tiktok_statistics",
     ),
+    path(
+        "tiktok/report-unavailable/",
+        tiktok_views.NoReportView.as_view(),
+        name="report_unavailable",
+    ),
 ]
 
 
