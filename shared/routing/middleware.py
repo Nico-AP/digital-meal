@@ -23,7 +23,16 @@ class SubdomainRoutingMiddleware:
 
     def __call__(self, request):
         if settings.MDM_ROUTING_MODE == MDMRoutingModes.SUBDOMAIN:
-            host = request.get_host().split(":")[0].lower()
+            host_parts = request.get_host().split(":")
+            host = host_parts[0].lower()
+
+            # Append port in local development settings
+            if (
+                len(host_parts) > 1
+                and settings.SETTINGS_MODULE == "config.settings.local"
+            ):
+                host = f"{host}:{host_parts[1]}"
+
             if host == settings.MDM_SUBDOMAIN:
                 request.urlconf = _MDM_URLCONF
             elif host == settings.MDM_MAIN_DOMAIN:
