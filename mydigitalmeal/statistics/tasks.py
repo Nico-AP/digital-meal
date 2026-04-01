@@ -42,6 +42,18 @@ def compute_tiktok_wh_statistics_from_donation(
     try:
         watch_history_data = get_tiktok_wh_data(participant)
 
+        if not watch_history_data:
+            statistics_request.set_failed(status_detail="No data in watch history")
+            logger.info(
+                "Received no data in watch history (statistics request: %s)",
+                statistics_request.pk,
+            )
+            return {
+                "status": "success",
+                "statistics_request_id": str(statistics_request.public_id),
+                "stats_id": None,
+            }
+
         stats_dict = WatchHistoryStatisticsGenerator(
             watch_history_data,
             scope=statistics_scope,
