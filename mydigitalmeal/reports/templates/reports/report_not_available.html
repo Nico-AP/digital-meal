@@ -16,15 +16,17 @@
 
         <div class="mt-4 mdm-text">
 
-          <h1>Report konnte nicht erstellt werden</h1>
+          <h1>{% translate "Report konnte nicht erstellt werden" %}</h1>
 
           <div class="mdm-text pt-4">
             <p>
-              Das kann verschiedene Gründe haben – möglicherweise hast du der
-              Übermittlung deiner Daten nicht zugestimmt oder die übermittelten Daten erhielten die benötigten Informationen nicht.
+              {% blocktranslate %}
+                Das kann verschiedene Gründe haben – möglicherweise hast du der
+                Übermittlung deiner Daten nicht zugestimmt oder die übermittelten Daten erhielten die benötigten Informationen nicht.
+              {% endblocktranslate %}
             </p>
             <p>
-              Wenn du möchtest, kannst du es erneut versuchen.
+              {% translate "Wenn du möchtest, kannst du es erneut versuchen." %}
             </p>
           </div>
         </div>
@@ -33,7 +35,7 @@
 
     <div class="row justify-content-center mt-3">
       <div class="col col-lg-10 col-xl-8 text-center mdm-text">
-        <a href="{% url 'mdm:userflow:overview' %}">Nochmals versuchen</a>
+        <a href="{% url 'mdm:userflow:overview' %}">{% translate "Nochmals versuchen" %}</a>
       </div>
     </div>
 
