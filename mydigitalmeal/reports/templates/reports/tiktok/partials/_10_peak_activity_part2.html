@@ -1,0 +1,98 @@
+{% load i18n static %}
+
+{% blocktranslate asvar question %}
+  Was denkst du,<br />
+  wie viele Videos hast du<br />
+  an diesem Tag angeschaut?
+{% endblocktranslate %}
+
+{% blocktranslate asvar caption_feedback count video_count=peak_day_video_count %}
+  Du hast<br />
+  <strong>{{ video_count }} Video</strong><br />
+  angeschaut
+{% plural %}
+  Du hast<br />
+  <strong>{{ video_count }} Videos</strong><br />
+  angeschaut
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="10"
+    intro_duration="500"
+    outro_duration="1300"
+    intro_hide_delay="0"
+    content_hide_delay="1300"
+    content_classes="show-on-top-500"
+    outro_classes="show-on-top-600"
+>
+  <c-slot name="intro"></c-slot>
+
+  <c-slot name="content">
+    <div id="peak-day-guess-question-container">
+      <div class="pb-3">
+        {{ question }}
+      </div>
+
+      {% if peak_guesses %}
+        <div>
+          {% for guess_value in peak_guesses %}
+            <div>
+              <button type="button" class="btn mdm-color-btn-v4 guess-btn" data-guess-value="{{ guess_value }}">{{ guess_value }}</button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    {# Correct answer #}
+    <div id="peak-day-guess-correct" class="report-peak-day-guess-correct-container">
+      <div class="report-peak-day-guess-correct-animation-container h-100">
+        {% include "reports/animations/fireworks.svg" %}
+      </div>
+
+      <div class="report-peak-day-guess-info-container w-100">
+        <p>
+          {% translate "Genau!" %}
+        </p>
+
+        <p class="report-peak-day-guess-info-secondary">
+          {{ caption_feedback }}
+        </p>
+      </div>
+    </div>
+
+    {# Wrong answer #}
+    <div id="peak-day-guess-wrong" class="report-peak-day-guess-wrong-container w-100">
+
+      <div class="report-peak-day-guess-wrong-animation-container h-100">
+        {% include "reports/animations/half_circle_fall_down.svg" %}
+      </div>
+
+      <div class="report-peak-day-guess-info-container w-100">
+        <p>
+          {% translate "Fast!" %}
+        </p>
+
+        <p class="report-peak-day-guess-info-secondary">
+          {{ caption_feedback }}
+        </p>
+      </div>
+    </div>
+
+    <input type="hidden" id="peak-day-correct-guess" value="{{ peak_day_video_count }}" />
+  </c-slot>
+
+  <c-slot name="outro">
+    <div id="answer-wrong-outro" class="d-none">
+      <div class="slide-10-outro-answer-wrong-animation-container">
+        {% include "reports/animations/half_circle_disappear.svg" %}
+      </div>
+    </div>
+
+    <div id="answer-correct-outro" class="d-none">
+      {% include "reports/animations/circle_appear_black.svg" %}
+    </div>
+
+  </c-slot>
+
+</c-report-slide>

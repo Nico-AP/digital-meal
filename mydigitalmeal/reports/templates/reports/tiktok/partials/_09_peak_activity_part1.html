@@ -1,0 +1,46 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption with peak_date=peak_day_date|date:"j.n.Y" peak_name=peak_day_date|date:"l" %}
+  <strong>Am aktivsten</strong><br />
+  warst du<br />
+  am <strong>{{  peak_name }},<br />
+  {{ peak_date }}</strong>
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="9"
+    intro_duration="550"
+    outro_duration="1000"
+    content_hide_delay="0"
+    content_classes="show-on-top-500"
+>
+  <c-slot name="intro">
+    <div class="pb-4 opacity-0">
+      {{ caption }}
+    </div>
+
+    <div class="w-100">
+      {% include "reports/animations/half_star_appear.svg" %}
+    </div>  </c-slot>
+
+  <c-slot name="content">
+    <div class="pb-4">
+      {{ caption }}
+    </div>
+
+    <div class="w-100 opacity-0">
+      {% include "reports/animations/half_star_static.svg" %}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    <div class="pb-4 opacity-0">
+      {{ caption }}
+    </div>
+
+    <div>
+      {% include "reports/animations/half_star_disappear.svg" %}
+    </div>
+  </c-slot>
+
+</c-report-slide>

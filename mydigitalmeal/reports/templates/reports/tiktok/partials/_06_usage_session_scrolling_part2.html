@@ -1,0 +1,45 @@
+{% load i18n static %}
+
+<c-report-slide
+    slide_nr="6"
+    intro_duration="0"
+    outro_duration="2000"
+    autoplay="5000"
+    content_classes="show-on-top-500"
+>
+  <c-slot name="intro">
+    {% include "reports/animations/star_scrolling.svg" %}
+  </c-slot>
+
+  <c-slot name="content">
+    {% with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0"  %}
+      <div class="text-black fw-bold">
+        {% if scroll_threshold_sec <= 3 %}
+          {% blocktranslate %}
+            Du weisst<br />sofort, was du<br />nicht magst
+          {% endblocktranslate %}
+
+        {% elif scroll_threshold_sec <= 5 %}
+          {% blocktranslate %}
+            Du weisst,<br />was du magst
+          {% endblocktranslate %}
+
+        {% elif scroll_threshold_sec >= 3 and scroll_threshold_sec < 10 %}
+          {% blocktranslate %}
+            Du wählst<br />mit Bedacht
+          {% endblocktranslate %}
+
+        {% elif scroll_threshold_sec >= 10 %}
+          {% blocktranslate %}
+            Du vertraust<br />TikTok
+          {% endblocktranslate %}
+
+        {% endif %}
+      </div>
+    {% endwith %}
+  </c-slot>
+
+  <c-slot name="outro">
+  </c-slot>
+
+</c-report-slide>

@@ -10,6 +10,12 @@ document.addEventListener('click', (e) => {
   const wrongEl = document.getElementById('peak-day-guess-wrong');
   const target = isCorrect ? correctEl : wrongEl;
 
+  if (target === correctEl) {
+    document.getElementById('answer-correct-outro').classList.remove('d-none');
+  } else {
+    document.getElementById('answer-wrong-outro').classList.remove('d-none');
+  }
+
   const questionContainer = document.getElementById('peak-day-guess-question-container');
 
   // Step 1: fade out question
@@ -19,15 +25,15 @@ document.addEventListener('click', (e) => {
   questionContainer.addEventListener('transitionend', () => {
     questionContainer.style.display = 'none';
 
-    // Step 2: fade in answer with slight upward drift
+    // Step 2: fade in answer
     target.style.display = 'block';
     target.style.opacity = '0';
-    target.style.transform = 'translateY(12px)';
-    target.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+    target.style.transform = 'scale(0.2)';
+    target.style.transition = 'opacity 0.3s ease-out, transform 0.3s ease-out';
 
     target.offsetHeight; // force reflow
 
     target.style.opacity = '1';
-    target.style.transform = 'translateY(0)';
+    target.style.transform = 'scale(1)';
   }, { once: true });
 });

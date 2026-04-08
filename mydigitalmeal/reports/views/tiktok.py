@@ -3,9 +3,11 @@ import random
 
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
+from django.utils.safestring import mark_safe
 from django.views.generic import TemplateView
 
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
+from mydigitalmeal.reports.plots.activity_image import generate_activity_image_svg
 from mydigitalmeal.reports.utils import get_tiktok_video_metadata
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
 from mydigitalmeal.userflow.constants import URLShortcut
@@ -107,7 +109,6 @@ class StatisticsView(
         return any(s is not None for s in d.values())
 
     def _get_video_viewed_stats(self) -> dict:
-        """For "reports/tiktok/partials/_video_viewed_stats.html" template"""
         stats = {
             "videos_total": self._stats.total_videos,
             "videos_per_day": self._stats.videos_per_day,
@@ -116,7 +117,6 @@ class StatisticsView(
         return stats
 
     def _get_daily_routine_stats(self) -> dict:
-        """For "reports/tiktok/partials/_daily_routine.html" template"""
         hour_start = self._stats.peak_hour
         hour_start = 0 if hour_start == 24 else hour_start  # noqa: PLR2004
         hour_end = hour_start + 1 if hour_start is not None else None
@@ -129,7 +129,6 @@ class StatisticsView(
         return stats
 
     def _get_usage_session_scrolling(self) -> dict:
-        """For "reports/tiktok/partials/_usage_session_scrolling.html" template"""
         stats = {
             "scroll_threshold_pct": self._stats.scroll_threshold_pct,
             "scroll_threshold_sec": self._stats.scroll_threshold_sec,
@@ -140,7 +139,6 @@ class StatisticsView(
         return stats
 
     def _get_top_video(self) -> dict:
-        """For "reports/tiktok/partials/_top_video.html" template"""
         video_metadata = get_tiktok_video_metadata(self._stats.top_video_id)
         # TODO: Fallback when video does not exist;
         #  currently, this report part will just be skipped
@@ -154,8 +152,6 @@ class StatisticsView(
         return stats
 
     def _get_peak_day(self) -> dict:
-        """For "reports/tiktok/partials/_peak_day.html" template"""
-
         def generate_guess_options(correct: int, n_options: int = 3) -> dict[int, bool]:
             options = {
                 correct: True,
@@ -209,8 +205,7 @@ class StatisticsView(
         return stats
 
     def _get_usage_session_general(self) -> dict:
-        """For "reports/tiktok/partials/_usage_session_general.html" template"""
-        stats = {
+        stats: dict[any] = {
             "usage_session_n_days": self._stats.total_days_with_activity,
             "usage_session_minutes_mean": self._stats.avg_session_duration_seconds,
             "usage_session_videos_mean": self._stats.avg_videos_per_session,
@@ -220,13 +215,34 @@ class StatisticsView(
             {"usage_session_general_available": self.not_all_stats_none(stats)}
         )
 
-        """
-        TODO: Still needs to be implemented
-        from mydigitalmeal.reports.utils import generate_usage_session_image
-        d = {
-            "usage_session_image_a": "TODO",
-            "usage_session_image_days_highlighted": "TODO",
-        }
-        """
+        activity_matrix = self._stats.date_hour_activity_matrix
+        if activity_matrix:
+            color_choice = random.choice(list(range(1, 7)))  # noqa: S311
+            usage_img_animated = generate_activity_image_svg(
+                activity_matrix, color_set=color_choice
+            )
+            usage_img_static = generate_activity_image_svg(
+                activity_matrix, animated=False, color_set=color_choice
+            )
+            usage_img_highlighted_animated = generate_activity_image_svg(
+                activity_matrix, highlight_days=True, color_set=color_choice
+            )
+            usage_img_highlighted_static = generate_activity_image_svg(
+                activity_matrix,
+                highlight_days=True,
+                animated=False,
+                color_set=color_choice,
+            )
+
+            stats.update(
+                {
+                    "usage_img": mark_safe(usage_img_animated),  # noqa: S308
+                    "usage_img_static": mark_safe(usage_img_static),  # noqa: S308
+                    "usage_img_highlighted": mark_safe(usage_img_highlighted_animated),  # noqa: S308
+                    "usage_img_highlighted_static": mark_safe(  # noqa: S308
+                        usage_img_highlighted_static
+                    ),
+                }
+            )
 
         return stats

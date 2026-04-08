@@ -1,0 +1,40 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption with minutes=usage_session_minutes_mean|floatformat:"0" count minutes_counter=usage_session_minutes_mean %}
+  Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minute
+{% plural %}
+  Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minuten
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="13"
+    intro_duration="0"
+    outro_duration="1500"
+    content_hide_delay="0"
+>
+  <c-slot name="intro">
+    <div class="h-50"></div>
+    <div class="h-50 d-flex align-items-start">
+      {% include "reports/animations/col_grow.svg" %}
+    </div>
+  </c-slot>
+
+  <c-slot name="content">
+    <div id="slide-13-content-caption" class="h-50 d-flex align-items-end pb-3">
+      {{ caption }}
+    </div>
+
+    <div class="h-50"></div>
+
+  </c-slot>
+
+  <c-slot name="outro">
+    <div id="slide-13-outro-caption" class="h-50 d-flex align-items-end pb-3">
+      {{ caption }}
+    </div>
+    <div class="h-50 d-flex align-items-start">
+      {% include "reports/animations/col_shrink.svg" %}
+    </div>
+  </c-slot>
+
+</c-report-slide>

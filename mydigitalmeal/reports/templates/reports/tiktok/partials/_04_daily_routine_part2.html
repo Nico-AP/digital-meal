@@ -1,0 +1,30 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption %}
+  Am<br />
+  <strong>meisten Videos</strong><br />
+  hast du<br />
+  von <strong>{{ routine_start_hour }}–{{ routine_end_hour }} Uhr</strong><br />
+  angeschaut
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="4"
+    intro_duration="0"
+    outro_duration="1500"
+>
+  <c-slot name="intro">
+    {% include "reports/animations/circle_disappear_black.svg" %}
+  </c-slot>
+
+  <c-slot name="content">
+    <div>
+      {{ caption }}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    {% include "reports/animations/circle_appear_black.svg" %}
+  </c-slot>
+
+</c-report-slide>

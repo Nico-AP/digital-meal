@@ -1,0 +1,22 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption %}
+  Ein Video scheint<br />dir besonders zu gefallen
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="7"
+    intro_duration="500"
+    outro_duration="500"
+>
+  <c-slot name="intro"></c-slot>
+
+  <c-slot name="content">
+    <div>
+      {{ caption }}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro"></c-slot>
+
+</c-report-slide>

@@ -1,0 +1,48 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption %}
+  Du hast TikTok an<br />
+  <strong>{{ usage_session_n_days }} von 30 Tagen</strong><br />
+  genutzt
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="12"
+    intro_duration="1500"
+    outro_duration="1800"
+    intro_hide_delay="0"
+    content_hide_delay="0"
+>
+  <c-slot name="intro">
+
+    <div class="pt-3 mb-3">
+      {{ usage_img_static }}
+    </div>
+
+    <div id="slide-12-intro-caption" class="report-usage-image-caption">
+      {{ caption }}
+    </div>
+
+  </c-slot>
+
+  <c-slot name="content">
+    <div class="pt-3">
+      {{ usage_img_highlighted }}
+    </div>
+
+    <div id="slide-12-content-caption" class="pt-3 report-usage-image-caption">
+      {{ caption }}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    <div id="slide-12-outro-img" class="pt-3">
+      {{ usage_img_highlighted_static }}
+    </div>
+
+    <div id="slide-12-outro-caption" class="pt-3 report-usage-image-caption">
+      {{ caption }}
+    </div>
+  </c-slot>
+
+</c-report-slide>

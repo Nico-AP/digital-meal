@@ -1,0 +1,81 @@
+{% load i18n static %}
+
+<c-report-slide
+    slide_nr="3"
+    intro_duration="50"
+    outro_duration="0"
+    autoplay="5500"
+    content_classes="show-on-top-500"
+>
+  <c-slot name="intro">
+  {% if routine_start_hour >= 5 and routine_start_hour <= 8 %}
+    {% include "reports/animations/alarm.svg" %}
+
+  {% elif routine_start_hour >= 9 and routine_start_hour <= 11 %}
+    {% include "reports/animations/sun.svg" %}
+
+  {% elif routine_start_hour == 12 %}
+    {% include "reports/animations/lunch.svg" %}
+
+  {% elif routine_start_hour >= 13 and routine_start_hour <= 17 %}
+    {% include "reports/animations/mug.svg" %}
+
+  {% elif routine_start_hour >= 18 and routine_start_hour <= 19 %}
+    {% include "reports/animations/bowl.svg" %}
+
+  {% elif routine_start_hour >= 20 and routine_start_hour <= 22 %}
+    {% include "reports/animations/heart.svg" %}
+
+  {% elif routine_start_hour >= 23 or routine_start_hour <= 4 %}
+    {% include "reports/animations/moon.svg" %}
+
+  {% endif %}
+  </c-slot>
+
+  <c-slot name="content">
+  <div class="text-black fw-bold">
+    {# Daytime label assignment #}
+
+    {% if routine_start_hour >= 5 and routine_start_hour <= 8 %}
+      {% blocktranslate %}
+        Dein Wecker<br />macht TikTok
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour >= 9 and routine_start_hour <= 11 %}
+      {% blocktranslate %}
+        TikTok<br />am Morgen<br />verscrollt<br />Kummer und<br />Sorgen
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour == 12 %}
+      {% blocktranslate %}
+        TikTok<br />zum<br />Zmittag
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour >= 13 and routine_start_hour <= 17 %}
+      {% blocktranslate %}
+        Produktive<br />Nachmittage<br />brauchen<br />Pausen
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour >= 18 and routine_start_hour <= 19 %}
+      {% blocktranslate %}
+        TikTok<br />zum<br />Znacht
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour >= 20 and routine_start_hour <= 22 %}
+      {% blocktranslate %}
+        TikTok<br />am Abend?<br />Hervorragend!
+      {% endblocktranslate %}
+
+    {% elif routine_start_hour >= 23 or routine_start_hour <= 4 %}
+      {% blocktranslate %}
+        Schlaf ist<br />überbewertet
+      {% endblocktranslate %}
+
+    {% endif %}
+  </div>
+  </c-slot>
+
+  <c-slot name="outro">
+  </c-slot>
+
+</c-report-slide>

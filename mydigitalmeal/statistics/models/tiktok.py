@@ -106,6 +106,10 @@ class TikTokWatchHistoryStatistics(BaseModelStatistics):
     top_video_seen_count = models.PositiveIntegerField(null=True, blank=True)
     top_video_last_seen_date = models.DateTimeField(null=True, blank=True)
 
+    date_hour_activity_matrix = models.JSONField(
+        null=True, blank=True
+    )  # list[list[int]], shape (n dates, 24)
+
     class Meta:
         verbose_name = "TikTok Watch History Statistics"
         verbose_name_plural = "TikTok Watch History Statistics"

@@ -1,0 +1,49 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption %}
+  Die letzten <strong>30 Tage</strong><br />
+  von TikTok und dir<br />
+  als <strong>abstraktes<br />
+  Meisterwerk</strong>
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="11"
+    intro_duration="2500"
+    outro_duration="2100"
+    intro_hide_delay="0"
+    content_hide_delay="0"
+>
+  <c-slot name="intro">
+
+    <div class="report-usage-image-caption pb-3">
+      {{ caption }}
+    </div>
+
+    <div id="slide-11-intro-img" class="mb-3">
+      {{ usage_img }}
+    </div>
+
+  </c-slot>
+
+  <c-slot name="content">
+    <div class="report-usage-image-caption">
+      {{ caption }}
+    </div>
+
+    <div class="pt-3 mb-3">
+      {{ usage_img_static }}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    <div id="slide-11-outro-caption" class="report-usage-image-caption">
+      {{ caption }}
+    </div>
+
+    <div class="pt-3 mb-3">
+      {{ usage_img_static }}
+    </div>
+  </c-slot>
+
+</c-report-slide>

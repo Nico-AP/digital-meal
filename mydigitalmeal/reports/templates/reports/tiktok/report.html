@@ -2,6 +2,8 @@
 
 {% load static i18n django_htmx routing_tags %}
 
+{% block bodyclass %}report-page-background{% endblock bodyclass %}
+
 {% block page_title %}{% translate "TikTok Report" %}{% endblock page_title %}
 
 {% block extra_head %}{% htmx_script %}{% endblock extra_head %}
@@ -14,12 +16,31 @@
 
         <div id="report-statistics" class="htmx-smooth-transition"
              hx-get="{% absolute_url 'mdm:userflow:reports:tiktok_statistics' %}"
-             hx-trigger="every 5s"
-             hx-swap="outerHTML swap:500ms settle:500ms">
+             hx-trigger="load, every 5s"
+             hx-swap="outerHTML swap:1500ms settle:1500ms">
           <div>
-            {% include "mydigitalmeal/components/m_path_loader.html" %}
+            <div id="report-load-screen-icon">
 
-            {% translate "Dein Report wird gerade erstellt. Dies kann einige Sekunden dauern." %}
+              <div id="report-load-screen-icon-animated">
+                {% include "mydigitalmeal/components/m_path_loader.html" %}
+              </div>
+
+              <div id="report-load-screen-icon-static">
+                <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
+                     alt="My Digital Meal Icon" />
+              </div>
+
+            </div>
+
+            <div id="report-load-screen-caption">
+              <p>
+                {% translate "Dein Report wird gerade erstellt" %}
+              </p>
+
+              <p class="fs-3">
+                {% translate "das kann einige Sekunden dauern" %}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -29,7 +50,8 @@
 {% endblock content %}
 
 {% block extra_js %}
-  <script src="{% static 'reports/js/carousel_init.js' %}"></script>
+  <script src="{% static 'reports/js/report_handler.js' %}"></script>
+  <script src="{% static 'reports/js/report_animations.js' %}"></script>
   <script src="{% static 'reports/js/peak_day_guess_utils.js' %}"></script>
   <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
 {% endblock extra_js %}

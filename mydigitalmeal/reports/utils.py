@@ -21,8 +21,3 @@ def get_tiktok_video_metadata(
     thumbnail = data.get("thumbnail_url")
     channel = data.get("author_name")
     return {"thumbnail": thumbnail, "channel": channel}
-
-
-def generate_usage_session_image():
-    # TODO: Still needs to be implemented
-    pass

@@ -45,7 +45,7 @@ class OverviewView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, Templa
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["requests"] = StatisticsRequest.objects.filter(
-            profile=self.get_user_profile()
+            profile=self.get_user_profile(), status=StatisticsRequest.States.SUCCESS
         )
         return context
 

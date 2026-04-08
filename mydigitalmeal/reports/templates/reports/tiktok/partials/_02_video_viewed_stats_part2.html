@@ -1,0 +1,34 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption with n_videos=videos_per_day|floatformat:"0" count video_counter=videos_per_day %}
+  Das sind<br />
+  im Durchschnitt<br />
+  <strong>{{ n_videos }} Video<br />
+    pro Tag</strong>
+{% plural %}
+  Das sind<br />
+  im Durchschnitt<br />
+  <strong>{{ n_videos }} Videos<br />
+    pro Tag</strong>
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="1"
+    intro_duration="10"
+    outro_duration="2000"
+>
+  <c-slot name="intro">
+    {% include "reports/animations/circle_disappear.svg" %}
+  </c-slot>
+
+  <c-slot name="content">
+    <div class="report-info-narrow">
+      {{ caption }}
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    {% include "reports/animations/circle_appear_black.svg" %}
+  </c-slot>
+
+</c-report-slide>

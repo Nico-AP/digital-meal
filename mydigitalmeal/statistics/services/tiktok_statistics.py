@@ -111,6 +111,7 @@ class WatchHistoryStatisticsGenerator:
         self.compute_session_statistics()
         self.compute_scrolling_statistics()
         self.get_top_video()
+        self.get_date_hour_activity_matrix()
         return self.stats
 
     def get_scope_fields(self) -> dict[str, Any]:
@@ -308,22 +309,29 @@ class WatchHistoryStatisticsGenerator:
         self.stats.update(stats)
         return stats
 
-    def get_date_hour_matrix(self) -> pd.DataFrame:
+    def get_date_hour_activity_matrix(self) -> dict[str, Any]:
         """Get date hour matrix from given series.
 
         Creates a matrix showing the count of occurrences for each date-hour
         combination.
 
         Returns:
-            pd.DataFrame: The date-hour matrix.
+            dict: Dict includes "date_hour_activity_matrix"
         """
 
         min_date, max_date = self._get_min_max_dates()
-        return data_utils.get_date_hour_matrix(
+        activity_df = data_utils.get_date_hour_matrix(
             self.data["date"],
             min_date,
             max_date,
         )
+        activity_matrix = activity_df.to_numpy().tolist()
+
+        stats = {
+            "date_hour_activity_matrix": activity_matrix,
+        }
+        self.stats.update(stats)
+        return stats
 
     def _get_min_max_dates(self) -> tuple[datetime.datetime, datetime.datetime]:
         """Return min and max dates.

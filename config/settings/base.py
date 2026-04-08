@@ -38,6 +38,7 @@ DJANGO_THIRD_PARTY = [
     "allauth.account",
     "allauth.socialaccount",
     "django_htmx",
+    "django_cotton",
 ]
 
 DIGITAL_MEAL_EDUCATION_APPS = [

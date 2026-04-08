@@ -1,0 +1,47 @@
+{% load i18n static %}
+
+{% blocktranslate asvar caption with n_videos=usage_session_videos_mean|floatformat:"0" count video_counter=usage_session_videos_mean %}
+  und du schaust dabei<br />{{ n_videos }} Video an
+{% plural %}
+  und du schaust dabei<br />{{ n_videos }} Videos an
+{% endblocktranslate %}
+
+<c-report-slide
+    slide_nr="14"
+    intro_duration="200"
+    outro_duration="2800"
+    content_hide_delay="250"
+>
+  <c-slot name="intro">
+    <div class="d-flex justify-content-center align-items-center position-relative w-100 h-100">
+      <div class="h-100 w-100 position-absolute overflow-hidden">
+        {% include "reports/animations/shooting_blocks_intro.svg" %}
+      </div>
+
+      <div class="h-100 w-100 position-absolute overflow-hidden">
+        {% include "reports/animations/shooting_blocks_background.svg" %}
+      </div>
+    </div>
+  </c-slot>
+
+  <c-slot name="content">
+    <div class="d-flex justify-content-center align-items-center position-relative w-100 h-100">
+
+      <div class="h-100 w-100 position-absolute overflow-hidden">
+      </div>
+
+      <div class="position-absolute w-100">
+        {{ caption }}
+      </div>
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+    <div class="d-flex justify-content-center align-items-center position-relative w-100 h-100">
+      <div class="h-100 w-100 position-absolute overflow-hidden">
+        {% include "reports/animations/shooting_blocks_intro.svg" %}
+      </div>
+    </div>
+  </c-slot>
+
+</c-report-slide>
