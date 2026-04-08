@@ -35,11 +35,17 @@ a {
 }
 
 .mdm-lead {
-  font-size: 37px;
-  line-height: 48px;
+  font-size: 30px;
+  line-height: 38px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
-  margin-bottom: 3.5rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: $bp-md) {
+    font-size: 37px;
+    line-height: 48px;
+    margin-bottom: 3.5rem;
+  }
 
   @media (min-width: $bp-lg) {
     font-size: 53px;
@@ -48,10 +54,16 @@ a {
 }
 
 .mdm-text {
-  font-size: 30px;
-  line-height: 39px;
+  font-size: 24px;
+  line-height: 32px;
   font-family: var(--mdm-ff-space-grotesk);
   color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-md) {
+    font-size: 30px;
+    line-height: 39px;
+  }
+
 }
 
 .mdm-text-muted {
@@ -76,10 +88,15 @@ a {
 }
 
 .mdm-info-lead {
-  font-size: 37px;
-  line-height: 48px;
+  font-size: 30px;
+  line-height: 38px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-md) {
+    font-size: 37px;
+    line-height: 48px;
+  }
 
   @media (min-width: $bp-lg) {
     font-size: 35px;
@@ -92,6 +109,7 @@ a {
   line-height: 32px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
+  word-break: break-word;
 
   @media (min-width: $bp-lg) {
     font-size: 24px;

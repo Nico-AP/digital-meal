@@ -1,5 +1,36 @@
 @use '../abstracts/index' as *;
 
+/* Report Overview */
+
+.prev-report-card-wrapper a {
+  text-decoration: none !important;
+  color: var(--mdm-font-color-main) !important;
+}
+
+.prev-report-card-wrapper a:hover {
+  filter: none !important;
+}
+
+.prev-report-card {
+  background: var(--mdm-color-black);
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  border-radius: 10px;
+  font-family: var(--mdm-ff-space-grotesk);
+  font-size: 1.2rem;
+}
+
+.prev-report-card:hover {
+  background: var(--mdm-color-accent-red) !important;
+  background: linear-gradient(
+                  108deg,var(--mdm-color-accent-red) 0%,
+                  var(--mdm-color-accent-pink) 55%,
+                  var(--mdm-color-accent-yellow) 100%
+  ) !important;
+  color: var(--mdm-color-black) !important;
+}
+
+
 /* Reports */
 #peak-day-guess-correct,
 #peak-day-guess-wrong {

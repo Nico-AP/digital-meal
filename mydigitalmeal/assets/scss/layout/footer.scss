@@ -15,9 +15,16 @@
 }
 
 .footer-logo-container {
-  width: 25vw;
-  max-width: 450px;
+  width: 40vw;
+  max-width: 100%;
   padding: 15px;
+
+  @media (min-width: $bp-md) {
+    font-size: 53px;
+    line-height: 68px;
+    max-width: 450px;
+  }
+
 }
 
 .footer-logo {
@@ -30,4 +37,9 @@
   font-size: 24px;
   line-height: 32px;
   overflow-wrap: break-word;
+  text-align: center;
+
+  @media (min-width: $bp-sm) {
+    text-align: left;
+  }
 }

@@ -7,7 +7,9 @@
   line-height: 43px;
   font-weight: bold;
   color: var(--mdm-color-black);
-  padding: 1.5rem 5rem;
+  padding: 1.5rem 3rem;
+  min-width: 280px;
+  max-width: 85vw;
   background: var(--mdm-color-accent-green);
   background: linear-gradient(
                   108deg,var(--mdm-color-accent-green) 0%,
