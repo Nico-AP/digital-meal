@@ -77,14 +77,20 @@ a {
 }
 
 .mdm-list-participation {
-  font-size: 30px;
-  line-height: 39px;
+  font-size: 24px;
+  line-height: 32px;
   font-family: var(--mdm-ff-text-participation);
   color: var(--mdm-font-color-main);
 
   li {
     padding-left: 30px;
   }
+
+  @media (min-width: $bp-md) {
+    font-size: 30px;
+    line-height: 39px;
+  }
+
 }
 
 .mdm-info-lead {
