@@ -12,7 +12,7 @@
 
   <div class="container">
     <div class="row justify-content-center">
-      <div class="col col-lg-10 col-xl-8 text-center mdm-lead htmx-smooth-transition">
+      <div class="col col-lg-10 col-xl-8 text-center htmx-smooth-transition">
 
         <div id="report-statistics" class="htmx-smooth-transition"
              hx-get="{% absolute_url 'mdm:userflow:reports:tiktok_statistics' %}"
@@ -33,13 +33,13 @@
             </div>
 
             <div id="report-load-screen-caption">
-              <p>
+              <div>
                 {% translate "Dein Report wird gerade erstellt" %}
-              </p>
+              </div>
 
-              <p class="fs-3">
+              <div class="pt-4 fs-3 lh-sm">
                 {% translate "das kann einige Sekunden dauern" %}
-              </p>
+              </div>
             </div>
           </div>
         </div>
@@ -52,6 +52,7 @@
 {% block extra_js %}
   <script src="{% static 'reports/js/report_handler.js' %}"></script>
   <script src="{% static 'reports/js/report_animations.js' %}"></script>
+  <script src="{% static 'reports/js/report_share.js' %}"></script>
   <script src="{% static 'reports/js/peak_day_guess_utils.js' %}"></script>
   <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
 {% endblock extra_js %}

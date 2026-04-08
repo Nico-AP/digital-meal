@@ -1,3 +1,5 @@
+@use '../abstracts/index' as *;
+
 /* Reports */
 #peak-day-guess-correct,
 #peak-day-guess-wrong {
@@ -30,6 +32,8 @@
   height: 100%;
 }
 
+$report-container-height: 93vh;
+
 #report-container {
   position: relative;
   display: flex;
@@ -39,6 +43,19 @@
   width: 100%;
   flex: 1;
   height: 93vh;
+  max-height: 93vh;
+  padding: 1rem;
+
+  color: white;
+  font-size: 2.25rem;
+  line-height: 3rem;
+  font-family: var(--mdm-ff-headers-participation);
+
+
+  svg {
+    transform: translateZ(0);
+  }
+
 }
 
 /* Slides */
@@ -47,7 +64,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: $report-container-height;
+  max-height: $report-container-height;
   flex: 1;
 
   .is-active {
@@ -65,7 +83,8 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 100vh;
+  height: $report-container-height;
+  max-height: $report-container-height;
   opacity: 0;
   pointer-events: none;
 
@@ -106,11 +125,20 @@
   z-index: 600;
 }
 
+.report-link-button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
 /* SVG animation control — baked-in animations are paused until is-playing */
 .slide-intro svg,
 .slide-outro svg {
   width: 100%;
-  //height: 100vh;
   display: block;
   animation-play-state: paused;
 }
@@ -164,6 +192,10 @@
   height: 100%;
 }
 
+.guess-btn {
+  padding: 1rem 5rem;
+}
+
 .report-video-unavailable-placeholder {
   display: flex;
   flex-direction: column;
@@ -192,13 +224,9 @@
   line-height: 3rem;
 }
 
-#answer-wrong-outro {
-  padding: 2rem;
-}
-
 .report-usage-image-caption {
-  font-size: 2.5rem;
-  line-height: 3rem;
+  font-size: 2.1rem;
+  line-height: 2.7rem;
 }
 
 #usage-session-image {
@@ -219,6 +247,11 @@
   color: black;
 }
 
+.report-share-btn {
+  padding: 1rem 2rem;
+  font-size: 1.8rem;
+}
+
 .opacity-0 {
   opacity: 0;
 }
@@ -232,7 +265,7 @@
 
 .wipe-in {
   clip-path: inset(0 100% 0 0); /* hidden by default */
-  animation: wipe-in 1.5s ease forwards;
+  animation: wipe-in 1s linear forwards;
 }
 
 @keyframes wipe-out {
@@ -241,12 +274,19 @@
 }
 
 .wipe-out {
-  animation: wipe-out 1.5s ease forwards;
+  animation: wipe-out 1s linear forwards;
 }
 
 // Report Loading Screen Text Wipe
 #report-statistics.htmx-swapping #report-load-screen-icon {
   animation: your-animation 0.5s ease forwards;
+}
+
+#report-load-screen-caption {
+  color: white;
+  font-size: 2.25rem;
+  line-height: 3rem;
+  font-family: var(--mdm-ff-headers-participation);
 }
 
 @keyframes wipe-out-center {

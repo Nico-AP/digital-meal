@@ -6,6 +6,7 @@
     outro_duration="500"
     intro_hide_delay="0"
     content_hide_delay="0"
+    content_classes="show-on-top-500"
 >
   <c-slot name="intro"></c-slot>
 
@@ -18,14 +19,17 @@
     </div>
 
     <div>
-      <button type="button" class="btn mdm-color-btn-v4">{% translate "Teile den Report" %}</button>
+      <button type="button" class="btn mdm-color-btn-v4 report-share-btn" onclick="shareReport(this)">{% translate "Lade andere ein" %}</button>
     </div>
 
-    <div class="fs-3 pt-2">
-      {% translate "oder" %}
-      <a href="#" onclick="document.getElementById('report-container')._slideshow?.restart(); return false;">
-        {% translate "schau den Report nochmal an" %}
-      </a>
+    <div class="fs-3 pt-2 ps-2 pe-2">
+      <div>{% translate "oder" %}</div>
+
+      <div>
+        <button type="button" class="report-link-button" onclick="document.getElementById('report-container')._slideshow?.restart(); return false;">
+          {% translate "schau den Report nochmal an" %}
+        </button>
+      </div>
     </div>
 
     <div class="fs-5 pt-5 lh-lg">

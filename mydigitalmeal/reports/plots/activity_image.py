@@ -88,8 +88,8 @@ def generate_activity_image_svg(  # noqa: C901
         "svg",
         {
             "xmlns": "http://www.w3.org/2000/svg",
-            "width": str(total_w),
-            "height": str(total_h),
+            "width": "100%",
+            "height": "50vh",
             "viewBox": f"0 0 {total_w} {total_h}",
             "shape-rendering": "crispEdges",
         },
@@ -181,6 +181,9 @@ def generate_activity_image_svg(  # noqa: C901
 
         for hour_idx, activity in enumerate(day_row[:hours]):
             if activity > 0:
+                continue
+
+            if row_has_activity and color_inactive and not animated:
                 continue
 
             x = grid_x + hour_idx * _CELL_W

@@ -20,7 +20,7 @@
         {% include "reports/animations/star_top_repeat.svg" %}
       </div>
 
-      <div class="report-top-video-info-container pt-4">
+      <div class="report-top-video-info-container w-100 pt-4">
         {% if top_video_thumbnail_url %}
           <img src="{{ top_video_thumbnail_url }}" alt="TikTok video thumbnail" height="400px" width="225px" />
         {% else %}
@@ -30,12 +30,12 @@
         {% endif %}
 
         <div class="report-top-video-info-text">
-          <div>
+          <div class="ps-5 pe-5">
             {% blocktranslate %}
-              dieses Video hast du {{ top_video_seen_count }} Mal angesehen
+              dieses Video hast du <strong>{{ top_video_seen_count }} Mal</strong> angesehen
             {% endblocktranslate %}
           </div>
-          <div class="pt-2">
+          <div class="pt-2 fs-3">
             {% blocktranslate with last_date=top_video_last_seen_date|date:"j.n.Y" %}
               zuletzt am {{ last_date }}
             {% endblocktranslate %}

@@ -2,8 +2,9 @@
 
 {% blocktranslate asvar question %}
   Was denkst du,<br />
-  wie viele Videos hast du<br />
-  an diesem Tag angeschaut?
+  <strong>wie viele Videos</strong><br />
+  hast du an diesem<br />
+  Tag angeschaut?
 {% endblocktranslate %}
 
 {% blocktranslate asvar caption_feedback count video_count=peak_day_video_count %}
@@ -19,7 +20,7 @@
 <c-report-slide
     slide_nr="10"
     intro_duration="500"
-    outro_duration="1300"
+    outro_duration="1700"
     intro_hide_delay="0"
     content_hide_delay="1300"
     content_classes="show-on-top-500"
@@ -29,7 +30,7 @@
 
   <c-slot name="content">
     <div id="peak-day-guess-question-container">
-      <div class="pb-3">
+      <div class="pb-4 ps-3 pe-3">
         {{ question }}
       </div>
 
@@ -37,7 +38,7 @@
         <div>
           {% for guess_value in peak_guesses %}
             <div>
-              <button type="button" class="btn mdm-color-btn-v4 guess-btn" data-guess-value="{{ guess_value }}">{{ guess_value }}</button>
+              <button type="button" class="btn mdm-color-btn-v{{ forloop.counter }} guess-btn" data-guess-value="{{ guess_value }}">{{ guess_value }}</button>
             </div>
           {% endfor %}
         </div>
@@ -68,7 +69,7 @@
         {% include "reports/animations/half_circle_fall_down.svg" %}
       </div>
 
-      <div class="report-peak-day-guess-info-container w-100">
+      <div class="report-peak-day-guess-info-container w-100 pb-5">
         <p>
           {% translate "Fast!" %}
         </p>
@@ -90,7 +91,7 @@
     </div>
 
     <div id="answer-correct-outro" class="d-none">
-      {% include "reports/animations/circle_appear_black.svg" %}
+      {% include "reports/animations/fireworks_to_black.svg" %}
     </div>
 
   </c-slot>
