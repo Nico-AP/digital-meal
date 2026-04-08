@@ -95,18 +95,15 @@
     .donation-btn {
       font-family: var(--mdm-ff-space-grotesk);
     }
-
   }
-
 }
 
-.ddm-portability {
-  .ddm-uploader {
+#uapp {
+  .modal-footer {
+    padding: 10px;
+  }
 
-    .uploader-section {
-      button {
-        display: none;
-      }
-    }
+  .modal-footer button {
+    margin-left: 10px;
   }
 }
