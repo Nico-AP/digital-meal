@@ -14,7 +14,7 @@ from django.views.generic import TemplateView
 from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.profiles.models import MDMProfile
-from mydigitalmeal.statistics.models import StatisticsRequest
+from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
 from mydigitalmeal.userflow.constants import URLShortcut
 from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 
@@ -45,7 +45,9 @@ class OverviewView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, Templa
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["requests"] = StatisticsRequest.objects.filter(
-            profile=self.get_user_profile(), status=StatisticsRequest.States.SUCCESS
+            profile=self.get_user_profile(),
+            status=StatisticsRequest.States.SUCCESS,
+            tiktok_wh_statistics__scope=StatisticsScope.INTERVAL,
         )
         return context
 
