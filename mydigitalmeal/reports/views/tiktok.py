@@ -68,6 +68,18 @@ class StatisticsView(
             )
             return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
 
+        # Pre-load stats here so we can redirect if needed
+        if self.statistics_request.is_ready():
+            self._stats = self.load_statistics()
+            if self._stats is None:
+                logger.info(
+                    "Statistics request %s: Unable to load statistics "
+                    "(status details: %s)",
+                    self.statistics_request.public_id,
+                    self.statistics_request.status_detail,
+                )
+                return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
+
         return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -76,16 +88,6 @@ class StatisticsView(
         if not self.statistics_request.is_ready():
             # Waiting for statistics request to complete
             return context
-
-        self._stats = self.load_statistics()
-
-        if self._stats is None:
-            logger.info(
-                "Statistics request %s: Unable to load statistics (status details: %s)",
-                self.statistics_request.public_id,
-                self.statistics_request.status_detail,
-            )
-            return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
 
         context |= self._get_video_viewed_stats()
         context |= self._get_daily_routine_stats()
