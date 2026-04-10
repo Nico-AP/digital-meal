@@ -16,17 +16,20 @@
 
 <c-report-slide
     slide_nr="0"
-    intro_duration="8800"
-    outro_duration="1500"
+    intro_duration="2300"
+    outro_duration="1250"
 >
   <c-slot name="intro">
-    {% include "reports/animations/eye_animated.svg" %}
+    {% include "reports/animations/eye_open_shorter.svg" %}
   </c-slot>
 
   <c-slot name="content">
     <div class="report-info-narrow">
       {{ caption }}
     </div>
+
+    {% include "reports/partials/nav_hint.html" %}
+
   </c-slot>
 
   <c-slot name="outro">

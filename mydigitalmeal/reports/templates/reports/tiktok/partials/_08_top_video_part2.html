@@ -1,12 +1,32 @@
 {% load i18n static %}
 
+{% blocktranslate asvar caption_multiple_a_with_channel %}
+  Dieses Video von <strong>{{ top_video_channel }}</strong> hast du <strong>{{ top_video_seen_count }} Mal</strong> gesehen
+{% endblocktranslate %}
+
+{% blocktranslate asvar caption_multiple_a_without_channel %}
+  Dieses Video hast du <strong>{{ top_video_seen_count }} Mal</strong> gesehen
+{% endblocktranslate %}
+
+{% blocktranslate asvar caption_multiple_b with last_date=top_video_last_seen_date|date:"j.n.Y" %}
+  zuletzt am {{ last_date }}
+{% endblocktranslate %}
+
+{% blocktranslate asvar caption_only_one_a %}
+  Du magst das Neue
+{% endblocktranslate %}
+
+{% blocktranslate asvar caption_only_one_b %}
+  Du hast kein Video mehr als einmal gesehen
+{% endblocktranslate %}
+
 <c-report-slide
-  slide_nr="8"
-  intro_duration="500"
-  outro_duration="800"
-  intro_hide_delay="0"
-  content_hide_delay="0"
-  content_classes="show-on-top-500"
+    slide_nr="8"
+    intro_duration="500"
+    outro_duration="800"
+    intro_hide_delay="0"
+    content_hide_delay="0"
+    content_classes="show-on-top-500"
 >
   <c-slot name="intro">
     <div class="report-top-video-animation-container p-5">
@@ -31,14 +51,22 @@
 
         <div class="report-top-video-info-text">
           <div class="ps-5 pe-5">
-            {% blocktranslate %}
-              dieses Video hast du <strong>{{ top_video_seen_count }} Mal</strong> angesehen
-            {% endblocktranslate %}
+            {% if top_video_seen_count == 1 %}
+              {{ caption_only_one_a }}
+            {% else %}
+              {% if top_video_channel %}
+                {{ caption_multiple_a_with_channel }}
+              {% else %}
+                {{ caption_multiple_a_without_channel }}
+              {% endif %}
+            {% endif %}
           </div>
           <div class="pt-2 fs-3">
-            {% blocktranslate with last_date=top_video_last_seen_date|date:"j.n.Y" %}
-              zuletzt am {{ last_date }}
-            {% endblocktranslate %}
+            {% if top_video_seen_count == 1 %}
+              {{ caption_only_one_b }}
+            {% else %}
+              {{ caption_multiple_b }}
+            {% endif %}
           </div>
         </div>
       </div>

@@ -265,6 +265,8 @@ $report-container-height: 93vh;
   margin-top: 1.5rem !important;
   border-radius: 20px;
   color: #fff;
+  -webkit-text-stroke: 10px black;
+  paint-order: stroke fill;
 }
 
 .report-peak-day-guess-info-secondary{
@@ -325,16 +327,69 @@ $report-container-height: 93vh;
   animation: wipe-out 1s linear forwards;
 }
 
-// Report Loading Screen Text Wipe
-#report-statistics.htmx-swapping #report-load-screen-icon {
-  animation: your-animation 0.5s ease forwards;
+#report-load-screen-icon {
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: grid;
 }
 
+#report-load-screen-icon-animated,
+#report-load-screen-icon-static {
+  grid-area: 1 / 1;
+  align-self: center;
+  justify-self: center;
+}
+
+#report-load-screen-icon-static {
+  display: none;
+  width: 200px;
+  height: 57px;
+}
+
+#report-load-screen-icon-static img {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+
+/* Loading Caption */
 #report-load-screen-caption {
   color: white;
   font-size: 2.25rem;
   line-height: 3rem;
   font-family: var(--mdm-ff-headers-participation);
+  display: grid;
+}
+
+/* Wrapper that holds both texts without layout shifts */
+#report-caption-loading,
+#report-caption-ready {
+  grid-area: 1 / 1; /* stack both in the same cell */
+  text-align: center;
+}
+
+#report-caption-loading {
+  opacity: 1;
+}
+
+#report-caption-ready {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* No more position switching — only opacity/clip/transform */
+#report-statistics.htmx-swapping #report-caption-loading {
+  animation: wipe-out-center 0.5s ease forwards;
+}
+
+#report-statistics.htmx-swapping #report-caption-ready {
+  animation: fadeInReady 0.8s ease forwards;
+  animation-delay: 0.4s;
 }
 
 @keyframes wipe-out-center {
@@ -342,54 +397,76 @@ $report-container-height: 93vh;
   to   { clip-path: inset(0 50% 0 50%); }
 }
 
-#report-statistics.htmx-swapping #report-load-screen-caption {
-  animation: wipe-out-center 0.5s ease forwards;
+@keyframes fadeInReady {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-// Report Loading Screen Icon
-@keyframes slide-to-top {
-  from { transform: translateX(-50%) translateY(0); }
-  to   { transform: translateX(-50%) translateY(-22vh); }
-}
-
-#report-load-screen-icon {
+/* NAV HINT */
+#report-nav-hint {
   position: absolute;
-  top: 25%;
+  bottom: 2rem;
   left: 50%;
   transform: translateX(-50%);
-}
-
-#report-statistics.htmx-swapping #report-load-screen-icon {
-  animation: slide-to-top 0.5s linear forwards;
-  animation-delay: 150ms;
-}
-
-#report-statistics.htmx-swapping #report-load-screen-icon-animated {
+  animation: hint-fade-in 0.6s ease forwards;
+  animation-delay: 1s;
   opacity: 0;
-  height: 1px;
+}
+
+@keyframes hint-fade-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+#report-nav-hint-touch,
+#report-nav-hint-keyboard {
   display: none;
 }
 
-#report-load-screen-icon-static {
-  opacity: 0;
-  display: none;
-  height: 100px;
-  width: 200px;
+body.input-touch    #report-nav-hint-touch    { display: block; }
+body.input-keyboard #report-nav-hint-keyboard { display: flex; }
+
+/* Swipe dot */
+.swipe-track {
+  width: 20px;
+  height: 36px;
+  position: relative;
+  overflow: hidden;
 }
 
-#report-load-screen-icon-static img {
-  height: 100%;
-  width: 100%;
-  display: block;
+.swipe-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: swipe-up 1.6s ease-in-out infinite;
 }
 
-@keyframes shrink {
-  from { max-height: 100px }
-  to   { max-height: 4vh }
+@keyframes swipe-up {
+  0%   { bottom: 2px;  opacity: 0; }
+  15%  { opacity: 1; }
+  85%  { opacity: 1; }
+  100% { bottom: 22px; opacity: 0; }
 }
 
-#report-statistics.htmx-swapping #report-load-screen-icon-static {
-  opacity: 1;
-  display: block;
-  animation: shrink 0.7s linear forwards;
+/* Keyboard key */
+.hint-key {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  background: rgba(255,255,255,0.1);
+  border: 0.5px solid rgba(255,255,255,0.3);
+  border-bottom: 2px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: key-press 2.4s ease-in-out infinite;
+}
+
+@keyframes key-press {
+  0%, 100% { background: rgba(255,255,255,0.1); border-bottom-width: 2px; transform: translateY(0); }
+  50%       { background: rgba(255,255,255,0.18); border-bottom-width: 1px; transform: translateY(1px); }
 }

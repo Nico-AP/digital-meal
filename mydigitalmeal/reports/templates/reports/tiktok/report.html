@@ -20,27 +20,34 @@
              hx-swap="outerHTML swap:1500ms settle:1500ms">
           <div>
             <div id="report-load-screen-icon">
-
               <div id="report-load-screen-icon-animated">
                 {% include "mydigitalmeal/components/m_path_loader.html" %}
               </div>
 
               <div id="report-load-screen-icon-static">
                 <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
-                     alt="My Digital Meal Icon" />
+                     alt="My Digital Meal Icon" height="100" width="200" />
               </div>
-
             </div>
 
             <div id="report-load-screen-caption">
-              <div>
-                {% translate "Dein Report wird gerade erstellt" %}
+
+              <div id="report-caption-ready">
+                <p>{% translate "Dein Report ist bereit" %}</p>
+                <p class="fw-bold">{% translate "Los geht's" %}</p>
               </div>
 
-              <div class="pt-4 fs-3 lh-sm">
-                {% translate "das kann einige Sekunden dauern" %}
+              <div id="report-caption-loading">
+                <div>
+                  {% translate "Dein Report wird gerade erstellt" %}
+                </div>
+
+                <div class="pt-4 fs-3 lh-sm">
+                  {% translate "das kann einige Sekunden dauern" %}
+                </div>
               </div>
             </div>
+
           </div>
         </div>
       </div>
@@ -54,5 +61,7 @@
   <script src="{% static 'reports/js/report_animations.js' %}"></script>
   <script src="{% static 'reports/js/report_share.js' %}"></script>
   <script src="{% static 'reports/js/peak_day_guess_utils.js' %}"></script>
+  <script src="{% static 'reports/js/nav_hint.js' %}"></script>
+  <script src="{% static 'reports/js/loading_animation.js' %}"></script>
   <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
 {% endblock extra_js %}

@@ -146,6 +146,7 @@ class StatisticsView(
         #  currently, this report part will just be skipped
         stats = {
             "top_video_thumbnail_url": video_metadata.get("thumbnail"),
+            "top_video_channel": video_metadata.get("channel"),
             "top_video_seen_count": self._stats.top_video_seen_count,
             "top_video_last_seen_date": self._stats.top_video_last_seen_date,
         }
