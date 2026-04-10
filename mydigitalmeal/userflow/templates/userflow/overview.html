@@ -12,12 +12,14 @@
     <div class="row justify-content-center">
       <div class="col col-lg-10 col-xl-8 text-center">
 
-        <div>
-          <a class="btn mdm-color-btn-v1 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=ddm">{% translate "neuen TikTok Report generieren (Datenspende)" %}</a>
-        </div>
+{#        <div>#}
+{#          <a class="btn mdm-color-btn-v1 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=ddm">{% translate "neuen TikTok Report generieren (Datenspende)" %}</a>#}
+{#        </div>#}
 
         <div>
-          <a class="btn mdm-color-btn-v2 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=port-api">{% translate "neuen TikTok Report generieren (Portability)" %}</a>
+          <a class="btn mdm-color-btn-v2 fs-4" type="button" href="{% url 'mdm:userflow:reset' %}?method=port-api">
+            {% translate "neuen TikTok Report generieren" %}
+          </a>
         </div>
 
         {% if requests %}

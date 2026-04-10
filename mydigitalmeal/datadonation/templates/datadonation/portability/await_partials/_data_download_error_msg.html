@@ -2,15 +2,19 @@
 
 <div class="htmx-smooth-transition">
   <p class="mdm-text">
-    <strong>{% translate "Leider ist beim Abrufen deiner Daten ein Fehler aufgetreten." %}</strong>
+    <strong>{% translate "TikTok scheint im Moment deine Daten nicht direkt übermitteln zu können." %}</strong>
   </p>
 
   <p class="mdm-text">
     {% blocktranslate trimmed %}
-      Bitte versuche es noch einmal oder kontaktiere den Support:
-      <a href="mailto:kontakt@digital-meal.ch">kontakt@digital-meal.ch</a>
+      Du kannst es später nochmals versuchen oder du kannst deine Daten selbst
+      bei TikTok herunterladen und anschliessend hochladen.
     {% endblocktranslate %}
   </p>
 
-  <p><a href="{% url 'mdm:userflow:datadonation:port_tt_connect' %}" class="btn mdm-discreet-btn">Noch einmal versuchen</a></p>
+  <p>
+    <a href="{% url 'mdm:userflow:reset' %}?method=ddm" class="btn mdm-discreet-btn">
+      Daten selber herunterladen
+    </a>
+  </p>
 </div>
