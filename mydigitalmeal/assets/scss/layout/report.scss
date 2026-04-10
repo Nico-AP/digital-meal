@@ -20,16 +20,33 @@
   font-size: 1.2rem;
 }
 
-.prev-report-card:hover {
-  background: var(--mdm-color-accent-red) !important;
-  background: linear-gradient(
-                  108deg,var(--mdm-color-accent-red) 0%,
-                  var(--mdm-color-accent-pink) 55%,
-                  var(--mdm-color-accent-yellow) 100%
-  ) !important;
+.card-hover-1:hover {
+  background: var(--mdm-color-accent-red);
+  background-image: url("../img/backgrounds/mdm_bg_1.svg");
+  background-size: cover;
   color: var(--mdm-color-black) !important;
 }
 
+.card-hover-2:hover {
+  background: var(--mdm-color-accent-red);
+  background-image: url("../img/backgrounds/mdm_bg_2.svg");
+  background-size: cover;
+  color: var(--mdm-color-black) !important;
+}
+
+.card-hover-3:hover {
+  background: var(--mdm-color-accent-red);
+  background-image: url("../img/backgrounds/mdm_bg_3.svg");
+  background-size: cover;
+  color: var(--mdm-color-black) !important;
+}
+
+.card-hover-4:hover {
+  background: var(--mdm-color-accent-red);
+  background-image: url("../img/backgrounds/mdm_bg_4.svg");
+  background-size: cover;
+  color: var(--mdm-color-black) !important;
+}
 
 /* Reports */
 #peak-day-guess-correct,
