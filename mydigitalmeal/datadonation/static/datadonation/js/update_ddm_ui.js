@@ -16,6 +16,20 @@ function applyDOMChanges() {
       btn.style.display = 'none';
     }
   });
+
+  const container = document.querySelector('div.uploader-container');
+  if (container) {
+    const sections = container.querySelectorAll(':scope > div.uploader-section');
+    if (sections.length === 3) {
+      sections[0].style.display = 'none';
+    }
+  }
+
+  const uapp = document.getElementById('uapp');
+  if (uapp) {
+    uapp.style.visibility = 'visible';
+  }
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
