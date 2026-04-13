@@ -1,10 +1,22 @@
 {% load i18n static %}
 
-{% blocktranslate asvar caption with minutes=usage_session_minutes_mean|floatformat:"0" count minutes_counter=usage_session_minutes_mean %}
-  Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minute
-{% plural %}
-  Im Durchschnitt dauert eine Session bei dir {{ minutes }} Minuten
-{% endblocktranslate %}
+{% if usage_session_hours %}
+  {% blocktranslate asvar caption with hours=usage_session_hours minutes=usage_session_minutes|stringformat:"02d" %}
+    Im Durchschnitt dauert eine Session bei dir ca. {{ hours }}:{{ minutes }} Stunden
+  {% endblocktranslate %}
+{% elif usage_session_minutes %}
+  {% blocktranslate asvar caption with minutes=usage_session_minutes seconds=usage_session_seconds|stringformat:"02d" count counter=usage_session_minutes %}
+    Im Durchschnitt dauert eine Session bei dir {{ minutes }}:{{ seconds }} Minute
+  {% plural %}
+    Im Durchschnitt dauert eine Session bei dir {{ minutes }}:{{ seconds }} Minuten
+  {% endblocktranslate %}
+{% else %}
+  {% blocktranslate asvar caption with seconds=usage_session_seconds count counter=usage_session_seconds %}
+    Im Durchschnitt dauert eine Session bei dir {{ seconds }} Sekunde
+  {% plural %}
+    Im Durchschnitt dauert eine Session bei dir {{ seconds }} Sekunden
+  {% endblocktranslate %}
+{% endif %}
 
 <c-report-slide
     slide_nr="13"
