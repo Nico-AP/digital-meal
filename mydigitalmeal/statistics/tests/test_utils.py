@@ -101,7 +101,7 @@ class DataUtilsTests(TestCase):
         self.assertEqual(count, 2)
         self.assertEqual(date, datetime.date(2025, 10, 10))
 
-    def test_get_most_occurring_string(self):
+    def test_get_most_occurring_strings(self):
         data = pd.Series(
             [
                 "abc",
@@ -109,19 +109,19 @@ class DataUtilsTests(TestCase):
                 "def",
             ],
         )
-        value, count = data_utils.get_most_occurring_string(data)
+        value, count = data_utils.get_most_occurring_strings(data)
 
         self.assertEqual(count, 2)
-        self.assertEqual(value, "abc")
+        self.assertEqual(value, ["abc"])
 
-    def test_get_most_occurring_string_empty(self):
+    def test_get_most_occurring_strings_empty(self):
         data = pd.Series([])
-        value, count = data_utils.get_most_occurring_string(data)
+        value, count = data_utils.get_most_occurring_strings(data)
 
-        self.assertEqual(count, None)
-        self.assertEqual(value, None)
+        self.assertEqual(count, 0)
+        self.assertEqual(value, [])
 
-    def test_get_most_occurring_string_two_counts_equal(self):
+    def test_get_most_occurring_strings_two_counts_equal(self):
         data = pd.Series(
             [
                 "abc",
@@ -130,10 +130,10 @@ class DataUtilsTests(TestCase):
                 "def",
             ],
         )
-        value, count = data_utils.get_most_occurring_string(data)
+        value, count = data_utils.get_most_occurring_strings(data)
 
         self.assertEqual(count, 2)
-        self.assertEqual(value, "abc")
+        self.assertEqual(value, ["abc", "def"])
 
     def test_get_hour_matrix(self):
         data = pd.Series(

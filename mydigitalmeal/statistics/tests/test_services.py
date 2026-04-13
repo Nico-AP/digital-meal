@@ -177,6 +177,27 @@ class TestWatchHistoryStatisticsGenerator(TestCase):
         self.assertEqual(result["top_video_id"], "video123")
         self.assertEqual(result["top_video_seen_count"], 2)
 
+    def test_top_video_calculation_same_count(self):
+        """Test that most watched video is identified correctly."""
+        sample_data = [
+            {"Date": "2024-01-15 10:00:00", "Link": "video123"},
+            {"Date": "2024-01-15 10:00:13", "Link": "video123"},
+            {"Date": "2024-01-15 10:00:05", "Link": "video456"},
+            {"Date": "2024-01-16 14:00:00", "Link": "video456"},
+            {"Date": "2024-01-16 14:00:05", "Link": "video012"},
+        ]
+
+        generator = WatchHistoryStatisticsGenerator(
+            watch_history=sample_data,
+            scope=StatisticsScope.FULL,
+        )
+
+        result = generator.get_top_video()
+
+        # video456 appears with most recent date
+        self.assertEqual(result["top_video_id"], "video456")
+        self.assertEqual(result["top_video_seen_count"], 2)
+
     def test_get_durations_per_video(self):
         sample_data = [
             {"Date": "2024-01-15 10:00:00", "Link": "video123"},

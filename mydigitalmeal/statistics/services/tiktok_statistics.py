@@ -290,21 +290,43 @@ class WatchHistoryStatisticsGenerator:
     def get_top_video(self) -> dict[str, Any]:
         """Get most watched video. Returns values and updates self.stats.
 
-        If multiple videos share the highest view count, the one whose ID
-        occurs first in alphabetical order is returned.
+        If multiple videos share the highest view count, the video most recently
+        viewed is returned.
 
         Returns:
             dict: Dict includes "top_video_id", "top_video_seen_count",
                 and "top_video_last_seen_date"
         """
 
-        video_link, count = data_utils.get_most_occurring_string(self.data["link"])
-        watch_dates = self.data.loc[self.data["link"] == video_link]["date"]
-        video_id = video_link.rstrip("/").split("/")[-1]
+        def _extract_video_id(link: str) -> str:
+            return link.rstrip("/").split("/")[-1]
+
+        def _extract_max_date(link: str) -> pd.Timestamp:
+            return self.data.loc[self.data["link"] == link]["date"].dropna().max()
+
+        video_links, top_count = data_utils.get_most_occurring_strings(
+            self.data["link"]
+        )
+
+        if not video_links:
+            top_id = None
+            top_count = 0
+            top_date = None
+
+        else:
+            # Keep the most recently watched video as top video
+            top_date = _extract_max_date(video_links[0])
+            top_id = _extract_video_id(video_links[0])
+            for video_link in video_links[1:]:
+                video_date = _extract_max_date(video_link)
+                if video_date > top_date:
+                    top_id = _extract_video_id(video_link)
+                    top_date = video_date
+
         stats = {
-            "top_video_id": video_id,
-            "top_video_seen_count": count,
-            "top_video_last_seen_date": watch_dates.max(),
+            "top_video_id": top_id,
+            "top_video_seen_count": top_count,
+            "top_video_last_seen_date": top_date,
         }
         self.stats.update(stats)
         return stats

@@ -45,27 +45,26 @@ def get_most_occurring_date(
     return date, date_count
 
 
-def get_most_occurring_string(
+def get_most_occurring_strings(
     strings: pd.Series,
-) -> tuple[str, int] | tuple[None, None]:
-    """Return the value and count of most often occurring string in given series.
-
-    If two strings occur equally often, returns the one occurring first
-    alphabetically.
+) -> tuple[list[str], int]:
+    """Return the values and count of most often occurring strings in given series.
 
     Args:
         strings: Pandas series containing string values.
 
     Returns:
-        tuple[str, int]: Value and count of most often occurring string.
+        tuple[list[str], int]: Values and count of most often occurring strings.
     """
     if len(strings) == 0:
-        return None, None
+        return [], 0
 
     counts = strings.value_counts().sort_index(ascending=True)
-    value = counts.idxmax()
-    value_count = int(counts.max())
-    return value, value_count
+
+    max_count = counts.max()
+    result_list = counts[counts == max_count].index.tolist()
+
+    return result_list, max_count
 
 
 def get_date_hour_matrix(
