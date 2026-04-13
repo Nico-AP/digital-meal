@@ -11,25 +11,23 @@
     intro_duration="200"
     outro_duration="2800"
     content_hide_delay="250"
+    intro_classes="show-on-top-600"
+    content_classes="show-on-top-500"
+    outro_classes="show-on-top-600"
 >
   <c-slot name="intro">
     <div class="d-flex justify-content-center align-items-center position-relative w-100 h-100">
       <div class="h-100 w-100 position-absolute overflow-hidden">
         {% include "reports/animations/shooting_blocks_intro.svg" %}
       </div>
-
-      <div class="h-100 w-100 position-absolute overflow-hidden">
-        {% include "reports/animations/shooting_blocks_background.svg" %}
-      </div>
     </div>
   </c-slot>
 
   <c-slot name="content">
     <div class="d-flex justify-content-center align-items-center position-relative w-100 h-100">
-
       <div class="h-100 w-100 position-absolute overflow-hidden">
+        {% include "reports/animations/shooting_blocks_background.svg" %}
       </div>
-
       <div class="position-absolute w-100">
         {{ caption }}
       </div>

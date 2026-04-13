@@ -1,13 +1,13 @@
 {% load i18n static %}
 
 {% blocktranslate asvar caption with n_videos=videos_total|floatformat:"0" count video_counter=videos_total %}
-  in den letzten<br />
+  In den letzten<br />
   <strong>30 Tagen</strong><br />
   hast du insgesamt<br />
   <strong>{{ n_videos }} Video</strong><br />
   angesehen
 {% plural %}
-  in den letzten<br />
+  In den letzten<br />
   <strong>30 Tagen</strong><br />
   hast du insgesamt<br />
   <strong>{{ n_videos }} Videos</strong><br />
@@ -24,7 +24,7 @@
   </c-slot>
 
   <c-slot name="content">
-    <div class="report-info-narrow">
+    <div class="report-info-narrow report-caption-eye">
       {{ caption }}
     </div>
 

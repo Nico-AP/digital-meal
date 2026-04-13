@@ -16,7 +16,29 @@
     {% endif %}
 
     {% if daily_routine_available %}
-      {% include "reports/tiktok/partials/_03_daily_routine_part1.html" %}
+      {% if routine_start_hour >= 5 and routine_start_hour <= 8 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_05-08.html" %}
+
+      {% elif routine_start_hour >= 9 and routine_start_hour <= 11 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_09-11.html" %}
+
+      {% elif routine_start_hour == 12 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_12-12.html" %}
+
+      {% elif routine_start_hour >= 13 and routine_start_hour <= 17 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_13-17.html" %}
+
+      {% elif routine_start_hour >= 18 and routine_start_hour <= 19 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_18-19.html" %}
+
+      {% elif routine_start_hour >= 20 and routine_start_hour <= 22 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_20-22.html" %}
+
+      {% elif routine_start_hour >= 23 or routine_start_hour <= 4 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_23-04.html" %}
+
+      {% endif %}
+
       {% include "reports/tiktok/partials/_04_daily_routine_part2.html" %}
     {% endif %}
 

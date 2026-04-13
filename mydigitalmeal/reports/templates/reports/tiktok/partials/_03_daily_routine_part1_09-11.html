@@ -1,0 +1,27 @@
+{% load i18n static %}
+
+<c-report-slide
+    slide_nr="3"
+    intro_duration="50"
+    outro_duration="0"
+    autoplay="2500"
+    content_classes="show-on-top-500"
+>
+  <c-slot name="intro">
+    {% include "reports/animations/sun.svg" %}
+  </c-slot>
+
+  <c-slot name="content">
+    <div class="text-black fw-bold">
+      <div class="routine-caption routine-9-11-caption">
+        {% blocktranslate %}
+          TikTok<br />am Morgen<br />verscrollt<br />Kummer und<br />Sorgen
+        {% endblocktranslate %}
+      </div>
+    </div>
+  </c-slot>
+
+  <c-slot name="outro">
+  </c-slot>
+
+</c-report-slide>

@@ -306,7 +306,164 @@ $report-container-height: 93vh;
   opacity: 0;
 }
 
-/* ANIMATIONS */
+
+.report-caption-eye {
+  font-size: 24px;
+  line-height: 32px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 36px;
+    line-height: 48px;
+  }
+  @media (min-width: $bp-md) {
+
+  }
+  @media (min-width: $bp-lg) {
+
+  }
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {}
+}
+
+/* ROUTINE CAPTIONS ————————————————————————————————————————————————————————————————————————————————————————————————— */
+.routine-5-8-caption {
+  font-size: 28px;
+  line-height: 28px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {
+    font-size: 65px;
+    line-height: 70px;
+  }
+}
+
+.routine-9-11-caption {
+  font-size: 28px;
+  line-height: 28px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {
+    font-size: 65px;
+    line-height: 70px;
+  }
+}
+
+.routine-12-caption {
+  font-size: 44px;
+  line-height: 48px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 80px;
+    line-height: 84px;
+  }
+  @media (min-width: $bp-md) {}
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {}
+}
+
+.routine-13-17-caption {
+  font-size: 28px;
+  line-height: 28px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {
+    font-size: 65px;
+    line-height: 70px;
+  }
+}
+
+.routine-18-19-caption {
+  font-size: 28px;
+  line-height: 28px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {
+    font-size: 65px;
+    line-height: 70px;
+  }
+}
+
+.routine-20-22-caption {
+  font-size: 28px;
+  line-height: 28px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {}
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {
+    font-size: 65px;
+    line-height: 70px;
+  }
+}
+
+.routine-23-4-caption {
+  font-size: 28px;
+  line-height: 28px;
+  transform: rotate(15deg);
+  padding-bottom: 15px;
+  padding-right: 50px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 46px;
+    line-height: 46px;
+  }
+  @media (min-width: $bp-md) {
+    font-size: 55px;
+    line-height: 65px;
+  }
+  @media (min-width: $bp-lg) {
+    padding-bottom: 20px;
+    padding-right: 70px;
+  }
+  @media (min-width: $bp-xl) {}
+  @media (min-width: $bp-xxl) {}
+}
+
+/* ANIMATIONS ——————————————————————————————————————————————————————————————————————————————————————————————————————— */
 
 @keyframes wipe-in {
   from { clip-path: inset(0 100% 0 0); }
