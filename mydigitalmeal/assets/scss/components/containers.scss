@@ -3,6 +3,7 @@
 .mdm-container-landing-preview {
   margin-top: 2rem;
   margin-bottom: 2rem;
+  font-family: var(--mdm-ff-space-grotesk);
 
   padding-top: 3rem;
   padding-bottom: 3rem;
@@ -52,6 +53,30 @@
     color: var(--mdm-font-color-main);
     font-family: var(--mdm-ff-text);
     padding: 30px 20px;
+
+    .alarm-example {
+      position: relative;
+      height: 170px;
+      width: 170px;
+
+      div {
+        position: absolute;
+      }
+
+      .alarm-example-image {
+        transform: rotate(5deg);
+        height: 170px;
+      }
+
+      .alarm-example-caption {
+        top: 50%;
+        font-weight: bold;
+        color: black;
+        width: 100%;
+      }
+
+    }
+
   }
 
   .mdm-phone-frame {

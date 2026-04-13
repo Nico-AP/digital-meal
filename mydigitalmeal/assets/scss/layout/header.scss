@@ -69,7 +69,7 @@
   }
 
   .header-icon {
-    height: 48px;
+    height: 30px;
     position: absolute;
     left: 0;
     opacity: 0;
@@ -109,7 +109,7 @@
 
   .nav-mobile-toggle {
     display: block;
-    font-size: 60px;
+    font-size: 45px;
     @media (min-width: $bp-lg) {
       display: none;
     }

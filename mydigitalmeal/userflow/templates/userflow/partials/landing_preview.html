@@ -9,15 +9,26 @@
           <div class="mdm-phone-screen-top">
             <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
                  alt="My Digital Meal Logo"
-                 height="30px" />
+                 height="15px" />
           </div>
 
           <div class="mdm-phone-screen-main">
             <p class="text-center fs-08">
               {% blocktranslate trimmed %}
-                Am <b>meisten Videos</b> hast du dir <b>zwischen 5–8 Uhr</b> angeschaut
+                Am <b>meisten Videos</b> hast du von <b>6-7 Uhr</b> angeschaut
               {% endblocktranslate %}
             </p>
+
+            <div class="alarm-example pt-4">
+
+              <div class="position-absolute">
+                <img class="alarm-example-image" src="{% static 'mydigitalmeal/img/alarm_static.svg' %}" alt="My Digital Meal Alarm" />
+              </div>
+
+              <div class="position-absolute alarm-example-caption">
+                Dein Wecker<br />macht TikTok
+              </div>
+            </div>
           </div>
 
         </div>
