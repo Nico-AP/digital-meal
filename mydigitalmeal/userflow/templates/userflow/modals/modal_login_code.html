@@ -3,22 +3,25 @@
 {% load i18n %}
 
 {% block modal_content %}
+  <form method="post" action="{% url 'mdm:userflow:profiles:logout' %}">
+  {% csrf_token %}
 
-  {% url 'mdm:userflow:profiles:auth' as login_url %}
-  {% blocktranslate trimmed %}
-    <p>
-      Warte einige Minuten und prüfe auch deinen Spam-Ordner.
-    </p>
+    {% blocktranslate trimmed %}
+      <p>
+        Warte einige Minuten und prüfe auch deinen Spam-Ordner.
+      </p>
 
-    <p>
-      Wenn du keinen Code erhalten hast, kannst du versuchen,
-      den Code erneut anzufordern.
-      Kehre dafür zum <a href="{{ login_url }}">Login</a> zurück.
-    </p>
+      <p>
+        Wenn du keinen Code erhalten hast, kannst du versuchen,
+        den Code erneut anzufordern.
+        Kehre dafür zum <button class="btn-link text-black" type="submit">Login</button> zurück.
+      </p>
 
-    <p>
-      Wenn das Problem weiterhin besteht, versuche es später erneut oder
-      schreib uns eine Nachricht an <a href="mailto:kontak@digital-meal.ch">kontak@digital-meal.ch</a>.
-    </p>
-  {% endblocktranslate %}
+      <p>
+        Wenn das Problem weiterhin besteht, versuche es später erneut oder
+        schreib uns eine Nachricht an <a href="mailto:kontak@digital-meal.ch">kontak@digital-meal.ch</a>.
+      </p>
+    {% endblocktranslate %}
+
+  </form>
 {% endblock modal_content %}

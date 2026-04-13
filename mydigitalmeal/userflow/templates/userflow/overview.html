@@ -23,7 +23,7 @@
         </div>
 
         {% if requests %}
-          <div class="mdm-text mt-5">
+          <div class="mdm-text mt-5 mb-4">
             <h2>{% translate "Deine Reports" %}</h2>
           </div>
 
@@ -45,6 +45,7 @@
         {% endif %}
 
         <div class="mt-5 mb-5">
+          <p class="mdm-text mt-5 mb-0 fs-6 text-white-50">Du bist aktuell als {{ user.get_username }} angemeldet</p>
           <a class="btn mdm-discreet-btn" href="{% url 'mdm:userflow:profiles:logout' %}">{% translate "Abmelden" %}</a>
         </div>
 
