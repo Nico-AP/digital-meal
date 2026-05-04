@@ -7,6 +7,11 @@ body {
   background: var(--mdm-body-bg-color);
 }
 
+.col {
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
 .main-container {
   min-height: 100vh;
   display: flex;

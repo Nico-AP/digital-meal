@@ -45,7 +45,6 @@ ol {
     font-size: 50px;
     line-height: 60px;
   }
-
 }
 
 .mdm-subtitle {
@@ -154,8 +153,8 @@ ol {
 }
 
 .mdm-info-text {
-  font-size: 14.5px; //20px;
-  line-height: 17.5px; //28px;
+  font-size: 18px; //20px;
+  line-height: 23px; //28px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
   word-break: break-word;
@@ -172,8 +171,8 @@ ol {
 }
 
 .mdm-list-info {
-  font-size: 14.5px; //20px;
-  line-height: 19px; //28px;
+  font-size: 18px; //20px;
+  line-height: 23px; //28px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
 
@@ -236,7 +235,6 @@ ul.mdm-list-participation {
   padding-bottom: 8px;
 }
 
-
 // Titles
 .base-info-container {
 
@@ -255,7 +253,7 @@ ul.mdm-list-participation {
     color: var(--mdm-font-color-main);
     word-wrap: anywhere;
 
-    @media (min-width: $bp-lg) {
+    @media (min-width: $bp-sm) {
       font-size: 37px;
       line-height: 48px;
     }

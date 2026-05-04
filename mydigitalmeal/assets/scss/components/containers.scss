@@ -5,8 +5,8 @@
   margin-bottom: 2rem;
   font-family: var(--mdm-ff-space-grotesk);
 
-  padding-top: 3rem;
-  padding-bottom: 3rem;
+  padding-top: 45px;
+  padding-bottom: 30px;
 
   min-height: 100px;
   background: var(--mdm-color-accent-red);
@@ -116,16 +116,20 @@
 
   .info-intro-container {
     text-align: center;
-    padding-bottom: 3rem;
+    padding-bottom: 30px;
     width: 100%;
     max-width: 950px;
+
+    @media (min-width: $bp-md) {
+      padding-bottom: 45px;
+    }
 
     @media (min-width: $bp-lg) {
       width: 85%;
     }
 
     h1 {
-      padding-bottom: 2rem;
+      padding-bottom: 30px;
     }
 
   }
@@ -151,7 +155,11 @@
   }
 
   .info-container {
-    margin-bottom: 3rem;
+    margin-bottom: 30px;
+
+    @media (min-width: $bp-md) {
+      margin-bottom: 45px;
+    }
 
     h2 {
       font-weight: bold;
