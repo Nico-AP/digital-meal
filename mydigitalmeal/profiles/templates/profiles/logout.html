@@ -15,7 +15,7 @@
         <form method="post" action="{% url 'mdm:userflow:profiles:logout' %}">
           {% csrf_token %}
           {{ form.as_p }}
-          <button class="btn mdm-color-btn-v4 " type="submit">{% translate "Ja, abmelden" %}</button>
+          <button class="btn mdm-color-btn-v4 ps-5 pe-5" type="submit">{% translate "Ja, abmelden" %}</button>
         </form>
 
       </div>

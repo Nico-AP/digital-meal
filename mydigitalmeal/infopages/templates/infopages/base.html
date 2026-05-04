@@ -5,6 +5,9 @@
   {% include "mydigitalmeal/partials/_meta_seo.html" %}
 {% endblock extra_head %}
 
+{% block messages %}
+{% endblock messages %}
+
 {% block main %}
 
   {% block navbar_top %}
@@ -28,4 +31,5 @@
 
 {% block extra_js %}
   <script src="{% static 'infopages/js/header-utils.js' %}"></script>
+  <script src="{% static 'infopages/js/mobile-nav-utils.js' %}"></script>
 {% endblock extra_js %}

@@ -5,12 +5,15 @@
   margin-bottom: 1rem;
   border-radius: 10em;
   font-family: var(--mdm-ff-buttons);
-  font-size: 28px;
-  line-height: 32px;
+  font-size: 37px; //28px;
+  line-height: 48px; //32px;
   font-weight: bold;
   color: var(--mdm-color-black);
-  padding: 1.5rem 3rem;
-  min-width: 280px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+
+  // padding: 1.5rem 3rem;
+  min-width: 270px;
   max-width: 85vw;
   background: var(--mdm-color-accent-green);
   background: linear-gradient(
@@ -25,7 +28,7 @@
 
   @media (min-width: $bp-sm) {
     font-size: 37px;
-    line-height: 43px;
+    line-height: 48px;
   }
 
   &:hover {
@@ -99,6 +102,12 @@
   }
 }
 
+.mdm-dark-btn {
+  @extend .mdm-base-btn;
+  background: var(--mdm-body-bg-color) !important;
+  color: var(--mdm-color-white);
+}
+
 .mdm-tiktok-connect-button {
   max-width: 90%;
   width: 950px;
@@ -108,8 +117,9 @@
   font-family: var(--mdm-ff-headers-info);
   font-weight: bold;
   font-size: 24px;
-  line-height: 29px;
-  padding: 1rem 2.5rem;
+  line-height: 1;
+  padding: 1rem 2.25rem;
+  min-width: 201px !important;
 }
 
 .mdm-login-btn {

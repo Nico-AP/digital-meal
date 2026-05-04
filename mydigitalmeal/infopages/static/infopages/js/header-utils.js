@@ -9,12 +9,14 @@ const actionBtnHeight = actionBtn.scrollHeight;
 
 const scrollStart = 0;   // scroll position where transition begins
 const scrollEnd = 150;   // scroll position where transition is complete
+const initialHeight = navbar.offsetHeight;
+
 
 window.addEventListener('scroll', () => {
   // progress goes from 0 to 1 as you scroll from scrollStart to scrollEnd
   const progress = Math.min(Math.max(
     (window.scrollY - scrollStart) / (scrollEnd - scrollStart),
-  0), 1);
+    0), 1);
 
   // Full logo fades out
   logoFull.style.opacity = 1 - progress;
@@ -32,6 +34,10 @@ window.addEventListener('scroll', () => {
   logoIcon.style.transform = `scale(${0.8 + progress * 0.2})`;
 
   // Navbar height shrinks
-  const height = 180 - progress * 100;
+  if (initialHeight >= 180) {
+    let height = initialHeight - progress * 100;
+  } else {
+    let height = initialHeight - progress * 10;
+  }
   document.querySelector('.mdm-info-header').style.height = `${height}px`;
 });

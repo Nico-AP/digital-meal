@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <div class="modal fade mdm-modal mobile-nav-modal"
      id="navModal"
      data-bs-backdrop="static"
@@ -9,7 +11,7 @@
   <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">{# djlint:off H023 #}&#x2715;{# djlint:on #}</button>
 
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
+    <div class="modal-content d-flex d-column align-content-center justify-content-center">
       <div class="modal-body">
 
         <div class="nav-el-mobile">
@@ -18,17 +20,17 @@
               href="{{ background_url }}"
               class="{% if request.path == background_url %}active{% endif %} %}"
           >
-            So funktioniert's
+            {% translate "So funktioniert's" %}
           </a>
         </div>
 
         <div class="nav-el-mobile">
-          {% url 'mdm:infopages:dataprotection' as dataprotection_url %}
+          {% url 'mdm:infopages:data_protection' as dataprotection_url %}
           <a
               href="{{ dataprotection_url }}"
               class="{% if request.path == dataprotection_url %}active{% endif %} %}"
           >
-            Datenschutz
+            {% translate "Datenschutz" %}
           </a>
         </div>
 
@@ -38,12 +40,12 @@
               href="{{ about_url }}"
               class="{% if request.path == about_url %}active{% endif %} %}"
           >
-            Über Digital Meal
+            {% translate "Über Digital Meal" %}
           </a>
         </div>
 
         <div>
-          <a href="{% url 'mdm:userflow:landing_page' %}" class="btn mdm-color-btn-v2">zum Start</a>
+          <a href="{% url 'mdm:userflow:landing_page' %}" class="btn mdm-color-btn-v2">{% translate "zum Start" %}</a>
         </div>
 
       </div>

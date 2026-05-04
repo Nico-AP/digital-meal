@@ -5,7 +5,7 @@ a,
 .btn-link {
   text-decoration: underline;
   text-underline-offset: 5px;
-  text-decoration-thickness: 2px;
+  text-decoration-thickness: 0.075em;
   color: var(--mdm-font-color-main);
 
   &:hover {
@@ -20,6 +20,18 @@ a,
   padding: 0;
 }
 
+ul {
+  padding-left: 1rem;
+}
+
+ol {
+  padding-left: 30px;
+
+  @media (min-width: $bp-lg) {
+    padding-left: 30px;
+  }
+}
+
 // Text Classes
 .mdm-title {
   font-size: 50px;
@@ -27,6 +39,7 @@ a,
   font-family: var(--mdm-ff-headers-participation);
   font-weight: bold;
   color: var(--mdm-font-color-main);
+  word-wrap: anywhere;
 }
 
 .mdm-subtitle {
@@ -34,6 +47,7 @@ a,
   line-height: 48px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
+  word-wrap: anywhere;
 
   @media (min-width: $bp-lg) {
     font-size: 35px;
@@ -47,8 +61,9 @@ a,
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
   margin-bottom: 2rem;
+  word-wrap: anywhere;
 
-  @media (min-width: $bp-md) {
+  @media (min-width: $bp-sm) {
     font-size: 37px;
     line-height: 48px;
     margin-bottom: 3.5rem;
@@ -65,6 +80,11 @@ a,
   line-height: 28px;
   font-family: var(--mdm-ff-space-grotesk);
   color: var(--mdm-font-color-main);
+
+  @media (min-width: $bp-sm) {
+    font-size: 30px;
+    line-height: 39px;
+  }
 
   @media (min-width: $bp-md) {
     font-size: 30px;
@@ -84,16 +104,19 @@ a,
 }
 
 .mdm-list-participation {
-  font-size: 20px;
+  font-size: 29px;
   line-height: 28px;
+  text-align: left;
   font-family: var(--mdm-ff-text-participation);
   color: var(--mdm-font-color-main);
 
   li {
-    padding-left: 30px;
+    padding-left: 10px;
+    padding-bottom: 8px;
+    line-height: 39px;
   }
 
-  @media (min-width: $bp-md) {
+  @media (min-width: $bp-sm) {
     font-size: 30px;
     line-height: 39px;
   }
@@ -101,12 +124,13 @@ a,
 }
 
 .mdm-info-lead {
-  font-size: 28px;
-  line-height: 34px;
+  font-size: 37px; //28px;
+  line-height: 48px; //34px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
+  text-align: left;
 
-  @media (min-width: $bp-md) {
+  @media (min-width: $bp-sm) {
     font-size: 37px;
     line-height: 48px;
   }
@@ -114,6 +138,7 @@ a,
   @media (min-width: $bp-lg) {
     font-size: 35px;
     line-height: 42px;
+    text-align: center;
   }
 }
 
@@ -124,6 +149,11 @@ a,
   color: var(--mdm-font-color-main);
   word-break: break-word;
 
+  @media (min-width: $bp-sm) {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
   @media (min-width: $bp-lg) {
     font-size: 24px;
     line-height: 29px;
@@ -131,15 +161,25 @@ a,
 }
 
 .mdm-list-info {
-  font-size: 20px;
-  line-height: 28px;
+  font-size: 24px; //20px;
+  line-height: 32px; //28px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
 
+  @media (min-width: $bp-sm) {
+    font-size: 24px;
+    line-height: 32px;
+  }
+
   li {
-    padding-left: 30px;
+    padding-left: 10px;
     padding-bottom: 8px;
-    line-height: 2rem;
+    line-height: 32px;
+  }
+
+  @media (min-width: $bp-lg) {
+    font-size: 24px;
+    line-height: 29px;
   }
 }
 
@@ -169,10 +209,46 @@ a,
 ul.mdm-list,
 ul.mdm-list-info {
   list-style-type: "–";
+  padding-left: 15px;
+
+  @media (min-width: $bp-lg) {
+    padding-left: 15px;
+  }
+}
+
+ul.mdm-list-participation {
+  list-style-type: "–";
+  padding-left: 15px;
 }
 
 .mdm-list-item {
   padding-left: 10px;
   padding-bottom: 8px;
   line-height: 2rem;
+}
+
+
+// Titles
+.base-info-container {
+
+  h1 {
+    text-align: start;
+
+    @media (min-width: $bp-lg) {
+      text-align: center;
+    }
+  }
+
+  h2 {
+    font-size: 37px;
+    line-height: 48px;
+    font-family: var(--mdm-ff-text-info);
+    color: var(--mdm-font-color-main);
+    word-wrap: anywhere;
+
+    @media (min-width: $bp-lg) {
+      font-size: 35px;
+      line-height: 42px;
+    }
+  }
 }

@@ -17,19 +17,33 @@
 .footer-logo-container {
   width: 40vw;
   max-width: 100%;
-  padding: 15px;
+  //padding: 15px;
 
   @media (min-width: $bp-md) {
     font-size: 53px;
     line-height: 68px;
+    width: 250px;
     max-width: 450px;
   }
 
+  @media (min-width: $bp-xl) {
+    width: 280px;
+    max-width: 280px;
+  }
 }
 
 .footer-logo {
   max-width: 250px;
   width: 100%;
+
+  @media (min-width: $bp-lg) {
+    width: 250px;
+  }
+
+  @media (min-width: $bp-xl) {
+    width: 280px;
+    max-width: 280px;
+  }
 }
 
 .footer-item {

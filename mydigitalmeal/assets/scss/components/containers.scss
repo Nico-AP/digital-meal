@@ -23,8 +23,6 @@
     position: relative;
     width: 220px;
     height: 440px;
-    filter: drop-shadow(0 40px 80px rgba(0,0,0,0.8)) drop-shadow(0 0 1px rgba(255,255,255,0.05));
-    animation: floatIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .mdm-phone-screen {
@@ -114,19 +112,16 @@
   align-items: center;
 
   padding-top: 60px;
-  padding-left: 15px;
-  padding-right: 15px;
   width: 100%;
 
   .info-intro-container {
     text-align: center;
-    padding-top: 3rem;
     padding-bottom: 3rem;
     width: 100%;
     max-width: 950px;
 
-        @media (min-width: $bp-lg) {
-      width: 80%;
+    @media (min-width: $bp-lg) {
+      width: 85%;
     }
 
     h1 {
@@ -136,11 +131,18 @@
   }
 
   .info-main-text-container {
-    width: 90%;
     max-width: 950px;
 
     @media (min-width: $bp-lg) {
-      width: 50%;
+      width: 60%;
+    }
+
+    @media (min-width: $bp-xl) {
+      width: 55%;
+    }
+
+    @media (min-width: $bp-xxl) {
+      width: 45%;
     }
 
     img {
@@ -156,6 +158,4 @@
       font-family: var(--mdm-ff-headers-info);
     }
   }
-
-
 }
