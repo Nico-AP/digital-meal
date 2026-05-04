@@ -34,20 +34,31 @@ ol {
 
 // Text Classes
 .mdm-title {
-  font-size: 50px;
-  line-height: 60px;
+  font-size: 30px;
+  line-height: 36px;
   font-family: var(--mdm-ff-headers-participation);
   font-weight: bold;
   color: var(--mdm-font-color-main);
   word-wrap: anywhere;
+
+  @media (min-width: $bp-sm) {
+    font-size: 50px;
+    line-height: 60px;
+  }
+
 }
 
 .mdm-subtitle {
-  font-size: 37px;
-  line-height: 48px;
+  font-size: 22px;
+  line-height: 29px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
   word-wrap: anywhere;
+
+  @media (min-width: $bp-sm) {
+    font-size: 37px;
+    line-height: 48px;
+  }
 
   @media (min-width: $bp-lg) {
     font-size: 35px;
@@ -56,8 +67,8 @@ ol {
 }
 
 .mdm-lead {
-  font-size: 37px; //28px;
-  line-height: 48px; // 34px;
+  font-size: 22px; //28px;
+  line-height: 29px; // 34px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
   margin-bottom: 2rem;
@@ -76,8 +87,8 @@ ol {
 }
 
 .mdm-text {
-  font-size: 30px; //20px;
-  line-height: 39px; //28px;
+  font-size: 18px; //20px;
+  line-height: 23px; //28px;
   font-family: var(--mdm-ff-space-grotesk);
   color: var(--mdm-font-color-main);
 
@@ -104,8 +115,8 @@ ol {
 }
 
 .mdm-list-participation {
-  font-size: 29px;
-  line-height: 28px;
+  font-size: 18px; // 29px;
+  line-height: 23px; // 28px;
   text-align: left;
   font-family: var(--mdm-ff-text-participation);
   color: var(--mdm-font-color-main);
@@ -124,8 +135,8 @@ ol {
 }
 
 .mdm-info-lead {
-  font-size: 37px; //28px;
-  line-height: 48px; //34px;
+  font-size: 22px; //28px;
+  line-height: 29px; //34px;
   font-family: var(--mdm-ff-headers-participation);
   color: var(--mdm-font-color-main);
   text-align: left;
@@ -143,8 +154,8 @@ ol {
 }
 
 .mdm-info-text {
-  font-size: 24px; //20px;
-  line-height: 29px; //28px;
+  font-size: 14.5px; //20px;
+  line-height: 17.5px; //28px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
   word-break: break-word;
@@ -161,19 +172,18 @@ ol {
 }
 
 .mdm-list-info {
-  font-size: 24px; //20px;
-  line-height: 32px; //28px;
+  font-size: 14.5px; //20px;
+  line-height: 19px; //28px;
   font-family: var(--mdm-ff-text-info);
   color: var(--mdm-font-color-main);
-
-  @media (min-width: $bp-sm) {
-    font-size: 24px;
-    line-height: 32px;
-  }
 
   li {
     padding-left: 10px;
     padding-bottom: 8px;
+  }
+
+  @media (min-width: $bp-sm) {
+    font-size: 24px;
     line-height: 32px;
   }
 
@@ -224,7 +234,6 @@ ul.mdm-list-participation {
 .mdm-list-item {
   padding-left: 10px;
   padding-bottom: 8px;
-  line-height: 2rem;
 }
 
 
@@ -240,11 +249,16 @@ ul.mdm-list-participation {
   }
 
   h2 {
-    font-size: 37px;
-    line-height: 48px;
-    font-family: var(--mdm-ff-text-info);
+    font-size: 22px;
+    line-height: 29px;
+    font-family: var(--mdm-ff-headers-participation);
     color: var(--mdm-font-color-main);
     word-wrap: anywhere;
+
+    @media (min-width: $bp-lg) {
+      font-size: 37px;
+      line-height: 48px;
+    }
 
     @media (min-width: $bp-lg) {
       font-size: 35px;

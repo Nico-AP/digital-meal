@@ -48,12 +48,14 @@
 
 .footer-item {
   padding-bottom: 0.5rem;
-  font-size: 24px;
-  line-height: 32px;
+  font-size: 14.5px;
+  line-height: 19px;
   overflow-wrap: break-word;
   text-align: center;
 
   @media (min-width: $bp-sm) {
     text-align: left;
+    font-size: 24px;
+    line-height: 32px;
   }
 }

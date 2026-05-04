@@ -144,9 +144,14 @@
   font-weight: bold;
   color: var(--mdm-color-black);
 
-  font-size: 30px; //21px;
-  line-height: 28.8px; //31px;
+  font-size: 18px; //21px;
+  line-height: 17px; //31px;
   padding-bottom: 30px;
+
+  @media (min-width: $bp-sm) {
+    font-size: 30px; //21px;
+    line-height: 28.8px; //31px;
+  }
 
   a {
     text-decoration: None;

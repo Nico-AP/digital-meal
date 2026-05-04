@@ -5,15 +5,14 @@
   margin-bottom: 1rem;
   border-radius: 10em;
   font-family: var(--mdm-ff-buttons);
-  font-size: 37px; //28px;
-  line-height: 48px; //32px;
+  font-size: 22px; //28px;
+  line-height: 29px; //32px;
   font-weight: bold;
   color: var(--mdm-color-black);
   padding-top: 15px;
   padding-bottom: 15px;
 
-  // padding: 1.5rem 3rem;
-  min-width: 270px;
+  min-width: 220px;
   max-width: 85vw;
   background: var(--mdm-color-accent-green);
   background: linear-gradient(
@@ -29,6 +28,7 @@
   @media (min-width: $bp-sm) {
     font-size: 37px;
     line-height: 48px;
+    min-width: 270px;
   }
 
   &:hover {

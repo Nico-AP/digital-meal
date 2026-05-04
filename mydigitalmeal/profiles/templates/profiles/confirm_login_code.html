@@ -18,35 +18,35 @@
             {% endblocktranslate %}
           </p>
 
-          <p class="mdm-text pt-4">
+          <p class="mdm-text">
             {% blocktranslate trimmed %}
               Der Code ist 5 Minuten gültig.
             {% endblocktranslate %}
           </p>
         </div>
 
-        <div class="mdm-form-container">
+        <div class="mdm-form-container mt-0">
 
           <form method="post" action="{% url "mdm:userflow:profiles:confirm_login_code" %}">
             {% csrf_token %}
 
             <div class="pt-2 d-flex justify-content-center">
               <div class="mdm-code-input-wrapper mdm-text-input mt-4 mb-4">
-
-                <input type="text"
-                       class="textinput form-control mdm-code-input"
-                       name="code"
-                       autocomplete="one-time-code"
-                       placeholder=""
-                       maxlength="6"
-                       required=""
-                       id="id_code" />
-
+                <div class="mdm-code-input-strokes">
+                  <input type="text"
+                         class="textinput form-control mdm-code-input"
+                         name="code"
+                         autocomplete="one-time-code"
+                         maxlength="6"
+                         required=""
+                         placeholder="ABC123"
+                         id="id_code" />
+                </div>
               </div>
             </div>
 
-            <div class="mdm-btn-container">
-              <button class="btn mdm-color-btn-v3" type="submit">
+            <div class="mdm-btn-container mt-0">
+              <button class="btn mdm-color-btn-v3 mt-0" type="submit">
                 {% translate "Anmelden" %}
               </button>
             </div>
@@ -54,7 +54,7 @@
           </form>
         </div>
 
-        <div class="mdm-container-bottom pt-5 pb-5">
+        <div class="mdm-container-bottom">
           <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
             {% translate "Ich habe keinen Code erhalten" %}
           </a>

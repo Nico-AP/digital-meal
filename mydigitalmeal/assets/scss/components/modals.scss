@@ -7,16 +7,26 @@
     min-height: 35vh;
     max-height: 80vh;
     font-family: var(--mdm-ff-text-participation);
-    font-size: 24px;
-    line-height: 28.8px;
+    font-size: 14.5px;
+    line-height: 17px;
     text-align: center;
+
+    @media (min-width: $bp-sm) {
+      font-size: 24px;
+      line-height: 28.8px;
+    }
+
   }
 
   .modal-dialog {
     padding-left: 30px;
     padding-right: 30px;
-    padding-top: 120px;
+    padding-top: 60px;
     max-width: 950px;
+
+    @media (min-width: $bp-md) {
+      padding-top: 120px;
+    }
 
     @media (min-width: $bp-md) {
       width: 80%;

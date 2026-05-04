@@ -4,8 +4,8 @@
   background: var(--mdm-color-black);
   color: var(--mdm-font-color-main);
   border-radius: 12px;
-  font-size: 28px;
-  line-height: 36px;
+  font-size: 22px;
+  line-height: 29px;
 
   text-align: center;
   border: none;
@@ -34,71 +34,87 @@
 }
 
 .mdm-code-input-wrapper {
-  width: 270px;
-  padding-left: 25px;
-  padding-right: 0.5rem;
-  padding-bottom: 1rem;
+  width: 200px;
+  padding-left: 15px;
+  padding-bottom: 0;
+  padding-top: 0;
 
   @media (min-width: $bp-sm) {
-    width: 450px;
-    padding-left: 50px;
-    padding-right: 0.5rem;
-    padding-bottom: 1rem;
+    width: 310px;
+    padding: 1rem 0 1rem 16px;
   }
 }
 
+.mdm-code-input-strokes {
+  background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 20px, transparent 20px, transparent 30px);
+  background-size: 180px 1px;
+  background-position: 0 62%;
+  background-repeat: no-repeat;
+  height: 100%;
+  width: 100%;
+
+  &:focus {
+    background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 20px, transparent 20px, transparent 30px);
+    background-size: 180px 1px;
+    background-position: 0 62%;
+    background-repeat: no-repeat;
+  }
+
+  @media (min-width: $bp-sm) {
+    background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 30px, transparent 30px, transparent 48px);
+    background-size: 280px 2px;
+    background-position: 0 65%;
+    background-repeat: no-repeat;
+    height: 100%;
+    width: 100%;
+
+    &:focus {
+      background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 30px, transparent 30px, transparent 48px);
+      background-size: 280px 2px;
+      background-position: 0 65%;
+    }
+
+  }
+
+}
+
 .mdm-code-input {
-  font-family: monospace !important; /* TODO: Load specific font */
+  font-family: monospace !important;
   color: var(--mdm-font-color-main);
   background-color: transparent;
   border: none;
   outline: none;
-  font-size: 1.8rem;
-  letter-spacing: 1.5rem;
+  font-size: 22px;
+  letter-spacing: 18px;
   padding-left: 0.2rem;
   padding-right: 0;
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
-  background-image: repeating-linear-gradient(90deg, #666 0px, #666 20px, transparent 20px, transparent 40px);
-  background-size: 360px 2px;
-  background-position: 0 100%;
-  background-repeat: no-repeat;
+  margin-top: 6px;
+  margin-bottom: 6px;
   caret-color: transparent;
   line-height: 1rem;
+  border-radius: 0;
+  font-weight: bold;
 
   @media (min-width: $bp-sm) {
-    font-size: 2.5rem;
-    letter-spacing: 2.35rem;
-    padding-left: 0.8rem;
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
-    background-image: repeating-linear-gradient(
-                    90deg,
-                    #666 0px,
-                    #666 44px,
-                    transparent 44px,
-                    transparent 60px
-    );
+    font-size: 37px;
+    line-height: 1rem;
+    letter-spacing: 28px;
+    padding-left: 4px;
+    padding-right: 0;
   }
 
   &:focus {
     color: var(--mdm-font-color-main);
-    background: var(--mdm-color-black);
-    background-image: repeating-linear-gradient(90deg, #666 0px, #666 20px, transparent 20px, transparent 40px);
-
-    background-size: 360px 2px;
-    background-position: 0 100%;
+    background: transparent;
     background-repeat: no-repeat;
     box-shadow: none;
 
-    @media (min-width: $bp-sm) {
-      background-image: repeating-linear-gradient(
-                      90deg,
-                      #e5e5e7 0px,
-                      #e5e5e7 44px,
-                      transparent 44px,
-                      transparent 60px
-      );
-    }
+  }
+
+  &::placeholder {
+    color: var(--mdm-font-color-muted);
+    opacity: 0.5;
   }
 }
