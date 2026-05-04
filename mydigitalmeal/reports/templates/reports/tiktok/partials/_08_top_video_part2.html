@@ -29,48 +29,86 @@
     content_classes="show-on-top-500"
 >
   <c-slot name="intro">
-    <div class="report-top-video-animation-container p-5">
-      {% include "reports/animations/star_top_in.svg" %}
+    <div class="report-top-video-container">
+      <div class="report-top-video-animation-container">
+
+        {% include "reports/animations/star_top_in.svg" %}
+
+        <div class="report-top-video-info-container w-100">
+          {% if top_video_thumbnail_url %}
+            <img id="slide-8-top-video-img" class="top-video-thumbnail" src="{{ top_video_thumbnail_url }}" alt="TikTok video thumbnail" height="400px" width="225px" />
+          {% else %}
+            <div class="report-video-unavailable-placeholder">
+              {% translate "das Video ist leider nicht mehr verfügbar" %}
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="report-top-video-info-text invisible">
+      <div class="ps-md-5 pe-md-5">
+        {% if top_video_seen_count == 1 %}
+          {{ caption_only_one_a }}
+        {% else %}
+          {% if top_video_channel %}
+            {{ caption_multiple_a_with_channel }}
+          {% else %}
+            {{ caption_multiple_a_without_channel }}
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="pt-2 fs-3 report-top-video-info-secondary">
+        {% if top_video_seen_count == 1 %}
+          {{ caption_only_one_b }}
+        {% else %}
+          {{ caption_multiple_b }}
+        {% endif %}
+      </div>
     </div>
   </c-slot>
 
   <c-slot name="content">
     <div class="report-top-video-container">
       <div class="report-top-video-animation-container">
-        {% include "reports/animations/star_top_repeat.svg" %}
-      </div>
-
-      <div class="report-top-video-info-container w-100 pt-4">
-        {% if top_video_thumbnail_url %}
-          <img src="{{ top_video_thumbnail_url }}" alt="TikTok video thumbnail" height="400px" width="225px" />
-        {% else %}
-          <div class="report-video-unavailable-placeholder">
-            {% translate "das Video ist leider nicht mehr verfügbar" %}
-          </div>
-        {% endif %}
-
-        <div class="report-top-video-info-text">
-          <div class="ps-5 pe-5">
-            {% if top_video_seen_count == 1 %}
-              {{ caption_only_one_a }}
-            {% else %}
-              {% if top_video_channel %}
-                {{ caption_multiple_a_with_channel }}
-              {% else %}
-                {{ caption_multiple_a_without_channel }}
-              {% endif %}
-            {% endif %}
-          </div>
-          <div class="pt-2 fs-3">
-            {% if top_video_seen_count == 1 %}
-              {{ caption_only_one_b }}
-            {% else %}
-              {{ caption_multiple_b }}
-            {% endif %}
-          </div>
+        <div class="w-100">
+          {% include "reports/animations/star_top_repeat.svg" %}
         </div>
+        <div class="report-top-video-info-container w-100">
+          {% if top_video_thumbnail_url %}
+            <img class="top-video-thumbnail" src="{{ top_video_thumbnail_url }}" alt="TikTok video thumbnail" height="400px" width="225px" />
+          {% else %}
+            <div class="report-video-unavailable-placeholder">
+              {% translate "das Video ist leider nicht mehr verfügbar" %}
+            </div>
+          {% endif %}
+        </div>
+
       </div>
     </div>
+
+    <div id="slide-8-content-caption" class="report-top-video-info-text">
+      <div class="ps-md-5 pe-md-5">
+        {% if top_video_seen_count == 1 %}
+          {{ caption_only_one_a }}
+        {% else %}
+          {% if top_video_channel %}
+            {{ caption_multiple_a_with_channel }}
+          {% else %}
+            {{ caption_multiple_a_without_channel }}
+          {% endif %}
+        {% endif %}
+      </div>
+      <div class="pt-2 fs-3 report-top-video-info-secondary">
+        {% if top_video_seen_count == 1 %}
+          {{ caption_only_one_b }}
+        {% else %}
+          {{ caption_multiple_b }}
+        {% endif %}
+      </div>
+    </div>
+
   </c-slot>
 
   <c-slot name="outro">

@@ -32,6 +32,34 @@ function waitForElement(id, callback) {
   observer.observe(document.body, { childList: true, subtree: true });
 }
 
+
+// ── Slide 08: Top Video ───────────────────────────────────────────
+
+waitForElement("slide-8-content-caption", (el) => {
+  const reportSlide = el.closest(".report-slide");
+  const introSlide = reportSlide.querySelector(".slide-intro");
+  const observer = new MutationObserver(() => {
+    if (introSlide.classList.contains("is-playing")) {
+      el.classList.add('wipe-down');
+    }
+  });
+
+  observer.observe(introSlide, { attributeFilter: ["class"] });
+});
+
+waitForElement("slide-8-top-video-img", (el) => {
+  const reportSlide = el.closest(".report-slide");
+  const introSlide = reportSlide.querySelector(".slide-intro");
+  const observer = new MutationObserver(() => {
+    if (introSlide.classList.contains("is-playing")) {
+      el.classList.add('zoom-in');
+    }
+  });
+
+  observer.observe(introSlide, { attributeFilter: ["class"] });
+});
+
+
 // ── Slide 11: Usage Image Part 1 ───────────────────────────────────────────
 
 waitForElement("slide-11-intro-img", (el) => {

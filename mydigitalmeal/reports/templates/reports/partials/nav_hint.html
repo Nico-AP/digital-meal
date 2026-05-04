@@ -1,12 +1,12 @@
-<div id="report-nav-hint">
-  <div id="report-nav-hint-touch">
+<div class="report-nav-hint">
+  <div class="report-nav-hint-touch touch-only justify-content-center">
     <div class="swipe-track">
       <div class="swipe-dot"></div>
     </div>
   </div>
-  <div id="report-nav-hint-keyboard" class="d-flex flex-column align-items-center justify-content-center">
-    <div class="fs-6 text-secondary">Weiter mit Pfeil-nach-unten Taste</div>
-    <div class="hint-key">
+  <div class="report-nav-hint-keyboard desktop-only report-nav-hint flex-column align-items-center justify-content-center">
+    {% if show_text_hint %}<div class="fs-6 text-secondary">Weiter mit Pfeil-nach-unten Taste</div>{% endif %}
+    <div class="hint-key mt-2">
       <svg width="12" height="12" viewBox="0 0 12 12">
         <path d="M6 10 L10 3 L2 3 Z" fill="rgba(255,255,255,0.85)"/>
       </svg>

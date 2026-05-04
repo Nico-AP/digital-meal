@@ -16,7 +16,7 @@
 
 <c-report-slide
     slide_nr="0"
-    intro_duration="2300"
+    intro_duration="1400"
     outro_duration="1250"
 >
   <c-slot name="intro">
@@ -28,7 +28,7 @@
       {{ caption }}
     </div>
 
-    {% include "reports/partials/nav_hint.html" %}
+    {% include "reports/partials/nav_hint.html" with show_text_hint=True %}
 
   </c-slot>
 
