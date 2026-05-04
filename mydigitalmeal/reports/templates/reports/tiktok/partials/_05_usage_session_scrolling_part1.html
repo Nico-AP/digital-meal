@@ -2,7 +2,7 @@
 
 {# CAPTIONS #}
 
-{% blocktranslate asvar caption_3s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+{% blocktranslate asvar caption_3s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_pct|floatformat:"0" count pct=scroll_threshold_pct %}
   Bei<br />
   <strong>{{ pct_display }}% der Videos</strong><br />
   scrollst du<br />
@@ -18,7 +18,7 @@
   weiter
 {% endblocktranslate %}
 
-{% blocktranslate asvar caption_5s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+{% blocktranslate asvar caption_5s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_pct|floatformat:"0" count pct=scroll_threshold_pct %}
   Bei<br />
   <strong>{{ pct_display }}% der Videos</strong><br />
   scrollst du<br />
@@ -34,7 +34,7 @@
   weiter
 {% endblocktranslate %}
 
-{% blocktranslate asvar caption_10s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+{% blocktranslate asvar caption_10s with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_pct|floatformat:"0" count pct=scroll_threshold_pct %}
   Du scrollst bei<br />
   <strong>{{ pct_display }}% der Videos</strong><br />
   innerhalb<br />
@@ -48,7 +48,7 @@
     weiter</strong>
 {% endblocktranslate %}
 
-{% blocktranslate asvar caption_10s_plus with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0" count pct=scroll_threshold_sec %}
+{% blocktranslate asvar caption_10s_plus with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_pct|floatformat:"0" count pct=scroll_threshold_pct %}
   Du scrollst nur bei<br />
   <strong>{{ pct_display }}% der Videos</strong><br />
   innerhalb<br />
@@ -75,7 +75,7 @@
   </c-slot>
 
   <c-slot name="content">
-    {% with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_sec|floatformat:"0"  %}
+    {% with seconds=scroll_threshold_sec|floatformat:"0" pct_display=scroll_threshold_pct|floatformat:"0"  %}
       {% if scroll_threshold_sec <= 3 %}
         <div>
           {{ caption_3s }}
