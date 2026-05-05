@@ -1,18 +1,39 @@
 function applyDOMChanges() {
   document.querySelectorAll('.section-heading').forEach(el => {
-    if (el.textContent.trim() === 'Datei auswählen') {
-      el.closest('div.d-flex').style.display = 'none';
+    const targets = [
+      'Datei auswählen',
+      'Select file',
+      'Sélectionner un fichier',
+      'Seleziona file',
+    ]
+    if (targets.includes(el.textContent.trim())) {
+      const parent = el.closest('div.d-flex')
+      if (parent) {
+        parent.classList.add('d-none')
+      }
     }
   });
 
   document.querySelectorAll('.fw-bold').forEach(el => {
     if (el.textContent.trim() === 'Hier klicken um eine Datei auszuwählen') {
       el.textContent = 'Warte auf Datei';
+    } else if (el.textContent.trim() === 'Click to select a file from your device') {
+      el.textContent = 'Waiting for file';
     }
   });
 
   document.querySelectorAll('.uploader-section button').forEach(btn => {
-    if (!btn.textContent.trim().includes('alle Daten anzeigen')) {
+    const targets = [
+      'Show all data',
+      'alle Daten anzeigen',
+      'Show less',
+      'weniger anzeigen',
+      'afficher toutes les données',
+      'afficher moins',
+      'mostra tutti i dati',
+      'mostra meno',
+    ]
+    if (!targets.includes(btn.textContent.trim())) {
       btn.style.display = 'none';
     }
   });
