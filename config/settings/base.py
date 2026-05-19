@@ -262,10 +262,10 @@ ALLAUTH_MDM = {
 # STATIC FILES
 # ------------------------------------------------------------------------------
 STATIC_URL = "/static/"
-STATIC_ROOT = Path(BASE_DIR) / "staticfiles/"
+STATIC_ROOT = Path(BASE_DIR).parent / "staticfiles/"
 
 MEDIA_URL = "/media/"
-MEDIA_ROOT = Path(BASE_DIR) / "media/"
+MEDIA_ROOT = Path(BASE_DIR).parent / "media/"
 
 
 # DEFAULT PRIMARY KEY FIELD TYPE
