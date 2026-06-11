@@ -11,7 +11,7 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 
-from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
+from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG, DonationMethod
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.profiles.models import MDMProfile
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
@@ -121,8 +121,8 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
         self.reset_participant_in_session()
         self.userflow_session.reset()
 
-        method = request.GET.get("method", "ddm")
-        if method == "port-api":
+        method = request.GET.get("method", DonationMethod.DOWNLOAD_UPLOAD)
+        if method == DonationMethod.PORTABILITY:
             return redirect(URLShortcut.DONATION_PORTABILITY)
         return redirect(URLShortcut.DONATION_DDM)
 

@@ -1,0 +1,30 @@
+{% load i18n %}
+
+<div id="check-download-availability" class="htmx-smooth-transition"
+     hx-get="{% url 'mdm:userflow:studies:port_tt_check_data' %}"
+     hx-trigger="load delay:10s"
+     hx-swap="outerHTML">
+  <div>
+
+    <p class="mdm-text">
+      {% blocktranslate trimmed %}
+        <strong>Zugriff autorisiert!</strong><br />
+        Wir warten nun darauf, dass TikTok die Daten bereitstellt.
+        Sobald alles bereit ist, können Sie sie prüfen und entscheiden,
+        ob Sie die Daten für die Studie übermitteln möchten.
+      {% endblocktranslate %}
+    </p>
+
+    <div class="mb-3 mt-5">
+      {% include "mydigitalmeal/components/m_path_loader.html" %}
+    </div>
+
+    <div class="mb-2">
+      {% if poll_datetime %}
+        <p class="mb-0 mdm-text-muted fs-6">
+          {% translate "Verfügbarkeit zuletzt geprüft am" %} {{ poll_datetime|date:"d.m.Y H:i:s" }}
+        </p>
+      {% endif %}
+    </div>
+  </div>
+</div>

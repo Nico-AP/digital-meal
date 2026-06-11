@@ -1,14 +1,34 @@
 from django.http import HttpResponseRedirect
+from django.shortcuts import redirect
 from django.urls import reverse
+from django.views import View
 
 from mydigitalmeal.datadonation.views.ddm import DonationViewDDM
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
+from mydigitalmeal.studies.sessions import StudyParticipationSessionManager
 from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 from shared.portability import views as port_views
 
 
 class PortabilityEntryView(LoginAndProfileRequiredMixin, port_views.TikTokAuthView):
     template_name = "datadonation/portability/tiktok_auth.html"
+
+
+# TODO: Maybe move this view to userflow app
+class PortabilityCallbackSwitchView(AddUserflowSessionMixin, View):
+    """View that directs participants to the correct waiting view.
+
+    Redirects participants that are part of a dedicated study to XYZ (TODO),
+    and regular MDM participants to 
+    mydigitalmeal.datadonation.portability.PortabilityWaitingView.
+    """
+
+    def get(self, request, *args, **kwargs):
+        study_session = StudyParticipationSessionManager.from_request(request).get()
+        if study_session:
+            # TODO: Check if study session is still valid (criteria must be defined)
+            return redirect("studies:papi_waiting_view")
+        return redirect("userflow:datadonation:port_tt_await_data")
 
 
 class PortabilityWaitingView(

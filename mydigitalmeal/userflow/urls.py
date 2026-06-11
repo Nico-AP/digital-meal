@@ -32,4 +32,8 @@ urlpatterns = [
         "",
         include("mydigitalmeal.reports.urls", namespace="reports"),
     ),
+    path(
+        "",
+        include("mydigitalmeal.studies.urls", namespace="studies"),
+    ),
 ]
