@@ -212,14 +212,17 @@ class StatisticsView(
         if usage_session_total_seconds:
             session_hours, remainder = divmod(usage_session_total_seconds, 3600)
             session_minutes, session_seconds = divmod(remainder, 60)
+
+            session_minutes = int(session_minutes)
+            session_hours = int(session_hours)
         else:
             session_hours, session_minutes, session_seconds = None, None, None
 
         stats: dict[any] = {
             "usage_session_n_days": self._stats.total_days_with_activity,
             "usage_session_seconds": session_seconds,
-            "usage_session_minutes": int(session_minutes),
-            "usage_session_hours": int(session_hours),
+            "usage_session_minutes": session_minutes,
+            "usage_session_hours": session_hours,
             "usage_session_videos_mean": self._stats.avg_videos_per_session,
         }
 
