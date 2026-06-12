@@ -13,24 +13,26 @@ def get_tiktok_project() -> DonationProject:
     return DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
 
 
-def get_tiktok_wh_bp(project: DonationProject | None) -> DonationBlueprint:
+def get_tiktok_wh_bp(project_id: int | None) -> DonationBlueprint:
     """Returns blueprint or raises exception"""
     return DonationBlueprint.objects.get(
-        project=project or get_tiktok_project(),
+        project__id=project_id or get_tiktok_project(),
         name=TIKTOK_WATCH_HISTORY_BP_NAME,
     )
 
 
-def get_tiktok_wh_data(participant: Participant, ddm_project: DonationProject | None):
+def get_tiktok_wh_data(participant: Participant, ddm_project_id: int | None):
     """Loads the data donation associated with the DDM watch history blueprint
     for a given participant.
     """
-    if not ddm_project:
+    if not ddm_project_id:
         ddm_project = get_tiktok_project()
-    blueprint = get_tiktok_wh_bp(ddm_project)
+    else:
+        ddm_project = DonationProject.objects.get(pk=ddm_project_id)
+    blueprint = get_tiktok_wh_bp(ddm_project_id)
 
     donated_data = DataDonation.objects.get(
-        project=ddm_project,
+        project__pk=ddm_project_id,
         blueprint=blueprint,
         participant=participant,
     )

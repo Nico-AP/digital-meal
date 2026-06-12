@@ -179,12 +179,12 @@ class BaseDonationViewDDM(AddUserflowSessionMixin, DataDonationView):
             compute_tiktok_wh_statistics_from_donation.s(
                 statistics_request_id=statistics_request_full.pk,
                 statistics_scope=StatisticsScope.FULL,
-                ddm_project=self.object,
+                ddm_project_id=self.object.pk,
             ),
             compute_tiktok_wh_statistics_from_donation.s(
                 statistics_request_id=statistics_request_interval.pk,
                 statistics_scope=StatisticsScope.INTERVAL,
-                ddm_project=self.object,
+                ddm_project_id=self.object.pk,
             ),
         )
         transaction.on_commit(job.delay)

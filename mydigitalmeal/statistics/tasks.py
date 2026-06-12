@@ -19,7 +19,7 @@ def compute_tiktok_wh_statistics_from_donation(
     self,
     statistics_scope: StatisticsScope = StatisticsScope.FULL,
     statistics_request_id: int | None = None,
-    ddm_project: str | None = None,
+    ddm_project_id: int | None = None,
 ) -> dict | None:
     """Compute TikTok watch history statistics asynchronously.
 
@@ -27,7 +27,7 @@ def compute_tiktok_wh_statistics_from_donation(
         self: Celery task instance (bound task)
         statistics_scope: Scope of the statistics request
         statistics_request_id: The ID of the statistics request object
-        ddm_project: DDM project name - used to retrieve correct donation;
+        ddm_project_id: DDM project pk - used to retrieve correct donation;
             if not provided, the default MDM DDM project will be used.
 
     Returns:
@@ -43,7 +43,7 @@ def compute_tiktok_wh_statistics_from_donation(
     participant = statistics_request.participant
 
     try:
-        watch_history_data = get_tiktok_wh_data(participant, ddm_project)
+        watch_history_data = get_tiktok_wh_data(participant, ddm_project_id)
 
         if not watch_history_data:
             statistics_request.set_failed(status_detail="No data in watch history")
