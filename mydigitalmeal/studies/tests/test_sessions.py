@@ -18,6 +18,7 @@ class TestStudyParticipationSession(SimpleTestCase):
         self.assertIsNone(session.ddm_project_id)
         self.assertIsNone(session.method)
         self.assertIsNone(session.enroll_time)
+        self.assertFalse(session.completed)
 
     def test_to_dict_roundtrip_populated(self):
         original = StudyParticipationSession(
@@ -25,6 +26,7 @@ class TestStudyParticipationSession(SimpleTestCase):
             ddm_project_id="p123",
             method="port-api",
             enroll_time=datetime(2024, 1, 1, 12, 0, tzinfo=UTC),
+            completed=True,
         )
 
         retrieved = StudyParticipationSession.from_dict(original.to_dict())

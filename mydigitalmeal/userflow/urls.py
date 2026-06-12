@@ -22,6 +22,11 @@ urlpatterns = [
         name="portability_callback_router",
     ),
     path(
+        "portability/auth-router/",
+        views.PortabilityAuthRetryRouterView.as_view(),
+        name="portability_auth_router",
+    ),
+    path(
         "",
         include("mydigitalmeal.profiles.urls", namespace="profiles"),
     ),

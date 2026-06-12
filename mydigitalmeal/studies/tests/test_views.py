@@ -1,4 +1,5 @@
 import importlib
+import uuid
 from datetime import UTC, datetime, timedelta
 from unittest.mock import patch
 
@@ -27,6 +28,7 @@ from mydigitalmeal.studies.views import (
     StudyQuestionnaireView,
     participant_can_access_report,
 )
+from mydigitalmeal.userflow.constants import USERFLOW_SESSION_KEY
 
 User = get_user_model()
 
@@ -179,6 +181,29 @@ class TestStudyEnrollView(TestCase):
         self.client.get(self.url, {"project_id": self.project_url_id})
 
         self.assertNotIn(ddm_session_id, self.client.session)
+
+    def test_resets_stale_userflow_session(self):
+        """Enrolment wipes any prior ``UserflowSession`` so a re-enrolling
+        browser doesn't carry a ``request_id`` from an earlier donation
+        into the new study (which would otherwise misroute the
+        studies waiting view through the regular MDM report).
+        """
+
+        session = self.client.session
+        session[USERFLOW_SESSION_KEY] = {
+            "statistics_requested": True,
+            "request_id": str(uuid.uuid4()),
+        }
+        session.save()
+
+        self.client.get(self.url, {"project_id": self.project_url_id})
+
+        self.assertIsNone(
+            self.client.session[USERFLOW_SESSION_KEY]["request_id"],
+        )
+        self.assertFalse(
+            self.client.session[USERFLOW_SESSION_KEY]["statistics_requested"],
+        )
 
     # ---- security regression markers --------------------------------------
 
@@ -501,6 +526,48 @@ class TestStudyDebriefingView(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, "studies/debriefing.html")
+
+    def test_get_marks_study_session_completed_after_render(self):
+        """Rendering the debriefing flips ``study_session.completed`` to
+        True so the portability routers stop sending subsequent traffic
+        into the studies flow.
+        """
+        _set_study_session_via_client(
+            self.client,
+            ddm_project_id=str(self.project.url_id),
+        )
+
+        def init_to_debriefing(view_self, _request):
+            view_self.object = self.project
+            view_self.participant = Participant.objects.create(
+                project=self.project,
+                start_time=timezone.now(),
+                current_step=3,
+            )
+            view_self.current_step = 3
+
+        with (
+            patch.object(
+                StudyDebriefingView,
+                "_initialize_values",
+                init_to_debriefing,
+            ),
+            patch.object(
+                StudyDebriefingView,
+                "get_context_data",
+                return_value={},
+            ),
+            patch.object(
+                StudyDebriefingView,
+                "extra_before_render",
+                return_value=None,
+            ),
+        ):
+            self.client.get(self.url)
+
+        self.assertTrue(
+            self.client.session[STUDIES_SESSION_KEY]["completed"],
+        )
 
 
 class TestParticipantCanAccessReportHelper(TestCase):

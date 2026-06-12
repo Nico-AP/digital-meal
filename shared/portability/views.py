@@ -79,7 +79,7 @@ def redirect_to_auth_view(
                 port_context = token_obj.context
 
     if port_context == PortabilityContexts.MY_DM:
-        redirect_url = absolute_reverse("mdm:userflow:datadonation:port_tt_connect")
+        redirect_url = absolute_reverse("mdm:userflow:portability_auth_router")
         return redirect(redirect_url)
     else:
         return redirect("tiktok_auth")

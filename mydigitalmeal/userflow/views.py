@@ -142,20 +142,48 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
         self.request.session.modified = True
 
 
+def _study_flow_is_active(request) -> bool:
+    """True if the current browser session is mid-study-flow.
+
+    Used by the portability routers to decide whether to send
+    OAuth-callback / auth-retry traffic into the studies flow or fall
+    through to the regular MDM path. ``completed`` is flipped to True by
+    ``StudyDebriefingView`` once the participant has rendered the
+    debriefing page, so post-debriefing traffic falls through.
+    """
+    study_session = StudyParticipationSessionManager.from_request(request).get()
+    return bool(
+        study_session and study_session.ddm_project_id and not study_session.completed,
+    )
+
+
 class PortabilityCallbackRouterView(View):
     """Routes the post-OAuth participant to the correct await view.
 
-    Studies participants (identified by an enrolled study session with a
-    pinned DDM project) go to the studies await page; everyone else falls
-    through to the regular MDM datadonation await page.
+    Studies participants in an active flow go to the studies await page;
+    completed or non-study participants fall through to the regular MDM
+    datadonation await page.
     """
 
     def get(self, request, *args, **kwargs):
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-        if study_session and study_session.ddm_project_id:
-            # TODO: tighten validity check once criteria are defined
-            #   (e.g. enroll_time freshness, project still active).
+        if _study_flow_is_active(request):
             logger.debug("Portability callback routed to studies flow.")
             return redirect("mdm:userflow:studies:port_tt_await_data")
         logger.debug("Portability callback routed to datadonation flow.")
         return redirect("mdm:userflow:datadonation:port_tt_await_data")
+
+
+class PortabilityAuthRetryRouterView(View):
+    """Routes auth view redirections to the correct entry view.
+
+    Studies participants in an active flow go to the studies connect
+    page; completed or non-study participants fall through to the
+    regular MDM connect page.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if _study_flow_is_active(request):
+            logger.debug("Portability auth retry routed to studies flow.")
+            return redirect("mdm:userflow:studies:port_tt_connect")
+        logger.debug("Portability auth retry routed to datadonation flow.")
+        return redirect("mdm:userflow:datadonation:port_tt_connect")

@@ -241,3 +241,83 @@ class TestPortabilityCallbackRouterView(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 302)
+
+    def test_falls_through_to_datadonation_when_study_completed(self):
+        """Once ``study_session.completed`` is True (set by
+        ``StudyDebriefingView`` after end-of-flow), any subsequent
+        OAuth-callback traffic should route through the regular MDM
+        flow rather than back into the studies flow.
+        """
+        self._set_study_session(
+            ddm_project_id="some-project",
+            completed=True,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.datadonation_target,
+            fetch_redirect_response=False,
+        )
+
+
+class TestPortabilityAuthRetryRouterView(TestCase):
+    """Routes the ``redirect_to_auth_view`` fallback to the right entry view.
+
+    Shape mirrors ``TestPortabilityCallbackRouterView`` — same study-session
+    branch logic, different downstream targets (the portability connect /
+    entry views rather than the await views).
+    """
+
+    def setUp(self):
+        self.url = reverse_lazy("mdm:userflow:portability_auth_router")
+        self.studies_target = reverse("mdm:userflow:studies:port_tt_connect")
+        self.datadonation_target = reverse(
+            "mdm:userflow:datadonation:port_tt_connect",
+        )
+
+    def _set_study_session(self, **fields) -> None:
+        session = self.client.session
+        session[StudyParticipationSessionManager.SESSION_KEY] = (
+            StudyParticipationSession(**fields).to_dict()
+        )
+        session.save()
+
+    def test_redirects_to_datadonation_when_no_study_session(self):
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.datadonation_target,
+            fetch_redirect_response=False,
+        )
+
+    def test_redirects_to_studies_when_study_session_pinned_to_project(self):
+        self._set_study_session(ddm_project_id="some-project")
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.studies_target,
+            fetch_redirect_response=False,
+        )
+
+    def test_falls_through_to_datadonation_when_study_completed(self):
+        """Same end-of-flow behaviour as the callback router: a
+        ``completed`` study session means the participant should be
+        treated as outside the studies flow.
+        """
+        self._set_study_session(
+            ddm_project_id="some-project",
+            completed=True,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.datadonation_target,
+            fetch_redirect_response=False,
+        )

@@ -32,12 +32,19 @@ class StudyParticipationSession:
             enrolment. Defaults to ``None`` so that round-tripping a
             session dict that omits the key doesn't silently fabricate
             a "now" timestamp.
+        completed: Set by ``StudyDebriefingView`` after the participant
+            has rendered the debriefing page. Routers consult this to
+            decide whether subsequent OAuth-callback / auth-retry
+            traffic should still be considered part of an active study
+            flow; once True, the browser falls through to the regular
+            MDM path.
     """
 
     url_parameters: dict = field(default_factory=dict)
     ddm_project_id: str | None = None
     method: str | None = None
     enroll_time: datetime | None = None
+    completed: bool = False
 
     @classmethod
     def from_dict(cls, data: dict) -> "StudyParticipationSession":
@@ -54,6 +61,7 @@ class StudyParticipationSession:
             "ddm_project_id": self.ddm_project_id,
             "method": self.method,
             "enroll_time": self.enroll_time.isoformat() if self.enroll_time else None,
+            "completed": self.completed,
         }
 
 

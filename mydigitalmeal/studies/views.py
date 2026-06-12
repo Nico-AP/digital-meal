@@ -27,7 +27,10 @@ from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
 from mydigitalmeal.studies.constants import StudiesURLShortcut
 from mydigitalmeal.studies.sessions import StudyParticipationSessionManager
 from mydigitalmeal.userflow.constants import URLShortcut
-from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
+from mydigitalmeal.userflow.sessions import (
+    AddUserflowSessionMixin,
+    UserflowSessionManager,
+)
 from shared.portability import views as port_views
 
 logger = logging.getLogger(__name__)
@@ -128,6 +131,8 @@ class StudyEnrollView(View):
             )
             msg = "Study project not found."
             raise Http404(msg) from e
+
+        UserflowSessionManager.from_request(request).reset()
 
         # Reset any stale DDM participation session for this project so a
         # fresh participant is created on the next donation step.
@@ -252,10 +257,7 @@ class PortabilityWaitingView(
     def validate_userflow_session(
         self, request, *args, **kwargs
     ) -> HttpResponseRedirect | None:
-        """Redirect to report if statistics request ID in session."""
-        userflow_session = self.userflow_session.get()
-        if getattr(userflow_session, "request_id", None):
-            return HttpResponseRedirect(reverse(URLShortcut.REPORT))
+        """Bypassed in studies flow."""
         return None
 
 
@@ -405,7 +407,24 @@ class StudyDebriefingView(RequireStudySessionMixin, DebriefingView):
         # Render current view.
         context = self.get_context_data(object=self.object)
         self.extra_before_render(request)
-        return self.render_to_response(context)
+        response = self.render_to_response(context)
+
+        # Marking happens *after* render so a failed render doesn't leave
+        # the participant in a half-completed state. Re-visits
+        # to the debriefing page (refresh, back button) just re-mark.
+        self._mark_study_flow_completed(request)
+        return response
+
+    @staticmethod
+    def _mark_study_flow_completed(request) -> None:
+        """Flag the study session as done so downstream routers
+        (``PortabilityCallbackRouterView``, ``PortabilityAuthRetryRouterView``)
+        send any subsequent OAuth-related traffic through the regular MDM
+        path instead of back into the studies flow.
+        """
+        StudyParticipationSessionManager.from_request(request).update(
+            completed=True,
+        )
 
 
 _REPORT_MAX_AGE = timedelta(weeks=4)
