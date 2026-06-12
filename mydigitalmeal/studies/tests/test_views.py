@@ -54,14 +54,14 @@ def _make_owner_profile() -> ResearchProfile:
     return ResearchProfile.objects.create(user=owner)
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["enroll-test-project"])
+@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyEnrollView(TestCase):
     def setUp(self):
         self.url = reverse("mdm:userflow:studies:enroll")
         self.owner_profile = _make_owner_profile()
         # Pin ``url_id`` so the class-level ``REGISTERED_STUDY_PROJECTS``
         # override can name it explicitly. DDM auto-generates one otherwise.
-        self.project_url_id = "enroll-test-project"
+        self.project_url_id = "T3kwxKKQ"
         self.project = DonationProject.objects.create(
             owner=self.owner_profile,
             slug="some-study",
@@ -509,7 +509,6 @@ class TestParticipantCanAccessReportHelper(TestCase):
         self.project = DonationProject.objects.create(
             owner=self.owner_profile,
             slug="some-study",
-            url_id="report-test-project",
         )
         self.participant = Participant.objects.create(
             project=self.project,
@@ -548,7 +547,7 @@ class TestParticipantCanAccessReportHelper(TestCase):
         self.assertTrue(result)
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["report-test-project"])
+@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyReportView(TestCase):
     """Public report shell. Authentication is by URL participant_id; access
     is additionally gated on (a) project still active and (b) participation
@@ -560,7 +559,7 @@ class TestStudyReportView(TestCase):
         self.project = DonationProject.objects.create(
             owner=self.owner_profile,
             slug="some-study",
-            url_id="report-test-project",
+            url_id="T3kwxKKQ",
         )
         self.participant = Participant.objects.create(
             project=self.project,
@@ -639,7 +638,7 @@ class TestStudyReportView(TestCase):
         self.assertEqual(response.status_code, 200)
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["study-project-url-id"])
+@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyStatisticsView(TestCase):
     """Polled HTMX endpoint that drives the report-loading UX.
 
@@ -652,7 +651,7 @@ class TestStudyStatisticsView(TestCase):
         self.project = DonationProject.objects.create(
             owner=self.owner_profile,
             slug="some-study",
-            url_id="study-project-url-id",
+            url_id="T3kwxKKQ",
         )
         self.participant = Participant.objects.create(
             project=self.project,
