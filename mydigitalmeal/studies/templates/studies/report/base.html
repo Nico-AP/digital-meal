@@ -1,0 +1,67 @@
+{% extends "reports/base.html" %}
+
+{% load static i18n django_htmx routing_tags %}
+
+{% block bodyclass %}report-page-background{% endblock bodyclass %}
+
+{% block page_title %}{% translate "TikTok Report" %}{% endblock page_title %}
+
+{% block extra_head %}{% htmx_script %}{% endblock extra_head %}
+
+{% block content %}
+
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center htmx-smooth-transition">
+
+        <div id="report-statistics" class="htmx-smooth-transition"
+             hx-get="{% absolute_url 'mdm:userflow:studies:tiktok_statistics' participant_id %}" {# This part is studies specific #}
+             hx-trigger="load, every 5s"
+             hx-swap="outerHTML swap:1500ms settle:1500ms">
+          <div>
+            <div id="report-load-screen-icon">
+              <div id="report-load-screen-icon-animated">
+                {% include "mydigitalmeal/components/m_path_loader.html" %}
+              </div>
+
+              <div id="report-load-screen-icon-static">
+                <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
+                     alt="My Digital Meal Icon" height="100" width="200" />
+              </div>
+            </div>
+
+            <div id="report-load-screen-caption">
+
+              <div id="report-caption-ready">
+                <p>{% translate "Dein Report ist bereit" %}</p>
+                <p class="fw-bold">{% translate "Los geht's" %}</p>
+              </div>
+
+              <div id="report-caption-loading">
+                <div class="pt-3 pt-sm-3">
+                  {% translate "Dein Report wird gerade erstellt" %}
+                </div>
+
+                <div class="pt-4 fs-3 lh-sm">
+                  {% translate "das kann einige Sekunden dauern" %}
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock content %}
+
+{% block extra_js %}
+  <script src="{% static 'reports/js/report_handler.js' %}"></script>
+  <script src="{% static 'reports/js/report_animations.js' %}"></script>
+  <script src="{% static 'reports/js/report_share.js' %}"></script>
+  <script src="{% static 'reports/js/peak_day_guess_utils.js' %}"></script>
+  <script src="{% static 'reports/js/nav_hint.js' %}"></script>
+  <script src="{% static 'reports/js/loading_animation.js' %}"></script>
+  <script src="{% static 'mydigitalmeal/js/m-path-loader.js' %}"></script>
+{% endblock extra_js %}

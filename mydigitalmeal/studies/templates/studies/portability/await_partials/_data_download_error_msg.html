@@ -1,0 +1,20 @@
+{% load i18n %}
+
+<div class="htmx-smooth-transition">
+  <p class="mdm-text">
+    <strong>{% translate "TikTok scheint Ihre Daten im Moment nicht direkt übermitteln zu können." %}</strong>
+  </p>
+
+  <p class="mdm-text">
+    {% blocktranslate trimmed %}
+      Sie können stattdessen Ihre Daten selbst
+      bei TikTok herunterladen und anschliessend hochladen.
+    {% endblocktranslate %}
+  </p>
+
+  <p>
+    <a href="{% url 'mdm:userflow:studies:enroll' %}?project_id={{ project_id }}&method=download_upload&{{ url_parameters }}" class="btn mdm-color-btn-v2">
+      Daten selber herunterladen
+    </a>
+  </p>
+</div>

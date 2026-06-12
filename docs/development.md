@@ -214,6 +214,12 @@ Local development uses the console email backend — no SMTP configuration neede
 | `MDM_DDM_TIKTOK_PROJECT_SLUG` | Unique slug of the DDM project used for data donation collection. |
 | `MDM_DDM_TIKTOK_WH_BP_NAME`   | Name of the blueprint used to collect the TikTok watch history.   |
 
+### Studies app
+
+| Variable                     | Description                                                                                                                                                                                                              |
+|------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `REGISTERED_STUDY_PROJECTS`  | Space-separated list of DDM project `url_id` values that may be entered via `/study/enroll/`. Defaults to empty (i.e. enrolment is closed). Every project linked from an external survey must be listed here explicitly. |
+
 ### TikTok / Portability
 
 | Variable               | Description                                   |
@@ -479,3 +485,146 @@ and do not require a separate build step.
 The setting `DAYS_TO_DONATION_DELETION` (default: 180) controls how many days after submission a
 data donation is deleted if no consent was given. This is enforced via a management command or
 Celery task in `shared.portability`.
+
+---
+
+## Connecting an external survey to a study (My Digital Meal interface)
+
+This section is intended for the *operator* setting up a study — the person
+configuring a survey tool (Qualtrics, LimeSurvey, REDCap, SoSci, etc.) to
+hand participants over to My Digital Meal.
+
+### What happens at a glance
+
+1. A participant fills in the first part of your survey.
+2. At the end of that part, the survey tool sends them to a special
+   **enrolment link** on My Digital Meal.
+3. My Digital Meal records who they are (using the parameters in the
+   link) and walks them through donating their TikTok data.
+4. After the donation they see the DDM questionnaire (if configured) and
+   finally the DDM debriefing page. Configure the redirect link in the 
+   DDM project to either direct the participants to their personal report (see below)
+   or back to a second survey part.
+
+The participant never logs in. There is no password and no account —
+the *link itself* is what carries them into the study.
+
+### What you need before you start
+
+- A DDM project that has been set up on digital-meal.ch. You will need the
+  project's **project ID** which is displayed in the project hub
+  (this is the project's `url_id` in DDM).
+- The project ID must be added to the site's `REGISTERED_STUDY_PROJECTS`
+  setting before participants can use it (in the `.env` file on the server). 
+  Ask the developer or sysadmin to add it. Until that's done, the enrolment 
+  link will return a 404 — this is on purpose, so that arbitrary DDM projects  
+  can't be entered from the outside.
+
+### Building the enrolment link
+
+The link has this shape:
+
+```
+https://my.digital-meal.ch/study/enroll/?project_id=<PROJECT_ID>&method=<METHOD>&<your-own-parameters>
+```
+
+Replace the placeholders:
+
+- `project_id` — **required**. The DDM project ID for your study (see above).
+- `method` — **optional**. How the participant donates their data:
+    - `port-api` *(default if you omit `method`)* — the participant
+      authorises My Digital Meal to fetch their TikTok data directly via
+      TikTok's official Data Portability API. Smoother for the
+      participant. If data retrieval through the Portability API fails,
+      participant's will be redirected to the `download-upload` path.
+    - `download-upload` — the participant downloads their data export
+      from TikTok themselves and uploads the zip file. Works without
+      TikTok's portability API.
+- **Anything else you add to the URL** is forwarded into the
+  participant's record, so you can link their donation back to their
+  survey responses later. These values will be included in the participant
+  overview that you can download through the DDM admin interface.
+  Typical things to pass:
+    - a participant ID from your survey tool (`pid=...`),
+    - a study arm or condition (`arm=control`),
+    - tracking parameters (`source=...`).
+
+Two complete examples:
+
+```
+https://my.digital-meal.ch/study/enroll/?project_id=tTpilo26&method=port-api&pid=R_3KqLp9
+https://my.digital-meal.ch/study/enroll/?project_id=tTpilo26&method=download-upload&pid=R_3KqLp9&arm=A
+```
+
+### Configuring the redirect in your survey tool
+
+Every survey tool has a slightly different way of redirecting at the end
+of a survey block, but the recipe is the same:
+
+1. Find the "end of survey" or "redirect" action in your survey tool's
+   flow editor.
+2. Paste the enrolment link.
+3. Substitute the survey tool's *piped text* / *embedded data* /
+   *expressions* into the URL where you want to forward participant
+   information. For example, in Qualtrics:
+   `…?project_id=tTpilo26&pid=${e://Field/ResponseId}`.
+4. Save the survey and test the redirect end-to-end with a fake response.
+
+### Rules and limits on the URL parameters you pass
+
+Anything you add to the URL beyond `project_id` and `method` is filtered
+before being stored. This is to keep the survey from sending things My
+Digital Meal can't safely keep. Specifically:
+
+- Parameter **names** must be letters, digits, underscores, or hyphens
+  only, and at most 40 characters. Names containing dots, spaces, or
+  other punctuation are silently dropped.
+- Parameter **values** are kept up to 200 characters; longer values are
+  truncated.
+- At most **20 parameters** are kept, and the total stored size is
+  capped at **4 KB**.
+- The names `project_id` and `method` are reserved (they have their own
+  meaning, see above) — don't reuse them for your own data.
+- The same name with multiple values is allowed
+  (`tag=a&tag=b` → both kept as a list).
+
+These limits exist so a misconfigured survey can't accidentally bloat
+the donation record.
+
+### Testing the link
+
+1. Open the enrolment link directly in a browser. You should land on
+   either the TikTok consent screen (for `port-api`) or the
+   download/upload page (for `download-upload`).
+2. Open the link with an unknown project ID. You should see a "Study
+   project not found" 404 page. That confirms the allowlist is working.
+3. Run a complete dummy participant: fake survey → enrolment link →
+   donate fake data → see the report. Check that the survey parameters
+   you sent are present on the participant record (your developer can
+   confirm — they live in DDM's `extra_data` JSON column).
+
+### Sharing the report
+
+The report URL contains a participant ID, e.g.
+`https://my.digital-meal.ch/study/report/<participant_id>/`. This URL is
+**not secret-bearing** — anyone who knows the ID can open it. The IDs
+are 24 random characters and unguessable in practice, but treat them
+the same way you would a private link: don't post them publicly and
+don't include them in screenshots. If you need a stronger guarantee
+(per-participant single-use, revocation, etc.), raise it with the
+developer.
+
+### What to do when things go wrong
+
+- **404 on the enrolment link** — the most common cause is that the
+  project ID isn't in `REGISTERED_STUDY_PROJECTS` yet. Ask the developer
+  to add it.
+- **Participant ends up on the regular My Digital Meal landing page
+  instead of the study flow** — usually means the link was copied
+  without the `project_id` parameter. Re-check the survey's redirect URL.
+- **Participant sees the studies waiting page but the data never
+  arrives** — TikTok's data export can take minutes. The page polls
+  automatically; ask them to leave it open.
+- **TikTok refuses the connection (`port-api`)** — this happens if the
+  TikTok app credentials aren't whitelisted for the participant's
+  region or account type. Fall back to `download-upload`.

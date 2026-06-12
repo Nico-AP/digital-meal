@@ -17,6 +17,11 @@ urlpatterns = [
     path("resume/<uuid:request_id>", views.UserflowResumeView.as_view(), name="resume"),
     path("reset/", views.UserflowResetView.as_view(), name="reset"),
     path(
+        "portability/callback/",
+        views.PortabilityCallbackRouterView.as_view(),
+        name="portability_callback_router",
+    ),
+    path(
         "",
         include("mydigitalmeal.profiles.urls", namespace="profiles"),
     ),
@@ -31,5 +36,9 @@ urlpatterns = [
     path(
         "",
         include("mydigitalmeal.reports.urls", namespace="reports"),
+    ),
+    path(
+        "",
+        include("mydigitalmeal.studies.urls", namespace="studies"),
     ),
 ]

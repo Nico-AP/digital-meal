@@ -60,6 +60,7 @@ MY_DIGITAL_MEAL_APPS = [
     "mydigitalmeal.profiles",
     "mydigitalmeal.questionnaire",
     "mydigitalmeal.infopages",
+    "mydigitalmeal.studies",
 ]
 
 SHARED_APPS = [
@@ -522,3 +523,10 @@ LOGGING = {
         },
     },
 }
+
+
+# LOGGING
+# ------------------------------------------------------------------------------
+
+# Projects accessible through the mydigitalmeal.studies application.
+REGISTERED_STUDY_PROJECTS = env.str("REGISTERED_STUDY_PROJECTS", default="").split()

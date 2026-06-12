@@ -11,10 +11,11 @@ from django.urls import reverse_lazy
 from django.views import View
 from django.views.generic import TemplateView
 
-from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
+from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG, DonationMethod
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.profiles.models import MDMProfile
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
+from mydigitalmeal.studies.sessions import StudyParticipationSessionManager
 from mydigitalmeal.userflow.constants import URLShortcut
 from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 
@@ -121,8 +122,8 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
         self.reset_participant_in_session()
         self.userflow_session.reset()
 
-        method = request.GET.get("method", "ddm")
-        if method == "port-api":
+        method = request.GET.get("method", DonationMethod.DOWNLOAD_UPLOAD)
+        if method == DonationMethod.PORTABILITY:
             return redirect(URLShortcut.DONATION_PORTABILITY)
         return redirect(URLShortcut.DONATION_DDM)
 
@@ -139,3 +140,22 @@ class UserflowResetView(LoginAndProfileRequiredMixin, AddUserflowSessionMixin, V
         session_id = get_participation_session_id(project)
         self.request.session[session_id] = {}
         self.request.session.modified = True
+
+
+class PortabilityCallbackRouterView(View):
+    """Routes the post-OAuth participant to the correct await view.
+
+    Studies participants (identified by an enrolled study session with a
+    pinned DDM project) go to the studies await page; everyone else falls
+    through to the regular MDM datadonation await page.
+    """
+
+    def get(self, request, *args, **kwargs):
+        study_session = StudyParticipationSessionManager.from_request(request).get()
+        if study_session and study_session.ddm_project_id:
+            # TODO: tighten validity check once criteria are defined
+            #   (e.g. enroll_time freshness, project still active).
+            logger.debug("Portability callback routed to studies flow.")
+            return redirect("mdm:userflow:studies:port_tt_await_data")
+        logger.debug("Portability callback routed to datadonation flow.")
+        return redirect("mdm:userflow:datadonation:port_tt_await_data")

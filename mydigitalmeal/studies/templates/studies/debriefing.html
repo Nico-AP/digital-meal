@@ -1,0 +1,24 @@
+{% extends "userflow/base.html" %}
+{% load i18n static %}
+{% get_current_language as LANGUAGE_CODE %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+        <div class="mdm-text pt-4 pb-4">
+          {% if object.debriefing_text == None %}
+            <h1>Thank you very much!</h1>
+            <p>You have reached the end of the study and can now close this window.</p>
+          {% else %}
+            {{ debriefing | safe }}
+          {% endif %}
+        </div>
+
+        {% if object.redirect_enabled %}
+          <a class="btn mdm-color-btn-v2 fs-4 ps-5 pe-5" href="{{ redirect_target }}">Weiter</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+{% endblock content %}

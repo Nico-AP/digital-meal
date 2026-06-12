@@ -1,0 +1,10 @@
+{% load i18n %}
+
+<div class="htmx-smooth-transition">
+  <p class="mdm-lead mb-2">{% translate "Ihre TikTok-Daten sind nun verfügbar!" %}</p>
+  <div>
+    <a href="{% url 'mdm:userflow:studies:port_tt_review_data' %}" class="btn mdm-color-btn-v3">
+      {% translate "Fortfahren" %}
+    </a>
+  </div>
+</div>

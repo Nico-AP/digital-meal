@@ -1,0 +1,64 @@
+{% extends "userflow/base.html" %}
+{% load static i18n %}
+
+{% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-10 col-xl-8 text-center">
+
+        <p class="mdm-text text-start">
+          {% blocktranslate trimmed %}
+            Damit wir Ihren persönlichen
+            Nutzungsreport erstellen können,
+            brauchen wir Zugriff auf die
+            folgenden Daten:
+          {% endblocktranslate %}
+        </p>
+
+        <div class="mdm-text pt-4 pb-4">
+          <ul class="mdm-list mdm-list-participation">
+            <li class="mdm-list-item">
+              {% translate "Effekte, Hashtags, Sounds und Videos, welche Sie zu den Favoriten hinzugefügt haben" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Videos, die Ihnen angezeigt wurden" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Begriffe, die Sie gesucht haben" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Wie oft Sie selbst posten" %}
+            </li>
+            <li class="mdm-list-item">
+              {% translate "Wie oft Sie Inhalte teilen" %}
+            </li>
+          </ul>
+        </div>
+
+        <p class="mdm-text text-start">
+          {% blocktranslate trimmed %}
+            Dafür leiten wir Sie zu TikTok
+            weiter, wo Sie Digital Meal Zugang
+            zu Ihren TikTok-Nutzungsdaten
+            geben können.
+          {% endblocktranslate %}
+        </p>
+
+        <div class="mb-2 mt-5">
+          <a href="{{ tt_auth_url }}" class="btn mdm-color-btn-v1 ps-5 pe-5" target="_self">{% translate "Mit TikTok verbinden" %}</a>
+        </div>
+
+        <div class="mdm-container-bottom mb-5 pt-5">
+          <a type="button" class="mdm-text-muted" data-bs-toggle="modal" data-bs-target="#infoModal">
+            {% translate "Was passiert mit meinen Daten?" %}
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+  {% include "studies/modals/modal_tiktok_connect.html" %}
+
+{% endblock content %}
