@@ -33,7 +33,7 @@ module = "*.migrations.*"
 ignore_errors = true
 
 [tool.django-stubs]
-django_settings_module = "config.settings.test"
+django_settings_module = "config.settings.local"
 
 # ==== djLint ====
 [tool.djlint]
