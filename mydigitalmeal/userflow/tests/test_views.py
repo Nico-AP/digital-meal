@@ -8,6 +8,10 @@ from django.utils import timezone
 from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
 from mydigitalmeal.profiles.models import MDMProfile
 from mydigitalmeal.statistics.models import StatisticsRequest
+from mydigitalmeal.studies.sessions import (
+    StudyParticipationSession,
+    StudyParticipationSessionManager,
+)
 from mydigitalmeal.userflow.constants import URLShortcut
 
 User = get_user_model()
@@ -172,3 +176,68 @@ class TestUserflowResetView(TestCase):
             self.participant.id,
         )
         self.assertIsNone(self.client.session["mdm_session"].get("request_id"))
+
+
+class TestPortabilityCallbackRouterView(TestCase):
+    """Tests the post-OAuth routing between studies and datadonation flows."""
+
+    def setUp(self):
+        self.url = reverse_lazy("mdm:userflow:portability_callback_router")
+        self.studies_target = reverse(
+            "mdm:userflow:studies:port_tt_await_data",
+        )
+        self.datadonation_target = reverse(
+            "mdm:userflow:datadonation:port_tt_await_data",
+        )
+
+    def _set_study_session(self, **fields) -> None:
+        """Persist a StudyParticipationSession into the test client's session."""
+        session = self.client.session
+        session[StudyParticipationSessionManager.SESSION_KEY] = (
+            StudyParticipationSession(**fields).to_dict()
+        )
+        session.save()
+
+    def test_redirects_to_datadonation_when_no_study_session(self):
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.datadonation_target,
+            fetch_redirect_response=False,
+        )
+
+    def test_redirects_to_datadonation_when_study_session_has_no_project(self):
+        # Mirrors the post-`reset()` state: dataclass exists with default-empty
+        # fields. An empty dataclass is truthy, so the router must additionally
+        # check `ddm_project_id` to avoid misrouting regular participants.
+        self._set_study_session()
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.datadonation_target,
+            fetch_redirect_response=False,
+        )
+
+    def test_redirects_to_studies_when_study_session_pinned_to_project(self):
+        self._set_study_session(ddm_project_id="some-project")
+
+        response = self.client.get(self.url)
+
+        self.assertRedirects(
+            response,
+            self.studies_target,
+            fetch_redirect_response=False,
+        )
+
+    def test_does_not_require_authentication(self):
+        # Both downstream views enforce their own auth gates; the router
+        # itself must remain unauthenticated so study participants (who never
+        # log in) can pass through.
+        self._set_study_session(ddm_project_id="some-project")
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 302)

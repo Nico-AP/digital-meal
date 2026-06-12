@@ -25,9 +25,7 @@ class NoReportView(LoginAndProfileRequiredMixin, TemplateView):
     template_name = "reports/report_not_available.html"
 
 
-class StatisticsView(
-    LoginAndProfileRequiredMixin, AddUserflowSessionMixin, TemplateView
-):
+class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
     template_name = "reports/tiktok/partials/_combined_statistics.html"
     session_invalid_redirect = URLShortcut.OVERVIEW
     statistics_request: StatisticsRequest | None = None
@@ -261,3 +259,7 @@ class StatisticsView(
             )
 
         return stats
+
+
+class StatisticsView(LoginAndProfileRequiredMixin, BaseStatisticsView):
+    """Adds Login required to statistics view for standard My Digital Meal flow."""

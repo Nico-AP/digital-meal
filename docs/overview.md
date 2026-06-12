@@ -32,6 +32,7 @@ DigitalMeal/
 │   ├── profiles/            # App authentication
 │   ├── questionnaire/       # Survey collection
 │   ├── datadonation/        # Platform data download and portability
+│   ├── studies/             # External-survey-driven study flow
 │   ├── reports/             # Usage reports
 │   ├── statistics/          # Aggregated statistics (Celery tasks)
 │   ├── infopages/           # Static informational pages
@@ -197,6 +198,22 @@ Manages the data portability workflow.
 - Displays status messages while awaiting a data download (`portability/await_partials/`).
 - Interacts with `shared.portability` for the OAuth and download logic.
 
+#### `mydigitalmeal/studies/`
+
+Parallel entry path for participants arriving from an external survey tool
+(e.g. Qualtrics, LimeSurvey).
+
+- Unauthenticated: the flow is gated by a server-side study session
+  stamped at enrolment time rather than by a user account.
+- Restricts enrolment to DDM projects on the `REGISTERED_STUDY_PROJECTS`
+  allowlist; forwards participants into either the portability or the
+  download/upload donation path.
+- Walks participants through donation, questionnaire, and debriefing,
+  then renders the personal report on a shareable `participant_id`
+  URL.
+- See [Connecting an external survey](development.md#connecting-an-external-survey-to-a-study)
+  for the operator-facing walkthrough.
+
 #### `mydigitalmeal/reports/`
 
 User-facing view of their personalised usage report. Distinct from `digital_meal/reports/`,
@@ -289,6 +306,8 @@ own `templates/` subdirectory.
 /cms/                                   Wagtail admin
 /documents/                             Wagtail documents
 /my/                                    mydigitalmeal (URL_PREFIX mode) or root of my.site.com (SUBDOMAIN mode)
+/my/study/enroll/                       mydigitalmeal.studies entry point (external surveys link here)
+/my/study/{dl-ul,connect,...}             mydigitalmeal.studies donation / questionnaire / debriefing / report flow
 /                                       digital_meal.website / Wagtail pages (catch-all)
 ```
 

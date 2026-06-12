@@ -1,0 +1,35 @@
+{% extends "userflow/modals/modal.html" %}
+
+{% load i18n %}
+
+{% block modal_content %}
+  {% blocktranslate trimmed %}
+    <p>
+      Im nächsten Schritt leiten wir Sie zu TikTok weiter, wo Sie Digital Meal Zugriff auf Ihre Daten geben können.
+    </p>
+
+    <p>
+      Danach werden wir Ihre TikTok-Nutzungsdaten von TikTok direkt auf Ihr Gerät herunterladen - es werden also
+      zunächst keine Daten auf unseren Servern gespeichert.
+    </p>
+
+    <p>
+      Sie können dann die Daten, die wir für unsere Studie benötigen, in aller Ruhe anschauen und
+      entscheiden, ob Sie diese übermitteln möchten.
+    </p>
+
+    <p>
+      Erst wenn Sie der Übermittlung explizit zustimmen, werden die ausgewählten Daten bei uns gespeichert.
+    </p>
+
+    <p>
+      Ihre Daten werden dann verwendet, um Ihren personalisierten Report zu generieren und für anonymisierte
+      wissenschaftliche Auswertungen um besser zu verstehen, wie TikTok von der jungen Schweizer Bevölkerung genutzt wird.
+    </p>
+
+    <p>
+      Ihre Daten werden nicht für kommerzielle Zwecke genutzt oder an Dritte weitergegeben.
+    </p>
+
+  {% endblocktranslate %}
+{% endblock modal_content %}

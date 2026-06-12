@@ -29,9 +29,7 @@ from mydigitalmeal.userflow.sessions import AddUserflowSessionMixin
 logger = logging.getLogger(__name__)
 
 
-class DonationViewDDM(
-    LoginAndProfileRequiredMixin, AddUserflowSessionMixin, DataDonationView
-):
+class BaseDonationViewDDM(AddUserflowSessionMixin, DataDonationView):
     template_name = "datadonation/base_ddm.html"
     step_name = URLShortcut.DONATION_DDM
     steps = [
@@ -44,7 +42,7 @@ class DonationViewDDM(
     def _initialize_values(self, request):
         """Overwrite project initialization and current step assignment"""
         try:
-            self.object = DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
+            self.object = self.get_ddm_project(request)
         except DonationProject.DoesNotExist as e:
             raise Http404 from e
 
@@ -55,8 +53,17 @@ class DonationViewDDM(
             self.participant.start_time = timezone.now()
             self.participant.save()
 
+        self.update_participant_information(request)
+
         # Update DDM step
         self.current_step = self.participant.current_step
+
+    def get_ddm_project(self, request) -> DonationProject:
+        return DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
+
+    def update_participant_information(self, request) -> None:
+        """Placeholder function."""
+        return
 
     def get(self, request, *args, **kwargs):
         """Overwritten to adjust redirect urls."""
@@ -172,10 +179,12 @@ class DonationViewDDM(
             compute_tiktok_wh_statistics_from_donation.s(
                 statistics_request_id=statistics_request_full.pk,
                 statistics_scope=StatisticsScope.FULL,
+                ddm_project=self.object,
             ),
             compute_tiktok_wh_statistics_from_donation.s(
                 statistics_request_id=statistics_request_interval.pk,
                 statistics_scope=StatisticsScope.INTERVAL,
+                ddm_project=self.object,
             ),
         )
         transaction.on_commit(job.delay)
@@ -235,3 +244,7 @@ class DonationViewDDM(
             logger.info(msg)
             return False
         return True
+
+
+class DonationViewDDM(LoginAndProfileRequiredMixin, BaseDonationViewDDM):
+    """Adds Login required to donation view for standard My Digital Meal flow."""
