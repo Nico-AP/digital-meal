@@ -296,9 +296,7 @@ def get_ddm_redirect_link(
     # Render redirect link
     template_context = {
         "project_id": ddm_project.url_id,
-        "participant": {
-            "url_param": study_session.url_parameters,
-        },
+        "url_parameter": study_session.url_parameters,
     }
 
     redirect_link = render_user_content(ddm_project.redirect_target, template_context)
