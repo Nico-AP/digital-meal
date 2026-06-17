@@ -58,14 +58,7 @@ def render_http_400(request, e: str) -> HttpResponse:
     return render(request, "portability/400.html", context, status=400)
 
 
-def redirect_to_auth_view(
-    request: WSGIRequest, msg: str = None
-) -> HttpResponseRedirect:
-    if msg is None:
-        msg = "Something went wrong. Please try again."
-
-    messages.info(request, msg)
-
+def get_portability_context(request) -> str | None:
     port_session = PortabilitySessionManager.from_request(request)
     port_context = port_session.get_context()
 
@@ -77,11 +70,53 @@ def redirect_to_auth_view(
             token_obj = OAuthStateToken.objects.filter(token=state).first()
             if token_obj:
                 port_context = token_obj.context
+    return port_context
+
+
+def redirect_to_auth_view(
+    request: WSGIRequest, msg: str = None
+) -> HttpResponseRedirect:
+    """Helper function to orchestrate routing to correct context."""
+    if msg is None:
+        msg = "Something went wrong. Please try again."
+
+    messages.info(request, msg)
+
+    port_context = get_portability_context(request)
 
     if port_context == PortabilityContexts.MY_DM:
         redirect_url = absolute_reverse("mdm:userflow:portability_auth_router")
         return redirect(redirect_url)
     else:
+        return redirect("tiktok_auth")
+
+
+def redirect_to_abort_view(
+    request: WSGIRequest, msg: str = None
+) -> HttpResponseRedirect:
+    """Helper function to orchestrate routing in case of an abort to correct context."""
+    port_context = get_portability_context(request)
+
+    if port_context == PortabilityContexts.MY_DM:
+        redirect_url = absolute_reverse("mdm:userflow:portability_abort_router")
+        return redirect(redirect_url)
+    else:
+        # TODO: This endpoint must still be implemented;
+        #  presumably relevant, once we see an error, that this view is missing.
+        return redirect("portability_abort")
+
+
+def redirect_to_failed_view(
+    request: WSGIRequest, msg: str = None
+) -> HttpResponseRedirect:
+    """Helper function to orchestrate routing in case of an error to correct context."""
+    port_context = get_portability_context(request)
+
+    if port_context == PortabilityContexts.MY_DM:
+        redirect_url = absolute_reverse("mdm:userflow:portability_failed_router")
+        return redirect(redirect_url)
+    else:
+        # TODO: This endpoint must still be implemented;
         return redirect("tiktok_auth")
 
 
@@ -300,8 +335,15 @@ class TikTokCallbackView(ManageAccessTokenMixin, PortabilitySessionMixin, View):
         error = request.GET.get("error")
         if error:
             descr = request.GET.get("error_description")
+
+            if descr == "user cancelled the authorization":
+                logger.warning(
+                    "Authentication with TikTok aborted: %s (%s)", error, descr
+                )
+                return redirect_to_abort_view(request)
+
             logger.error("Authentication with TikTok failed: %s (%s)", error, descr)
-            return redirect_to_auth_view(request)
+            return redirect_to_failed_view(request)
 
         # Check for authorization code
         if not request.GET.get("code"):

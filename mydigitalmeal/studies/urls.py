@@ -20,6 +20,16 @@ urlpatterns = [
         name="port_tt_connect",
     ),
     path(
+        "study/connect/abort/",
+        views.PortabilityAbortView.as_view(),
+        name="port_tt_aborted",
+    ),
+    path(
+        "study/connect/error/",
+        views.PortabilityErrorView.as_view(),
+        name="port_tt_failed",
+    ),
+    path(
         "study/connect/await/",
         views.PortabilityWaitingView.as_view(),
         name="port_tt_await_data",

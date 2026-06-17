@@ -156,9 +156,13 @@ class TestStudyEnrollView(TestCase):
         )
 
         stored = self.client.session[STUDIES_SESSION_KEY]
-        # ``project_id`` / ``method`` are reserved; ``utm.source`` fails
-        # the key regex; only ``utm`` survives.
-        self.assertEqual(stored["url_parameters"], {"utm": "ok"})
+        # ``utm.source`` fails the key regex; the rest should survive.
+        expected = {
+            "project_id": self.project_url_id,
+            "method": "port-api",
+            "utm": "ok",
+        }
+        self.assertEqual(stored["url_parameters"], expected)
 
     def test_subsequent_enrollment_resets_prior_session(self):
         # First enrollment populates url_parameters with ``utm``.
@@ -170,7 +174,7 @@ class TestStudyEnrollView(TestCase):
         self.client.get(self.url, {"project_id": self.project_url_id})
 
         stored = self.client.session[STUDIES_SESSION_KEY]
-        self.assertEqual(stored["url_parameters"], {})
+        self.assertEqual(stored["url_parameters"], {"project_id": self.project_url_id})
 
     def test_clears_stale_ddm_participation_session(self):
         ddm_session_id = get_participation_session_id(self.project)

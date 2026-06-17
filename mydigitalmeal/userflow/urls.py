@@ -27,6 +27,16 @@ urlpatterns = [
         name="portability_auth_router",
     ),
     path(
+        "portability/abort-router/",
+        views.PortabilityAbortRouterView.as_view(),
+        name="portability_abort_router",
+    ),
+    path(
+        "portability/failed-router/",
+        views.PortabilityFailedRouterView.as_view(),
+        name="portability_failed_router",
+    ),
+    path(
         "",
         include("mydigitalmeal.profiles.urls", namespace="profiles"),
     ),

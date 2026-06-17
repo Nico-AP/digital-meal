@@ -153,8 +153,8 @@ class TestTikTokCallbackView(TestCase):
 
         mock_redirect.assert_called_once_with(request)
 
-    @patch("shared.portability.views.redirect_to_auth_view")
-    def test_dispatch_error_in_request_calls_redirect_to_auth(self, mock_redirect):
+    @patch("shared.portability.views.redirect_to_failed_view")
+    def test_dispatch_error_in_request_calls_redirect_to_failed(self, mock_redirect):
         mock_redirect.return_value = HttpResponse()
 
         url = f"/callback/?state={self.state_token}&error=some-error"

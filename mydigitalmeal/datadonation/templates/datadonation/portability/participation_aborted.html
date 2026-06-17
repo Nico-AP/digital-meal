@@ -1,0 +1,42 @@
+{% extends "userflow/base.html" %}
+{% load i18n static django_htmx %}
+
+{% block page_title %}{% translate "Verbindung mit TikTok abgebrochen" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-8 col-xl-6 text-center">
+
+        <p class="mdm-text fw-bold">
+          {% translate "Du hast die Verbindung mit TikTok abgebrochen." %}
+        </p>
+
+        <p class="mdm-text">
+          {% translate "Wenn du möchtest, kannst du nochmals versuchen, dich zu verbinden." %}
+        </p>
+
+        <div class="mb-5 mt-3">
+          <a href="{{ tt_auth_url }}" class="btn mdm-color-btn-v1 ps-5 pe-5 fs-3" target="_self">
+            {% translate "Erneut verbinden" %}
+          </a>
+        </div>
+
+        <p class="mdm-text">
+          {% translate "Alternativ kannst du deine Daten auch selbst von TikTok herunterladen und anschliessend hier hochladen." %}
+        </p>
+
+        <a href="{% url 'mdm:userflow:reset' %}?method=ddm" class="btn mdm-color-btn-v2 ps-5 pe-5 fs-3">
+          {% translate "Daten selber herunterladen" %}
+        </a>
+
+        <p class="mt-5">
+          <a href="{% url 'mdm:userflow:landing_page' %}">
+            {% translate "zurück zur Startseite" %}
+          </a>
+        </p>
+
+      </div>
+    </div>
+  </div>
+{% endblock content %}

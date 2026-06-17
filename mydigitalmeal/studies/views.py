@@ -3,6 +3,7 @@ import re
 from datetime import timedelta
 from urllib.parse import urlencode
 
+from ddm.core.utils.user_content.template import render_user_content
 from ddm.participation.models import Participant
 from ddm.participation.views import (
     DebriefingView,
@@ -13,7 +14,7 @@ from ddm.participation.views import (
 from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -56,15 +57,12 @@ _STUDIES_FLOW_STEPS = [
 def _sanitize_url_parameters(query) -> dict:
     """Filter a QueryDict down to values safe to persist on the participant.
 
-    Drops reserved keys (already captured separately), enforces a key
-    allowlist regex, truncates values, and stops once total size or key
+    Enforces a key allowlist regex, truncates values, and stops once total size or key
     count is exceeded. Multi-valued params are preserved as lists.
     """
     sanitized: dict[str, str | list[str]] = {}
     running_size = 0
     for key, values in query.lists():
-        if key in _RESERVED_URL_PARAMS:
-            continue
         if not _URL_PARAM_KEY_RE.match(key):
             continue
         if len(sanitized) >= MAX_URL_PARAM_KEYS:
@@ -261,6 +259,108 @@ class PortabilityWaitingView(
         return None
 
 
+def get_ddm_redirect_link(
+    request: HttpRequest,
+    extra_param: str | None = None,
+) -> str | None:
+    """Constructs a redirect link based on the DDM project setting.
+
+    If the DDM project has a redirect target enabled and configured, this
+    target will be used as the redirect link. The string passed as extra_param
+    will be appended to the redirect link.
+
+    If the DDM project has no redirect target enabled or configured, or no linked
+    DDM project can be identified, None will be returned.
+
+    Args:
+        request: A HttpRequest object.
+        extra_param: A string to be attached to the end of the redirect link
+            (e.g., "status=failed").
+
+    Returns:
+        The constructed redirect link if the DDM project has redirect enabled.
+        None otherwise.
+    """
+    study_session = StudyParticipationSessionManager.from_request(request).get()
+    try:
+        ddm_project = DonationProject.objects.get(url_id=study_session.ddm_project_id)
+    except DonationProject.DoesNotExist:
+        logger.exception(
+            "get_ddm_redirect_link called without valid ddm project id in study session"
+        )
+        return None
+
+    if not ddm_project.redirect_enabled:
+        return None
+
+    # Render redirect link
+    template_context = {
+        "project_id": ddm_project.url_id,
+        "participant": {
+            "url_param": study_session.url_parameters,
+        },
+    }
+
+    redirect_link = render_user_content(ddm_project.redirect_target, template_context)
+
+    if extra_param:
+        if "?" in redirect_link:
+            redirect_link += f"&{extra_param}"
+        else:
+            redirect_link += f"?{extra_param}"
+    return redirect_link
+
+
+class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
+    """Displayed to participants who abort the portability flow.
+
+    Participants can abort the flow by clicking on "cancel" on TikTok's authentication
+    page. Template includes a redirect link as defined in the DDM project with a
+    url parameter "status=aborted" attached to it.
+    """
+
+    template_name = "studies/portability/participation_aborted.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        url_param = "status=aborted"
+        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
+        return context
+
+
+class PortabilityErrorView(RequireStudySessionMixin, TemplateView):
+    """Displayed to participants who experienced an error in the portability flow.
+
+    Template includes a redirect link as defined in the DDM project with a
+    url parameter "status=failed" attached to it.
+    """
+
+    template_name = "studies/portability/participation_failed.html"
+
+    def get_context_data(self, **kwargs):
+        """Adds participant and project information to context.
+
+        Necessary for correct redirect in the case of a connection failure.
+        """
+        context = super().get_context_data(**kwargs)
+
+        study_session = StudyParticipationSessionManager.from_request(
+            self.request
+        ).get()
+        if study_session:
+            context["project_id"] = study_session.ddm_project_id
+            context["url_parameters"] = urlencode(
+                study_session.url_parameters, doseq=True
+            )
+
+        else:
+            logger.warning("Study session missing in port-api availability check view.")
+
+        url_param = "status=failed"
+        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
+        return context
+
+
 # TODO: Check if can be optimized to reduce redundancies.
 class CheckDownloadAvailabilityView(
     RequireStudySessionMixin, port_views.TikTokCheckDownloadAvailabilityView
@@ -301,6 +401,9 @@ class CheckDownloadAvailabilityView(
 
         else:
             logger.warning("Study session missing in port-api availability check view.")
+
+        url_param = "status=failed"
+        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
         return context
 
 

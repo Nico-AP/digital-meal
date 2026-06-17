@@ -1,5 +1,6 @@
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.generic import TemplateView
 
 from mydigitalmeal.datadonation.views.ddm import DonationViewDDM
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
@@ -80,3 +81,13 @@ class PortabilityReviewView(
 
         context["portability_view"] = True
         return context
+
+
+class PortabilityAbortedView(LoginAndProfileRequiredMixin, TemplateView):
+    """Displayed to users who abort the portability flow.
+
+    Users can abort the flow by clicking on "cancel" on TikTok's authentication
+    page.
+    """
+
+    template_name = "datadonation/portability/participation_aborted.html"

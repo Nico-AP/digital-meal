@@ -614,6 +614,26 @@ don't include them in screenshots. If you need a stronger guarantee
 (per-participant single-use, revocation, etc.), raise it with the
 developer.
 
+### How aborts and failures are handled
+
+This mainly applies to the portability flow (failures in the
+download-upload flow are handled by DDM and an abort of this 
+route means the participant closes their browser).
+
+In the portability flow, when a participant aborts participation 
+on the TikTok authentication page (i.e., when they click "cancel"),
+they are redirected to `/study/connect/abort/` where they have the 
+option to (a) try again or be redirected. If the DDM project has 
+an active redirect enabled, participants see a button that will 
+redirect them to this target - in this case, an URL parameter 
+"status=aborted" is automatically added to the redirect URL. 
+If no redirect URL is configured, they see a button that re-routes
+them to the download-upload approach.
+
+If an error occurs in the data await view (`study/connect/await/`), 
+the same logic as outlined above applies - in this case, an URL parameter 
+"status=failed" is automatically added to the redirect URL.
+
 ### What to do when things go wrong
 
 - **404 on the enrolment link** — the most common cause is that the

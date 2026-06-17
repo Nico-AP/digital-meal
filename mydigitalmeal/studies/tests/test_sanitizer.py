@@ -18,13 +18,6 @@ class TestSanitizeUrlParameters(SimpleTestCase):
     rule has its own test.
     """
 
-    def test_drops_reserved_keys(self):
-        result = _sanitize_url_parameters(
-            QueryDict("project_id=p&method=port-api&utm=keep"),
-        )
-
-        self.assertEqual(result, {"utm": "keep"})
-
     def test_drops_keys_failing_regex(self):
         # 'utm.source' contains '.', non-ASCII keys are rejected, only
         # 'ok_key-1' matches ``^[A-Za-z0-9_\\-]{1,40}$``.

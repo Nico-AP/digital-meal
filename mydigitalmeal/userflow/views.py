@@ -187,3 +187,37 @@ class PortabilityAuthRetryRouterView(View):
             return redirect("mdm:userflow:studies:port_tt_connect")
         logger.debug("Portability auth retry routed to datadonation flow.")
         return redirect("mdm:userflow:datadonation:port_tt_connect")
+
+
+class PortabilityAbortRouterView(View):
+    """Routes users who aborted the portability flow to the correct entry view.
+
+    Studies participants in an active flow go to the studies abort page;
+    completed or non-study participants fall through to the
+    regular MDM connect page.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if _study_flow_is_active(request):
+            logger.debug("Portability abort routed to studies flow.")
+            return redirect("mdm:userflow:studies:port_tt_aborted")
+        logger.debug("Portability abort routed to datadonation flow.")
+        return redirect("mdm:userflow:datadonation:port_tt_aborted")
+
+
+class PortabilityFailedRouterView(View):
+    """Routes users who experienced a failure in the portability flow to the
+    correct entry view.
+
+    Studies participants in an active flow go to the studies failure page;
+    completed or non-study participants fall through to the
+    regular MDM connect page.
+    """
+
+    def get(self, request, *args, **kwargs):
+        if _study_flow_is_active(request):
+            logger.debug("Portability failed routed to studies flow.")
+            return redirect("mdm:userflow:studies:port_tt_failed")
+        logger.debug("Portability failed routed to datadonation flow.")
+        # TODO: At some point we may want to add an extra view for this
+        return redirect("mdm:userflow:datadonation:port_tt_connect")

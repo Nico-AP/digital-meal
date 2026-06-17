@@ -1,0 +1,52 @@
+{% extends "userflow/base.html" %}
+{% load i18n static django_htmx %}
+
+{% block page_title %}{% translate "Verbindung mit TikTok abgebrochen" %}{% endblock page_title %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col col-lg-8 col-xl-6 text-center">
+
+        <p class="mdm-text fw-bold">
+          {% translate "Sie haben die Verbindung mit TikTok abgebrochen." %}
+        </p>
+
+        <p class="mdm-text">
+          {% translate "Wenn Sie möchten, können Sie erneut versuchen, sich zu verbinden." %}
+        </p>
+
+        <div class="mb-5 mt-3">
+          <a href="{% url 'mdm:userflow:studies:port_tt_connect' %}" class="btn mdm-color-btn-v1 ps-5 pe-5 fs-3" target="_self">
+            {% translate "Erneut verbinden" %}
+          </a>
+        </div>
+
+        {% if study_redirect_link %}
+          <p class="mdm-text">
+            {% translate "Alternativ können Sie zum Fragebogen zurückkehren, um Ihre Teilnahme abzuschliessen." %}
+          </p>
+
+          <p>
+            <a href="{{ study_redirect_link }}" class="btn mdm-color-btn-v2 ps-5 pe-5 fs-3">
+              {% translate "Weiter zum Fragebogen" %}
+            </a>
+          </p>
+
+        {% else %}
+          <p class="mdm-text">
+            {% translate "Sie können stattdessen Ihre Daten auch selbst bei TikTok herunterladen und anschliessend hochladen." %}
+          </p>
+
+          <p>
+            <a href="{% url 'mdm:userflow:studies:enroll' %}?project_id={{ project_id }}&method=download_upload&{{ url_parameters }}" class="btn mdm-color-btn-v2">
+              {% translate "Daten selber herunterladen" %}
+            </a>
+          </p>
+
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+{% endblock content %}
