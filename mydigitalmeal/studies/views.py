@@ -1,7 +1,7 @@
 import logging
 import re
 from datetime import timedelta
-from urllib.parse import urlencode
+from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from ddm.core.utils.user_content.template import render_user_content
 from ddm.participation.models import Participant
@@ -261,7 +261,7 @@ class PortabilityWaitingView(
 
 def get_ddm_redirect_link(
     request: HttpRequest,
-    extra_param: str | None = None,
+    extra_param: dict[str, str] | None = None,
 ) -> str | None:
     """Constructs a redirect link based on the DDM project setting.
 
@@ -274,8 +274,10 @@ def get_ddm_redirect_link(
 
     Args:
         request: A HttpRequest object.
-        extra_param: A string to be attached to the end of the redirect link
-            (e.g., "status=failed").
+        extra_param: A dictionary containing url parameters to be attached to
+            the end of the redirect link (e.g., {"status": "failed"}). If
+            variable is present in the original redirect link, the original
+            value will be replaced with the one provided here.
 
     Returns:
         The constructed redirect link if the DDM project has redirect enabled.
@@ -302,11 +304,14 @@ def get_ddm_redirect_link(
     redirect_link = render_user_content(ddm_project.redirect_target, template_context)
 
     if extra_param:
-        if "?" in redirect_link:
-            redirect_link += f"&{extra_param}"
-        else:
-            redirect_link += f"?{extra_param}"
-    return redirect_link
+        parsed = urlparse(redirect_link)
+        # parse_qs returns lists; flatten to single values for merging
+        existing_params = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+        existing_params.update(extra_param)  # extra_param values overwrite duplicates
+        new_query = urlencode(existing_params)
+        redirect_link = urlunparse(parsed._replace(query=new_query))
+
+    return str(redirect_link)
 
 
 class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
@@ -321,8 +326,9 @@ class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        url_param = "status=aborted"
-        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
+        url_param = {"status": "aborted"}
+        redirect_link = get_ddm_redirect_link(self.request, url_param)
+        context["study_redirect_link"] = redirect_link
         return context
 
 
@@ -354,7 +360,7 @@ class PortabilityErrorView(RequireStudySessionMixin, TemplateView):
         else:
             logger.warning("Study session missing in port-api availability check view.")
 
-        url_param = "status=failed"
+        url_param = {"status": "failed"}
         context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
         return context
 
