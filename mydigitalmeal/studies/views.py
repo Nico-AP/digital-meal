@@ -406,6 +406,7 @@ class CheckDownloadAvailabilityView(
         else:
             logger.warning("Study session missing in port-api availability check view.")
 
+        # The following is only used by template_error
         url_param = {"status": "failed"}
         context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
         return context
@@ -622,6 +623,7 @@ class StudyStatisticsView(BaseStatisticsView):
       ``Participant.start_time`` (i.e. when the participant enrolled).
     """
 
+    template_name = "studies/report/partials/_combined_statistics.html"
     session_invalid_redirect = "mdm:userflow:landing_page"
 
     def get_participant(self) -> Participant | None:

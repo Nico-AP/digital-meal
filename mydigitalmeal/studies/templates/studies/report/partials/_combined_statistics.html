@@ -1,0 +1,70 @@
+{% load i18n static %}
+
+<div id="report-statistics" class="htmx-smooth-transition">
+
+  <div id="report-icon">
+    <img src="{% static 'mydigitalmeal/img/logos/mydigitalmeal_m-logo_white.svg' %}"
+         alt="My Digital Meal Logo"
+         class="report-icon" />
+  </div>
+
+  <div id="report-container">
+
+    {% if video_viewed_stats_available %}
+      {% include "reports/tiktok/partials/_01_video_viewed_stats_part1.html" %}
+      {% include "reports/tiktok/partials/_02_video_viewed_stats_part2.html" %}
+    {% endif %}
+
+    {% if daily_routine_available %}
+      {% if routine_start_hour >= 5 and routine_start_hour <= 8 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_05-08.html" %}
+
+      {% elif routine_start_hour >= 9 and routine_start_hour <= 11 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_09-11.html" %}
+
+      {% elif routine_start_hour == 12 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_12-12.html" %}
+
+      {% elif routine_start_hour >= 13 and routine_start_hour <= 17 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_13-17.html" %}
+
+      {% elif routine_start_hour >= 18 and routine_start_hour <= 19 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_18-19.html" %}
+
+      {% elif routine_start_hour >= 20 and routine_start_hour <= 22 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_20-22.html" %}
+
+      {% elif routine_start_hour >= 23 or routine_start_hour <= 4 %}
+        {% include "reports/tiktok/partials/_03_daily_routine_part1_23-04.html" %}
+
+      {% endif %}
+
+      {% include "reports/tiktok/partials/_04_daily_routine_part2.html" %}
+    {% endif %}
+
+    {% if usage_session_scrolling_available %}
+      {% include "reports/tiktok/partials/_06_usage_session_scrolling_part2.html" %}
+      {% include "reports/tiktok/partials/_05_usage_session_scrolling_part1.html" %}
+    {% endif %}
+
+    {% if top_video_available %}
+      {% include "reports/tiktok/partials/_07_top_video_part1.html" %}
+      {% include "reports/tiktok/partials/_08_top_video_part2.html" %}
+    {% endif %}
+
+    {% if peak_day_available %}
+      {% include "reports/tiktok/partials/_09_peak_activity_part1.html" %}
+      {% include "reports/tiktok/partials/_10_peak_activity_part2.html" %}
+    {% endif %}
+
+    {% if usage_session_general_available %}
+      {% include "reports/tiktok/partials/_11_usage_session_part1_overview_image.html" %}
+      {% include "reports/tiktok/partials/_12_usage_session_part2_n_days.html" %}
+      {% include "reports/tiktok/partials/_13_usage_session_part3_mean_length.html" %}
+      {% include "reports/tiktok/partials/_14_usage_session_part4_mean_videos.html" %}
+    {% endif %}
+
+    {% include "studies/report/partials/_report_end_page.html" %}
+
+  </div>
+</div>

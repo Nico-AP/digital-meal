@@ -1,0 +1,41 @@
+{% load i18n static %}
+
+<c-report-slide
+    slide_nr="99"
+    intro_duration="100"
+    outro_duration="500"
+    intro_hide_delay="0"
+    content_hide_delay="0"
+    content_classes="show-on-top-500"
+>
+  <c-slot name="intro"></c-slot>
+
+  <c-slot name="content">
+    <div class="pb-4 report-endpage-text">
+      {% blocktranslate %}
+        Das war <strong>Dein<br />
+        Digital Meal Report</strong>
+      {% endblocktranslate %}
+    </div>
+
+    <div class="fs-3 pt-2 ps-2 pe-2">
+      <div>{% translate "oder" %}</div>
+
+      <div>
+        <button type="button" class="report-link-button" onclick="document.getElementById('report-container')._slideshow?.restart(); return false;">
+          {% translate "schau den Report nochmal an" %}
+        </button>
+      </div>
+    </div>
+
+    <div class="fs-5 pt-5 lh-lg">
+      {% translate "My Digital Meal ist ein Projekt der" %}
+    </div>
+    <div>
+      <img alt="Logo Universität Zürich" src="{% static 'mydigitalmeal/img/logos/uzh_logo_white.svg' %}" />
+    </div>
+  </c-slot>
+
+  <c-slot name="outro"></c-slot>
+
+</c-report-slide>
