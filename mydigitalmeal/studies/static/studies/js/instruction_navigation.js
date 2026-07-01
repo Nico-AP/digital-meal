@@ -4,8 +4,10 @@
  * within the currently visible page.
  *
  * Only one page and one instruction-section (app vs. browser) is
- * shown at a time. The chosen instruction version is remembered across pages
- * and (optionally) across reloads via localStorage.
+ * shown at a time. The initial instruction version comes from Django
+ * (via a json_script tag) and defaults to "app" if not provided.
+ * It is not persisted anywhere — a reload always starts from the
+ * server-provided (or default) value again.
  */
 document.addEventListener('DOMContentLoaded', () => {
   const pages = Array.from(document.querySelectorAll('.instruction-page'))
@@ -14,7 +16,22 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!pages.length) return;
 
   let currentPageIndex = 0;
-  let currentVersion = localStorage.getItem('instructionVersion') || 'app';  // TODO: Read from variable passed by view.
+  let currentVersion = getInitialInstructionVersion();
+
+  function getInitialInstructionVersion() {
+    const el = document.getElementById('default-instruction-version');
+    if (el) {
+      try {
+        const value = JSON.parse(el.textContent);
+        if (value === 'app' || value === 'browser') {
+          return value;
+        }
+      } catch (e) {
+        // fall through to default below
+      }
+    }
+    return 'app';
+  }
 
   function renderPage() {
     pages.forEach((page, i) => {
@@ -71,7 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function setInstructionVersion(version) {
     currentVersion = version;
-    localStorage.setItem('instructionVersion', version);
     renderInstructionVersion();
   }
 
