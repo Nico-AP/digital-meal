@@ -406,7 +406,7 @@ class CheckDownloadAvailabilityView(
         else:
             logger.warning("Study session missing in port-api availability check view.")
 
-        url_param = "status=failed"
+        url_param = {"status": "failed"}
         context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
         return context
 
