@@ -1,0 +1,133 @@
+{% load static %}
+
+<h1>Schritt 4/4: Daten hochladen</h1>
+
+{# App instructions #}
+<div class="instruction-section instruction-section-app" data-instruction-version="app">
+
+  <div class="row instruction-row">
+    <div class="col-12 instruction-text-col text-center">
+      <p>Wenn Sie die Datei heruntergeladen haben, kehren Sie auf diese Seite hier zurück.</p>
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 col-md-6 instruction-text-col">
+      <p>
+        Klicken Sie weiter unten im Abschnitt «Datei auswählen» auf diesen Button:
+      </p>
+    </div>
+    <div class="col-12 col-md-6 instruction-img-col">
+      <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_16.png' %}"
+           alt="Screenshot Datei hochladen"
+           class="instruction-img"
+      />
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 col-md-6 instruction-text-col">
+      <p>
+        Suchen Sie im Fenster, das sich öffnet, nach einer kürzlich heruntergeladenen ZIP-Datei,
+        deren Name mit <b>«TikTok_Data_»</b> beginnt. Wählen Sie diese aus.
+      </p>
+    </div>
+    <div class="col-12 col-md-6 instruction-img-col">
+      <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_18.png' %}"
+           alt="Screenshot Datei suchen und auswählen"
+           class="instruction-img"
+      />
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 instruction-text-col text-center">
+      <p>
+        Beim Hochladen Ihrer Daten werden diese gefiltert.
+        Jegliche Informationen, die Rückschlüsse auf Ihre Person zulassen, werden gelöscht.
+        Dies geschieht auf Ihrem Gerät und es werden noch keine Daten übermittelt.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+{# Browser instructions #}
+<div class="instruction-section instruction-section-browser" data-instruction-version="browser">
+
+  <div class="row instruction-row">
+    <div class="col-12 instruction-text-col text-center">
+      <p>Wenn Sie die Datei heruntergeladen haben, kehren Sie auf diese Seite hier zurück.</p>
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 col-md-6 instruction-text-col">
+      <p>
+        Klicken Sie weiter unten im Abschnitt «Datei auswählen» auf diesen Button:
+      </p>
+    </div>
+    <div class="col-12 col-md-6 instruction-img-col">
+      <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_12.png' %}"
+           alt="Screenshot Datei hochladen"
+           class="instruction-img"
+      />
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 col-md-6 instruction-text-col">
+      <p>
+        Suchen Sie im Fenster, das sich öffnet, in Ihren Downloads nach einer ZIP-Datei,
+        deren Name mit <b>«TikTok_Data_»</b> beginnt, und wählen Sie diese aus.
+      </p>
+    </div>
+    <div class="col-12 col-md-6 instruction-img-col">
+      <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_13.png' %}"
+           alt="Screenshot Datei suchen und auswählen"
+           class="instruction-img"
+      />
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 instruction-text-col">
+      <div class="instruction-collapsible">
+        <a class="instruction-toggle"
+           data-bs-toggle="collapse"
+           href="#collapseStep4a"
+           role="button"
+           aria-expanded="false"
+           aria-controls="collapseStep4a"
+        >
+          Ich kann die Datei nicht finden – was soll ich tun?
+        </a>
+        <div id="collapseStep4a" class="collapse row instruction-collapsible-body">
+          <div class="col-12">
+            <p>
+              Wenn Sie die Datei im Safari Browser heruntergeladen haben, kann es sein,
+              dass die ZIP-Datei automatisch entpackt wurde.
+              Sie sehen dann entweder einen Ordner mit dem Namen «TikTok_Data_1234567890.zip»
+              oder eine Datei mit dem Namen «user_data_tiktok.json».
+            </p>
+            <p>
+              Rechts-Klicken Sie auf den Ordner oder die Datei, und wählen Sie «…» komprimieren aus.
+              Dadurch wird eine ZIP-Datei erstellt. Laden Sie anschliessend diese ZIP-Datei auf dieser Seite hoch.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row instruction-row">
+    <div class="col-12 instruction-text-col text-center">
+      <p>
+        Beim Hochladen Ihrer Daten werden diese gefiltert.
+        Jegliche Informationen, die Rückschlüsse auf Ihre Person zulassen, werden gelöscht.
+        Dies geschieht auf Ihrem Gerät und es werden noch keine Daten übermittelt.
+      </p>
+    </div>
+  </div>
+
+</div>

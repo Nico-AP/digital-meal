@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import timedelta
+from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from ddm.core.utils.user_content.template import render_user_content
@@ -184,6 +185,8 @@ class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
     the request will be rejected.
     """
 
+    template_name = "studies/datadonation/download_upload.html"
+
     step_name = StudiesURLShortcut.DONATION_DDM
     steps = _STUDIES_FLOW_STEPS
 
@@ -196,6 +199,24 @@ class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
         """
         study_session = StudyParticipationSessionManager.from_request(request).get()
         return DonationProject.objects.get(url_id=study_session.ddm_project_id)
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        study_session = StudyParticipationSessionManager.from_request(
+            self.request
+        ).get()
+        if study_session:
+            show_app_instruction = study_session.url_parameters.get(
+                "appinstruction", "1"
+            )
+        else:
+            show_app_instruction = "1"
+
+        context["default_instruction"] = (
+            "app" if show_app_instruction == "1" else "browser"
+        )
+        return context
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""

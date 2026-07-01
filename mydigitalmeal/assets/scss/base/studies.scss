@@ -1,0 +1,129 @@
+@use 'typography';
+
+.instruction-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+
+  .uploader-name {
+    display: none;
+  }
+}
+
+.instruction-page {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  h1 {
+    @extend .mdm-lead;
+    text-align: center;
+  }
+}
+
+.instruction-section {
+  max-width: 800px;
+  width: 100%;
+}
+
+.instruction-section {
+  color: white;
+  margin-bottom: 90px;
+}
+
+.instruction-section-app {
+  .instruction-img {
+    width: 200px;
+    max-width: 80%;
+  }
+}
+
+.instruction-section-browser {
+  .instruction-img {
+    width: 400px;
+    max-width: 80%;
+  }
+}
+
+.instruction-row {
+  padding-top: 30px;
+  padding-bottom: 30px;
+  border-bottom: 1px solid #3c3c3c;
+}
+
+.instruction-text-col {
+  @extend .mdm-text;
+  font-size: 24px;
+  line-height: 32px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: right;
+}
+
+.instruction-img-col {
+  display: flex;
+  flex-direction: row;
+  align-content: start;
+  align-items: start;
+  justify-content: start;
+}
+
+.instruction-collapsible {
+  font-size: 18px;
+  line-height: 26px;
+  padding: 10px;
+  border-radius: 5px;
+  background: #2e2e2e;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: left;
+
+  a:hover {
+    color: darkgrey !important;
+  }
+
+  .instruction-toggle {
+    font-weight: bolder;
+    text-decoration: none !Important;
+  }
+
+  .instruction-collapsible-body {
+    padding-top: 20px;
+  }
+
+}
+
+.instruction-nav-button {
+  font-size: 32px !important;
+  padding-top: 6px !important;
+  padding-bottom: 6px !important;
+}
+
+.instruction-back {
+  background: grey !important;
+}
+
+.instruction-device-link {
+  color: #5c5c5c !important;
+}
+
+.instruction-nav {
+  margin-top: -90px;
+  max-width: 800px;
+  width: 100%;
+
+  a:hover {
+    color: #4c4c4c !important;
+  }
+}
+
+.device-links {
+  a:hover {
+    color: #4c4c4c !important;
+  }
+}

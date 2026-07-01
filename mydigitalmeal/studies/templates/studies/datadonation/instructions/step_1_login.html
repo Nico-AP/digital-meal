@@ -1,0 +1,115 @@
+{% load static %}
+
+<div class="instruction-page mb-4" data-page="1">
+
+  <h1>Schritt 1/4: Einloggen und Einstellungen öffnen</h1>
+
+  {# App instructions #}
+  <div class="instruction-section instruction-section-app" data-instruction-version="app">
+    <div class="row instruction-row">
+      <div class="col-12 instruction-text-col text-center">
+        <p>
+          Öffnen Sie die TikTok-App auf diesem Gerät und
+          melden Sie sich mit dem Account an, den Sie privat am meisten nutzen.
+        </p>
+
+        <div class="instruction-collapsible">
+          <a class="instruction-toggle"
+             data-bs-toggle="collapse"
+             href="#collapseStep1a"
+             role="button"
+             aria-expanded="false"
+             aria-controls="collapseStep1a"
+          >
+            Ich habe die TikTok-App nicht auf diesem Gerät installiert - was soll ich tun?
+          </a>
+          <div id="collapseStep1a" class="collapse instruction-collapsible-body">
+            <p>
+              Klicken Sie auf den folgenden Link, um die Anleitung anzuzeigen, wie Sie Ihre Daten
+              stattdessen über die TikTok-Webseite anfordern können:
+              <a href="#"
+                 class="instruction-device-button"
+                 data-instruction-version="browser">
+                zur Anleitung
+              </a>
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="row instruction-row">
+      <div class="col-12 col-md-6 instruction-text-col">
+        <p>Klicken Sie unten in der Menüleiste auf «Profil».</p>
+      </div>
+      <div class="col-12 col-md-6 instruction-img-col">
+        <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_01.png' %}"
+             alt="Screenshot Profil"
+             class="instruction-img"
+        />
+      </div>
+    </div>
+
+    <div class="row instruction-row">
+      <div class="col-12 col-md-6 instruction-text-col">
+        <p>Klicken Sie oben rechts auf die drei Striche.</p>
+      </div>
+      <div class="col-12 col-md-6 instruction-img-col">
+        <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_02.png' %}"
+             alt="Screenshot waagrechte Striche"
+             class="instruction-img"
+        />
+      </div>
+    </div>
+
+    <div class="row instruction-row">
+      <div class="col-12 col-md-6 instruction-text-col">
+        <p>Klicken Sie im Menü auf «Einstellungen und Datenschutz».</p>
+      </div>
+      <div class="col-12 col-md-6 instruction-img-col">
+        <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_03.png' %}"
+             alt="Screenshot Einstellungen und Datenschutz"
+             class="instruction-img"
+        />
+      </div>
+    </div>
+
+    <div class="row instruction-row">
+      <div class="col-12 col-md-6 instruction-text-col">
+        <p>Klicken Sie auf «Konto».</p>
+      </div>
+      <div class="col-12 col-md-6 instruction-img-col">
+        <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_04.png' %}"
+             alt="Screenshot Konto"
+             class="instruction-img"
+        />
+      </div>
+    </div>
+
+  </div>
+
+  {# Browser instructions #}
+  <div class="instruction-section instruction-section-browser" data-instruction-version="browser">
+
+    <div class="row instruction-row">
+      <div class="col-12 instruction-text-col text-center">
+        <p>
+          Öffnen Sie den folgenden Link zur TikTok-Webseite in einem neuen Tab.
+        </p>
+        <p>
+          Öffnen Sie den Link, wenn möglich, <b>nicht in Safari</b>, sondern in einem anderen Browser:
+          <i>https://tiktok.com/setting/download-your-data</i>
+        </p>
+      </div>
+    </div>
+
+    <div class="row instruction-row">
+      <div class="col-12 instruction-text-col text-center">
+        <p>Melden Sie sich mit dem Account an, den Sie privat am meisten nutzen.</p>
+      </div>
+    </div>
+
+  </div>
+
+</div>
