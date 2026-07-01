@@ -1,3 +1,4 @@
+@use '../abstracts/index' as *;
 @use 'typography';
 
 .instruction-wrapper {
@@ -62,15 +63,25 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: right;
+  text-align: center;
+
+  @media (min-width: $bp-md) {
+    text-align: left;
+  }
 }
 
 .instruction-img-col {
   display: flex;
   flex-direction: row;
-  align-content: start;
-  align-items: start;
-  justify-content: start;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+
+  @media (min-width: $bp-md) {
+    align-content: start;
+    align-items: start;
+    justify-content: start;
+  }
 }
 
 .instruction-collapsible {
