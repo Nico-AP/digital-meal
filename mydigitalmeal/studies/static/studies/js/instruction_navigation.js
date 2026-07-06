@@ -14,7 +14,75 @@ document.addEventListener('DOMContentLoaded', () => {
   if (!pages.length) return;
 
   let currentPageIndex = 0;
-  let currentVersion = localStorage.getItem('instructionVersion') || 'app';  // TODO: Read from variable passed by view.
+  let currentVersion = localStorage.getItem('instructionVersion') || 'app';
+
+  // ---------------------------------------------------------------------
+  // Timer / reminder modal setup
+  // ---------------------------------------------------------------------
+
+  const TIMER_STORAGE_KEY = 'instructionTimerStart';
+  const PAGE_THRESHOLD = 4; // timer starts once this page (or later) is reached
+
+  const limitSource = document.querySelector('[data-seconds-until-reminder]');
+  const modalTimeLimitSeconds = limitSource
+    ? Number(limitSource.dataset.modalTimeLimit)
+    : null;
+
+  let timerIntervalId = null;
+
+  function startTimerIfNeeded() {
+    if (sessionStorage.getItem(TIMER_STORAGE_KEY)) return; // already running
+    sessionStorage.setItem(TIMER_STORAGE_KEY, String(Date.now()));
+  }
+
+  function restartTimer() {
+    sessionStorage.setItem(TIMER_STORAGE_KEY, String(Date.now()));
+  }
+
+  function getElapsedSeconds() {
+    const start = Number(sessionStorage.getItem(TIMER_STORAGE_KEY));
+    if (!start) return 0;
+    return (Date.now() - start) / 1000;
+  }
+
+  function showTimerModal() {
+    const modalEl = document.getElementById('infoModal');
+    if (!modalEl) return;
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+  }
+
+  function checkTimer() {
+    if (modalTimeLimitSeconds == null || Number.isNaN(modalTimeLimitSeconds)) return;
+    if (getElapsedSeconds() >= modalTimeLimitSeconds) {
+      showTimerModal();
+      restartTimer(); // "restart" the timer once the modal has been shown
+    }
+  }
+
+  function ensureTimerRunning() {
+    if (timerIntervalId !== null) return;
+    checkTimer(); // catch up immediately (e.g. right after a reload)
+    timerIntervalId = setInterval(checkTimer, 1000);
+  }
+
+  function maybeStartTimerForCurrentPage() {
+    const pageNum = Number(pages[currentPageIndex].dataset.page);
+    if (pageNum >= PAGE_THRESHOLD) {
+      startTimerIfNeeded();
+      ensureTimerRunning();
+    }
+  }
+
+  // If the timer was already started in a previous page load within this
+  // session (e.g. user reloaded while on page 4+, or navigated back to an
+  // earlier page after having reached page 4), resume ticking immediately —
+  // this must NOT depend on currentPageIndex, since that resets to 0 on reload.
+  if (sessionStorage.getItem(TIMER_STORAGE_KEY)) {
+    ensureTimerRunning();
+  }
+
+  // ---------------------------------------------------------------------
 
   function renderPage() {
     pages.forEach((page, i) => {

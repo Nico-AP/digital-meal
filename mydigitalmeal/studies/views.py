@@ -26,7 +26,7 @@ from mydigitalmeal.datadonation.constants import DonationMethod
 from mydigitalmeal.datadonation.views.ddm import BaseDonationViewDDM
 from mydigitalmeal.reports.views.tiktok import BaseStatisticsView
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
-from mydigitalmeal.studies.constants import StudiesURLShortcut
+from mydigitalmeal.studies.constants import SECONDS_TO_REMINDER, StudiesURLShortcut
 from mydigitalmeal.studies.sessions import StudyParticipationSessionManager
 from mydigitalmeal.userflow.constants import URLShortcut
 from mydigitalmeal.userflow.sessions import (
@@ -34,6 +34,7 @@ from mydigitalmeal.userflow.sessions import (
     UserflowSessionManager,
 )
 from shared.portability import views as port_views
+from shared.portability.models import TikTokDataRequest
 
 logger = logging.getLogger(__name__)
 
@@ -216,6 +217,9 @@ class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
         context["default_instruction"] = (
             "app" if show_app_instruction == "1" else "browser"
         )
+
+        context["seconds_until_reminder"] = SECONDS_TO_REMINDER
+
         return context
 
     def update_participant_information(self, request) -> None:
@@ -408,6 +412,22 @@ class CheckDownloadAvailabilityView(
         "studies/portability/await_partials/_data_download_expired_msg.html"
     )
 
+    def get_data_request(self):
+        open_id = self.port_session.get_tiktok_open_id()
+        return (
+            TikTokDataRequest.objects.filter(
+                open_id=open_id,
+                download_succeeded=False,
+            )
+            .exclude(
+                status__in=[
+                    TikTokDataRequest.State.EXPIRED,
+                    TikTokDataRequest.State.CANCELLED,
+                ]
+            )
+            .first()
+        )
+
     def get_context_data(self, **kwargs):
         """Adds participant and project information to context.
 
@@ -426,6 +446,17 @@ class CheckDownloadAvailabilityView(
 
         else:
             logger.warning("Study session missing in port-api availability check view.")
+
+        # Determine whether reminder message should be displayed
+        if self.template_name == self.template_pending:
+            data_request = self.get_data_request()
+            request_time = data_request.issued_at
+            time_now = timezone.now()
+            if time_now - request_time > timedelta(seconds=SECONDS_TO_REMINDER):
+                # TODO: Add info to participant
+                context["show_reminder_msg"] = True
+        else:
+            context["show_reminder_msg"] = False
 
         # The following is only used by template_error
         url_param = {"status": "failed"}

@@ -6,15 +6,18 @@
      hx-swap="outerHTML">
   <div>
 
-    <p class="mdm-text">
-      {% blocktranslate trimmed %}
-        <strong>Zugriff autorisiert!</strong><br />
-        Wir warten nun darauf, dass TikTok die Daten bereitstellt.
-        Sobald alles bereit ist, können Sie die Daten prüfen und entscheiden,
-        ob Sie die Daten für die Studie übermitteln möchten.
-      {% endblocktranslate %}
-    </p>
-
+    {% if not show_reminder_msg %}
+      <p class="mdm-text">
+        {% blocktranslate trimmed %}
+          <strong>Zugriff autorisiert!</strong><br />
+          Wir warten nun darauf, dass TikTok die Daten bereitstellt.
+          Sobald alles bereit ist, können Sie die Daten prüfen und entscheiden,
+          ob Sie die Daten für die Studie übermitteln möchten.
+        {% endblocktranslate %}
+      </p>
+    {% else %}
+      {% include "studies/portability/await_partials/_reminder_msg.html" %}
+    {% endif %}
     <div class="mb-3 mt-5">
       {% include "mydigitalmeal/components/m_path_loader.html" %}
     </div>

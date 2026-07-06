@@ -17,6 +17,7 @@
   <div class="container">
 
     {{ default_instruction|json_script:"default-instruction-version" }}
+    {{ seconds_until_reminder|json_script:"seconds-until-reminder" }}
 
     <div class="instruction-wrapper">
       {% include "studies/datadonation/instructions/step_1_login.html" %}
@@ -50,6 +51,9 @@
 
     </div>
   </div>
+
+  {% include "studies/modals/modal_reminder_modal.html" %}
+
 {% endblock content %}
 
 {% block extra_js %}

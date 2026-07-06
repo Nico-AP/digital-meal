@@ -1,6 +1,7 @@
 from enum import StrEnum
 
 STUDIES_SESSION_KEY = "mdm_studies_session"
+SECONDS_TO_REMINDER = 3 * 60
 
 
 class StudiesURLShortcut(StrEnum):
