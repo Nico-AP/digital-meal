@@ -17,6 +17,8 @@
   <div class="container">
 
     {{ default_instruction|json_script:"default-instruction-version" }}
+    {{ seconds_until_reminder|json_script:"seconds-until-reminder" }}
+    {{ reminder_registration_endpoint|json_script:"reminder-registration-endpoint" }}
 
     <div class="instruction-wrapper">
       {% include "studies/datadonation/instructions/step_1_login.html" %}
@@ -33,7 +35,7 @@
              data-uploader-configs-as-string='{{ uploader_configs }}'
              data-action-url='{{ request.build_absolute_uri }}'
              data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
-             data-language='{{ LANGUAGE_CODE|slice:"0:2" }}'
+             data-language='de'
              data-csrf-token="{{ csrf_token }}"
              data-custom-translations="{{ custom_translations }}"
         >
@@ -44,15 +46,18 @@
 
         {% render_bundle "ddm_uploader_frontend" config="DDM_UPLOADER" %}
 
-      </div>
+        {% include "studies/datadonation/instructions/navigation_last_page.html" %}
 
-      {% include "studies/datadonation/instructions/navigation.html" %}
+      </div>
 
     </div>
   </div>
+
+  {% include "studies/modals/modal_reminder_modal.html" %}
+
 {% endblock content %}
 
 {% block extra_js %}
-  <script src="{% static 'datadonation/js/ddm-utils.js' %}"></script>
+  <script src="{% static 'studies/js/ddm-utils.js' %}"></script>
   <script src="{% static 'studies/js/instruction_navigation.js' %}"></script>
 {% endblock extra_js %}

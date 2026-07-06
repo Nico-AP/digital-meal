@@ -1,6 +1,6 @@
 import importlib
 import uuid
-from datetime import UTC, datetime, timedelta
+from datetime import datetime, timedelta
 from unittest.mock import patch
 
 from ddm.participation.models import Participant
@@ -177,6 +177,14 @@ class TestStudyEnrollView(TestCase):
         self.assertEqual(stored["url_parameters"], {"project_id": self.project_url_id})
 
     def test_clears_stale_ddm_participation_session(self):
+        """Enrolment must not leave the stale placeholder behind.
+
+        ``StudyEnrollView`` pops the old DDM participation session and then
+        immediately creates a fresh one for the newly created participant
+        (needed to write ``url_param``/``method`` onto ``extra_data``), so
+        the key itself is present again by the end of the request — what
+        matters is that it no longer holds the stale value.
+        """
         ddm_session_id = get_participation_session_id(self.project)
         session = self.client.session
         session[ddm_session_id] = {"foo": "bar"}
@@ -184,7 +192,44 @@ class TestStudyEnrollView(TestCase):
 
         self.client.get(self.url, {"project_id": self.project_url_id})
 
-        self.assertNotIn(ddm_session_id, self.client.session)
+        stored = self.client.session[ddm_session_id]
+        self.assertNotIn("foo", stored)
+        self.assertIn("participant_id", stored)
+
+    def test_enrollment_writes_url_param_and_method_onto_participant(self):
+        """``url_param``/``method`` land on the DDM ``Participant`` (not just
+        the study session) so they can be replayed as extra_data alongside
+        the donation.
+        """
+        self.client.get(
+            self.url,
+            {
+                "project_id": self.project_url_id,
+                "method": "port-api",
+                "utm": "ok",
+            },
+        )
+
+        ddm_session_id = get_participation_session_id(self.project)
+        participant_id = self.client.session[ddm_session_id]["participant_id"]
+        participant = Participant.objects.get(pk=participant_id)
+
+        self.assertEqual(
+            participant.extra_data["url_param"],
+            {
+                "project_id": self.project_url_id,
+                "method": "port-api",
+                "utm": "ok",
+            },
+        )
+        self.assertEqual(participant.extra_data["method"], "port-api")
+        self.assertIn(
+            "a_enrolled",
+            participant.extra_data["participation_trail"],
+        )
+        self.assertIsNotNone(
+            participant.extra_data["participation_trail"]["a_enrolled"],
+        )
 
     def test_resets_stale_userflow_session(self):
         """Enrolment wipes any prior ``UserflowSession`` so a re-enrolling
@@ -271,7 +316,10 @@ class TestDownloadUploadView(TestCase):
     """Direct unit tests for the methods specific to ``DownloadUploadView``.
 
     Covers ``get_ddm_project`` and ``update_participant_information``. HTTP-level
-    coverage of the mixin lives in `TestRequireStudySessionMixin`.
+    coverage of the mixin lives in `TestRequireStudySessionMixin`. Coverage for
+    ``url_param``/``method`` landing on ``Participant.extra_data`` lives in
+    ``TestStudyEnrollView`` now, since ``StudyEnrollView`` is what writes those
+    fields (``update_participant_information`` only marks the trail step).
     """
 
     def setUp(self):
@@ -322,38 +370,41 @@ class TestDownloadUploadView(TestCase):
         view.request = request
         return view
 
-    def test_update_participant_information_writes_url_param(self):
+    def test_update_participant_information_marks_trail_step(self):
         request = self._make_request_with_study_session(
             ddm_project_id=str(self.project.url_id),
-            url_parameters={"utm": "ok"},
-            enroll_time=datetime(2024, 1, 1, 12, 0, tzinfo=UTC),
         )
         view = self._make_view_for_participant(request)
 
         view.update_participant_information(request)
 
         view.participant.refresh_from_db()
-        self.assertEqual(
-            view.participant.extra_data["url_param"],
-            {"utm": "ok"},
-        )
-        self.assertEqual(
-            view.participant.extra_data["enroll_time"],
-            "2024-01-01T12:00:00+00:00",
-        )
+        trail = view.participant.extra_data["participation_trail"]
+        self.assertIn("b_entered_instructions", trail)
+        self.assertIsNotNone(trail["b_entered_instructions"])
 
-    def test_update_participant_information_with_none_enroll_time(self):
+    def test_update_participant_information_does_not_overwrite_existing_timestamp(self):
+        """Re-visiting the page (refresh, back button) must not reset the
+        original 'entered instructions' timestamp.
+        """
         request = self._make_request_with_study_session(
             ddm_project_id=str(self.project.url_id),
-            url_parameters={"utm": "ok"},
-            # enroll_time deliberately omitted → defaults to None.
         )
         view = self._make_view_for_participant(request)
 
         view.update_participant_information(request)
-
         view.participant.refresh_from_db()
-        self.assertIsNone(view.participant.extra_data["enroll_time"])
+        first_timestamp = view.participant.extra_data["participation_trail"][
+            "b_entered_instructions"
+        ]
+
+        view.update_participant_information(request)
+        view.participant.refresh_from_db()
+        second_timestamp = view.participant.extra_data["participation_trail"][
+            "b_entered_instructions"
+        ]
+
+        self.assertEqual(first_timestamp, second_timestamp)
 
 
 # ---- new views ------------------------------------------------------------
