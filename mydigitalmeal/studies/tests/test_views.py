@@ -883,6 +883,66 @@ class TestStudyStatisticsView(TestCase):
         self.assertNotIn("HX-Redirect", response.headers)
         self.assertFalse(response.context["statistics_ready"])
 
+    @patch(
+        "mydigitalmeal.reports.views.tiktok.get_tiktok_video_metadata",
+        return_value={},
+    )
+    def test_renders_no_activity_message_when_interval_has_no_data(self, _mock):  # noqa: PT019
+        """Regression test: a SUCCESS request whose INTERVAL row has no
+        computed fields (``WatchHistoryStatisticsGenerator`` returns early
+        when none of the donated watch history falls in the last 30 days)
+        must surface an explanation, not silently render as an empty report.
+        """
+        stats_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.SUCCESS,
+        )
+        TikTokWatchHistoryStatistics.objects.create(
+            request=stats_request,
+            scope=StatisticsScope.INTERVAL,
+            # All other fields deliberately left at their model defaults,
+            # mirroring what the generator produces for an empty interval.
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["statistics_ready"])
+        self.assertTrue(response.context["no_activity_in_report_period"])
+        self.assertFalse(response.context["video_viewed_stats_available"])
+        self.assertFalse(response.context["daily_routine_available"])
+        self.assertFalse(response.context["usage_session_scrolling_available"])
+        self.assertFalse(response.context["top_video_available"])
+        self.assertFalse(response.context["peak_day_available"])
+        self.assertFalse(response.context["usage_session_general_available"])
+        self.assertContains(response, "keine TikTok-Aktivität gefunden")
+
+    @patch(
+        "mydigitalmeal.reports.views.tiktok.get_tiktok_video_metadata",
+        return_value={},
+    )
+    def test_no_activity_flag_false_when_interval_has_data(self, _mock):  # noqa: PT019
+        """Guards against the flag going stale/always-True: with real
+        interval data present, the message must not show.
+        """
+        stats_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.SUCCESS,
+        )
+        TikTokWatchHistoryStatistics.objects.create(
+            request=stats_request,
+            scope=StatisticsScope.INTERVAL,
+            total_videos=42,
+            videos_per_day=1.4,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["no_activity_in_report_period"])
+        self.assertTrue(response.context["video_viewed_stats_available"])
+        self.assertNotContains(response, "keine TikTok-Aktivität gefunden")
+
 
 # ---- smoke tests ----------------------------------------------------------
 

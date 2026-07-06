@@ -10,6 +10,10 @@
 
   <div id="report-container">
 
+    {% if no_activity_in_report_period %}
+      {% include "reports/tiktok/partials/_00_no_recent_activity.html" %}
+    {% endif %}
+
     {% if video_viewed_stats_available %}
       {% include "reports/tiktok/partials/_01_video_viewed_stats_part1.html" %}
       {% include "reports/tiktok/partials/_02_video_viewed_stats_part2.html" %}

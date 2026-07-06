@@ -94,6 +94,21 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
         context |= self._get_peak_day()
         context |= self._get_usage_session_general()
 
+        # Check if none of the individual sections have data to show. Happens
+        # when the donated watch history has entries, but none of them fall
+        # within the INTERVAL scope's date range (default: last 30 days).
+        context["no_activity_in_report_period"] = not any(
+            context[flag]
+            for flag in (
+                "video_viewed_stats_available",
+                "daily_routine_available",
+                "usage_session_scrolling_available",
+                "top_video_available",
+                "peak_day_available",
+                "usage_session_general_available",
+            )
+        )
+
         context["statistics_ready"] = True
 
         return context
