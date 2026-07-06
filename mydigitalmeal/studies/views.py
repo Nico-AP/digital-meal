@@ -15,7 +15,7 @@ from ddm.participation.views import (
 from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
-from django.http import Http404, HttpRequest, HttpResponseRedirect
+from django.http import Http404, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -26,8 +26,16 @@ from mydigitalmeal.datadonation.constants import DonationMethod
 from mydigitalmeal.datadonation.views.ddm import BaseDonationViewDDM
 from mydigitalmeal.reports.views.tiktok import BaseStatisticsView
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
-from mydigitalmeal.studies.constants import SECONDS_TO_REMINDER, StudiesURLShortcut
-from mydigitalmeal.studies.sessions import StudyParticipationSessionManager
+from mydigitalmeal.studies.constants import (
+    PARTICIPATION_TRAIL_DLUL,
+    PARTICIPATION_TRAIL_PAPI,
+    SECONDS_TO_REMINDER,
+    StudiesURLShortcut,
+)
+from mydigitalmeal.studies.sessions import (
+    StudyParticipationSession,
+    StudyParticipationSessionManager,
+)
 from mydigitalmeal.userflow.constants import URLShortcut
 from mydigitalmeal.userflow.sessions import (
     AddUserflowSessionMixin,
@@ -77,6 +85,33 @@ def _sanitize_url_parameters(query) -> dict:
 
         sanitized[key] = truncated[0] if len(truncated) == 1 else truncated
     return sanitized
+
+
+def get_participant_from_session(
+    request: HttpRequest, project: DonationProject
+) -> Participant:
+    """Gets/creates participant from session."""
+    session_id = get_participation_session_id(project)
+    participant_id = request.session[session_id]["participant_id"]
+    try:
+        participant = Participant.objects.get(pk=participant_id)
+    except Participant.DoesNotExist:
+        participant = Participant.objects.create(
+            project=project, start_time=timezone.now()
+        )
+        request.session[session_id]["participant_id"] = participant.id
+        request.session.modified = True
+    return participant
+
+
+def update_participant_trail(participant: Participant, key: str) -> None:
+    if "participation_trail" not in participant.extra_data:
+        participant.extra_data["participation_trail"] = {}
+
+    trail = participant.extra_data["participation_trail"]
+    if key not in trail or trail[key] is None:
+        trail[key] = timezone.now().isoformat()
+        participant.save(update_fields=["extra_data"])
 
 
 class StudyEnrollView(View):
@@ -138,13 +173,32 @@ class StudyEnrollView(View):
         # fresh participant is created on the next donation step.
         ddm_session_id = get_participation_session_id(project)
         request.session.pop(ddm_session_id, None)
-
+        enroll_time = timezone.now()
+        url_params = _sanitize_url_parameters(request.GET)
         study_session.update(
-            url_parameters=_sanitize_url_parameters(request.GET),
+            url_parameters=url_params,
             ddm_project_id=project.url_id,
             method=method,
-            enroll_time=timezone.now(),
+            enroll_time=enroll_time,
         )
+
+        # Create participant
+        create_participation_session(request, project)
+        participant = get_participant_from_session(request, project)
+        participant.extra_data["url_param"] = url_params
+        participant.extra_data["method"] = method
+
+        if method == DonationMethod.PORTABILITY.value:
+            participant.extra_data["participation_trail"] = (
+                PARTICIPATION_TRAIL_PAPI.copy()
+            )
+        else:
+            participant.extra_data["participation_trail"] = (
+                PARTICIPATION_TRAIL_DLUL.copy()
+            )
+
+        update_participant_trail(participant, "a_enrolled")
+        participant.save()
 
         if method == DonationMethod.PORTABILITY.value:
             return redirect(StudiesURLShortcut.DONATION_PORTABILITY)
@@ -219,27 +273,14 @@ class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
         )
 
         context["seconds_until_reminder"] = SECONDS_TO_REMINDER
-
+        context["reminder_registration_endpoint"] = reverse(
+            "mdm:userflow:studies:dlul_register_got_reminder_info"
+        )
         return context
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-
-        if study_session:
-            self.participant.extra_data["url_param"] = study_session.url_parameters
-            enroll_time = (
-                study_session.enroll_time.isoformat()
-                if study_session.enroll_time
-                else None
-            )
-            self.participant.extra_data["enroll_time"] = enroll_time
-
-        self.participant.extra_data["entered_download_upload"] = True
-        self.participant.extra_data["entered_download_upload_at"] = (
-            timezone.now().isoformat()
-        )
-        self.participant.save()
+        update_participant_trail(self.participant, "b_entered_instructions")
 
     def initialize_statistics_request(self) -> StatisticsRequest:
         """Overwrite to create statistics request without user profile."""
@@ -282,6 +323,24 @@ class PortabilityWaitingView(
     ) -> HttpResponseRedirect | None:
         """Bypassed in studies flow."""
         return None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        study_session = StudyParticipationSessionManager.from_request(
+            self.request
+        ).get()
+        if study_session:
+            context["project_id"] = study_session.ddm_project_id
+
+            project = DonationProject.objects.filter(
+                url_id=study_session.ddm_project_id
+            ).first()
+            if project:
+                participant = get_participant_from_session(self.request, project)
+                update_participant_trail(participant, "b1_entered_waiting_view")
+
+        return context
 
 
 def get_ddm_redirect_link(
@@ -351,6 +410,25 @@ class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+
+        study_session = StudyParticipationSessionManager.from_request(
+            self.request
+        ).get()
+        if study_session:
+            context["project_id"] = study_session.ddm_project_id
+
+            project = DonationProject.objects.filter(
+                url_id=study_session.ddm_project_id
+            ).first()
+            if project:
+                participant = get_participant_from_session(self.request, project)
+                update_participant_trail(participant, "b3_entered_abort_view")
+
+            url_parameters = study_session.url_parameters.copy()
+            url_parameters.pop("method", None)
+            url_parameters.pop("project_id", None)
+            context["url_parameters"] = urlencode(url_parameters, doseq=True)
+
         url_param = {"status": "aborted"}
         redirect_link = get_ddm_redirect_link(self.request, url_param)
         context["study_redirect_link"] = redirect_link
@@ -378,9 +456,18 @@ class PortabilityErrorView(RequireStudySessionMixin, TemplateView):
         ).get()
         if study_session:
             context["project_id"] = study_session.ddm_project_id
-            context["url_parameters"] = urlencode(
-                study_session.url_parameters, doseq=True
-            )
+            url_parameters = study_session.url_parameters.copy()
+            url_parameters.pop("method", None)
+            url_parameters.pop("project_id", None)
+            context["url_parameters"] = urlencode(url_parameters, doseq=True)
+
+            project = DonationProject.objects.filter(
+                url_id=study_session.ddm_project_id
+            ).first()
+
+            if project:
+                participant = get_participant_from_session(self.request, project)
+                update_participant_trail(participant, "b2_entered_error_view")
 
         else:
             logger.warning("Study session missing in port-api availability check view.")
@@ -428,6 +515,15 @@ class CheckDownloadAvailabilityView(
             .first()
         )
 
+    def get_participant(
+        self, study_session: StudyParticipationSession
+    ) -> Participant | None:
+        project_id = study_session.ddm_project_id
+        project = DonationProject.objects.filter(url_id=project_id).first()
+        if project:
+            return get_participant_from_session(self.request, project)
+        return None
+
     def get_context_data(self, **kwargs):
         """Adds participant and project information to context.
 
@@ -438,29 +534,54 @@ class CheckDownloadAvailabilityView(
         study_session = StudyParticipationSessionManager.from_request(
             self.request
         ).get()
+
+        participant = None
         if study_session:
             context["project_id"] = study_session.ddm_project_id
-            context["url_parameters"] = urlencode(
-                study_session.url_parameters, doseq=True
-            )
+            url_parameters = study_session.url_parameters.copy()
+            url_parameters.pop("method", None)
+            url_parameters.pop("project_id", None)
+            context["url_parameters"] = urlencode(url_parameters, doseq=True)
+            participant = self.get_participant(study_session)
 
         else:
             logger.warning("Study session missing in port-api availability check view.")
 
         # Determine whether reminder message should be displayed
         if self.template_name == self.template_pending:
+            show_reminder_msg = False
             data_request = self.get_data_request()
-            request_time = data_request.issued_at
-            time_now = timezone.now()
-            if time_now - request_time > timedelta(seconds=SECONDS_TO_REMINDER):
-                # TODO: Add info to participant
-                context["show_reminder_msg"] = True
-        else:
-            context["show_reminder_msg"] = False
+            if data_request is None:
+                # Can happen if a concurrent request (e.g. a second open tab)
+                # changed the request's status between the parent view's
+                # lookup and this one. Skip the reminder rather than 500.
+                logger.warning(
+                    "CheckDownloadAvailabilityView: no matching TikTokDataRequest "
+                    "found while template_name was template_pending."
+                )
+            elif timezone.now() - data_request.issued_at > timedelta(
+                seconds=SECONDS_TO_REMINDER
+            ):
+                show_reminder_msg = True
 
-        # The following is only used by template_error
-        url_param = {"status": "failed"}
-        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
+            if study_session and participant and show_reminder_msg:
+                update_participant_trail(participant, "c3_got_waiting_reminder_info")
+
+            context["show_reminder_msg"] = show_reminder_msg
+
+        if self.template_name == self.template_error:
+            url_param = {"status": "failed"}
+            context["study_redirect_link"] = get_ddm_redirect_link(
+                self.request, url_param
+            )
+
+            if participant:
+                update_participant_trail(participant, "c2_got_waiting_error")
+
+        if self.template_name == self.template_success:
+            if participant:
+                update_participant_trail(participant, "c1_got_waiting_success")
+
         return context
 
 
@@ -485,29 +606,14 @@ class PortabilityReviewView(
             download_url = reverse("tiktok_download_data")
 
         context["tiktok_download_url"] = download_url
-        context["fail_redirect_url"] = reverse(StudiesURLShortcut.DONATION_DDM)
+        context["fail_redirect_url"] = reverse("mdm:userflow:studies:port_tt_failed")
 
         context["portability_view"] = True
         return context
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-
-        if study_session:
-            self.participant.extra_data["url_param"] = study_session.url_parameters
-            enroll_time = (
-                study_session.enroll_time.isoformat()
-                if study_session.enroll_time
-                else None
-            )
-            self.participant.extra_data["enroll_time"] = enroll_time
-
-        self.participant.extra_data["entered_portability"] = True
-        self.participant.extra_data["entered_portability_at"] = (
-            timezone.now().isoformat()
-        )
-        self.participant.save()
+        update_participant_trail(self.participant, "d1_entered_upload")
 
 
 class StudyQuestionnaireView(RequireStudySessionMixin, QuestionnaireView):
@@ -573,6 +679,7 @@ class StudyDebriefingView(RequireStudySessionMixin, DebriefingView):
         # the participant in a half-completed state. Re-visits
         # to the debriefing page (refresh, back button) just re-mark.
         self._mark_study_flow_completed(request)
+        update_participant_trail(self.participant, "e_entered_debrief")
         return response
 
     @staticmethod
@@ -585,6 +692,45 @@ class StudyDebriefingView(RequireStudySessionMixin, DebriefingView):
         StudyParticipationSessionManager.from_request(request).update(
             completed=True,
         )
+
+
+def register_got_reminder_info(request):
+    """Quick and dirty helper method to register whether reminder info was displayed
+    in the download-upload path.
+    """
+    if request.method != "POST":
+        return JsonResponse({"status": "invalid method"}, status=405)
+
+    study_session = StudyParticipationSessionManager.from_request(request).get()
+    if not study_session:
+        logger.warning("register_got_reminder_info: no study session found")
+        return JsonResponse({"status": "no session"}, status=400)
+
+    project = DonationProject.objects.filter(
+        url_id=study_session.ddm_project_id
+    ).first()
+    if not project:
+        logger.warning(
+            "register_got_reminder_info: no project for url_id=%s",
+            study_session.ddm_project_id,
+        )
+        return JsonResponse({"status": "no project"}, status=400)
+
+    participant = get_participant_from_session(request, project)
+    if not participant:
+        logger.warning(
+            "register_got_reminder_info: no participant for project=%s", project.url_id
+        )
+        return JsonResponse({"status": "no participant"}, status=400)
+
+    logger.info(
+        "register_got_reminder_info: recorded 'c_got_reminder_info' for "
+        "participant=%s (project=%s)",
+        participant.pk,
+        project.url_id,
+    )
+    update_participant_trail(participant, "c_got_reminder_info")
+    return JsonResponse({"status": "ok"})
 
 
 _REPORT_MAX_AGE = timedelta(weeks=4)

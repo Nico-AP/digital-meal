@@ -12,7 +12,7 @@
         <p>Klicken Sie auf «Daten anfordern».</p>
         <p>Im Normalfall dauert es ca. 10 Sekunden, bis der Download bereit ist. </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_10.png' %}"
              alt="Screenshot Daten anfordern"
              class="instruction-img"
@@ -24,15 +24,13 @@
       <div class="col-12 col-md-6 instruction-text-col">
         <p>Sobald der Download bereit ist, sehen Sie einen «Herunterladen»-Button. Klicken Sie darauf.</p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_13.png' %}"
              alt="Screenshot Herunterladen Button"
              class="instruction-img"
         />
       </div>
-    </div>
 
-    <div class="row instruction-row">
       <div class="col-12 instruction-text-col">
         <div class="instruction-collapsible">
           <a class="instruction-toggle"
@@ -84,7 +82,7 @@
           mit welcher Sie sich bei TikTok registriert haben.
         </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_14.png' %}"
              alt="Screenshot Authentifizierung"
              class="instruction-img"
@@ -98,7 +96,7 @@
           Dann wird die Datei automatisch heruntergeladen.
         </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/smartphone/DD_DLUL_15.png' %}"
              alt="Screenshot Datei herunterladen"
              class="instruction-img"
@@ -115,7 +113,7 @@
         <p>Klicken Sie auf «Daten anfordern».</p>
         <p>Im Normalfall dauert es ca. 10 Sekunden, bis der Download bereit ist. </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_07.png' %}"
              alt="Screenshot Daten anfordern"
              class="instruction-img"
@@ -127,15 +125,13 @@
       <div class="col-12 col-md-6 instruction-text-col">
         <p>Sobald der Download bereit ist, sehen Sie einen «Herunterladen»-Button. Klicken Sie darauf.</p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_08c.png' %}"
              alt="Screenshot Herunterladen Button"
              class="instruction-img"
         />
       </div>
-    </div>
 
-    <div class="row instruction-row">
       <div class="col-12 instruction-text-col">
         <div class="instruction-collapsible">
           <a class="instruction-toggle"
@@ -183,7 +179,7 @@
           Klicken Sie dafür auf «Code senden».
         </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_09.png' %}"
              alt="Screenshot Authentifizierung"
              class="instruction-img"
@@ -198,7 +194,7 @@
           mit welcher Sie sich bei TikTok registriert haben.
         </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_10.png' %}"
              alt="Screenshot Datei herunterladen"
              class="instruction-img"
@@ -212,7 +208,7 @@
           Dann wird die Datei automatisch heruntergeladen.
         </p>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12 col-md-6 instruction-img-col">
         <img src="{% static 'studies/img/instructions/browser/DD_DLUL_browser_11.png' %}"
              alt="Screenshot Datei herunterladen"
              class="instruction-img"
@@ -221,5 +217,7 @@
     </div>
 
   </div>
+
+  {% include "studies/datadonation/instructions/navigation.html" %}
 
 </div>

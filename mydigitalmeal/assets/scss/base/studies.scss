@@ -1,3 +1,4 @@
+@use '../abstracts/index' as *;
 @use 'typography';
 
 .instruction-wrapper {
@@ -31,7 +32,6 @@
 
 .instruction-section {
   color: white;
-  margin-bottom: 90px;
 }
 
 .instruction-section-app {
@@ -49,9 +49,14 @@
 }
 
 .instruction-row {
-  padding-top: 30px;
-  padding-bottom: 30px;
+  padding-top: 60px;
+  padding-bottom: 60px;
   border-bottom: 1px solid #3c3c3c;
+}
+
+.instruction-row-narrow {
+  padding-top: 20px !important;
+  padding-bottom: 20px !important;
 }
 
 .instruction-text-col {
@@ -62,7 +67,6 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  text-align: right;
 }
 
 .instruction-img-col {
@@ -70,7 +74,14 @@
   flex-direction: row;
   align-content: start;
   align-items: start;
-  justify-content: start;
+  justify-content: center;
+  padding-top: 15px;
+
+  @media (min-width: $bp-md) {
+    justify-content: start;
+    padding-top: 0;
+  }
+
 }
 
 .instruction-collapsible {
@@ -99,9 +110,14 @@
 }
 
 .instruction-nav-button {
-  font-size: 32px !important;
+  font-size: 28px !important;
   padding-top: 6px !important;
   padding-bottom: 6px !important;
+
+  @media (min-width: $bp-md) {
+    font-size: 32px !important;
+  }
+
 }
 
 .instruction-back {
@@ -113,7 +129,7 @@
 }
 
 .instruction-nav {
-  margin-top: -90px;
+  margin-top: 40px;
   max-width: 800px;
   width: 100%;
 
@@ -126,4 +142,22 @@
   a:hover {
     color: #4c4c4c !important;
   }
+}
+
+.skip-btn {
+  font-size: 28px !important;
+  color: gray !important;
+  background: #2c2c2c;
+  float: none;
+
+  &:hover {
+    background: #3a3a3a;
+    filter: none;
+    color: gray !important;
+  }
+
+  @media (min-width: $bp-md) {
+    font-size: 32px !important;
+  }
+
 }

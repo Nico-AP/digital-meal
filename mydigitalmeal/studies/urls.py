@@ -64,4 +64,9 @@ urlpatterns = [
         views.StudyStatisticsView.as_view(),
         name="tiktok_statistics",
     ),
+    path(
+        "study/register-got-reminder-info/",
+        views.register_got_reminder_info,
+        name="dlul_register_got_reminder_info",
+    ),
 ]
