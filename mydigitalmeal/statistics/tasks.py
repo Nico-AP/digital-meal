@@ -33,9 +33,17 @@ def compute_tiktok_wh_statistics_from_donation(
     Returns:
         dict: Statistics computation result with status and stats_id
     """
-    statistics_request = StatisticsRequest.objects.filter(
-        pk=statistics_request_id
-    ).first()
+    # Note: `public_id` is excluded here because a corrupted value in that column
+    # on production has been observed to raise an unhandled ValueError
+    # ("badly formed hexadecimal UUID string") before any application code
+    # can run, crashing the task (no retry, no set_failed()).
+    # The issue has since been fixed, but the value is still deferred for
+    # defensiveness.
+    statistics_request = (
+        StatisticsRequest.objects.defer("public_id")
+        .filter(pk=statistics_request_id)
+        .first()
+    )
     if not statistics_request:
         logger.error("StatisticsRequest %s not found, aborting.", statistics_request_id)
         return None
@@ -53,7 +61,7 @@ def compute_tiktok_wh_statistics_from_donation(
             )
             return {
                 "status": "success",
-                "statistics_request_id": str(statistics_request.public_id),
+                "statistics_request_id": str(statistics_request.pk),
                 "stats_id": None,
             }
 
@@ -71,13 +79,13 @@ def compute_tiktok_wh_statistics_from_donation(
 
         logger.info(
             "Successfully computed statistics for request %s. Stats ID: %s",
-            statistics_request,
+            statistics_request.pk,
             stats.public_id,
         )
 
         return {
             "status": "success",
-            "statistics_request_id": str(statistics_request.public_id),
+            "statistics_request_id": str(statistics_request.pk),
             "stats_id": str(stats.public_id),
         }
 

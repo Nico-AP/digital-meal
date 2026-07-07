@@ -834,8 +834,23 @@ class StudyStatisticsView(BaseStatisticsView):
         """Overwrites session validation of regular MDM flow."""
         return
 
-    def get(self, request, *args, **kwargs):
-        """Overwrites parent method to retrieve statistics based on passed ID"""
+    def get(self, request, *args, **kwargs):  # noqa: PLR0911
+        """Overwrites parent method to retrieve statistics based on passed ID.
+
+        A participant has two ``StatisticsRequest`` rows (interval + full,
+        see ``BaseDonationViewDDM.initialize_statistic_computation``), but
+        ``StatisticsRequest`` itself doesn't record which is which - that
+        only becomes visible once a request finishes and creates its
+        ``TikTokWatchHistoryStatistics`` child row (which carries
+        ``scope``). Immediately after enrolment, in a real deployment
+        (Celery not eager), neither request has a child row yet.
+
+        The request is therefore resolved  defensively in stages:
+        gather every request for the participant, try to resolve the specific
+        interval-scoped one, and only treat the "not found" case as an error
+        once every request has reached a terminal state (i.e. it's not just
+        still computing).
+        """
         try:
             participant = self.get_participant()
         except Participant.DoesNotExist:
@@ -845,24 +860,59 @@ class StudyStatisticsView(BaseStatisticsView):
         if not participant_can_access_report(participant):
             return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
 
-        self.statistics_request = StatisticsRequest.objects.filter(
-            tiktok_wh_statistics__scope=StatisticsScope.INTERVAL,
-            participant=participant,
-        ).first()
+        # `public_id` is deferred: a corrupted value in that column has
+        # been observed to raise an unhandled ValueError the moment a row
+        # is fetched (see mydigitalmeal.statistics.tasks for the matching
+        # fix), which would otherwise turn a single bad row into a 500 for
+        # every poll of this HTMX endpoint. `pk` is used instead wherever
+        # a request needs to be identified below.
+        statistics_requests = list(
+            StatisticsRequest.objects.defer("public_id").filter(participant=participant)
+        )
 
-        if not self.statistics_request:
+        if not statistics_requests:
             logger.warning(
                 "StatisticsRequest for participant %s not found",
                 participant.external_id,
             )
             return self.htmx_redirect(self.session_invalid_redirect)
 
+        self.statistics_request = next(
+            (
+                r
+                for r in statistics_requests
+                if r.get_statistics().filter(scope=StatisticsScope.INTERVAL).exists()
+            ),
+            None,
+        )
+
+        if self.statistics_request is None:
+            if not all(r.is_ready() for r in statistics_requests):
+                # At least one request (interval and/or full) is still
+                # PENDING/RETRY (= "still computing" state, not an error).
+                # Use one of the not-yet-ready requests so get_context_data()'s
+                # own is_ready() check returns the loading state.
+                self.statistics_request = next(
+                    r for r in statistics_requests if not r.is_ready()
+                )
+                return self.render_to_response(self.get_context_data(**kwargs))
+
+            # Every request has reached a terminal state and still no
+            # INTERVAL result appeared - genuinely unavailable (failed, or
+            # succeeded without ever producing interval-scope stats).
+            logger.warning(
+                "No INTERVAL-scope statistics found for participant %s "
+                "after all statistics requests finished",
+                participant.external_id,
+            )
+            return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
+
         if self.statistics_request.has_failed():
             # Statistics computation failed
             logger.info(
                 "Statistics request %s has failed and could not be "
                 "retrieved (status details: %s)",
-                self.statistics_request.public_id,
+                self.statistics_request.pk,
                 self.statistics_request.status_detail,
             )
             return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
@@ -874,7 +924,7 @@ class StudyStatisticsView(BaseStatisticsView):
                 logger.info(
                     "Statistics request %s: Unable to load statistics "
                     "(status details: %s)",
-                    self.statistics_request.public_id,
+                    self.statistics_request.pk,
                     self.statistics_request.status_detail,
                 )
                 return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)

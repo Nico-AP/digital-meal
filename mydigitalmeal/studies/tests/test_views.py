@@ -8,6 +8,7 @@ from ddm.participation.views import get_participation_session_id
 from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.middleware import SessionMiddleware
+from django.db import connection
 from django.http import Http404
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
@@ -882,6 +883,131 @@ class TestStudyStatisticsView(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("HX-Redirect", response.headers)
         self.assertFalse(response.context["statistics_ready"])
+
+    def test_renders_when_pending_with_no_stats_rows_yet(self):
+        """Regression test for the 'redirects to landing page immediately
+        on load' bug: ``initialize_statistic_computation`` creates both
+        ``StatisticsRequest`` rows (interval + full) up front and only
+        schedules the Celery job on transaction commit; the child
+        ``TikTokWatchHistoryStatistics`` row (which carries ``scope``) is
+        only written once a task actually finishes. So immediately after
+        enrolment, in a real deployment with an async worker, exactly this
+        state exists: two PENDING requests, zero child rows. Neither
+        request can be identified as "the interval one" yet - that must
+        render the loading state, not bounce to the landing page.
+        """
+        StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.PENDING,
+        )
+        StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.PENDING,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("HX-Redirect", response.headers)
+        self.assertFalse(response.context["statistics_ready"])
+
+    def test_renders_when_full_scope_ready_but_interval_still_pending(self):
+        """The FULL-scope request can finish before the INTERVAL one. It
+        must not be mistaken for the interval result just because it's
+        ready - the participant should keep seeing the loading state until
+        the actual INTERVAL-scope result appears.
+        """
+        full_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.SUCCESS,
+        )
+        TikTokWatchHistoryStatistics.objects.create(
+            request=full_request,
+            scope=StatisticsScope.FULL,
+        )
+        StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.PENDING,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("HX-Redirect", response.headers)
+        self.assertFalse(response.context["statistics_ready"])
+
+    def test_redirects_to_report_unavailable_when_both_finished_without_interval_result(
+        self,
+    ):
+        """Both requests reached a terminal state, but neither produced an
+        INTERVAL-scope result (e.g. the interval computation failed while
+        the full one succeeded). This is genuinely unavailable, not still
+        loading, so it must redirect rather than poll forever.
+        """
+        full_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.SUCCESS,
+        )
+        TikTokWatchHistoryStatistics.objects.create(
+            request=full_request,
+            scope=StatisticsScope.FULL,
+        )
+        StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.FAILED,
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertEqual(
+            response.headers["HX-Redirect"],
+            reverse(StudiesURLShortcut.REPORT_UNAVAILABLE),
+        )
+
+    def test_renders_when_a_stats_request_has_a_corrupted_public_id(self):
+        """Regression test for a production incident: a corrupted
+        ``public_id`` value on one of the participant's ``StatisticsRequest``
+        rows raised an unhandled ``ValueError`` ("badly formed hexadecimal
+        UUID string") the moment that row was fetched, turning every poll
+        of this HTMX endpoint into a 500 for that participant. The pending
+        (still computing) row here has the corruption; the interval result
+        itself is fine and must still render normally.
+        """
+        pending_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.PENDING,
+        )
+        # Django's UUIDField coerces/validates on every ORM write path
+        # (including `.update()`), so the corrupted value seen in
+        # production can only be reproduced via raw SQL - whatever wrote
+        # it there must have gone around Django entirely.
+        table = StatisticsRequest._meta.db_table
+        with connection.cursor() as cursor:
+            cursor.execute(
+                f"UPDATE {table} SET public_id = %s WHERE id = %s",  # noqa: S608
+                ["not-a-valid-uuid", pending_request.pk],
+            )
+
+        interval_request = StatisticsRequest.objects.create(
+            participant=self.participant,
+            status=StatisticsRequest.States.SUCCESS,
+        )
+        TikTokWatchHistoryStatistics.objects.create(
+            request=interval_request,
+            scope=StatisticsScope.INTERVAL,
+            total_videos=3,
+            videos_per_day=0.5,
+        )
+
+        with patch(
+            "mydigitalmeal.reports.views.tiktok.get_tiktok_video_metadata",
+            return_value={},
+        ):
+            response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("HX-Redirect", response.headers)
+        self.assertTrue(response.context["statistics_ready"])
 
     @patch(
         "mydigitalmeal.reports.views.tiktok.get_tiktok_video_metadata",
