@@ -8,9 +8,9 @@
 
   <button class="btn-close-custom" data-bs-dismiss="modal" aria-label="Close">{# djlint:off H023 #}&#x2715;{# djlint:on #}</button>
 
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content d-flex d-column align-content-center justify-content-center">
-      <div class="modal-body justify-content-center d-flex flex-column">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content text-start">
+      <div class="modal-body">
         {% block modal_content %}{% endblock modal_content %}
       </div>
     </div>

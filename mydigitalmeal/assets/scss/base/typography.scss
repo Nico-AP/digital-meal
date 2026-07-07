@@ -123,7 +123,11 @@ ol {
   li {
     padding-left: 10px;
     padding-bottom: 8px;
-    line-height: 39px;
+    line-height: 23px;
+
+    @media (min-width: $bp-sm) {
+      line-height: 39px;
+    }
   }
 
   @media (min-width: $bp-sm) {
