@@ -1,0 +1,25 @@
+{% extends "userflow/modals/modal.html" %}
+
+{% load i18n %}
+
+{% block modal_content %}
+  <p class="fw-bold">
+    {% translate "Sind Ihre TikTok-Daten noch nicht zum Download bereit?" %}
+  </p>
+  <p>
+    {% blocktranslate %}
+      TikTok scheint gerade länger als üblich zu haben, um Ihre Daten bereitzustellen.
+    {% endblocktranslate %}
+  </p>
+  <p>
+    {% blocktranslate %}
+      Wenn Sie möchten, können Sie noch etwas warten oder das Fenster an dieser Stelle schliessen.
+      Wir melden uns dann in den nächsten Tagen per Mail, damit Sie genau hier weitermachen können.
+    {% endblocktranslate %}
+  </p>
+  <p class="pt-3">
+    <button type="button" class="btn btn-secondary instruction-back" data-bs-dismiss="modal">
+      {% translate "Alles klar" %}
+    </button>
+  </p>
+{% endblock modal_content %}
