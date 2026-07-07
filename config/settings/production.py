@@ -26,7 +26,9 @@ ALLAUTH_TRUSTED_CLIENT_IP_HEADER = "X-Real-IP"
 # ------------------------------------------------------------------------------
 DATABASES = {
     "default": {
-        "ENGINE": "django.db.backends.mysql",
+        # Custom backend pinning has_native_uuid_field=False - see
+        # config/db_backends/mysql/base.py for why.
+        "ENGINE": "config.db_backends.mysql",
         "HOST": env.str("DJANGO_DB_HOST"),
         "NAME": env.str("DJANGO_DB_NAME"),
         "USER": env.str("DJANGO_DB_USER"),
