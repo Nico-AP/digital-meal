@@ -8,13 +8,13 @@
   {% if study_redirect_link %}
     <p class="mdm-text">
       {% blocktranslate trimmed %}
-        Sie können zum Fragebogen zurückkehren, um Ihre Teilnahme abzuschliessen.
+        Der Grund ist ein technisches Problem bei TikTok.
       {% endblocktranslate %}
     </p>
 
     <p>
       <a href="{{ study_redirect_link }}" class="btn mdm-color-btn-v2 ps-5 pe-5 fs-3">
-        {% translate "Weiter zum Fragebogen" %}
+        {% translate "Fortfahren" %}
       </a>
     </p>
 
@@ -28,7 +28,7 @@
 
     <p>
       <a href="{% url 'mdm:userflow:studies:enroll' %}?project_id={{ project_id }}&method=download-upload&{{ url_parameters }}" class="btn mdm-color-btn-v2">
-        Daten selber herunterladen
+        {% translate "Daten selber herunterladen" %}
       </a>
     </p>
 
