@@ -308,7 +308,14 @@ class PortabilityEntryView(RequireStudySessionMixin, port_views.TikTokAuthView):
     the request will be rejected.
     """
 
-    template_name = "studies/portability/tiktok_auth.html"
+    template_name = "studies/portability/portability_entry.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        url_param = {"status": "aborted"}
+        redirect_link = get_ddm_redirect_link(self.request, url_param)
+        context["study_redirect_link"] = redirect_link
+        return context
 
 
 class PortabilityWaitingView(
