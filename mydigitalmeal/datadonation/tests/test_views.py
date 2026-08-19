@@ -3,7 +3,8 @@ import json
 import zipfile
 from unittest.mock import MagicMock, patch
 
-from ddm.datadonation.models import DonationBlueprint, FileUploader
+from ddm.datadonation.models import DataDonation, DonationBlueprint, FileUploader
+from ddm.datadonation.schemas import JSONParserConfig
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
@@ -59,6 +60,7 @@ class TestDonationViewDDM(TestCase):
             file_uploader=uploader,
             name=TIKTOK_WATCH_HISTORY_BP_NAME,
             expected_fields='"date", "link"',
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         self.user = User.objects.create_user(
@@ -133,6 +135,7 @@ class TestDonationViewDDM(TestCase):
                 "consent": True,
                 "extractedData": extracted_data,
                 "status": "complete",
+                "data_extraction_state": DataDonation.DataExtractionState.DATA_EXTRACTED,  # noqa: E501
             }
         }
         zip_buffer = get_zip_file("data_donation.json", json.dumps(valid_data))
@@ -174,6 +177,7 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
             file_uploader=uploader,
             name=TIKTOK_WATCH_HISTORY_BP_NAME,
             expected_fields='"date", "link"',
+            parser_config=JSONParserConfig().model_dump(),
         )
         self.participant = Participant.objects.create(
             project=self.project,
@@ -197,25 +201,6 @@ class TestDonationViewDDMStatisticsComputation(TestCase):
         self.assertEqual(StatisticsRequest.objects.count(), 1)
         self.assertEqual(statistics_request.profile, self.mdm_profile)
         self.assertEqual(statistics_request.participant, self.participant)
-
-    def test_validate_received_data_valid(self):
-        bp_data = {
-            "consent": True,
-            "status": "success",
-            "extractedData": [{"date": "2024-01-01", "link": "https://example.com"}],
-        }
-        is_valid = self.view.validate_received_data(self.blueprint, bp_data)
-        self.assertTrue(is_valid)
-
-    def test_validate_received_data_invalid(self):
-        bp_data = {
-            "consent": False,
-            "status": "success",
-            "extractedData": [{"date": "2024-01-01", "link": "https://example.com"}],
-        }
-
-        is_valid = self.view.validate_received_data(self.blueprint, bp_data)
-        self.assertFalse(is_valid)
 
     @patch("mydigitalmeal.datadonation.views.ddm.group")
     @patch.object(DonationBlueprint, "validate_donation")

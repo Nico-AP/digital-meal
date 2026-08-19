@@ -209,7 +209,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
         relevant_participants = [
             p
             for p in all_participants
-            if p.extra_data.get("url_param", {}).get("class")
+            if p.url_parameter.get("class")
             in classrooms.values_list("url_id", flat=True)
         ]
         return relevant_participants
@@ -232,7 +232,7 @@ class ParticipationOverviewView(UserPassesTestMixin, TemplateView):
     ) -> dict[int, list[str]]:
         donation_info = DataDonation.objects.filter(
             project__in=donation_projects,
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             consent=True,
             participant__in=participants,
         ).values("blueprint_id", "participant__external_id")
@@ -415,7 +415,7 @@ class ExceptionOverviewView(UserPassesTestMixin, TemplateView):
                 url_id=module.ddm_project_id
             ).first()
             participants = Participant.objects.filter(
-                project=donation_project, extra_data__url_param__class__in=classroom_ids
+                project=donation_project, url_parameter__class__in=classroom_ids
             )
 
             # Add module/uploader-level exceptions

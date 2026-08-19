@@ -1,3 +1,5 @@
+import socket
+
 from .base import *  # noqa: F403
 from .base import env
 
@@ -38,4 +40,15 @@ DATABASES = {
             "collation": env.str("DJANGO_DB_COLLATION", default="utf8mb4_unicode_ci"),
         },
     }
+}
+
+# CELERY
+# ------------------------------------------------------------------------------
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    "socket_keepalive": True,
+    "socket_keepalive_options": {
+        socket.TCP_KEEPIDLE: 60,
+        socket.TCP_KEEPINTVL: 10,
+        socket.TCP_KEEPCNT: 5,
+    },
 }

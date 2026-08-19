@@ -253,7 +253,8 @@ def get_donations(
         Prefetch(
             "datadonation_set",
             queryset=DataDonation.objects.filter(
-                participant__in=participants, status="success"
+                participant__in=participants,
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             ),
         )
     )

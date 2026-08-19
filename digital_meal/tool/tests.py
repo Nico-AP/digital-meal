@@ -197,7 +197,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -219,7 +219,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -241,7 +241,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -263,7 +263,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -285,7 +285,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -307,7 +307,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.non_expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -329,7 +329,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.non_expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()
@@ -351,7 +351,7 @@ class TestCleanParticipantsManagementCommand(TestCase):
             project=self.project,
             participant=self.non_expired_participant,
             data=[],
-            status="",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         n_responses_before = QuestionnaireResponse.objects.all().count()
         n_donations_before = DataDonation.objects.all().count()

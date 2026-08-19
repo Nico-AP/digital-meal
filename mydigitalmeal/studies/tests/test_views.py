@@ -9,7 +9,6 @@ from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db import connection
-from django.http import Http404
 from django.test import RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
@@ -20,7 +19,14 @@ from mydigitalmeal.statistics.models import (
     TikTokWatchHistoryStatistics,
 )
 from mydigitalmeal.studies import urls as studies_urls
-from mydigitalmeal.studies.constants import STUDIES_SESSION_KEY, StudiesURLShortcut
+from mydigitalmeal.studies.constants import (
+    STUDIES_SESSION_KEY,
+    TRAIL_KEY,
+    DLULTrailSteps,
+    PAPITrailSteps,
+    StudiesURLShortcut,
+)
+from mydigitalmeal.studies.exceptions import StudyProjectNotFoundError
 from mydigitalmeal.studies.sessions import StudyParticipationSession
 from mydigitalmeal.studies.views import (
     _REPORT_MAX_AGE,
@@ -55,6 +61,17 @@ def _make_owner_profile() -> ResearchProfile:
         password="testpass",
     )
     return ResearchProfile.objects.create(user=owner)
+
+
+def _make_request_with_study_session(**session_fields):
+    request = RequestFactory().get("/")
+    request = _add_session_to_request(request)
+    if session_fields:
+        request.session[STUDIES_SESSION_KEY] = StudyParticipationSession(
+            **session_fields
+        ).to_dict()
+        request.session.save()
+    return request
 
 
 @override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
@@ -216,7 +233,7 @@ class TestStudyEnrollView(TestCase):
         participant = Participant.objects.get(pk=participant_id)
 
         self.assertEqual(
-            participant.extra_data["url_param"],
+            participant.url_parameter,
             {
                 "project_id": self.project_url_id,
                 "method": "port-api",
@@ -224,12 +241,13 @@ class TestStudyEnrollView(TestCase):
             },
         )
         self.assertEqual(participant.extra_data["method"], "port-api")
+        self.assertEqual(DLULTrailSteps.ENROLLED, PAPITrailSteps.ENROLLED)
         self.assertIn(
-            "a_enrolled",
-            participant.extra_data["participation_trail"],
+            DLULTrailSteps.ENROLLED,
+            participant.extra_data[TRAIL_KEY],
         )
         self.assertIsNotNone(
-            participant.extra_data["participation_trail"]["a_enrolled"],
+            participant.extra_data[TRAIL_KEY][DLULTrailSteps.ENROLLED],
         )
 
     def test_resets_stale_userflow_session(self):
@@ -274,7 +292,7 @@ class TestStudyEnrollView(TestCase):
 
 
 class TestRequireStudySessionMixin(TestCase):
-    """Exercises ``RequireStudySessionMixin`` via ``DownloadUploadView``.
+    """Exercises ``StudyParticipationMixin`` via ``DownloadUploadView``.
 
     The mixin is in ``DownloadUploadView``'s MRO, so hitting
     ``/study/dua/`` exercises it without needing a synthetic test view.
@@ -314,14 +332,7 @@ class TestRequireStudySessionMixin(TestCase):
 
 
 class TestDownloadUploadView(TestCase):
-    """Direct unit tests for the methods specific to ``DownloadUploadView``.
-
-    Covers ``get_ddm_project`` and ``update_participant_information``. HTTP-level
-    coverage of the mixin lives in `TestRequireStudySessionMixin`. Coverage for
-    ``url_param``/``method`` landing on ``Participant.extra_data`` lives in
-    ``TestStudyEnrollView`` now, since ``StudyEnrollView`` is what writes those
-    fields (``update_participant_information`` only marks the trail step).
-    """
+    """Direct unit tests for the methods specific to `DownloadUploadView`."""
 
     def setUp(self):
         self.owner_profile = _make_owner_profile()
@@ -330,34 +341,28 @@ class TestDownloadUploadView(TestCase):
             slug="some-study",
         )
 
-    def _make_request_with_study_session(self, **session_fields):
-        request = RequestFactory().get("/")
-        request = _add_session_to_request(request)
-        if session_fields:
-            request.session[STUDIES_SESSION_KEY] = StudyParticipationSession(
-                **session_fields
-            ).to_dict()
-            request.session.save()
-        return request
+    # ---- get_object ---------------------------------------------------
 
-    # ---- get_ddm_project ---------------------------------------------------
-
-    def test_get_ddm_project_returns_pinned_project(self):
-        request = self._make_request_with_study_session(
+    def test_get_object_returns_pinned_project(self):
+        request = _make_request_with_study_session(
             ddm_project_id=str(self.project.url_id),
         )
 
-        result = DownloadUploadView().get_ddm_project(request)
+        view = DownloadUploadView()
+        view.setup(request)
+        result = view.get_object(request)
 
         self.assertEqual(result, self.project)
 
     def test_get_ddm_project_raises_when_pinned_project_deleted(self):
-        request = self._make_request_with_study_session(
+        request = _make_request_with_study_session(
             ddm_project_id="ghost-project-id",
         )
 
-        with self.assertRaises(DonationProject.DoesNotExist):
-            DownloadUploadView().get_ddm_project(request)
+        with self.assertRaises(StudyProjectNotFoundError):
+            view = DownloadUploadView()
+            view.setup(request)
+            view.get_object(request)
 
     # ---- update_participant_information -----------------------------------
 
@@ -372,7 +377,7 @@ class TestDownloadUploadView(TestCase):
         return view
 
     def test_update_participant_information_marks_trail_step(self):
-        request = self._make_request_with_study_session(
+        request = _make_request_with_study_session(
             ddm_project_id=str(self.project.url_id),
         )
         view = self._make_view_for_participant(request)
@@ -380,29 +385,29 @@ class TestDownloadUploadView(TestCase):
         view.update_participant_information(request)
 
         view.participant.refresh_from_db()
-        trail = view.participant.extra_data["participation_trail"]
-        self.assertIn("b_entered_instructions", trail)
-        self.assertIsNotNone(trail["b_entered_instructions"])
+        trail = view.participant.extra_data[TRAIL_KEY]
+        self.assertIn(DLULTrailSteps.INSTRUCTIONS, trail)
+        self.assertIsNotNone(trail[DLULTrailSteps.INSTRUCTIONS])
 
     def test_update_participant_information_does_not_overwrite_existing_timestamp(self):
         """Re-visiting the page (refresh, back button) must not reset the
         original 'entered instructions' timestamp.
         """
-        request = self._make_request_with_study_session(
+        request = _make_request_with_study_session(
             ddm_project_id=str(self.project.url_id),
         )
         view = self._make_view_for_participant(request)
 
         view.update_participant_information(request)
         view.participant.refresh_from_db()
-        first_timestamp = view.participant.extra_data["participation_trail"][
-            "b_entered_instructions"
+        first_timestamp = view.participant.extra_data[TRAIL_KEY][
+            DLULTrailSteps.INSTRUCTIONS
         ]
 
         view.update_participant_information(request)
         view.participant.refresh_from_db()
-        second_timestamp = view.participant.extra_data["participation_trail"][
-            "b_entered_instructions"
+        second_timestamp = view.participant.extra_data[TRAIL_KEY][
+            DLULTrailSteps.INSTRUCTIONS
         ]
 
         self.assertEqual(first_timestamp, second_timestamp)
@@ -475,11 +480,7 @@ class TestStudyQuestionnaireView(TestCase):
             fetch_redirect_response=False,
         )
 
-    def test_get_skips_to_debriefing_when_q_config_short(self):
-        """DDM's heuristic: ``len(q_config) > 2`` means the project has any
-        questions (``q_config`` is the JSON-encoded list; ``"[]"`` is len 2).
-        The studies view fast-forwards to debriefing when there are none.
-        """
+    def test_get_skips_to_debriefing_when_q_config_is_empty(self):
         _set_study_session_via_client(
             self.client,
             ddm_project_id=str(self.project.url_id),
@@ -494,7 +495,7 @@ class TestStudyQuestionnaireView(TestCase):
             patch.object(
                 StudyQuestionnaireView,
                 "get_context_data",
-                return_value={"q_config": "[]"},
+                return_value={"q_config": []},
             ),
             patch.object(StudyQuestionnaireView, "set_step_completed"),
         ):
@@ -523,27 +524,6 @@ class TestStudyDebriefingView(TestCase):
 
         self.assertEqual(response.status_code, 403)
 
-    def test_get_raises_404_when_project_inactive(self):
-        self.project.active = False
-        self.project.save()
-
-        def init_inactive(view_self, _request):
-            view_self.object = self.project
-            view_self.participant = Participant.objects.create(
-                project=self.project,
-                start_time=timezone.now(),
-                current_step=3,
-            )
-            view_self.current_step = 3
-
-        view = StudyDebriefingView()
-        # Drive ``_initialize_values`` manually so we can run the actual
-        # ``get()`` without the rest of the DDM/HTTP plumbing.
-        init_inactive(view, None)
-
-        with self.assertRaises(Http404):
-            view.get(RequestFactory().get(self.url))
-
     def test_get_renders_when_active_and_on_correct_step(self):
         _set_study_session_via_client(
             self.client,
@@ -571,6 +551,11 @@ class TestStudyDebriefingView(TestCase):
                 StudyDebriefingView,
                 "get_context_data",
                 return_value={},
+            ),
+            patch.object(
+                StudyDebriefingView,
+                "update_participant_trail",
+                return_value=None,
             ),
             patch.object(
                 StudyDebriefingView,
@@ -612,6 +597,11 @@ class TestStudyDebriefingView(TestCase):
                 StudyDebriefingView,
                 "get_context_data",
                 return_value={},
+            ),
+            patch.object(
+                StudyDebriefingView,
+                "update_participant_trail",
+                return_value=None,
             ),
             patch.object(
                 StudyDebriefingView,
@@ -705,7 +695,7 @@ class TestStudyReportView(TestCase):
         )
 
     def test_no_session_required(self):
-        """No ``RequireStudySessionMixin`` on this view by design. A fresh
+        """No ``StudyParticipationMixin`` on this view by design. A fresh
         client (no session at all) can still load it as long as the
         access gates pass.
         """

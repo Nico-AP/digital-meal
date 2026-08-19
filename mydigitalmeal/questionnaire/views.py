@@ -1,10 +1,10 @@
 from ddm.participation.views import QuestionnaireView
 from ddm.projects.models import DonationProject
 from django.http import Http404, HttpResponseRedirect
-from django.shortcuts import redirect
 from django.urls import reverse
 
 from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
+from mydigitalmeal.datadonation.utils import get_current_step_url
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.userflow.constants import URLShortcut
 
@@ -26,18 +26,11 @@ class MDMQuestionnaireView(LoginAndProfileRequiredMixin, QuestionnaireView):
         except DonationProject.DoesNotExist as e:
             raise Http404 from e
 
-    def get(self, request, *args, **kwargs):
-        """Overwrite to control redirect targets."""
-        # Redirect to previous step if necessary.
-        if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
+    def current_step_url(self) -> str:
+        return get_current_step_url(self.steps, self.current_step, self.object.slug)
 
-        context = self.get_context_data(object=self.object)
-        min_config_length = 2
-        if not len(context["q_config"]) > min_config_length:
-            self.set_step_completed()
-            return HttpResponseRedirect(reverse(URLShortcut.REPORT))
-        return self.render_to_response(context)
+    def next_step_url(self) -> str:
+        return reverse(URLShortcut.REPORT)
 
     def post(self, request, *args, **kwargs):
         """Overwrite to redirect to report view."""

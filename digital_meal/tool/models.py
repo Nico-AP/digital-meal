@@ -264,7 +264,7 @@ class Classroom(models.Model):
     def get_classroom_participants(self):
         project = self.get_related_donation_project()
         return Participant.objects.filter(
-            project=project, extra_data__url_param__class=self.url_id
+            project=project, url_parameter__class=self.url_id
         )
 
     def get_participation_stats(self):
@@ -323,7 +323,7 @@ class Classroom(models.Model):
 
         project = self.get_related_donation_project()
         dates = DataDonation.objects.filter(
-            project=project, participant__extra_data__url_param__class=self.url_id
+            project=project, participant__url_parameter__class=self.url_id
         )
 
         if dates.exists():

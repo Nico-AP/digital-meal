@@ -2,6 +2,7 @@ import random
 from datetime import date, timedelta
 
 import numpy as np
+from ddm.datadonation.models import DataDonation
 from django.utils import timezone
 
 from digital_meal.reports.utils.shared.example_data import (
@@ -80,6 +81,7 @@ def generate_synthetic_watch_history(start_date: date, days: int = 500) -> dict:
         "time_submitted": timezone.now().isoformat() + "Z",
         "consent": True,
         "status": "success",
+        "data_extraction_state": DataDonation.DataExtractionState.DATA_EXTRACTED,
         "data": history_data,
     }
 
@@ -118,6 +120,7 @@ def generate_synthetic_search_history(latest_date: date, days: int = 500) -> dic
     return {
         "time_submitted": timezone.now().isoformat() + "Z",
         "consent": True,
+        "data_extraction_state": DataDonation.DataExtractionState.DATA_EXTRACTED,
         "status": "success",
         "data": history_data,
     }

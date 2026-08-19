@@ -2,6 +2,7 @@ import json
 from datetime import datetime
 
 from ddm.datadonation.models import DataDonation, DonationBlueprint, FileUploader
+from ddm.datadonation.schemas import JSONParserConfig
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
@@ -59,6 +60,7 @@ class TestReportsGeneralFunctionality(TestCase):
             name="Angesehene Videos",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         # Crate a module
@@ -201,6 +203,7 @@ class TestYouTubeReports(TestCase):
             name="Angesehene Videos",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         cls.searches_bp = DonationBlueprint.objects.create(
@@ -208,6 +211,7 @@ class TestYouTubeReports(TestCase):
             name="Suchverlauf",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         cls.subscriptions_bp = DonationBlueprint.objects.create(
@@ -215,6 +219,7 @@ class TestYouTubeReports(TestCase):
             name="Abonnierte Kanäle",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         # Crate a module
@@ -255,7 +260,8 @@ class TestYouTubeReports(TestCase):
         # Create donation
         participant = Participant.objects.create(
             project=self.project,
-            extra_data={"url_param": {"class": self.classroom.url_id}},
+            extra_data={},
+            url_parameter={"class": self.classroom.url_id},
             start_time=timezone.now(),
             end_time=timezone.now(),
         )
@@ -265,7 +271,7 @@ class TestYouTubeReports(TestCase):
             blueprint=self.watched_videos_bp,
             consent=True,
             data=self.watch_history_data["data"],
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         DataDonation.objects.create(
             project=self.project,
@@ -273,7 +279,7 @@ class TestYouTubeReports(TestCase):
             blueprint=self.searches_bp,
             consent=True,
             data=self.search_data["data"],
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         DataDonation.objects.create(
             project=self.project,
@@ -281,7 +287,7 @@ class TestYouTubeReports(TestCase):
             blueprint=self.subscriptions_bp,
             consent=True,
             data=self.subscription_data,
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
 
         # Watch history section
@@ -331,7 +337,8 @@ class TestYouTubeReports(TestCase):
         for _ in range(5):
             participant = Participant.objects.create(
                 project=self.project,
-                extra_data={"url_param": {"class": self.classroom.url_id}},
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
                 start_time=timezone.now(),
             )
             DataDonation.objects.create(
@@ -340,7 +347,7 @@ class TestYouTubeReports(TestCase):
                 blueprint=self.watched_videos_bp,
                 consent=True,
                 data=self.watch_history_data["data"],
-                status="success",
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             )
             DataDonation.objects.create(
                 project=self.project,
@@ -348,7 +355,7 @@ class TestYouTubeReports(TestCase):
                 blueprint=self.searches_bp,
                 consent=True,
                 data=self.search_data["data"],
-                status="success",
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             )
             DataDonation.objects.create(
                 project=self.project,
@@ -356,7 +363,7 @@ class TestYouTubeReports(TestCase):
                 blueprint=self.subscriptions_bp,
                 consent=True,
                 data=self.subscription_data,
-                status="success",
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             )
 
         self.client.login(**self.base_creds)
@@ -482,6 +489,7 @@ class TestTikTokReports(TestCase):
             name="Angesehene Videos",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         cls.searches_bp = DonationBlueprint.objects.create(
@@ -489,6 +497,7 @@ class TestTikTokReports(TestCase):
             name="Durchgeführte Suchen",
             exp_file_format="json",
             file_uploader=cls.uploader,
+            parser_config=JSONParserConfig().model_dump(),
         )
 
         # Crate a module
@@ -525,7 +534,8 @@ class TestTikTokReports(TestCase):
         # Create donation
         participant = Participant.objects.create(
             project=self.project,
-            extra_data={"url_param": {"class": self.classroom.url_id}},
+            extra_data={},
+            url_parameter={"class": self.classroom.url_id},
             start_time=timezone.now(),
             end_time=timezone.now(),
         )
@@ -535,7 +545,7 @@ class TestTikTokReports(TestCase):
             blueprint=self.watched_videos_bp,
             consent=True,
             data=self.watch_history_data["data"],
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         DataDonation.objects.create(
             project=self.project,
@@ -543,7 +553,7 @@ class TestTikTokReports(TestCase):
             blueprint=self.searches_bp,
             consent=True,
             data=self.search_data["data"],
-            status="success",
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
         )
         report_url_wh = reverse(
             "tiktok_individual_report_wh_sections",
@@ -589,7 +599,8 @@ class TestTikTokReports(TestCase):
         for _ in range(5):
             participant = Participant.objects.create(
                 project=self.project,
-                extra_data={"url_param": {"class": self.classroom.url_id}},
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
                 start_time=timezone.now(),
             )
             DataDonation.objects.create(
@@ -598,7 +609,7 @@ class TestTikTokReports(TestCase):
                 blueprint=self.watched_videos_bp,
                 consent=True,
                 data=self.watch_history_data["data"],
-                status="success",
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             )
             DataDonation.objects.create(
                 project=self.project,
@@ -606,7 +617,7 @@ class TestTikTokReports(TestCase):
                 blueprint=self.searches_bp,
                 consent=True,
                 data=self.search_data["data"],
-                status="success",
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             )
 
         self.client.login(**self.base_creds)

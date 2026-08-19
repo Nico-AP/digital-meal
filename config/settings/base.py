@@ -1,5 +1,4 @@
 import json
-import socket
 from pathlib import Path
 
 from environs import Env
@@ -337,14 +336,6 @@ CELERY_TASK_DEFAULT_QUEUE = env.str("CELERY_TASK_DEFAULT_QUEUE", "prod")
 
 CELERY_WORKER_HIJACK_ROOT_LOGGER = False
 
-CELERY_BROKER_TRANSPORT_OPTIONS = {
-    "socket_keepalive": True,
-    "socket_keepalive_options": {
-        socket.TCP_KEEPIDLE: 60,
-        socket.TCP_KEEPINTVL: 10,
-        socket.TCP_KEEPCNT: 5,
-    },
-}
 
 # DIGITAL MEAL
 # ------------------------------------------------------------------------------

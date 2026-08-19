@@ -63,9 +63,15 @@ class TestMDMQuestionnaireView(TestCase):
         )
         s.save()
 
-    @patch("ddm.participation.views.create_questionnaire_config")
-    def test_accessible_to_authenticated_user(self, mock_config_creation):
-        mock_config_creation.return_value = ["dummy 1", "dummy 2", "dummy 3"]
+    @patch("ddm.participation.views.QuestionnaireView.get_context_data")
+    def test_accessible_to_authenticated_user(self, mock_get_context_data):
+        mock_get_context_data.return_value = {
+            "q_config": ["dummy-config"],
+            "filter_config": {},
+            "extra_scripts": {},
+            "extra_variables": {},
+        }
+
         self.participant.current_step = 2
         self.participant.save()
 

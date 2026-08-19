@@ -1,6 +1,11 @@
 from io import StringIO
 
-from ddm.datadonation.models import DonationBlueprint, FileUploader, ProcessingRule
+from ddm.datadonation.models import (
+    BlueprintFilePath,
+    DonationBlueprint,
+    ExtractionField,
+    FileUploader,
+)
 from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
 from django.core.management import CommandError, call_command
@@ -32,7 +37,8 @@ class TestCreateTikTokProjectCommand(TestCase):
         self.assertEqual(DonationProject.objects.count(), 1)
         self.assertEqual(FileUploader.objects.count(), 1)
         self.assertEqual(DonationBlueprint.objects.count(), 12)
-        self.assertEqual(ProcessingRule.objects.count(), 33)
+        self.assertEqual(ExtractionField.objects.count(), 33)
+        self.assertEqual(BlueprintFilePath.objects.count(), 12)
 
     def test_handles_existing_project_gracefully_with_nonexisting_user(self):
         with self.assertRaises(CommandError):

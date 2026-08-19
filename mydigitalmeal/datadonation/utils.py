@@ -1,6 +1,8 @@
 from ddm.datadonation.models import DataDonation, DonationBlueprint
 from ddm.participation.models import Participant
 from ddm.projects.models import DonationProject
+from django.conf import settings
+from django.urls import NoReverseMatch, reverse
 
 from mydigitalmeal.datadonation.constants import (
     TIKTOK_PROJECT_SLUG,
@@ -31,12 +33,43 @@ def get_tiktok_wh_data(participant: Participant, ddm_project_id: int | None):
         ddm_project = DonationProject.objects.get(pk=ddm_project_id)
     blueprint = get_tiktok_wh_bp(ddm_project_id)
 
-    donated_data = DataDonation.objects.get(
-        project__pk=ddm_project_id,
-        blueprint=blueprint,
-        participant=participant,
-    )
+    try:
+        data_donation = DataDonation.objects.get(
+            project__pk=ddm_project_id,
+            blueprint=blueprint,
+            participant=participant,
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+        )
+    except DataDonation.DoesNotExist:
+        return None
 
-    # TODO: Implement status check here once this has been better implemented in DDM
+    return data_donation.get_decrypted_data(ddm_project.secret, ddm_project.get_salt())
 
-    return donated_data.get_decrypted_data(ddm_project.secret, ddm_project.get_salt())
+
+def get_step_url(steps: list[str], current_step: int, slug: str | None) -> str:
+    """Defensive resolution of url, allowing for both urls that need and
+    do not need slug-kwarg.
+    """
+    if slug is None:
+        slug = settings.TIKTOK_DDM_PROJECT_SLUG
+
+    try:
+        return reverse(steps[current_step], kwargs={"slug": slug})
+    except NoReverseMatch:
+        # Fallback for URLs hard-coding the "tiktok" slug.
+        return reverse(steps[current_step])
+
+
+def get_current_step_url(steps: list[str], current_step: int, slug: str | None) -> str:
+    """Defensive resolution of current step url, allowing for both urls that need
+    and do not need slug-kwarg.
+    """
+    return get_step_url(steps, current_step, slug)
+
+
+def get_next_step_url(steps: list[str], current_step: int, slug: str | None) -> str:
+    """Defensive resolution of next step url, allowing for both urls that need and
+    do not need slug-kwarg.
+    """
+    current_step += 1
+    return get_step_url(steps, current_step, slug)

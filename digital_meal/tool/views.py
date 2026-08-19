@@ -1,4 +1,4 @@
-from ddm.datadonation.models import DonationBlueprint
+from ddm.datadonation.models import DataDonation, DonationBlueprint
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 from django.http import Http404
@@ -155,7 +155,8 @@ class ClassroomDetail(OwnershipRequiredMixin, LoginRequiredMixin, DetailView):
         blueprints = DonationBlueprint.objects.filter(project=donation_project)
         for blueprint in blueprints:
             blueprint_donations = blueprint.datadonation_set.filter(
-                participant__pk__in=participant_ids, status="success"
+                participant__pk__in=participant_ids,
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
             ).defer("data")
 
             n_donations[blueprint.name] = len(blueprint_donations)

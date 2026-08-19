@@ -153,12 +153,12 @@ class IndividualReport(Report, DetailView):
             )
             raise Http404("Ungültige Teilnahme-ID in der URL")
 
-        participant_url_param = participant.extra_data.get("url_param")
+        participant_url_param = participant.url_parameter
         if not participant_url_param or participant_url_param.get("class") is None:
             logger.info(
                 "Individual report not rendered: report requested for "
                 "participant without associated class information "
-                '(no "class" field in participant.extra_data.url_param).'
+                '(no "class" field in participant.url_parameter).'
             )
             msg = (
                 "Es konnte keine Klasseninformation für "
@@ -295,7 +295,7 @@ class ClassReport(Report, ListView):
     def get_queryset(self):
         return Participant.objects.filter(
             project__url_id=self.project.url_id,
-            extra_data__url_param__class=self.classroom.url_id,
+            url_parameter__class=self.classroom.url_id,
         )
 
 
@@ -368,7 +368,8 @@ class GetDonationsMixin:
             Prefetch(
                 "datadonation_set",
                 queryset=DataDonation.objects.filter(
-                    participant__in=participants, status="success"
+                    participant__in=participants,
+                    data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
                 ),
             )
         )

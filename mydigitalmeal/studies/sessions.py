@@ -12,7 +12,7 @@ class StudyParticipationSession:
     `mydigitalmeal.studies.constants.STUDIES_SESSION_KEY` and
     consumed throughout the studies flow as the sole authentication
     signal (study participants never log in). Presence of
-    ``ddm_project_id`` is what ``RequireStudySessionMixin`` treats as
+    ``ddm_project_id`` is what ``StudyParticipationMixin`` treats as
     "enrolment complete" — an empty instance produced by ``reset()`` is
     *not* sufficient.
 

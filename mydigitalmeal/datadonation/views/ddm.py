@@ -1,24 +1,17 @@
-import json
 import logging
-import zipfile
-from json import JSONDecodeError
 
 from celery import group
-from ddm.datadonation.models import DonationBlueprint
-from ddm.logging.utils import log_server_exception
 from ddm.participation.views import DataDonationView, create_participation_session
 from ddm.projects.models import DonationProject
 from django.db import transaction
-from django.http import Http404, HttpResponseRedirect
+from django.db.models import QuerySet
+from django.http import Http404, HttpRequest, HttpResponseRedirect
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
-from django.utils.datastructures import MultiValueDictKeyError
 
-from mydigitalmeal.datadonation.constants import (
-    TIKTOK_PROJECT_SLUG,
-    TIKTOK_WATCH_HISTORY_BP_NAME,
-)
+from mydigitalmeal.datadonation.constants import TIKTOK_PROJECT_SLUG
+from mydigitalmeal.datadonation.utils import get_current_step_url, get_next_step_url
 from mydigitalmeal.profiles.mixins import LoginAndProfileRequiredMixin
 from mydigitalmeal.profiles.models import MDMProfile
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
@@ -41,10 +34,7 @@ class BaseDonationViewDDM(AddUserflowSessionMixin, DataDonationView):
 
     def _initialize_values(self, request):
         """Overwrite project initialization and current step assignment"""
-        try:
-            self.object = self.get_ddm_project(request)
-        except DonationProject.DoesNotExist as e:
-            raise Http404 from e
+        self.object = self.get_object()
 
         create_participation_session(request, self.object)
         self.participant = self.get_participant_from_session(request)
@@ -58,113 +48,37 @@ class BaseDonationViewDDM(AddUserflowSessionMixin, DataDonationView):
         # Update DDM step
         self.current_step = self.participant.current_step
 
-    def get_ddm_project(self, request) -> DonationProject:
-        return DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
+    def get_object(self, queryset: QuerySet | None = None) -> DonationProject:
+        try:
+            return DonationProject.objects.get(slug=TIKTOK_PROJECT_SLUG)
+        except DonationProject.DoesNotExist as e:
+            raise Http404 from e
+
+    def current_step_url(self) -> str:
+        return get_current_step_url(self.steps, self.current_step, self.object.slug)
+
+    def next_step_url(self) -> str:
+        return get_next_step_url(self.steps, self.current_step, self.object.slug)
 
     def update_participant_information(self, request) -> None:
         """Placeholder function."""
         return
 
-    def get(self, request, *args, **kwargs):
-        """Overwritten to adjust redirect urls."""
+    def post_redirect_url(self) -> str:
+        return reverse(URLShortcut.QUESTIONNAIRE)
 
-        # Check if project is active.
-        if not self.object.active:
-            return redirect("ddm_participation:project_inactive", slug=self.object.slug)
-
-        # Redirect to previous step if necessary.
-        if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
-
-        # Render current view.
-        context = self.get_context_data(object=self.object)
-        self.extra_before_render(request)
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
+    def post(self, request: HttpRequest, *args, **kwargs):
         # Account for 'page back' action in browser
         if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
+            return redirect(self.current_step_url())
 
         self.process_uploads(request.FILES)
         self.set_step_completed()
-        redirect_url = reverse(URLShortcut.QUESTIONNAIRE)
-        return HttpResponseRedirect(redirect_url)
+        return HttpResponseRedirect(self.post_redirect_url())
 
-    def process_uploads(self, files):
-        try:
-            file = files["post_data"]
-        except (MultiValueDictKeyError, KeyError) as e:
-            msg = (
-                "Data Donation Processing Exception: Did not receive "
-                f"expected data file from client. {e}"
-            )
-            log_server_exception(self.object, msg)
-            return
-
-        if not zipfile.is_zipfile(file):
-            msg = (
-                "Data Donation Processing Exception: Data file received "
-                "from client is not a zip file."
-            )
-            log_server_exception(self.object, msg)
-            return
-
-        # Check if zip file contains expected file.
-        unzipped_file = zipfile.ZipFile(file, "r")
-        if "data_donation.json" not in unzipped_file.namelist():
-            msg = (
-                "Data Donation Processing Exception: "
-                "'data_donation.json' is not in namelist."
-            )
-            log_server_exception(self.object, msg)
-            return
-
-        # Process donation data.
-        try:
-            file_data = json.loads(
-                unzipped_file.read("data_donation.json").decode("utf-8"),
-            )
-        except UnicodeDecodeError:
-            try:
-                file_data = json.loads(
-                    unzipped_file.read("data_donation.json").decode("latin-1"),
-                )
-            except ValueError:
-                msg = (
-                    "Donated data could not be decoded - "
-                    "tried utf-8 and latin-1 decoding."
-                )
-                log_server_exception(self.object, msg)
-                return
-        except JSONDecodeError:
-            msg = "JSON decode error in donated data."
-            log_server_exception(self.object, msg)
-            return
-
-        for upload in file_data:
-            blueprint_id = upload
-            blueprint_data = file_data[upload]
-            try:
-                blueprint = DonationBlueprint.objects.get(
-                    pk=blueprint_id,
-                    project=self.object,
-                )
-            except DonationBlueprint.DoesNotExist:
-                msg = (
-                    "Data Donation Processing Exception: Referenced "
-                    f"blueprint with id={blueprint_id} does not exist for "
-                    "this project."
-                )
-                log_server_exception(self.object, msg)
-                return
-
-            if blueprint.name == TIKTOK_WATCH_HISTORY_BP_NAME:
-                self.validate_received_data(blueprint, blueprint_data)
-
-            blueprint.process_donation(blueprint_data, self.participant)
-
-        # Added this:
+    def process_blueprints(self, file_data: dict[str, dict]) -> None:
+        """Overwrite to add statistics computation initialization."""
+        super().process_blueprints(file_data)
         self.initialize_statistic_computation()
 
     def initialize_statistic_computation(self):
@@ -201,49 +115,6 @@ class BaseDonationViewDDM(AddUserflowSessionMixin, DataDonationView):
             profile=profile,
             participant=self.participant,
         )
-
-    def validate_received_data(self, wh_blueprint, wh_data) -> bool:
-        if not self.validate_watch_history_data(wh_blueprint, wh_data):
-            return False
-
-        if not self.validate_donation_consent(wh_data.get("consent")):
-            return False
-
-        return self.validate_donation_status(wh_data.get("status"))
-
-    def validate_watch_history_data(
-        self, wh_blueprint: DonationBlueprint, wh_data: dict
-    ) -> bool:
-        if not wh_data:
-            return False
-        if not wh_blueprint.validate_donation(wh_data):
-            msg = (
-                "Received invalid watch history donation "
-                f"(participant: {self.participant.pk})"
-            )
-            logger.error(msg)
-            return False
-        return True
-
-    def validate_donation_consent(self, consent_value: bool) -> bool:
-        if not consent_value:
-            msg = (
-                "Received donation without consent (None) for watch history data "
-                f"(participant: {self.participant.pk}"
-            )
-            logger.info(msg)
-            return False
-        return True
-
-    def validate_donation_status(self, status_value: str) -> bool:
-        if status_value in ["failed", "pending", "no data extracted"]:
-            msg = (
-                f"Received invalid donation with status: {status_value} "
-                f"(participant: {self.participant.pk})"
-            )
-            logger.info(msg)
-            return False
-        return True
 
 
 class DonationViewDDM(LoginAndProfileRequiredMixin, BaseDonationViewDDM):

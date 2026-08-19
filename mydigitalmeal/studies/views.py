@@ -1,6 +1,7 @@
 import logging
 import re
 from datetime import timedelta
+from enum import StrEnum
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -15,6 +16,7 @@ from ddm.participation.views import (
 from ddm.projects.models import DonationProject
 from django.conf import settings
 from django.core.exceptions import PermissionDenied
+from django.db.models import QuerySet
 from django.http import Http404, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
@@ -23,14 +25,23 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from mydigitalmeal.datadonation.constants import DonationMethod
+from mydigitalmeal.datadonation.utils import get_current_step_url, get_next_step_url
 from mydigitalmeal.datadonation.views.ddm import BaseDonationViewDDM
 from mydigitalmeal.reports.views.tiktok import BaseStatisticsView
 from mydigitalmeal.statistics.models import StatisticsRequest, StatisticsScope
 from mydigitalmeal.studies.constants import (
-    PARTICIPATION_TRAIL_DLUL,
-    PARTICIPATION_TRAIL_PAPI,
     SECONDS_TO_REMINDER,
+    TRAIL_KEY,
+    DLULTrailSteps,
+    PAPITrailSteps,
     StudiesURLShortcut,
+    get_dlul_trail,
+    get_papi_trail,
+)
+from mydigitalmeal.studies.exceptions import (
+    ProjectInactiveError,
+    ProjectNotRegisteredAsStudyError,
+    StudyProjectNotFoundError,
 )
 from mydigitalmeal.studies.sessions import (
     StudyParticipationSession,
@@ -104,14 +115,25 @@ def get_participant_from_session(
     return participant
 
 
-def update_participant_trail(participant: Participant, key: str) -> None:
-    if "participation_trail" not in participant.extra_data:
-        participant.extra_data["participation_trail"] = {}
+def update_participant_trail(
+    participant: Participant,
+    key: str,
+    only_add_if_empty: bool = False,  # noqa: FBT002
+) -> None:
+    """Updates the participation trail stored in
+    participant.extra_data["participation_trail"]."""
+    if TRAIL_KEY not in participant.extra_data:
+        participant.extra_data[TRAIL_KEY] = {}
 
-    trail = participant.extra_data["participation_trail"]
-    if key not in trail or trail[key] is None:
-        trail[key] = timezone.now().isoformat()
-        participant.save(update_fields=["extra_data"])
+    trail = participant.extra_data[TRAIL_KEY]
+    if key not in trail:
+        trail[key] = []
+
+    if only_add_if_empty and len(trail[key]) > 0:
+        return
+
+    trail[key].append(timezone.now().isoformat())
+    participant.save(update_fields=["extra_data"])
 
 
 class StudyEnrollView(View):
@@ -135,85 +157,111 @@ class StudyEnrollView(View):
             ``Participant.extra_data`` later in the flow.
     """
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request: HttpRequest, *args, **kwargs):
         study_session = StudyParticipationSessionManager.from_request(request)
         study_session.reset()
 
-        project_id = request.GET.get("project_id") or None
-        method = request.GET.get("method") or DonationMethod.PORTABILITY.value
-        if method not in {m.value for m in DonationMethod}:
-            method = DonationMethod.PORTABILITY.value
-
-        if not project_id:
-            logger.warning("Study enrollment aborted: missing project_id.")
-            msg = "Study project not found."
-            raise Http404(msg)
-
-        if project_id not in settings.REGISTERED_STUDY_PROJECTS:
-            logger.warning(
-                "Study enrollment aborted: tried to access project that is not "
-                "registered as a study project."
-            )
-            msg = "Project not registered as a study project."
-            raise Http404(msg)
-
-        try:
-            project = DonationProject.objects.get(url_id=project_id)
-        except DonationProject.DoesNotExist as e:
-            logger.warning(
-                "Study enrollment aborted: project lookup failed (project_id=%r).",
-                project_id,
-            )
-            msg = "Study project not found."
-            raise Http404(msg) from e
+        project_id, method = self._parse_params(request)
+        project = self._get_registered_project(project_id)
 
         UserflowSessionManager.from_request(request).reset()
+        self._reset_ddm_session(request, project)
 
-        # Reset any stale DDM participation session for this project so a
-        # fresh participant is created on the next donation step.
-        ddm_session_id = get_participation_session_id(project)
-        request.session.pop(ddm_session_id, None)
-        enroll_time = timezone.now()
         url_params = _sanitize_url_parameters(request.GET)
         study_session.update(
             url_parameters=url_params,
             ddm_project_id=project.url_id,
             method=method,
-            enroll_time=enroll_time,
+            enroll_time=timezone.now(),
         )
 
-        # Create participant
-        create_participation_session(request, project)
-        participant = get_participant_from_session(request, project)
-        participant.extra_data["url_param"] = url_params
-        participant.extra_data["method"] = method
-
+        participant = self._enroll_participant(request, project, method, url_params)
         if method == DonationMethod.PORTABILITY.value:
-            participant.extra_data["participation_trail"] = (
-                PARTICIPATION_TRAIL_PAPI.copy()
-            )
+            update_participant_trail(participant, PAPITrailSteps.ENROLLED)
         else:
-            participant.extra_data["participation_trail"] = (
-                PARTICIPATION_TRAIL_DLUL.copy()
-            )
-
-        update_participant_trail(participant, "a_enrolled")
+            update_participant_trail(participant, DLULTrailSteps.ENROLLED)
         participant.save()
 
         if method == DonationMethod.PORTABILITY.value:
             return redirect(StudiesURLShortcut.DONATION_PORTABILITY)
         return redirect(StudiesURLShortcut.DONATION_DDM)
 
+    @staticmethod
+    def _parse_params(request: HttpRequest) -> tuple:
+        project_id = request.GET.get("project_id") or None
+        method = request.GET.get("method") or DonationMethod.PORTABILITY.value
+        if method not in {m.value for m in DonationMethod}:
+            method = DonationMethod.PORTABILITY.value
+        return project_id, method
 
-class RequireStudySessionMixin:
+    @staticmethod
+    def _get_registered_project(project_id) -> DonationProject:
+        if not project_id:
+            logger.warning("Study enrollment aborted: missing project_id.")
+            raise StudyProjectNotFoundError
+
+        if project_id not in settings.REGISTERED_STUDY_PROJECTS:
+            logger.warning(
+                "Study enrollment aborted: tried to access project that is not "
+                "registered as a study project."
+            )
+            raise ProjectNotRegisteredAsStudyError
+
+        try:
+            return DonationProject.objects.get(url_id=project_id)
+        except DonationProject.DoesNotExist as e:
+            logger.warning(
+                "Study enrollment aborted: project lookup failed (project_id=%r).",
+                project_id,
+            )
+            raise StudyProjectNotFoundError from e
+
+    @staticmethod
+    def _reset_ddm_session(request: HttpRequest, project):
+        """Reset any stale DDM participation session for this project so a
+        fresh participant is created on the next donation step."""
+        ddm_session_id = get_participation_session_id(project)
+        request.session.pop(ddm_session_id, None)
+
+    @staticmethod
+    def _enroll_participant(
+        request: HttpRequest,
+        project: DonationProject,
+        method: DonationMethod,
+        url_params: dict,
+    ):
+        create_participation_session(request, project)
+        participant = get_participant_from_session(request, project)
+        participant.url_parameter = url_params
+        participant.extra_data["method"] = method
+        participant.extra_data[TRAIL_KEY] = (
+            get_papi_trail()
+            if method == DonationMethod.PORTABILITY.value
+            else get_dlul_trail()
+        )
+        return participant
+
+
+class StudyParticipationMixin:
+    """Mixin for study participation views.
+
+    Views inheriting this Mixin must set self.study_trail_step
+
+    - Registers self.study_session in setup()
+    - Adds get_project_from_study_session() method
+    - Adds update_participant_trail() method
+    """
+
+    study_session: StudyParticipationSession
+    study_session_project: DonationProject | None = None
+    study_trail_step: DLULTrailSteps | PAPITrailSteps
+
     def setup(self, request, *args, **kwargs):
         """Reject requests without a fully enrolled study session.
 
         The check runs in ``setup()`` rather than ``dispatch()`` because
         ``DataDonationView.setup()`` (in DDM) calls ``_initialize_values``
         — and thus ``get_ddm_project`` — *before* ``dispatch`` is invoked.
-        If we gate in ``dispatch``, the DDM machinery has already run on
-        an un-validated session by then.
 
         ``StudyParticipationSessionManager.get()`` returns ``None`` only
         when the session key is absent. ``StudyEnrollView`` calls
@@ -230,10 +278,43 @@ class RequireStudySessionMixin:
                 self.__class__.__name__,
             )
             raise PermissionDenied
+        self.study_session = study_session
         return super().setup(request, *args, **kwargs)
 
+    def get_project_from_study_session(self) -> DonationProject:
+        if self.study_session_project:
+            return self.study_session_project
+        try:
+            project = DonationProject.objects.get(
+                url_id=self.study_session.ddm_project_id
+            )
+        except DonationProject.DoesNotExist as e:
+            raise StudyProjectNotFoundError from e
 
-class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
+        self.study_session_project = project
+        return project
+
+    def update_participant_trail(
+        self,
+        request: HttpRequest,
+        trail_step: DLULTrailSteps | PAPITrailSteps | None = None,
+    ) -> None:
+        project = self.get_project_from_study_session()
+        participant = get_participant_from_session(request, project)
+        if trail_step:
+            update_participant_trail(participant, trail_step)
+        else:
+            update_participant_trail(participant, self.study_trail_step)
+
+    def add_url_parameter_to_context(self, context: dict[str, Any]) -> None:
+        """Adds "url_parameters" to context (excluding 'method' and 'project_id'."""
+        url_parameters = self.study_session.url_parameters.copy()
+        url_parameters.pop("method", None)
+        url_parameters.pop("project_id", None)
+        context["url_parameters"] = urlencode(url_parameters, doseq=True)
+
+
+class DownloadUploadView(StudyParticipationMixin, BaseDonationViewDDM):
     """View to connect study participants to DDM without login.
 
     Participants must be redirected to this view via StudyEnrollView, otherwise
@@ -245,63 +326,48 @@ class DownloadUploadView(RequireStudySessionMixin, BaseDonationViewDDM):
     step_name = StudiesURLShortcut.DONATION_DDM
     steps = _STUDIES_FLOW_STEPS
 
-    def get_ddm_project(self, request) -> DonationProject:
-        """Return the DDM project pinned on the study session at enrolment.
+    study_trail_step = DLULTrailSteps.INSTRUCTIONS
 
-        ``RequireStudySessionMixin`` (in this class's bases) guarantees that
-        a study session with ``ddm_project_id`` exists by the time this
-        runs, so that project is looked up directly.
-        """
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-        return DonationProject.objects.get(url_id=study_session.ddm_project_id)
+    def get_object(self, queryset: QuerySet | None = None) -> DonationProject:
+        """Return the DDM project pinned on the study session at enrolment."""
+        return self.get_project_from_study_session()
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
 
-        study_session = StudyParticipationSessionManager.from_request(
-            self.request
-        ).get()
-        if study_session:
-            show_app_instruction = study_session.url_parameters.get(
-                "appinstruction", "1"
-            )
-        else:
-            show_app_instruction = "1"
-
-        context["default_instruction"] = (
-            "app" if show_app_instruction == "1" else "browser"
+        show_app_instruction = self.study_session.url_parameters.get(
+            "appinstruction", "1"
         )
 
-        context["seconds_until_reminder"] = SECONDS_TO_REMINDER
-        context["reminder_registration_endpoint"] = reverse(
+        reminder_registration_endpoint = reverse(
             "mdm:userflow:studies:dlul_register_got_reminder_info"
+        )
+
+        context.update(
+            {
+                "default_instruction": "app"
+                if show_app_instruction == "1"
+                else "browser",
+                "seconds_until_reminder": SECONDS_TO_REMINDER,
+                "reminder_registration_endpoint": reminder_registration_endpoint,
+            }
         )
         return context
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""
-        update_participant_trail(self.participant, "b_entered_instructions")
+        update_participant_trail(self.participant, self.study_trail_step)
 
     def initialize_statistics_request(self) -> StatisticsRequest:
         """Overwrite to create statistics request without user profile."""
-        return StatisticsRequest.objects.create(
-            participant=self.participant,
-        )
+        return StatisticsRequest.objects.create(participant=self.participant)
 
-    def post(self, request, *args, **kwargs):
-        """Overwrite to redirect to study questionnaire view."""
-        # Account for 'page back' action in browser
-        if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
-
-        self.process_uploads(request.FILES)
-        self.set_step_completed()
-        redirect_url = reverse(StudiesURLShortcut.QUESTIONNAIRE)
-        return HttpResponseRedirect(redirect_url)
+    def post_redirect_url(self) -> str:
+        return reverse(StudiesURLShortcut.QUESTIONNAIRE)
 
 
 # PORTABILITY VIEWS
-class PortabilityEntryView(RequireStudySessionMixin, port_views.TikTokAuthView):
+class PortabilityEntryView(StudyParticipationMixin, port_views.TikTokAuthView):
     """View to connect study participants to portability API without login.
 
     Participants must be redirected to this view via StudyEnrollView, otherwise
@@ -312,18 +378,19 @@ class PortabilityEntryView(RequireStudySessionMixin, port_views.TikTokAuthView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        url_param = {"status": "aborted"}
-        redirect_link = get_ddm_redirect_link(self.request, url_param)
-        context["study_redirect_link"] = redirect_link
+        context["study_redirect_link"] = get_ddm_redirect_link(
+            self.study_session, {"status": "aborted"}
+        )
         return context
 
 
 class PortabilityWaitingView(
-    RequireStudySessionMixin,
+    StudyParticipationMixin,
     AddUserflowSessionMixin,
     port_views.TikTokAwaitDataDownloadView,
 ):
     template_name = "studies/portability/tiktok_await_download.html"
+    study_trail_step = PAPITrailSteps.WAITING_VIEW
 
     def validate_userflow_session(
         self, request, *args, **kwargs
@@ -332,26 +399,15 @@ class PortabilityWaitingView(
         return None
 
     def get_context_data(self, **kwargs):
+        self.update_participant_trail(self.request)
+
         context = super().get_context_data(**kwargs)
-
-        study_session = StudyParticipationSessionManager.from_request(
-            self.request
-        ).get()
-        if study_session:
-            context["project_id"] = study_session.ddm_project_id
-
-            project = DonationProject.objects.filter(
-                url_id=study_session.ddm_project_id
-            ).first()
-            if project:
-                participant = get_participant_from_session(self.request, project)
-                update_participant_trail(participant, "b1_entered_waiting_view")
-
+        context["project_id"] = self.study_session.ddm_project_id
         return context
 
 
 def get_ddm_redirect_link(
-    request: HttpRequest,
+    study_session: StudyParticipationSession,
     extra_param: dict[str, str] | None = None,
 ) -> str | None:
     """Constructs a redirect link based on the DDM project setting.
@@ -364,7 +420,7 @@ def get_ddm_redirect_link(
     DDM project can be identified, None will be returned.
 
     Args:
-        request: A HttpRequest object.
+        study_session: A study participant session.
         extra_param: A dictionary containing url parameters to be attached to
             the end of the redirect link (e.g., {"status": "failed"}). If
             variable is present in the original redirect link, the original
@@ -374,7 +430,6 @@ def get_ddm_redirect_link(
         The constructed redirect link if the DDM project has redirect enabled.
         None otherwise.
     """
-    study_session = StudyParticipationSessionManager.from_request(request).get()
     try:
         ddm_project = DonationProject.objects.get(url_id=study_session.ddm_project_id)
     except DonationProject.DoesNotExist:
@@ -405,7 +460,7 @@ def get_ddm_redirect_link(
     return str(redirect_link)
 
 
-class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
+class PortabilityAbortView(StudyParticipationMixin, TemplateView):
     """Displayed to participants who abort the portability flow.
 
     Participants can abort the flow by clicking on "cancel" on TikTok's authentication
@@ -414,35 +469,21 @@ class PortabilityAbortView(RequireStudySessionMixin, TemplateView):
     """
 
     template_name = "studies/portability/participation_aborted.html"
+    study_trail_step = PAPITrailSteps.ABORT_VIEW
 
     def get_context_data(self, **kwargs):
+        self.update_participant_trail(self.request)
+
         context = super().get_context_data(**kwargs)
-
-        study_session = StudyParticipationSessionManager.from_request(
-            self.request
-        ).get()
-        if study_session:
-            context["project_id"] = study_session.ddm_project_id
-
-            project = DonationProject.objects.filter(
-                url_id=study_session.ddm_project_id
-            ).first()
-            if project:
-                participant = get_participant_from_session(self.request, project)
-                update_participant_trail(participant, "b3_entered_abort_view")
-
-            url_parameters = study_session.url_parameters.copy()
-            url_parameters.pop("method", None)
-            url_parameters.pop("project_id", None)
-            context["url_parameters"] = urlencode(url_parameters, doseq=True)
-
-        url_param = {"status": "aborted"}
-        redirect_link = get_ddm_redirect_link(self.request, url_param)
-        context["study_redirect_link"] = redirect_link
+        self.add_url_parameter_to_context(context)
+        context["study_redirect_link"] = get_ddm_redirect_link(
+            self.study_session, {"status": "aborted"}
+        )
+        context["project_id"] = self.study_session.ddm_project_id
         return context
 
 
-class PortabilityErrorView(RequireStudySessionMixin, TemplateView):
+class PortabilityErrorView(StudyParticipationMixin, TemplateView):
     """Displayed to participants who experienced an error in the portability flow.
 
     Template includes a redirect link as defined in the DDM project with a
@@ -450,61 +491,42 @@ class PortabilityErrorView(RequireStudySessionMixin, TemplateView):
     """
 
     template_name = "studies/portability/participation_failed.html"
+    study_trail_step = PAPITrailSteps.ERROR_VIEW
 
     def get_context_data(self, **kwargs):
         """Adds participant and project information to context.
 
         Necessary for correct redirect in the case of a connection failure.
         """
+        self.update_participant_trail(self.request)
+
         context = super().get_context_data(**kwargs)
-
-        study_session = StudyParticipationSessionManager.from_request(
-            self.request
-        ).get()
-        if study_session:
-            context["project_id"] = study_session.ddm_project_id
-            url_parameters = study_session.url_parameters.copy()
-            url_parameters.pop("method", None)
-            url_parameters.pop("project_id", None)
-            context["url_parameters"] = urlencode(url_parameters, doseq=True)
-
-            project = DonationProject.objects.filter(
-                url_id=study_session.ddm_project_id
-            ).first()
-
-            if project:
-                participant = get_participant_from_session(self.request, project)
-                update_participant_trail(participant, "b2_entered_error_view")
-
-        else:
-            logger.warning("Study session missing in port-api availability check view.")
-
-        url_param = {"status": "failed"}
-        context["study_redirect_link"] = get_ddm_redirect_link(self.request, url_param)
+        self.add_url_parameter_to_context(context)
+        context["study_redirect_link"] = get_ddm_redirect_link(
+            self.study_session, {"status": "failed"}
+        )
+        context["project_id"] = self.study_session.ddm_project_id
         return context
 
 
-# TODO: Check if can be optimized to reduce redundancies.
+AWAIT_PARTIALS_PATH = "studies/portability/await_partials/"
+
+
 class CheckDownloadAvailabilityView(
-    RequireStudySessionMixin, port_views.TikTokCheckDownloadAvailabilityView
+    StudyParticipationMixin, port_views.TikTokCheckDownloadAvailabilityView
 ):
     """Returns appropriate status for the download availability.
 
     Returns rendered html partial and intended to be called by an HTMX component.
     """
 
-    template_name = None  # Note: is assigned in get_context_data
+    template_name = None  # Note: is assigned in get_context_data of parent
 
-    template_pending = (
-        "studies/portability/await_partials/_data_download_pending_msg.html"
-    )
-    template_success = (
-        "studies/portability/await_partials/_data_download_available_msg.html"
-    )
-    template_error = "studies/portability/await_partials/_data_download_error_msg.html"
-    template_expired = (
-        "studies/portability/await_partials/_data_download_expired_msg.html"
-    )
+    class Templates(StrEnum):
+        PENDING = AWAIT_PARTIALS_PATH + "_data_download_pending_msg.html"
+        SUCCESS = AWAIT_PARTIALS_PATH + "_data_download_available_msg.html"
+        ERROR = AWAIT_PARTIALS_PATH + "_data_download_error_msg.html"
+        EXPIRED = AWAIT_PARTIALS_PATH + "_data_download_expired_msg.html"
 
     def get_data_request(self):
         open_id = self.port_session.get_tiktok_open_id()
@@ -522,40 +544,17 @@ class CheckDownloadAvailabilityView(
             .first()
         )
 
-    def get_participant(
-        self, study_session: StudyParticipationSession
-    ) -> Participant | None:
-        project_id = study_session.ddm_project_id
-        project = DonationProject.objects.filter(url_id=project_id).first()
-        if project:
-            return get_participant_from_session(self.request, project)
-        return None
-
     def get_context_data(self, **kwargs):
         """Adds participant and project information to context.
 
         Necessary for correct redirect in the case of a connection failure.
         """
         context = super().get_context_data(**kwargs)
-
-        study_session = StudyParticipationSessionManager.from_request(
-            self.request
-        ).get()
-
-        participant = None
-        if study_session:
-            context["project_id"] = study_session.ddm_project_id
-            url_parameters = study_session.url_parameters.copy()
-            url_parameters.pop("method", None)
-            url_parameters.pop("project_id", None)
-            context["url_parameters"] = urlencode(url_parameters, doseq=True)
-            participant = self.get_participant(study_session)
-
-        else:
-            logger.warning("Study session missing in port-api availability check view.")
+        self.add_url_parameter_to_context(context)
+        context["project_id"] = self.study_session.ddm_project_id
 
         # Determine whether reminder message should be displayed
-        if self.template_name == self.template_pending:
+        if self.template_name == self.Templates.PENDING:
             show_reminder_msg = False
             data_request = self.get_data_request()
             if data_request is None:
@@ -571,28 +570,26 @@ class CheckDownloadAvailabilityView(
             ):
                 show_reminder_msg = True
 
-            if study_session and participant and show_reminder_msg:
-                update_participant_trail(participant, "c3_got_waiting_reminder_info")
+            if show_reminder_msg:
+                self.update_participant_trail(
+                    self.request, PAPITrailSteps.WAITING_REMINDER
+                )
 
             context["show_reminder_msg"] = show_reminder_msg
 
-        if self.template_name == self.template_error:
-            url_param = {"status": "failed"}
+        elif self.template_name == self.Templates.ERROR:
             context["study_redirect_link"] = get_ddm_redirect_link(
-                self.request, url_param
+                self.study_session, {"status": "failed"}
             )
 
-            if participant:
-                update_participant_trail(participant, "c2_got_waiting_error")
+            self.update_participant_trail(self.request, PAPITrailSteps.WAITING_ERROR)
 
-        if self.template_name == self.template_success:
-            if participant:
-                update_participant_trail(participant, "c1_got_waiting_success")
+        elif self.template_name == self.Templates.SUCCESS:
+            self.update_participant_trail(self.request, PAPITrailSteps.WAITING_SUCCESS)
 
         return context
 
 
-# TODO: Check if can be optimized to reduce redundancies.
 class PortabilityReviewView(
     port_views.AuthenticationRequiredMixin,
     port_views.ActiveAccessTokenRequiredMixin,
@@ -600,84 +597,74 @@ class PortabilityReviewView(
     DownloadUploadView,
 ):
     template_name = "datadonation/portability/tiktok_review.html"
+    study_trail_step = PAPITrailSteps.UPLOAD
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        # TODO: Remove entirely or control via settings
-        #  (also in datadonation.views.portability)  # noqa: ERA001
-        mock_download = False  # Note: Can be set to True for testing purposes
-        if mock_download:
+        if settings.DEBUG:
             download_url = reverse("tiktok_download_mock_data")
         else:
             download_url = reverse("tiktok_download_data")
 
         context["tiktok_download_url"] = download_url
         context["fail_redirect_url"] = reverse("mdm:userflow:studies:port_tt_failed")
-
         context["portability_view"] = True
         return context
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""
-        update_participant_trail(self.participant, "d1_entered_upload")
+        update_participant_trail(self.participant, self.study_trail_step)
 
 
-class StudyQuestionnaireView(RequireStudySessionMixin, QuestionnaireView):
+class StudyQuestionnaireView(StudyParticipationMixin, QuestionnaireView):
     template_name = "mdm_questionnaire/questionnaire.html"
     step_name = StudiesURLShortcut.QUESTIONNAIRE
     steps = _STUDIES_FLOW_STEPS
+    study_trail_step = PAPITrailSteps.QUESTIONNAIRE
 
-    def _initialize_values(self, request):
-        """Overwrite parent method to get project from study session."""
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-        self.object = DonationProject.objects.get(url_id=study_session.ddm_project_id)
-        create_participation_session(request, self.object)
-        self.participant = self.get_participant_from_session(request)
-        self.current_step = self.get_current_step_from_participant(self.participant)
+    def get_object(self, queryset: QuerySet | None = None) -> DonationProject:
+        """Return the DDM project pinned on the study session at enrolment."""
+        return self.get_project_from_study_session()
 
-    def get(self, request, *args, **kwargs):
-        """Overwrite to control redirect targets."""
-        # Redirect to previous step if necessary.
-        if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
+    def get_context_data(self, **kwargs):
+        self.update_participant_trail(self.request)
+        return super().get_context_data(**kwargs)
 
-        context = self.get_context_data(object=self.object)
-        min_config_length = 2
-        if not len(context["q_config"]) > min_config_length:
-            self.set_step_completed()
-            return HttpResponseRedirect(reverse(StudiesURLShortcut.DEBRIEFING))
-        return self.render_to_response(context)
+    def current_step_url(self) -> str:
+        return get_current_step_url(self.steps, self.current_step, self.object.slug)
 
-    def post(self, request, *args, **kwargs):
+    def next_step_url(self) -> str:
+        return get_next_step_url(self.steps, self.current_step, self.object.slug)
+
+    def post(self, request: HttpRequest, *args, **kwargs):
         """Overwrite to redirect to report view."""
         super().post(request, **kwargs)
         return HttpResponseRedirect(reverse(StudiesURLShortcut.DEBRIEFING))
 
 
-class StudyDebriefingView(RequireStudySessionMixin, DebriefingView):
+class StudyDebriefingView(StudyParticipationMixin, DebriefingView):
     template_name = "studies/debriefing.html"
     step_name = StudiesURLShortcut.DEBRIEFING
     steps = _STUDIES_FLOW_STEPS
+    study_trail_step = PAPITrailSteps.DEBRIEF
 
-    def _initialize_values(self, request):
-        """Overwrite parent method to get project from study session."""
-        study_session = StudyParticipationSessionManager.from_request(request).get()
-        self.object = DonationProject.objects.get(url_id=study_session.ddm_project_id)
-        create_participation_session(request, self.object)
-        self.participant = self.get_participant_from_session(request)
-        self.current_step = self.get_current_step_from_participant(self.participant)
+    def get_object(self, queryset: QuerySet | None = None) -> DonationProject:
+        """Return the DDM project pinned on the study session at enrolment."""
+        return self.get_project_from_study_session()
 
-    def get(self, request, *args, **kwargs):
-        # Check if project is active.
-        if not self.object.active:
-            raise Http404
+    def inactive_url(self) -> str:
+        raise ProjectInactiveError
 
-        # Redirect to previous step if necessary.
-        if self.steps[self.current_step] != self.step_name:
-            return redirect(self.steps[self.current_step])
+    def current_step_url(self) -> str:
+        return get_current_step_url(self.steps, self.current_step, self.object.slug)
 
-        # Render current view.
+    def next_step_url(self) -> str:
+        return get_next_step_url(self.steps, self.current_step, self.object.slug)
+
+    def get(self, request: HttpRequest, *args, **kwargs):
+        """Overwrite to include _mark_study_flow_completed and update
+        participant trail."""
         context = self.get_context_data(object=self.object)
         self.extra_before_render(request)
         response = self.render_to_response(context)
@@ -686,7 +673,7 @@ class StudyDebriefingView(RequireStudySessionMixin, DebriefingView):
         # the participant in a half-completed state. Re-visits
         # to the debriefing page (refresh, back button) just re-mark.
         self._mark_study_flow_completed(request)
-        update_participant_trail(self.participant, "e_entered_debrief")
+        self.update_participant_trail(request)
         return response
 
     @staticmethod
@@ -864,13 +851,12 @@ class StudyStatisticsView(BaseStatisticsView):
             logger.warning("Study statistics view called without participant ID.")
             return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
 
-        if not participant_can_access_report(participant):
+        if not participant or not participant_can_access_report(participant):
             return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
 
         # `public_id` is deferred: a corrupted value in that column has
         # been observed to raise an unhandled ValueError the moment a row
-        # is fetched (see mydigitalmeal.statistics.tasks for the matching
-        # fix), which would otherwise turn a single bad row into a 500 for
+        # is fetched, which would otherwise turn a single bad row into a 500 for
         # every poll of this HTMX endpoint. `pk` is used instead wherever
         # a request needs to be identified below.
         statistics_requests = list(
