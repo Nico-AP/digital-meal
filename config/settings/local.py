@@ -61,21 +61,19 @@ CELERY_TASK_ALWAYS_EAGER = True  # tasks run inline, no worker needed
 # ------------------------------------------------------------------------------
 WEBPACK_LOADER = {
     "DDM_UPLOADER": {
-        "CACHE": True,
+        "CACHE": False,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/uploader/",
         "STATS_FILE": Path(ddm.core.__file__).parent
         / "static/ddm_core/frontend/uploader/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
-        "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     },
     "DDM_QUESTIONNAIRE": {
-        "CACHE": True,
+        "CACHE": False,
         "BUNDLE_DIR_NAME": "ddm_core/frontend/questionnaire/",
         "STATS_FILE": Path(ddm.core.__file__).parent
         / "static/ddm_core/frontend/questionnaire/webpack-stats.json",
         "POLL_INTERVAL": 0.1,
-        "TIMEOUT": None,
         "IGNORE": [r".+\.hot-update.js", r".+\.map"],
     },
 }

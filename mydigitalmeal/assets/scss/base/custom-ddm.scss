@@ -1,5 +1,6 @@
+@use '../abstracts/index' as *;
+
 .uploader-container {
-  background: white;
   padding-left: 1rem;
   padding-right: 1rem;
   border-radius: 5px;
@@ -99,12 +100,64 @@
 }
 
 #uapp {
+  .step-heading {
+    color: white;
+  }
+
+  .instruction-page {
+    overflow-y: unset;
+  }
+
+  .ddm-primary-button-base {
+    background: white;
+  }
+
   .modal-footer {
     padding: 10px;
   }
 
   .modal-footer button {
     margin-left: 10px;
+  }
+
+  .instruction-container {
+    p, h1, h2, h3, h4 {
+      color: black;
+      font-family: var(--mdm-ff-space-grotesk);
+    }
+    h1 {
+      margin-bottom: 1rem;
+    }
+    p {
+      font-size: 20px;
+
+      @media (min-width: $bp-md) {
+        font-size: 24px;
+      }
+    }
+  }
+
+  .instruction-collapsible-body,
+  .instruction-collapsible-body p,
+  .instruction-collapsible p {
+    color: white;
+    font-size: 18px !important;
+  }
+
+  .instruction-collapsible p {
+    margin-bottom: 0;
+  }
+
+  .uploader-section.pt-1 > .d-flex.flex-column > div > p {
+    color: white;
+  }
+
+  .extraction-info {
+    background: white;
+  }
+
+  .extraction-header {
+    border-radius: 0;
   }
 }
 

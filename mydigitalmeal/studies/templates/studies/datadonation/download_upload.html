@@ -11,6 +11,9 @@
   <link href="{% static 'ddm_core/css/fonts.css' %}" rel="stylesheet" />
   <link href="{% static 'ddm_participation/css/public-base.css' %}" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'mydigitalmeal/css/mydigitalmeal.css' %}" />
+  {% if project.has_custom_theme %}
+    <link rel="stylesheet" href="{% url 'ddm_participation:theme_css' project.slug %}?v={{ project.theme_version }}" />
+  {% endif %}
 {% endblock css %}
 
 {% block content %}
@@ -21,24 +24,18 @@
     {{ reminder_registration_endpoint|json_script:"reminder-registration-endpoint" }}
 
     <div class="instruction-wrapper">
-      {% include "studies/datadonation/instructions/step_1_login.html" %}
-
-      {% include "studies/datadonation/instructions/step_2_export_configuration.html" %}
-
-      {% include "studies/datadonation/instructions/step_3_request_export.html" %}
 
       <div class="instruction-page" data-page="4">
-        {% include "studies/datadonation/instructions/step_4_upload.html" %}
-
-        <div id="uapp"
-             class="container text-black ps-0 pe-0{% if portability_view %} ddm-portability{% endif %}"
-             data-uploader-configs-as-string='{{ uploader_configs }}'
-             data-action-url='{{ request.build_absolute_uri }}'
-             data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
-             data-language='de'
-             data-csrf-token="{{ csrf_token }}"
-             data-custom-translations="{{ custom_translations }}"
+        <div
+          id="uapp"
+          class="container text-black ps-0 pe-0"
+          data-action-url='{{ request.build_absolute_uri }}'
+          data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
+          data-language='{{ LANGUAGE_CODE|slice:"0:2" }}'
+          data-csrf-token="{{ csrf_token }}"
         >
+          {{ uploader_configs|json_script:"config-data" }}
+          {{ custom_translations|json_script:"custom-translations" }}
           {# djlint:off #}
           <uapp></uapp>
           {# djlint:on #}
@@ -46,8 +43,11 @@
 
         {% render_bundle "ddm_uploader_frontend" config="DDM_UPLOADER" %}
 
-        {% include "studies/datadonation/instructions/navigation_last_page.html" %}
+      </div>
 
+      <div class="mb-3 device-links text-center">
+        <a href="#" class="instruction-device-button instruction-device-link" data-instruction-version="app">zur Anleitung mit TikTok-App</a>
+        <a href="#" class="instruction-device-button instruction-device-link" data-instruction-version="browser">zur Browser-Anleitung</a>
       </div>
 
     </div>
@@ -59,5 +59,5 @@
 
 {% block extra_js %}
   <script src="{% static 'studies/js/ddm-utils.js' %}"></script>
-  <script src="{% static 'studies/js/instruction_navigation.js' %}"></script>
+  <script src="{% static 'studies/js/instruction_navigation_ddm-only.js' %}"></script>
 {% endblock extra_js %}

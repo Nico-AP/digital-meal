@@ -15,15 +15,16 @@
 
 {% block content %}
   <div class="container">
-    <div id="uapp"
-         class="container text-black ps-0 pe-0{% if portability_view %} ddm-portability{% endif %}"
-         data-uploader-configs-as-string='{{ uploader_configs }}'
-         data-action-url='{{ request.build_absolute_uri }}'
-         data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
-         data-language='{{ LANGUAGE_CODE|slice:"0:2" }}'
-         data-csrf-token="{{ csrf_token }}"
-         data-custom-translations="{{ custom_translations }}"
+    <div
+      id="uapp"
+      class="container text-black ps-0 pe-0"
+      data-action-url='{{ request.build_absolute_uri }}'
+      data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
+      data-language='{{ LANGUAGE_CODE|slice:"0:2" }}'
+      data-csrf-token="{{ csrf_token }}"
     >
+      {{ uploader_configs|json_script:"config-data" }}
+      {{ custom_translations|json_script:"custom-translations" }}
       {# djlint:off #}
       <uapp></uapp>
       {# djlint:on #}
