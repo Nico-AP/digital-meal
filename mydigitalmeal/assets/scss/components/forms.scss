@@ -34,87 +34,65 @@
 }
 
 .mdm-code-input-wrapper {
-  width: 200px;
-  padding-left: 15px;
-  padding-bottom: 0;
-  padding-top: 0;
-
-  @media (min-width: $bp-sm) {
-    width: 310px;
-    padding: 1rem 0 1rem 16px;
-  }
+  position: relative;
+  display: inline-block;
+  background: var(--mdm-color-black);
+  border-radius: 12px;
+  padding: 0.5rem 2rem 1rem;
 }
 
-.mdm-code-input-strokes {
-  background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 20px, transparent 20px, transparent 30px);
-  background-size: 180px 1px;
-  background-position: 0 62%;
-  background-repeat: no-repeat;
-  height: 100%;
-  width: 100%;
-
-  &:focus {
-    background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 20px, transparent 20px, transparent 30px);
-    background-size: 180px 1px;
-    background-position: 0 62%;
-    background-repeat: no-repeat;
-  }
-
-  @media (min-width: $bp-sm) {
-    background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 30px, transparent 30px, transparent 48px);
-    background-size: 280px 2px;
-    background-position: 0 65%;
-    background-repeat: no-repeat;
-    height: 100%;
-    width: 100%;
-
-    &:focus {
-      background-image: repeating-linear-gradient(90deg, #fff 0px, #fff 30px, transparent 30px, transparent 48px);
-      background-size: 280px 2px;
-      background-position: 0 65%;
-    }
-
-  }
-
+.mdm-code-input-wrapper:focus-within {
+  outline: 2px solid var(--mdm-font-color-main);
 }
 
-.mdm-code-input {
-  font-family: monospace !important;
-  color: var(--mdm-font-color-main);
-  background-color: transparent;
-  border: none;
-  outline: none;
-  font-size: 22px;
-  letter-spacing: 18px;
-  padding-left: 0.2rem;
-  padding-right: 0;
-  margin-top: 6px;
-  margin-bottom: 6px;
-  caret-color: transparent;
-  line-height: 1rem;
-  border-radius: 0;
+.mdm-code-boxes {
+  display: flex;
+  gap: 1em;
+  pointer-events: none;
+}
+
+.mdm-code-box {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 24px;
   font-weight: bold;
+  color: var(--mdm-font-color-main);
+  width: 1ch;
+  text-align: center;
+  border-bottom: 2px solid #fff;
 
   @media (min-width: $bp-sm) {
-    margin-top: 0.5rem;
-    margin-bottom: 0.5rem;
     font-size: 37px;
-    line-height: 1rem;
-    letter-spacing: 28px;
-    padding-left: 4px;
-    padding-right: 0;
+  }
+}
+
+.mdm-code-box.active {
+  border-bottom-color: color-mix(in oklab, var(--mdm-font-color-main), black 50%);
+}
+
+.mdm-code-box-char {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 24px;  // Keep in sync with .mdm-code-box
+  font-weight: bold;
+  color: transparent;
+
+  @media (min-width: $bp-sm) {
+    font-size: 37px;
   }
 
-  &:focus {
-    color: var(--mdm-font-color-main);
-    background: transparent;
-    background-repeat: no-repeat;
-    box-shadow: none;
+}
 
-  }
+.mdm-code-box-char.filled {
+  color: var(--mdm-font-color-main);
+}
 
-  &::placeholder {
-    color: var(--mdm-font-color-muted);
-    opacity: 0.5;
-  }
+.mdm-code-input-real {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  caret-color: transparent;
+  border: none;
+  padding: 0;
+  margin: 0;
 }

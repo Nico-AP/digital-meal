@@ -1,5 +1,5 @@
 {% extends "userflow/base.html" %}
-{% load i18n %}
+{% load i18n static %}
 
 {% block page_title %}{% translate "Anmeldecode eingeben" %}{% endblock page_title %}
 
@@ -31,21 +31,29 @@
             {% csrf_token %}
 
             <div class="pt-2 d-flex justify-content-center">
-              <div class="mdm-code-input-wrapper mdm-text-input mt-4 mb-4">
-                <div class="mdm-code-input-strokes">
-                  <input type="text"
-                         class="textinput form-control mdm-code-input"
-                         name="code"
-                         autocomplete="one-time-code"
-                         maxlength="6"
-                         required=""
-                         placeholder="ABC123"
-                         id="id_code" />
+              <div class="mdm-code-input-wrapper">
+                <input
+                  id="id_code"
+                  name="code"
+                  class="mdm-code-input-real"
+                  type="text"
+                  inputmode="text"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  required
+                />
+                <div class="mdm-code-boxes" aria-hidden="true">
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
+                  <span class="mdm-code-box"><span class="mdm-code-box-char">A</span></span>
                 </div>
               </div>
             </div>
 
-            <div class="mdm-btn-container mt-0">
+            <div class="mdm-btn-container mt-3">
               <button class="btn mdm-color-btn-v3 ps-5 pe-5" type="submit">
                 {% translate "Anmelden" %}
               </button>
@@ -66,3 +74,9 @@
   {% include "userflow/modals/modal_login_code.html" %}
 
 {% endblock content %}
+
+{% block extra_js %}
+  {{ block.super }}
+  <script src="{% static 'profiles/js/code-input.js' %}"></script>
+    <script src="{% static 'mydigitalmeal/js/message-utils.js' %}"></script>
+{% endblock extra_js %}

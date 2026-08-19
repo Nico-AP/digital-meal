@@ -259,6 +259,9 @@ ALLAUTH_MDM = {
     else MDM_URL_PREFIX,
 }
 
+ALLAUTH_USER_CODE_FORMAT = {"numeric": False, "dashed": False, "length": 6}
+
+
 # STATIC FILES
 # ------------------------------------------------------------------------------
 STATIC_URL = "/static/"
