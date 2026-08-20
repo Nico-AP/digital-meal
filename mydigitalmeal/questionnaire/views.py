@@ -26,6 +26,11 @@ class MDMQuestionnaireView(LoginAndProfileRequiredMixin, QuestionnaireView):
         except DonationProject.DoesNotExist as e:
             raise Http404 from e
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["project_slug"] = TIKTOK_PROJECT_SLUG
+        return context
+
     def current_step_url(self) -> str:
         return get_current_step_url(self.steps, self.current_step, self.object.slug)
 
