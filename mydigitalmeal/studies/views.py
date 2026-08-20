@@ -1,7 +1,6 @@
 import logging
 import re
 from datetime import timedelta
-from enum import StrEnum
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
@@ -524,11 +523,10 @@ class CheckDownloadAvailabilityView(
 
     template_name = None  # Note: is assigned in get_context_data of parent
 
-    class Templates(StrEnum):
-        PENDING = AWAIT_PARTIALS_PATH + "_data_download_pending_msg.html"
-        SUCCESS = AWAIT_PARTIALS_PATH + "_data_download_available_msg.html"
-        ERROR = AWAIT_PARTIALS_PATH + "_data_download_error_msg.html"
-        EXPIRED = AWAIT_PARTIALS_PATH + "_data_download_expired_msg.html"
+    template_pending = AWAIT_PARTIALS_PATH + "_data_download_pending_msg.html"
+    template_success = AWAIT_PARTIALS_PATH + "_data_download_available_msg.html"
+    template_error = AWAIT_PARTIALS_PATH + "_data_download_error_msg.html"
+    template_expired = AWAIT_PARTIALS_PATH + "_data_download_expired_msg.html"
 
     def get_data_request(self):
         open_id = self.port_session.get_tiktok_open_id()
@@ -556,7 +554,7 @@ class CheckDownloadAvailabilityView(
         context["project_id"] = self.study_session.ddm_project_id
 
         # Determine whether reminder message should be displayed
-        if self.template_name == self.Templates.PENDING:
+        if self.template_name == self.template_pending:
             show_reminder_msg = False
             data_request = self.get_data_request()
             if data_request is None:
@@ -579,14 +577,14 @@ class CheckDownloadAvailabilityView(
 
             context["show_reminder_msg"] = show_reminder_msg
 
-        elif self.template_name == self.Templates.ERROR:
+        elif self.template_name == self.template_error:
             context["study_redirect_link"] = get_ddm_redirect_link(
                 self.study_session, {"status": "failed"}
             )
 
             self.update_participant_trail(self.request, PAPITrailSteps.WAITING_ERROR)
 
-        elif self.template_name == self.Templates.SUCCESS:
+        elif self.template_name == self.template_success:
             self.update_participant_trail(self.request, PAPITrailSteps.WAITING_SUCCESS)
 
         return context
@@ -608,7 +606,7 @@ class PortabilityReviewView(
         if settings.DEBUG:
             download_url = reverse("tiktok_download_mock_data")
         else:
-            download_url = reverse("mdm:userflow:studies:port_tt_check_data")
+            download_url = reverse("tiktok_download_data")
 
         context["tiktok_download_url"] = download_url
         context["fail_redirect_url"] = reverse("mdm:userflow:studies:port_tt_failed")
