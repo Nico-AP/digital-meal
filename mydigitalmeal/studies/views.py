@@ -608,7 +608,7 @@ class PortabilityReviewView(
         if settings.DEBUG:
             download_url = reverse("tiktok_download_mock_data")
         else:
-            download_url = reverse("tiktok_download_data")
+            download_url = reverse("mdm:userflow:studies:port_tt_check_data")
 
         context["tiktok_download_url"] = download_url
         context["fail_redirect_url"] = reverse("mdm:userflow:studies:port_tt_failed")
