@@ -6,7 +6,9 @@ from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse, urlunparse
 
 from ddm.core.utils.user_content.template import render_user_content
+from ddm.datadonation.models import FileUploader
 from ddm.participation.models import Participant
+from ddm.participation.services import UploaderConfigService
 from ddm.participation.views import (
     DebriefingView,
     QuestionnaireView,
@@ -590,6 +592,7 @@ class CheckDownloadAvailabilityView(
         return context
 
 
+# TODO: Implement better inheritance from mydigitalmeal.datadonation view.
 class PortabilityReviewView(
     port_views.AuthenticationRequiredMixin,
     port_views.ActiveAccessTokenRequiredMixin,
@@ -611,6 +614,17 @@ class PortabilityReviewView(
         context["fail_redirect_url"] = reverse("mdm:userflow:studies:port_tt_failed")
         context["portability_view"] = True
         return context
+
+    def get_uploader_configs(self) -> list:
+        """Overwritten to remove instructions from FileUploader."""
+        project_uploaders = FileUploader.objects.filter(project=self.object)
+        configs = UploaderConfigService.create_configs(
+            project_uploaders, self.participant
+        )
+        # Remove Instructions
+        for uploader in configs:
+            uploader["instructions"] = []
+        return configs
 
     def update_participant_information(self, request) -> None:
         """Add url parameters to participant information."""

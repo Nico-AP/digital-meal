@@ -6,7 +6,7 @@
   border-radius: 5px;
 }
 
-.uploader-section .border-success {
+.uploader-section .border-success > .ddm-dropzone {
   background: var(--mdm-color-accent-green);
   background: linear-gradient(
                   108deg,var(--mdm-color-accent-green) 0%,
@@ -100,6 +100,15 @@
 }
 
 #uapp {
+  .uploader-container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .grey-button:hover {
+    background: #b3b3b3;
+  }
+
   .step-heading {
     color: white;
   }
@@ -158,6 +167,10 @@
 
   .extraction-header {
     border-radius: 0;
+  }
+
+  .expansion-button {
+    color: #939394;
   }
 }
 

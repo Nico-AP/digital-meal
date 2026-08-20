@@ -35,4 +35,9 @@ urlpatterns = [
         port_views.PortabilityReviewView.as_view(),
         name="port_tt_review_data",
     ),
+    path(
+        "connect/review/test/",
+        port_views.PortabilityReviewTestView.as_view(),
+        name="port_tt_review_data_test",
+    ),
 ]

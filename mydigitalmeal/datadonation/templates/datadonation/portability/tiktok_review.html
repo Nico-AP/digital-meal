@@ -1,13 +1,34 @@
 {% extends "datadonation/base_ddm.html" %}
 {% load i18n static %}
+{% load render_bundle from webpack_loader %}
 
 {% block page_title %}{% translate "Mit TikTok verbinden" %}{% endblock page_title %}
 
-{% block extra_js %}
-  {{ block.super }}
+{% block content %}
+  <div class="container">
+
+    <div id="uapp"
+         class="container text-black ps-0 pe-0 pb-5 ddm-portability"
+         data-action-url='{{ request.build_absolute_uri }}'
+         data-exception-url='{% if request.is_secure %}https://{% else %}http://{% endif %}{{ request.get_host }}{% url "ddm_logging:exceptions_api" project_url_id %}'
+         data-language='de'
+         data-csrf-token="{{ csrf_token }}"
+    >
+      {{ uploader_configs|json_script:"config-data" }}
+      {{ custom_translations|json_script:"custom-translations" }}
+      {# djlint:off H020 #}<uapp></uapp>{# djlint:on #}
+    </div>
+    {% render_bundle "ddm_uploader_frontend" config="DDM_UPLOADER" %}
+  </div>
+
+  {# Information consumed by tiktok-download.js #}
   {% csrf_token %}
   <input type="hidden" id="tiktok-download-url" value="{{ tiktok_download_url }}" />
   <input type="hidden" id="fail-redirect-url" value="{{ fail_redirect_url }}" />
+{% endblock content %}
+
+{% block extra_js %}
+  {{ block.super }}
   <script src="{% static 'datadonation/js/tiktok-download.js' %}"></script>
   <script src="{% static 'datadonation/js/update_ddm_ui.js' %}"></script>
 {% endblock extra_js %}

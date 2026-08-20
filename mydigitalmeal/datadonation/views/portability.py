@@ -1,3 +1,6 @@
+from ddm.datadonation.models import FileUploader
+from ddm.participation.services import UploaderConfigService
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -78,9 +81,50 @@ class PortabilityReviewView(
         context["fail_redirect_url"] = reverse(
             "mdm:userflow:datadonation:port_tt_await_data"
         )
+        context["portability_view"] = True
+        return context
+
+    def get_uploader_configs(self) -> list:
+        """Overwritten to remove instructions from FileUploader."""
+        project_uploaders = FileUploader.objects.filter(project=self.object)
+        configs = UploaderConfigService.create_configs(
+            project_uploaders, self.participant
+        )
+        # Remove Instructions
+        for uploader in configs:
+            uploader["instructions"] = []
+        return configs
+
+
+class PortabilityReviewTestView(UserPassesTestMixin, DonationViewDDM):
+    template_name = "datadonation/portability/tiktok_review.html"
+
+    def test_func(self) -> bool:
+        return self.request.user.is_superuser
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        download_url = reverse("tiktok_download_mock_data")
+
+        context["tiktok_download_url"] = download_url
+        context["fail_redirect_url"] = reverse(
+            "mdm:userflow:datadonation:port_tt_await_data"
+        )
 
         context["portability_view"] = True
         return context
+
+    def get_uploader_configs(self) -> list:
+        """Overwritten to remove instructions from FileUploader."""
+        project_uploaders = FileUploader.objects.filter(project=self.object)
+        configs = UploaderConfigService.create_configs(
+            project_uploaders, self.participant
+        )
+        # Remove Instructions
+        for uploader in configs:
+            uploader["instructions"] = []
+        return configs
 
 
 class PortabilityAbortedView(LoginAndProfileRequiredMixin, TemplateView):
