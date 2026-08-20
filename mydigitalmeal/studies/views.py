@@ -646,7 +646,7 @@ class StudyQuestionnaireView(StudyParticipationMixin, QuestionnaireView):
 
         context = super().get_context_data(**kwargs)
         context["project_slug"] = self.object.slug
-        return super().get_context_data(**kwargs)
+        return context
 
     def current_step_url(self) -> str:
         return get_current_step_url(self.steps, self.current_step, self.object.slug)

@@ -78,7 +78,7 @@ def create_job_logs(cleaning_stats: dict) -> None:
         try:
             ExceptionLogEntry.objects.create(
                 date=timezone.now(),
-                project=stats.project,
+                project=stats["project"],
                 uploader=None,
                 blueprint=None,
                 raised_by=ExceptionRaisers.SERVER,

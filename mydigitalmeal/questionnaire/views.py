@@ -40,7 +40,4 @@ class MDMQuestionnaireView(LoginAndProfileRequiredMixin, QuestionnaireView):
     def post(self, request, *args, **kwargs):
         """Overwrite to redirect to report view."""
         super().post(request, **kwargs)
-
-        # TODO: Likely not needed here as already called in parent:
-        self.process_response(request.POST)
         return HttpResponseRedirect(reverse(URLShortcut.REPORT))
