@@ -3,10 +3,9 @@
 import os
 import sys
 
-from environs import Env
+from dotenv import load_dotenv
 
-env = Env()
-env.read_env()
+load_dotenv(".env", override=True)
 
 
 def main():
