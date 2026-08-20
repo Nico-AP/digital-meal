@@ -41,7 +41,7 @@
     text-decoration: None;
     padding-left: 10px;
     padding-right: 10px;
-    font-weight: bold;
+    font-weight: 500;
     text-align: center;
     display: flex;
     flex-direction: row;
@@ -297,4 +297,8 @@ form .helptext {
 .signup-phone-number {
     position: absolute;
     left: -9999px;
+}
+
+.fw-500 {
+  font-weight: 500;
 }
