@@ -3,6 +3,8 @@ from pathlib import Path
 
 from environs import Env
 
+from config.settings.ckeditor_configs import CKEDITOR_5_CONFIGS
+
 env = Env()
 env.read_env()
 
@@ -390,6 +392,8 @@ DDM_SETTINGS = {
 CKEDITOR_5_FILE_UPLOAD_PERMISSION = "authenticated"
 CKEDITOR_5_ALLOW_ALL_FILE_TYPES = True
 CKEDITOR_5_UPLOAD_FILE_TYPES = ["jpeg", "pdf", "png", "mp4"]
+# self-assignment to prevent accidental deletion of "unused" import
+CKEDITOR_5_CONFIGS = CKEDITOR_5_CONFIGS  # noqa: PLW0127
 
 
 # WAGTAIL-VIDEOS
