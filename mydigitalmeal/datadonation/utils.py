@@ -31,16 +31,22 @@ def get_tiktok_wh_data(participant: Participant, ddm_project_id: int | None):
         ddm_project = get_tiktok_project()
     else:
         ddm_project = DonationProject.objects.get(pk=ddm_project_id)
-    blueprint = get_tiktok_wh_bp(ddm_project_id)
 
-    try:
-        data_donation = DataDonation.objects.get(
-            project__pk=ddm_project_id,
-            blueprint=blueprint,
-            participant=participant,
-            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
-        )
-    except DataDonation.DoesNotExist:
+    valid_blueprint_names = [
+        TIKTOK_WATCH_HISTORY_BP_NAME,
+        TIKTOK_WATCH_HISTORY_BP_NAME + "_backup",
+        TIKTOK_WATCH_HISTORY_BP_NAME + "_txt",
+        TIKTOK_WATCH_HISTORY_BP_NAME + "_old",
+    ]
+
+    data_donation = DataDonation.objects.filter(
+        project__pk=ddm_project_id,
+        blueprint__name__in=valid_blueprint_names,
+        participant=participant,
+        data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+    ).first()
+
+    if data_donation is None:
         return None
 
     return data_donation.get_decrypted_data(ddm_project.secret, ddm_project.get_salt())

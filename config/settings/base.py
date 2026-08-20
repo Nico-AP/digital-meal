@@ -220,7 +220,7 @@ MDM_URL_PREFIX = env.str("MDM_URL_PREFIX", "my/")
 # MY DIGITAL MEAL
 # ------------------------------------------------------------------------------
 MDM_DDM_TIKTOK_PROJECT_SLUG = env.str("MDM_DDM_TIKTOK_PROJECT_SLUG", "tik-tok")
-MDM_DDM_TIKTOK_WH_BP_NAME = env.str("MDM_DDM_TIKTOK_WH_BP_NAME", "Angesehene Videos")
+MDM_DDM_TIKTOK_WH_BP_NAME = env.str("MDM_DDM_TIKTOK_WH_BP_NAME", "watched_videos")
 
 # DANGO-ALLAUTH
 # ------------------------------------------------------------------------------
