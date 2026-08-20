@@ -2,6 +2,8 @@
 {% load allauth %}
 
 <div class="alert alert-error">
+{# djlint:off T038 #}
   {% slot message %}
-{% endslot %}
+  {% endslot %}
+{# djlint:on #}
 </div>

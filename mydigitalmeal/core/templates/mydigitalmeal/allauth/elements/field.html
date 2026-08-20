@@ -1,6 +1,6 @@
 {% load allauth %}
 {% load crispy_forms_tags %}
-
+{# djlint:off T038 #}
 {% if attrs.type == "textarea" %}
   <div class="row mb-3">
     <div class="col-sm-10">
@@ -64,3 +64,4 @@
 {% if slots.help_text %}
   <div class="form-text">{% slot help_text %}{% endslot %}</div>
 {% endif %}
+{# djlint:on #}
