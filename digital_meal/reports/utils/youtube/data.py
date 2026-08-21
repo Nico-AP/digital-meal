@@ -566,15 +566,25 @@ def clean_channel_list(channel_list: list[dict]) -> list[dict]:
     Returns:
         list: A new list of dictionaries with standardized keys.
     """
-    ddm_id_key = "Channel ID|Kanal-ID|ID des cha.*|ID canale"
-    ddm_title_key = "Channel title|Kanaltitel|Titres des cha.*|Titolo canale"
-    keys = {
-        f"{ddm_id_key}": "id",
-        f"{ddm_title_key}": "title",
+    possible_keys = {
+        "id": [
+            "Channel ID|Kanal-ID|ID des cha.*|ID canale",
+            "channel_id",
+        ],
+        "title": [
+            "Channel title|Kanaltitel|Titres des cha.*|Titolo canale",
+            "channel_title",
+        ],
     }
+
     channels = []
     for channel in channel_list:
-        for key, value in keys.items():
-            channel[value] = channel.pop(key, None)
-        channels.append(channel)
+        new_channel = dict(channel)
+        for standard_key, candidates in possible_keys.items():
+            matched_key = next((c for c in candidates if c in new_channel), None)
+            if matched_key is not None:
+                new_channel[standard_key] = new_channel.pop(matched_key)
+            else:
+                new_channel.setdefault(standard_key, None)
+        channels.append(new_channel)
     return channels
