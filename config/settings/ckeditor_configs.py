@@ -8,6 +8,7 @@ ATTRIBUTES_TO_ALLOW = {
     "type": True,
     "data-bs-toggle": True,
     "data-bs-target": True,
+    "data-page": True,
     "data-instruction-version": True,
     "aria-expanded": True,
     "aria-controls": True,
