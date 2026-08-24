@@ -124,9 +124,14 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
         return any(s is not None for s in d.values())
 
     def _get_video_viewed_stats(self) -> dict:
+        total = 0 if self._stats.total_videos is None else self._stats.total_videos
+        per_day = (
+            0 if self._stats.videos_per_day is None else self._stats.videos_per_day
+        )
+
         stats = {
-            "videos_total": self._stats.total_videos,
-            "videos_per_day": self._stats.videos_per_day,
+            "videos_total": total,
+            "videos_per_day": per_day,
         }
         stats.update({"video_viewed_stats_available": self.not_all_stats_none(stats)})
         return stats
@@ -229,14 +234,17 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
             session_minutes = int(session_minutes)
             session_hours = int(session_hours)
         else:
-            session_hours, session_minutes, session_seconds = None, None, None
+            session_hours, session_minutes, session_seconds = 0, 0, 0
+
+        videos_mean = self._stats.avg_videos_per_session
+        videos_mean = 0 if videos_mean is None else videos_mean
 
         stats: dict[any] = {
             "usage_session_n_days": self._stats.total_days_with_activity,
             "usage_session_seconds": session_seconds,
             "usage_session_minutes": session_minutes,
             "usage_session_hours": session_hours,
-            "usage_session_videos_mean": self._stats.avg_videos_per_session,
+            "usage_session_videos_mean": videos_mean,
         }
 
         stats.update(
