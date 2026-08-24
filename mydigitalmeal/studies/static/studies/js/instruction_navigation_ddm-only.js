@@ -89,6 +89,10 @@ document.addEventListener('DOMContentLoaded', () => {
   const TIMER_STORAGE_KEY = 'instructionTimerStart';
   const PAGE_THRESHOLD = 3; // timer starts once this page (or later) is reached
 
+  // A stored timer start older than this is considered stale and is
+  // discarded; a fresh timer is started instead.
+  const TIMER_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
+
   const limitSource = document.querySelector('#seconds-until-reminder');
   const modalTimeLimitSeconds = limitSource
     ? JSON.parse(limitSource.textContent)
@@ -123,8 +127,35 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Returns the raw stored timer start (ms epoch), or null if absent.
+  function getStoredTimerStart() {
+    const raw = sessionStorage.getItem(TIMER_STORAGE_KEY);
+    if (!raw) return null;
+    const start = Number(raw);
+    if (Number.isNaN(start)) return null;
+    return start;
+  }
+
+  // A stored timer is considered stale (cache expired) once it is older
+  // than TIMER_MAX_AGE_MS.
+  function isStoredTimerStale(start) {
+    return Date.now() - start > TIMER_MAX_AGE_MS;
+  }
+
+  // Discards a stale stored timer, if any. Returns true if a (still
+  // valid) timer remains stored afterwards.
+  function pruneStaleTimer() {
+    const start = getStoredTimerStart();
+    if (start === null) return false;
+    if (isStoredTimerStale(start)) {
+      sessionStorage.removeItem(TIMER_STORAGE_KEY);
+      return false;
+    }
+    return true;
+  }
+
   function startTimerIfNeeded() {
-    if (sessionStorage.getItem(TIMER_STORAGE_KEY)) return; // already running
+    if (pruneStaleTimer()) return; // a still-valid timer is already running
     sessionStorage.setItem(TIMER_STORAGE_KEY, String(Date.now()));
   }
 
@@ -133,8 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function getElapsedSeconds() {
-    const start = Number(sessionStorage.getItem(TIMER_STORAGE_KEY));
-    if (!start) return 0;
+    const start = getStoredTimerStart();
+    if (start === null) return 0;
+    if (isStoredTimerStale(start)) {
+      // Cache is older than 30 minutes: ignore it and start fresh.
+      sessionStorage.setItem(TIMER_STORAGE_KEY, String(Date.now()));
+      return 0;
+    }
     return (Date.now() - start) / 1000;
   }
 
@@ -180,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // If the timer was already started in a previous page load within this
   // session (e.g. user reloaded while on page 4+, or navigated back to an
   // earlier page after having reached page 4), resume ticking immediately.
-  if (sessionStorage.getItem(TIMER_STORAGE_KEY)) {
+  if (pruneStaleTimer()) {
     ensureTimerRunning();
   }
 
