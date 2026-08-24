@@ -28,6 +28,7 @@ class NoReportView(LoginAndProfileRequiredMixin, TemplateView):
 class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
     template_name = "reports/tiktok/partials/_combined_statistics.html"
     session_invalid_redirect = URLShortcut.OVERVIEW
+    report_unavailable_redirect = "mdm:userflow:reports:report_unavailable"
     statistics_request: StatisticsRequest | None = None
 
     def validate_userflow_session(self, request, *args, **kwargs):
@@ -64,7 +65,7 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
                 self.statistics_request.public_id,
                 self.statistics_request.status_detail,
             )
-            return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
+            return self.htmx_redirect(self.report_unavailable_redirect)
 
         # Pre-load stats here so we can redirect if needed
         if self.statistics_request.is_ready():
@@ -76,9 +77,40 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
                     self.statistics_request.public_id,
                     self.statistics_request.status_detail,
                 )
-                return self.htmx_redirect("mdm:userflow:reports:report_unavailable")
+                return self.htmx_redirect(self.report_unavailable_redirect)
 
-        return super().get(request, *args, **kwargs)
+        return self.render_statistics(**kwargs)
+
+    def render_statistics(self, **kwargs):
+        """Build the context and render the response, catching any error.
+
+        The report page polls this endpoint every 5s via htmx as long as
+        the report isn't ready. If an unexpected exception were allowed to
+        surface as a 500 here (e.g. a stats value that a template doesn't
+        expect), the client has no error handling and would keep polling
+        the same broken endpoint forever. Catching everything and
+        redirecting to the "unavailable" page - the same outcome as the
+        already-handled failure cases above - turns that into a single
+        terminal state instead of an infinite loop of server errors.
+
+        Rendering is forced eagerly (rather than left to the deferred
+        TemplateResponse.render()) so that template-time errors are also
+        caught here, not just context-building errors.
+        """
+        try:
+            response = self.render_to_response(self.get_context_data(**kwargs))
+            response.render()
+        except Exception:
+            # `pk` (unlike `public_id`) is always safe to access here: some
+            # callers (e.g. StudyStatisticsView) defer `public_id` because a
+            # corrupted value raises on access, and this handler must not
+            # itself raise - that would defeat the point of catching errors.
+            logger.exception(
+                "Unexpected error while rendering statistics request %s",
+                self.statistics_request.pk if self.statistics_request else None,
+            )
+            return self.htmx_redirect(self.report_unavailable_redirect)
+        return response
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -123,6 +155,9 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
     def not_all_stats_none(self, d: dict) -> bool:
         return any(s is not None for s in d.values())
 
+    def not_all_stats_zero_or_none(self, d: dict) -> bool:
+        return any(s not in (0, None) for s in d.values())
+
     def _get_video_viewed_stats(self) -> dict:
         total = 0 if self._stats.total_videos is None else self._stats.total_videos
         per_day = (
@@ -133,7 +168,9 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
             "videos_total": total,
             "videos_per_day": per_day,
         }
-        stats.update({"video_viewed_stats_available": self.not_all_stats_none(stats)})
+        stats.update(
+            {"video_viewed_stats_available": self.not_all_stats_zero_or_none(stats)}
+        )
         return stats
 
     def _get_daily_routine_stats(self) -> dict:
@@ -145,7 +182,9 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
             "routine_start_hour": hour_start,
             "routine_end_hour": hour_end,
         }
-        stats.update({"daily_routine_available": self.not_all_stats_none(stats)})
+        stats.update(
+            {"daily_routine_available": self.not_all_stats_zero_or_none(stats)}
+        )
         return stats
 
     def _get_usage_session_scrolling(self) -> dict:
@@ -248,7 +287,7 @@ class BaseStatisticsView(AddUserflowSessionMixin, TemplateView):
         }
 
         stats.update(
-            {"usage_session_general_available": self.not_all_stats_none(stats)}
+            {"usage_session_general_available": self.not_all_stats_zero_or_none(stats)}
         )
 
         activity_matrix = self._stats.date_hour_activity_matrix

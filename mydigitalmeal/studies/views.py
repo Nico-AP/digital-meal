@@ -832,6 +832,7 @@ class StudyStatisticsView(BaseStatisticsView):
 
     template_name = "studies/report/partials/_combined_statistics.html"
     session_invalid_redirect = "mdm:userflow:landing_page"
+    report_unavailable_redirect = StudiesURLShortcut.REPORT_UNAVAILABLE
 
     def get_participant(self) -> Participant | None:
         return Participant.objects.get(
@@ -903,7 +904,7 @@ class StudyStatisticsView(BaseStatisticsView):
                 self.statistics_request = next(
                     r for r in statistics_requests if not r.is_ready()
                 )
-                return self.render_to_response(self.get_context_data(**kwargs))
+                return self.render_statistics(**kwargs)
 
             # Every request has reached a terminal state and still no
             # INTERVAL result appeared - genuinely unavailable (failed, or
@@ -937,5 +938,4 @@ class StudyStatisticsView(BaseStatisticsView):
                 )
                 return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
 
-        context = self.get_context_data(**kwargs)
-        return self.render_to_response(context)
+        return self.render_statistics(**kwargs)
