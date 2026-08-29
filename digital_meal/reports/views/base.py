@@ -189,14 +189,11 @@ class IndividualReport(Report, DetailView):
         """
 
         start_date = self.object.start_time.date()
-        expiration_date = timezone.now() - timedelta(
-            days=settings.DAYS_TO_DONATION_DELETION - 1
+        expiration_date = start_date + timedelta(
+            days=settings.DAYS_TO_DONATION_DELETION
         )
 
-        if expiration_date.date() > start_date:
-            expired = True
-        else:
-            expired = False
+        expired = timezone.now().date() > expiration_date
 
         return {"expired": expired, "expiration_date": expiration_date}
 
