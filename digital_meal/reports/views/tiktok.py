@@ -63,7 +63,12 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
     GetDonationIndividualMixin.
     """
 
-    blueprint_names: list[str] = [BLUEPRINT_NAMES["WATCH_HISTORY"]]
+    blueprint_names: list[str] = [
+        BLUEPRINT_NAMES["WATCH_HISTORY"],
+        "watched_videos",
+        "watched_videos_txt",
+        "watched_videos_backup",
+    ]
     wh_data: WatchHistoryData
 
     def clean_blueprint_donation_data(
@@ -71,13 +76,18 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
     ) -> WatchHistoryData:
         return extract_watch_history_data(donation_data)
 
+    def get_wh_data(self) -> WatchHistoryData | None:
+        for name in self.blueprint_names:
+            bp_data = self.get_blueprint_donation_data(name)
+            if bp_data and bp_data.get("video_ids"):
+                return bp_data
+        return None
+
     def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
 
         # Get the data needed to generate plots and stats.
-        self.wh_data = self.get_blueprint_donation_data(
-            BLUEPRINT_NAMES["WATCH_HISTORY"]
-        )
+        self.wh_data = self.get_wh_data()
         if self.wh_data is None or not self.wh_data.get("video_ids"):
             logger.info(
                 "Watch history sections: data did not contain any valid videos."
@@ -198,7 +208,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
         interval_length = (interval_max - interval_min).days
 
         wh_interval = shared_data_utils.get_entries_in_date_range(
-            watch_history, interval_min, interval_max, "(D|d)ate"
+            watch_history, interval_min, interval_max, "date"
         )
         wh_interval_ids = [e["id"] for e in wh_interval]
 
@@ -350,8 +360,20 @@ class SearchHistorySectionsMixin(base_views.BlueprintReportMixin):
     GetDonationIndividualMixin.
     """
 
-    blueprint_names: list[str] = [BLUEPRINT_NAMES["SEARCH_HISTORY"]]
+    blueprint_names: list[str] = [
+        BLUEPRINT_NAMES["SEARCH_HISTORY"],
+        "searches",
+        "searches_txt",
+        "searches_backup",
+    ]
     sh_data: SearchHistoryData = None
+
+    def get_search_data(self) -> SearchHistoryData | None:
+        for name in self.blueprint_names:
+            bp_data = self.get_blueprint_donation_data(name)
+            if bp_data and bp_data.get("search_terms"):
+                return bp_data
+        return None
 
     def clean_blueprint_donation_data(
         self, donation_data: list[list]
@@ -365,9 +387,7 @@ class SearchHistorySectionsMixin(base_views.BlueprintReportMixin):
         context = super().get_context_data(**kwargs)
 
         # Get the data needed to generate plots and stats.
-        self.sh_data = self.get_blueprint_donation_data(
-            BLUEPRINT_NAMES["SEARCH_HISTORY"]
-        )
+        self.sh_data = self.get_search_data()
         if self.sh_data is None or not self.sh_data.get("search_terms"):
             logger.info(
                 "Search history sections: data did not contain any valid search terms."
@@ -428,7 +448,7 @@ class SearchHistorySectionsMixin(base_views.BlueprintReportMixin):
         """
 
         sh_interval = shared_data_utils.get_entries_in_date_range(
-            search_history, reference_interval[0], reference_interval[1], "(D|d)ate"
+            search_history, reference_interval[0], reference_interval[1], "date"
         )
 
         return {

@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from ddm.datadonation.models import DataDonation, DonationBlueprint, FileUploader
 from ddm.datadonation.schemas import JSONParserConfig
@@ -10,8 +10,10 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+import digital_meal.reports.utils.tiktok.data as tiktok_data_utils
 import digital_meal.reports.utils.tiktok.example_data as tiktok_data
 import digital_meal.reports.utils.youtube.example_data as youtube_data
+import digital_meal.reports.views.tiktok as tiktok_views
 from digital_meal.tool.models import BaseModule, Classroom
 
 User = get_user_model()
@@ -594,6 +596,77 @@ class TestTikTokReports(TestCase):
         for template in required_templates:
             self.assertTemplateUsed(response, template)
 
+    def test_individual_report_alternate_blueprint_name(self):
+        """Data donated under an alternate blueprint name (e.g. because the
+        DDP export used a different file name than the primary
+        "Angesehene Videos" / "Durchgeführte Suchen" blueprints) should
+        still be picked up by the get_wh_data/get_search_data fallback.
+        """
+        alt_watched_videos_bp = DonationBlueprint.objects.create(
+            project=self.project,
+            name="watched_videos",
+            exp_file_format="json",
+            file_uploader=self.uploader,
+            parser_config=JSONParserConfig().model_dump(),
+        )
+        alt_searches_bp = DonationBlueprint.objects.create(
+            project=self.project,
+            name="searches",
+            exp_file_format="json",
+            file_uploader=self.uploader,
+            parser_config=JSONParserConfig().model_dump(),
+        )
+
+        participant = Participant.objects.create(
+            project=self.project,
+            extra_data={},
+            url_parameter={"class": self.classroom.url_id},
+            start_time=timezone.now(),
+            end_time=timezone.now(),
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=alt_watched_videos_bp,
+            consent=True,
+            data=self.watch_history_data["data"],
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+        )
+        DataDonation.objects.create(
+            project=self.project,
+            participant=participant,
+            blueprint=alt_searches_bp,
+            consent=True,
+            data=self.search_data["data"],
+            data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+        )
+
+        report_url_wh = reverse(
+            "tiktok_individual_report_wh_sections",
+            kwargs={
+                "url_id": self.classroom.url_id,
+                "participant_id": participant.external_id,
+            },
+        )
+        response = self.client.get(report_url_wh, **self.htmx_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/watch_history_stats_section.html"
+        )
+
+        report_url_sh = reverse(
+            "tiktok_individual_report_sh_sections",
+            kwargs={
+                "url_id": self.classroom.url_id,
+                "participant_id": participant.external_id,
+            },
+        )
+        response = self.client.get(report_url_sh, **self.htmx_headers)
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/search_history_wordcloud.html"
+        )
+
     def test_classroom_report(self):
         # Create 5 donations
         for _ in range(5):
@@ -683,6 +756,97 @@ class TestTikTokReports(TestCase):
 
         for template in required_templates:
             self.assertTemplateUsed(response, template)
+
+
+class TestTikTokAlternateKeyExtraction(TestCase):
+    """Tests that watch/search history extraction tolerates the alternate
+    field-name variants ("Link"/"link", "Date"/"date", "searchterm"/
+    "search_term") in addition to the primary "(L|l)ink"/"(D|d)ate"/
+    "SearchTerm" keys, and that the extracted entries stay usable for
+    interval-based statistics regardless of which variant was used.
+    """
+
+    def test_get_video_id_supports_all_link_key_variants(self):
+        for key in ["(L|l)ink", "Link", "link"]:
+            entry = {key: "https://www.tiktok.com/@/video/1234567890/"}
+            self.assertEqual(tiktok_data_utils.get_video_id(entry), "1234567890")
+
+    def test_get_video_id_returns_none_without_link_key(self):
+        self.assertIsNone(tiktok_data_utils.get_video_id({}))
+
+    def test_get_watch_date_supports_all_date_key_variants(self):
+        for key in ["(D|d)ate", "Date", "date"]:
+            entry = {key: "2024-01-01T12:00:00"}
+            self.assertEqual(
+                tiktok_data_utils.get_watch_date(entry), "2024-01-01T12:00:00"
+            )
+
+    def test_extract_watch_history_data_normalizes_alternate_keys(self):
+        history = [
+            [
+                {
+                    "Link": "https://www.tiktok.com/@/video/111/",
+                    "Date": "2024-01-01T12:00:00",
+                },
+            ]
+        ]
+        result = tiktok_data_utils.extract_watch_history_data(history)
+        self.assertEqual(result["video_ids"], ["111"])
+        self.assertEqual(result["videos"][0]["date"], "2024-01-01T12:00:00")
+
+    def test_extract_search_history_data_supports_all_term_key_variants(self):
+        for key in ["SearchTerm", "searchterm", "search_term"]:
+            history = [[{key: "cats", "date": "2024-01-01T12:00:00"}]]
+            result = tiktok_data_utils.extract_search_history_data(history)
+            self.assertEqual(result["search_terms"], ["cats"])
+
+    def test_extract_search_history_data_normalizes_alternate_date_key(self):
+        history = [[{"SearchTerm": "cats", "Date": "2024-01-01T12:00:00"}]]
+        result = tiktok_data_utils.extract_search_history_data(history)
+        self.assertEqual(result["searches"][0]["date"], "2024-01-01T12:00:00")
+
+    def test_watch_history_interval_statistics_finds_alternate_date_key(self):
+        """Regression test for a bug where get_interval_statistics filtered
+        on the literal "(D|d)ate" key, so entries donated with the newly
+        supported "Date"/"date" keys were silently excluded from the
+        interval statistics, even though they're included in the overall
+        stats."""
+        now = timezone.now()
+        history = [
+            [
+                {
+                    "Link": "https://www.tiktok.com/@/video/1/",
+                    "Date": (now - timedelta(days=1)).isoformat(),
+                },
+            ]
+        ]
+        wh_data = tiktok_data_utils.extract_watch_history_data(history)
+
+        stats = tiktok_views.WatchHistorySectionsMixin.get_interval_statistics(
+            wh_data["videos"],
+            (now - timedelta(days=5), now),
+            n_donations=1,
+        )
+        self.assertEqual(stats["n_videos"], 1)
+
+    def test_search_history_interval_statistics_finds_alternate_date_key(self):
+        now = timezone.now()
+        history = [
+            [
+                {
+                    "searchterm": "cats",
+                    "date": (now - timedelta(days=1)).isoformat(),
+                },
+            ]
+        ]
+        sh_data = tiktok_data_utils.extract_search_history_data(history)
+
+        stats = tiktok_views.SearchHistorySectionsMixin.get_search_history_statistics(
+            sh_data["searches"],
+            (now - timedelta(days=5), now),
+            n_donations=1,
+        )
+        self.assertEqual(stats["n_searches_interval"], 1)
 
 
 @override_settings(ALLOWED_REPORT_DOMAINS=["test.dev"])

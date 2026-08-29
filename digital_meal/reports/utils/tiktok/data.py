@@ -5,6 +5,14 @@ import pandas as pd
 import requests
 
 
+def _get_first_matching_key(entry: dict, possible_keys: list[str]) -> str | None:
+    """Return the first of the possible_keys that is present in entry."""
+    for key in possible_keys:
+        if key in entry:
+            return key
+    return None
+
+
 class WatchHistoryData(TypedDict):
     videos: list[dict]
     video_ids: list[str]
@@ -58,6 +66,7 @@ def extract_watch_history_data(
                 video_ids.append(video_id)
 
             video_date = get_watch_date(entry)
+            entry["date"] = video_date
             if video_date is not None:
                 video_dates.append(video_date)
 
@@ -95,6 +104,15 @@ class SearchHistoryData(TypedDict):
     n_participants: int
 
 
+def _get_search_term_key(search_entry: dict) -> str | None:
+    possible_keys = [
+        "SearchTerm",
+        "searchterm",
+        "search_term",
+    ]
+    return _get_first_matching_key(search_entry, possible_keys)
+
+
 def extract_search_history_data(
     search_histories: list[list[dict]],
     keep_separate: bool = False,  # noqa: FBT002
@@ -130,10 +148,18 @@ def extract_search_history_data(
         search_terms = []
 
         for entry in history:
+            search_key = _get_search_term_key(entry)
+            if search_key is None:
+                continue
+
             # Clean search title
-            title = entry.get("SearchTerm")
+            title = entry.get(search_key)
             if title is None:
                 continue
+
+            date_key = _get_date_key(entry)
+            if date_key is not None:
+                entry["date"] = entry[date_key]
 
             searches.append(entry)
             search_terms.append(title)
@@ -154,23 +180,43 @@ def extract_search_history_data(
     }
 
 
+def _get_link_key(watch_entry: dict) -> str | None:
+    possible_keys = [
+        "(L|l)ink",
+        "Link",
+        "link",
+    ]
+    return _get_first_matching_key(watch_entry, possible_keys)
+
+
 def get_video_id(watch_entry: dict) -> str | None:
     """Get the video id from a watch history entry."""
-    if "(L|l)ink" not in watch_entry:
+    link_key = _get_link_key(watch_entry)
+    if link_key is None:
         return None
 
-    link_parts = watch_entry["(L|l)ink"].split("/")
+    link_parts = watch_entry[link_key].split("/")
     # Get last non-empty part
     video_id = link_parts[-1] if link_parts[-1] else link_parts[-2]
     return video_id
 
 
+def _get_date_key(watch_entry: dict) -> str | None:
+    possible_keys = [
+        "(D|d)ate",
+        "Date",
+        "date",
+    ]
+    return _get_first_matching_key(watch_entry, possible_keys)
+
+
 def get_watch_date(watch_entry: dict) -> str | None:
     """Get the watch date from a watch history entry."""
-    if "(D|d)ate" not in watch_entry:
+    date_key = _get_date_key(watch_entry)
+    if date_key is None:
         return None
 
-    date_str = watch_entry["(D|d)ate"]
+    date_str = watch_entry[date_key]
     return date_str
 
 
