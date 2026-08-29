@@ -432,38 +432,41 @@ class GetDonationsClassMixin(GetDonationsMixin):
     def clean_donations_from_db(self, blueprints: QuerySet[DonationBlueprint]) -> dict:
         """Decrypts blueprint donations and stores them in a result dict.
 
-        Does not return donations if less than five participants have participated.
+        Does not return donations if less than five participants have
+        contributed valid data. This is checked across all of the passed
+        blueprints together (not per individual blueprint), since a single
+        logical data type - e.g. watch history - may be split across
+        several blueprint name variants (see e.g. blueprint_names on
+        WatchHistorySectionsMixin/SearchHistorySectionsMixin). A class
+        where participation is scattered across variants should still be
+        recognized as having reached the participation minimum, rather than
+        having each variant checked in isolation.
 
         Args:
             blueprints: The donation blueprints for which to retrieve donations.
 
         Returns:
             dict: With the blueprint names as keys, holding the respective
-                decrypted donation information.
+                decrypted donation information (None for all blueprints if
+                fewer than five participants contributed valid data).
         """
         decryptor = Decryption(self.project.secret, self.project.get_salt())
+        min_n_donations = 5
 
         clean_donations = {}
+        participants_with_data = set()
         for blueprint in blueprints:
             blueprint_donations = blueprint.datadonation_set.all()
+            clean_donations[blueprint.name] = DonationSerializer(
+                blueprint_donations, many=True, decryptor=decryptor
+            ).data
 
-            min_n_donations = 5
+            for donation in clean_donations[blueprint.name]:
+                if donation.get("data"):
+                    participants_with_data.add(donation.get("participant"))
 
-            if len(blueprint_donations) >= min_n_donations:
-                clean_donations[blueprint.name] = DonationSerializer(
-                    blueprint_donations, many=True, decryptor=decryptor
-                ).data
-
-                n_available = 0
-                for donation in clean_donations[blueprint.name]:
-                    if donation.get("data"):
-                        n_available += 1
-
-                if n_available < min_n_donations:
-                    clean_donations[blueprint.name] = None
-
-            else:
-                clean_donations[blueprint.name] = None
+        if len(participants_with_data) < min_n_donations:
+            return dict.fromkeys(clean_donations, None)
 
         return clean_donations
 

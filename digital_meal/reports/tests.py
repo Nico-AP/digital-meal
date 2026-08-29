@@ -827,6 +827,48 @@ class TestTikTokReports(TestCase):
             response, "reports/components/watch_history_stats_section.html"
         )
 
+    def test_classroom_report_with_participation_split_across_blueprint_names(self):
+        """Regression test: the five-participant privacy minimum for class
+        reports must be evaluated across all blueprint name variants for a
+        data type together, not per individual blueprint name.
+        overall."""
+        alt_watched_videos_bp = DonationBlueprint.objects.create(
+            project=self.project,
+            name="watched_videos",
+            exp_file_format="json",
+            file_uploader=self.uploader,
+            parser_config=JSONParserConfig().model_dump(),
+        )
+
+        blueprints = [self.watched_videos_bp] * 3 + [alt_watched_videos_bp] * 2
+        for blueprint in blueprints:
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
+                start_time=timezone.now(),
+            )
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=blueprint,
+                consent=True,
+                data=self.watch_history_data["data"],
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+            )
+
+        self.client.login(**self.base_creds)
+
+        report_wh_url = reverse(
+            "tiktok_class_report_wh_sections", kwargs={"url_id": self.classroom.url_id}
+        )
+        response = self.client.get(report_wh_url, **self.htmx_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/watch_history_stats_section.html"
+        )
+
     def test_tiktok_example_report_wh_section(self):
         url = reverse("tiktok_example_report_wh_sections")
         response = self.client.get(url, **self.htmx_headers)
