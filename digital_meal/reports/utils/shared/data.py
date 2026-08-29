@@ -43,15 +43,14 @@ def get_entries_in_date_range(
     if date_key not in df.columns:
         return []
 
-    df[date_key] = pd.to_datetime(df[date_key], errors="coerce")
+    df[date_key] = pd.to_datetime(
+        df[date_key], errors="coerce", utc=True, format="mixed"
+    )
     df = df.dropna(subset=[date_key])
 
-    # Ensure that dates are timezone aware.
+    # Ensure that dates match the reference timezone.
     tz = date_min.tzinfo
-    if df[date_key].dt.tz is None:
-        df[date_key] = df[date_key].dt.tz_localize(tz)
-    else:
-        df[date_key] = df[date_key].dt.tz_convert(tz)
+    df[date_key] = df[date_key].dt.tz_convert(tz)
 
     mask = (df[date_key] >= date_min) & (df[date_key] <= date_max)
     return df[mask].to_dict("records")

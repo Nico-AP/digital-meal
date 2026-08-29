@@ -71,7 +71,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
     ) -> WatchHistoryData:
         return extract_watch_history_data(donation_data)
 
-    def get_context_data(self, **kwargs) -> dict:
+    def get_context_data(self, **kwargs) -> dict:  # noqa: C901
         context = super().get_context_data(**kwargs)
 
         # Get the data needed to generate plots and stats.
@@ -125,11 +125,12 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             pass
 
         try:
-            context["dates_plots"] = self.get_timeseries_plots(
-                [self.wh_data["watch_dates"]],
-                context["stats_overall"]["dates_min"],
-                context["stats_overall"]["dates_max"],
-            )
+            if context.get("stats_overall"):
+                context["dates_plots"] = self.get_timeseries_plots(
+                    [self.wh_data["watch_dates"]],
+                    context["stats_overall"]["dates_min"],
+                    context["stats_overall"]["dates_max"],
+                )
         except (TypeError, ValueError, ZeroDivisionError) as e:
             self.log_error("get_timeseries_plots", e)
             pass

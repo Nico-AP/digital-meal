@@ -126,11 +126,12 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             pass
 
         try:
-            context["dates_plots"] = self.get_timeseries_plots(
-                [self.wh_data["video_dates"]],
-                context["stats_overall"]["dates_min"],
-                context["stats_overall"]["dates_max"],
-            )
+            if context.get("stats_overall"):
+                context["dates_plots"] = self.get_timeseries_plots(
+                    [self.wh_data["video_dates"]],
+                    context["stats_overall"]["dates_min"],
+                    context["stats_overall"]["dates_max"],
+                )
         except (TypeError, ValueError, ZeroDivisionError) as e:
             self.log_error("get_timeseries_plots", e)
             pass

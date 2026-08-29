@@ -73,7 +73,11 @@ def extract_watch_history_data(
             if video_date is not None or video_id is not None:
                 videos.append(entry)
 
-        video_dates = pd.to_datetime(video_dates, errors="coerce").dropna().tolist()
+        video_dates = (
+            pd.to_datetime(video_dates, errors="coerce", utc=True, format="mixed")
+            .dropna()
+            .tolist()
+        )
 
         if keep_separate:
             videos_separate.append(videos)

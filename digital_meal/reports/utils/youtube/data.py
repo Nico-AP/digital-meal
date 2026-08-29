@@ -118,7 +118,11 @@ def convert_date_strings_to_datetime(
     Returns:
         list[datetime.datetime]: List of datetime objects.
     """
-    return pd.to_datetime(date_strings, errors="coerce").dropna().tolist()
+    return (
+        pd.to_datetime(date_strings, errors="coerce", utc=True, format="mixed")
+        .dropna()
+        .tolist()
+    )
 
 
 def get_channel_name(watch_entry: dict) -> str | None:
@@ -449,18 +453,20 @@ _VIDEO_TITLE_PATTERN = re.compile(
 )
 
 
-def clean_video_title(video_title: str) -> str:
+def clean_video_title(video_title: str | None) -> str | None:
     """
     Delete pre- and postfixes from video titles as exported from Google
     Takeout.
     Supports takeouts in German, English, Italian, and French.
 
     Args:
-        video_title (str): Video title.
+        video_title (str | None): Video title.
 
     Returns:
-        str: The cleaned video title.
+        str | None: The cleaned video title, or None if no title is available.
     """
+    if video_title is None:
+        return None
     return _VIDEO_TITLE_PATTERN.sub("", video_title)
 
 
@@ -478,10 +484,10 @@ def get_video_title_dict(watch_history: list[dict]) -> dict:
     titles = {}
     generic_url = "https://www.youtube.com/watch?v="
     for video in watch_history:
-        if "titleUrl" in video:
+        title = video.get("title")
+        if "titleUrl" in video and title is not None:
             video_id = video["titleUrl"].replace(generic_url, "")
-            title = video["title"].strip()
-            titles[video_id] = title
+            titles[video_id] = title.strip()
     return titles
 
 

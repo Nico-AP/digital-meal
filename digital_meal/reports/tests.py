@@ -12,6 +12,7 @@ from django.utils import timezone
 
 import digital_meal.reports.utils.tiktok.data as tiktok_data_utils
 import digital_meal.reports.utils.tiktok.example_data as tiktok_data
+import digital_meal.reports.utils.youtube.data as youtube_data_utils
 import digital_meal.reports.utils.youtube.example_data as youtube_data
 import digital_meal.reports.views.tiktok as tiktok_views
 from digital_meal.tool.models import BaseModule, Classroom
@@ -420,6 +421,48 @@ class TestYouTubeReports(TestCase):
         for template in required_templates:
             self.assertTemplateUsed(response, template)
 
+    def test_classroom_report_with_mixed_timezone_watch_history(self):
+        now = timezone.now()
+        naive_entry = {
+            "title": "Watched a video",
+            "titleUrl": "https://www.youtube.com/watch?v=naive12345",
+            "time": (now - timedelta(days=2)).replace(tzinfo=None).isoformat(),
+        }
+        aware_entry = {
+            "title": "Watched another video",
+            "titleUrl": "https://www.youtube.com/watch?v=aware67890",
+            "time": (now - timedelta(days=1)).isoformat(),
+        }
+
+        for i in range(5):
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
+                start_time=timezone.now(),
+            )
+            entry = naive_entry if i % 2 == 0 else aware_entry
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.watched_videos_bp,
+                consent=True,
+                data=[entry],
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+            )
+
+        self.client.login(**self.base_creds)
+
+        report_url_wh = reverse(
+            "youtube_class_report_wh_sections", kwargs={"url_id": self.classroom.url_id}
+        )
+        response = self.client.get(report_url_wh, **self.htmx_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/watch_history_stats_section.html"
+        )
+
     def test_youtube_example_report_wh_sections(self):
         url = reverse("youtube_example_report_wh_sections")
         response = self.client.get(url, **self.htmx_headers)
@@ -449,6 +492,22 @@ class TestYouTubeReports(TestCase):
 
         for template in required_templates:
             self.assertTemplateUsed(response, template)
+
+
+class TestYouTubeVideoTitleExtraction(TestCase):
+    def test_get_video_title_dict_skips_entries_without_title(self):
+        watch_history = [
+            {"titleUrl": "https://www.youtube.com/watch?v=has_title", "title": "A"},
+            {"titleUrl": "https://www.youtube.com/watch?v=no_title"},
+        ]
+        titles = youtube_data_utils.get_video_title_dict(watch_history)
+        self.assertEqual(titles, {"has_title": "A"})
+
+    def test_clean_video_title_handles_missing_title(self):
+        self.assertIsNone(youtube_data_utils.clean_video_title(None))
+        self.assertEqual(
+            youtube_data_utils.clean_video_title("Some Title"), "Some Title"
+        )
 
 
 class TestTikTokReports(TestCase):
@@ -728,6 +787,46 @@ class TestTikTokReports(TestCase):
         for template in required_templates:
             self.assertTemplateUsed(response, template)
 
+    def test_classroom_report_with_mixed_timezone_watch_history(self):
+        now = timezone.now()
+        naive_entry = {
+            "(D|d)ate": (now - timedelta(days=2)).replace(tzinfo=None).isoformat(),
+            "(L|l)ink": "https://www.tiktok.com/@/video/naive/",
+        }
+        aware_entry = {
+            "(D|d)ate": (now - timedelta(days=1)).isoformat(),
+            "(L|l)ink": "https://www.tiktok.com/@/video/aware/",
+        }
+
+        for i in range(5):
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
+                start_time=timezone.now(),
+            )
+            entry = naive_entry if i % 2 == 0 else aware_entry
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.watched_videos_bp,
+                consent=True,
+                data=[entry],
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+            )
+
+        self.client.login(**self.base_creds)
+
+        report_wh_url = reverse(
+            "tiktok_class_report_wh_sections", kwargs={"url_id": self.classroom.url_id}
+        )
+        response = self.client.get(report_wh_url, **self.htmx_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/watch_history_stats_section.html"
+        )
+
     def test_tiktok_example_report_wh_section(self):
         url = reverse("tiktok_example_report_wh_sections")
         response = self.client.get(url, **self.htmx_headers)
@@ -793,6 +892,28 @@ class TestTikTokAlternateKeyExtraction(TestCase):
         result = tiktok_data_utils.extract_watch_history_data(history)
         self.assertEqual(result["video_ids"], ["111"])
         self.assertEqual(result["videos"][0]["date"], "2024-01-01T12:00:00")
+
+    def test_extract_watch_history_data_handles_mixed_timezone_awareness(self):
+        now = timezone.now()
+        history = [
+            [
+                {
+                    "Link": "https://www.tiktok.com/@/video/1/",
+                    "Date": now.isoformat(),
+                },
+                {
+                    "Link": "https://www.tiktok.com/@/video/2/",
+                    "Date": (now - timedelta(days=1)).replace(tzinfo=None).isoformat(),
+                },
+            ]
+        ]
+        wh_data = tiktok_data_utils.extract_watch_history_data(history)
+        self.assertEqual(len(wh_data["video_dates"]), 2)
+
+        stats = tiktok_views.WatchHistorySectionsMixin.get_overall_statistics(
+            wh_data["video_ids"], wh_data["video_dates"], n_donations=1
+        )
+        self.assertEqual(stats["n_videos"], 2)
 
     def test_extract_search_history_data_supports_all_term_key_variants(self):
         for key in ["SearchTerm", "searchterm", "search_term"]:
