@@ -10,6 +10,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from django.utils import timezone
 
+import digital_meal.reports.utils.shared.data as shared_data_utils
 import digital_meal.reports.utils.tiktok.data as tiktok_data_utils
 import digital_meal.reports.utils.tiktok.example_data as tiktok_data
 import digital_meal.reports.utils.youtube.data as youtube_data_utils
@@ -463,6 +464,50 @@ class TestYouTubeReports(TestCase):
             response, "reports/components/watch_history_stats_section.html"
         )
 
+    def test_classroom_report_with_watch_history_entry_missing_title_url(self):
+        now = timezone.now()
+
+        within_reference_interval = now.replace(day=1) - timedelta(days=5)
+        entry_with_url = {
+            "title": "Watched a video",
+            "titleUrl": "https://www.youtube.com/watch?v=abc123",
+            "time": within_reference_interval.isoformat(),
+        }
+        entry_without_url = {
+            "title": "A video that has been removed",
+            "time": within_reference_interval.isoformat(),
+        }
+
+        for i in range(5):
+            participant = Participant.objects.create(
+                project=self.project,
+                extra_data={},
+                url_parameter={"class": self.classroom.url_id},
+                start_time=timezone.now(),
+            )
+            entry = entry_with_url if i % 2 == 0 else entry_without_url
+            DataDonation.objects.create(
+                project=self.project,
+                participant=participant,
+                blueprint=self.watched_videos_bp,
+                consent=True,
+                data=[entry],
+                data_extraction_state=DataDonation.DataExtractionState.DATA_EXTRACTED,
+            )
+
+        self.client.login(**self.base_creds)
+
+        report_url_wh = reverse(
+            "youtube_class_report_wh_sections", kwargs={"url_id": self.classroom.url_id}
+        )
+        response = self.client.get(report_url_wh, **self.htmx_headers)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(
+            response, "reports/components/watch_history_stats_section.html"
+        )
+        self.assertEqual(response.context["stats_interval"]["n_videos"], 5)
+
     def test_youtube_example_report_wh_sections(self):
         url = reverse("youtube_example_report_wh_sections")
         response = self.client.get(url, **self.htmx_headers)
@@ -508,6 +553,46 @@ class TestYouTubeVideoTitleExtraction(TestCase):
         self.assertEqual(
             youtube_data_utils.clean_video_title("Some Title"), "Some Title"
         )
+
+
+class TestGetEntriesInDateRange(TestCase):
+    def test_preserves_original_shape_of_heterogeneous_entries(self):
+        now = timezone.now()
+        entry_with_extra_field = {
+            "time": (now - timedelta(days=1)).isoformat(),
+            "titleUrl": "https://www.youtube.com/watch?v=abc",
+        }
+        entry_without_extra_field = {
+            "time": (now - timedelta(days=1)).isoformat(),
+        }
+
+        result = shared_data_utils.get_entries_in_date_range(
+            [entry_with_extra_field, entry_without_extra_field],
+            now - timedelta(days=5),
+            now,
+        )
+
+        self.assertEqual(len(result), 2)
+        self.assertNotIn("titleUrl", result[1])
+        self.assertEqual(result[0]["titleUrl"], "https://www.youtube.com/watch?v=abc")
+
+    def test_filters_out_of_range_entries(self):
+        now = timezone.now()
+        in_range = {"time": (now - timedelta(days=1)).isoformat()}
+        out_of_range = {"time": (now - timedelta(days=100)).isoformat()}
+
+        result = shared_data_utils.get_entries_in_date_range(
+            [in_range, out_of_range], now - timedelta(days=5), now
+        )
+
+        self.assertEqual(result, [in_range])
+
+    def test_handles_entries_missing_date_key_entirely(self):
+        now = timezone.now()
+        result = shared_data_utils.get_entries_in_date_range(
+            [{"no_date_field": True}], now - timedelta(days=5), now
+        )
+        self.assertEqual(result, [])
 
 
 class TestTikTokReports(TestCase):

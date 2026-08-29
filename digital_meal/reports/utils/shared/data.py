@@ -38,22 +38,16 @@ def get_entries_in_date_range(
         date_max = datetime.now()
     date_max = make_tz_aware(date_max)
 
-    # Convert to dataframe for optimized vectorized parsing and filtering
-    df = pd.DataFrame(entries)
-    if date_key not in df.columns:
-        return []
-
-    df[date_key] = pd.to_datetime(
-        df[date_key], errors="coerce", utc=True, format="mixed"
+    dates = pd.to_datetime(
+        [entry.get(date_key) for entry in entries],
+        errors="coerce",
+        utc=True,
+        format="mixed",
     )
-    df = df.dropna(subset=[date_key])
+    dates = dates.tz_convert(date_min.tzinfo)
 
-    # Ensure that dates match the reference timezone.
-    tz = date_min.tzinfo
-    df[date_key] = df[date_key].dt.tz_convert(tz)
-
-    mask = (df[date_key] >= date_min) & (df[date_key] <= date_max)
-    return df[mask].to_dict("records")
+    mask = (dates >= date_min) & (dates <= date_max)
+    return [entry for entry, keep in zip(entries, mask, strict=False) if keep]
 
 
 def make_tz_aware(
