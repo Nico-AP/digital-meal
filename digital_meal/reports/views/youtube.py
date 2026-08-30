@@ -229,7 +229,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             "n_videos": len(wh_interval),
             "n_videos_unique": len(set(wh_interval_ids)) if wh_interval_ids else None,
             "n_videos_mean": len(wh_interval) / n_donations,
-            "n_videos_per_interval": len(wh_interval_ids) / interval_length,
+            "n_videos_per_interval": len(wh_interval) / interval_length,
         }
 
         return interval_statistics
