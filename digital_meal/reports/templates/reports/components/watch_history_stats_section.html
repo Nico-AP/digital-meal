@@ -46,7 +46,7 @@
           </div>
           <!-- TODO(optimization): Separate shorts from regular videos. -->
           <p>Angeschaute Videos: {{ stats_overall.n_videos|format_number }}</p>
-          <p>Unterschiedliche Videos: {{ stats_overall.n_videos_unique|format_number }}</p>
+          {% if stats_overall.n_videos_unique %}<p>Unterschiedliche Videos: {{ stats_overall.n_videos_unique|format_number }}</p>{% endif %}
           <p>Durchschnittliche Anzahl Videos: {{ stats_overall.n_videos_per_day|format_number }}</p>
         </div>
 
@@ -55,7 +55,7 @@
             <h3>Im letzten Monat<br /><span class="fs-6">{{ stats_interval.date_min|date:"d.m.Y" }} bis {{ stats_interval.date_max|date:"d.m.Y" }}</span></h3>
           </div>
           <p>Angeschaute Videos: {{ stats_interval.n_videos|format_number }}</p>
-          <p>Unterschiedliche Videos: {{ stats_interval.n_videos_unique|format_number }}</p>
+          {% if stats_interval.n_videos_unique %}<p>Unterschiedliche Videos: {{ stats_interval.n_videos_unique|format_number }}</p>{% endif %}
           <p>Durchschnittliche Anzahl Videos: {{ stats_interval.n_videos_per_interval|format_number }}</p>
         </div>
       </div>

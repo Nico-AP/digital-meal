@@ -78,7 +78,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
         self.wh_data = self.get_blueprint_donation_data(
             BLUEPRINT_NAMES["WATCH_HISTORY"]
         )
-        if self.wh_data is None or not self.wh_data.get("video_ids"):
+        if self.wh_data is None or not self.wh_data.get("watch_dates"):
             logger.info(
                 "Watch history sections: data did not contain any valid videos."
             )
@@ -117,9 +117,10 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             pass
 
         try:
-            context["fav_videos_top_ten"] = self.get_favorite_videos(
-                self.wh_data["videos"], self.wh_data["video_ids"], 10
-            )
+            if self.wh_data["video_ids"]:
+                context["fav_videos_top_ten"] = self.get_favorite_videos(
+                    self.wh_data["videos"], self.wh_data["video_ids"], 10
+                )
         except (TypeError, ValueError, ZeroDivisionError) as e:
             self.log_error("get_favorite_videos", e)
             pass
@@ -190,7 +191,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             "dates_max": max_date,
             "date_range": max_date - min_date,
             "n_videos": len(watch_history),
-            "n_videos_unique": len(set(video_ids)),
+            "n_videos_unique": len(set(video_ids)) if video_ids else None,
             "n_videos_mean": len(watch_history) / n_donations,
             "n_videos_per_day": round(n_videos_per_day, 2),
         }
@@ -226,7 +227,7 @@ class WatchHistorySectionsMixin(base_views.BlueprintReportMixin):
             "date_min": interval_min,
             "date_max": interval_max,
             "n_videos": len(wh_interval),
-            "n_videos_unique": len(set(wh_interval_ids)),
+            "n_videos_unique": len(set(wh_interval_ids)) if wh_interval_ids else None,
             "n_videos_mean": len(wh_interval) / n_donations,
             "n_videos_per_interval": len(wh_interval_ids) / interval_length,
         }
