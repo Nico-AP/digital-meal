@@ -42,33 +42,53 @@ function getWithExpiry(key) {
 }
 
 /**
- * Navigation between .instruction-page elements (data-page="1", "2", ...)
- * plus toggling between "app" and "browser" instruction sections
- * within the currently visible page.
+ * This script handles displaying a reminder message to participants
+ * and persisting which instruction version is currently shown
+ * (browser vs. app).
  *
- * Only one page and one instruction-section (app vs. browser) is
- * shown at a time. The initial instruction version comes from Django
- * (via a json_script tag) and defaults to "app" if not provided.
- * It is not persisted anywhere — a reload always starts from the
- * server-provided (or default) value again.
+ * The reminder message is shown after 3 minutes if participants are at least on
+ * page 3 of the instructions.
+ *
+ * Navigation between .instruction-page elements is handled by an
+ * imported Vue component. This script treats Vue's output as the source of truth:
+ * it detects which `.instruction-page` is currently visible (i.e.
+ * not `display: none`) and reacts via a MutationObserver whenever
+ * Vue toggles that visibility.
+ *
+ * The page number itself now lives on a child element of each
+ * `.instruction-page` (e.g. `<div class="instruction-page">
+ * <div data-page="1">...</div></div>`), not on `.instruction-page`
+ * itself. This data-page attribute is configured through DDM instructions.
  */
 document.addEventListener('DOMContentLoaded', () => {
-  const pages = Array.from(document.querySelectorAll('.instruction-page'))
-    .sort((a, b) => Number(a.dataset.page) - Number(b.dataset.page));
+  const pageEls = Array.from(document.querySelectorAll('.instruction-page'));
+  if (!pageEls.length) return;
+
+  function getPageNumber(pageEl) {
+    const numbered = pageEl.querySelector('[data-page]');
+    return numbered ? Number(numbered.dataset.page) : null;
+  }
+
+  const pages = pageEls
+    .map((el) => ({ el, num: getPageNumber(el) }))
+    .filter((p) => p.num !== null && !Number.isNaN(p.num))
+    .sort((a, b) => a.num - b.num);
 
   if (!pages.length) return;
 
   const PAGE_STORAGE_KEY = 'instructionCurrentPage';
 
-  function getInitialPageIndex() {
-    const storedPageNum = sessionStorage.getItem(PAGE_STORAGE_KEY);
-    if (storedPageNum === null) return 0;
-
-    const idx = pages.findIndex((p) => p.dataset.page === storedPageNum);
-    return idx === -1 ? 0 : idx; // fall back to page 1 if the stored value is stale/invalid
+  function isVisible(el) {
+    if (el.style.display === 'none') return false;
+    return window.getComputedStyle(el).display !== 'none';
   }
 
-  let currentPageIndex = getInitialPageIndex();
+  function getActivePageIndex() {
+    const idx = pages.findIndex((p) => isVisible(p.el));
+    return idx === -1 ? 0 : idx;
+  }
+
+  let currentPageIndex = getActivePageIndex();
 
   const defaultVersionSource = document.querySelector('#default-instruction-version');
   let defaultInstructionVersion = 'app';
@@ -190,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function checkTimer() {
     if (modalTimeLimitSeconds == null || Number.isNaN(modalTimeLimitSeconds)) return;
 
-    const currentPageNum = Number(pages[currentPageIndex].dataset.page);
+    const currentPageNum = pages[currentPageIndex].num;
     if (currentPageNum !== 3 && currentPageNum !== 4) return;
 
     if (getElapsedSeconds() >= modalTimeLimitSeconds) {
@@ -206,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function maybeStartTimerForCurrentPage() {
-    const pageNum = Number(pages[currentPageIndex].dataset.page);
+    const pageNum = pages[currentPageIndex].num;
     if (pageNum >= PAGE_THRESHOLD) {
       startTimerIfNeeded();
       ensureTimerRunning();
@@ -224,15 +244,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderPage() {
     renderInstructionVersion();
-    updateNavButtons();
     maybeStartTimerForCurrentPage();
-
-    // Persist so a reload resumes here.
-    sessionStorage.setItem(PAGE_STORAGE_KEY, pages[currentPageIndex].dataset.page);
+    sessionStorage.setItem(PAGE_STORAGE_KEY, String(pages[currentPageIndex].num));
   }
 
   function renderInstructionVersion() {
-    const currentPage = pages[currentPageIndex];
+    const currentPage = pages[currentPageIndex].el;
 
     currentPage.querySelectorAll('.instruction-section').forEach((section) => {
       const target = section.dataset.instructionVersion; // "app" | "browser"
@@ -242,21 +259,6 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('.instruction-device-button[data-instruction-version]').forEach((btn) => {
       const isActiveVersion = btn.dataset.instructionVersion === currentVersion;
       btn.style.display = isActiveVersion ? 'none' : '';
-    });
-  }
-
-  function updateNavButtons() {
-    document.querySelectorAll('.instruction-back').forEach((btn) => {
-      const isFirstPage = currentPageIndex === 0;
-      btn.disabled = isFirstPage;
-      btn.style.visibility = isFirstPage ? 'hidden' : '';
-      btn.style.opacity = isFirstPage ? '0' : '';
-    });
-    document.querySelectorAll('.instruction-next').forEach((btn) => {
-      const isLastPage = currentPageIndex === pages.length - 1;
-      btn.disabled = isLastPage;
-      btn.style.visibility = isLastPage ? 'hidden' : '';
-      btn.style.opacity = isLastPage ? '0' : '';
     });
   }
 
@@ -276,22 +278,22 @@ document.addEventListener('DOMContentLoaded', () => {
     if (versionBtn) {
       e.preventDefault();
       setInstructionVersion(versionBtn.dataset.instructionVersion);
-      return;
     }
+    // Page navigation is entirely owned by the DDM Vue component.
+  });
 
-    if (e.target.closest('.instruction-next')) {
-      if (currentPageIndex < pages.length - 1) {
-        currentPageIndex++;
-        renderPage();
-        scrollToTop();
-      }
-    } else if (e.target.closest('.instruction-back')) {
-      if (currentPageIndex > 0) {
-        currentPageIndex--;
-        renderPage();
-        scrollToTop();
-      }
+  // React to Vue toggling visibility on the page wrappers.
+  const pageObserver = new MutationObserver(() => {
+    const newIndex = getActivePageIndex();
+    if (newIndex !== currentPageIndex) {
+      currentPageIndex = newIndex;
+      renderPage();
+      scrollToTop();
     }
+  });
+
+  pages.forEach(({ el }) => {
+    pageObserver.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
   });
 
   renderPage();
