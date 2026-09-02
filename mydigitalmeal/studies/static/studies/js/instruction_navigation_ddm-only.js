@@ -52,8 +52,12 @@ function getWithExpiry(key) {
  * Navigation between .instruction-page elements is handled by an
  * imported Vue component. This script treats Vue's output as the source of truth:
  * it detects which `.instruction-page` is currently visible (i.e.
- * not `display: none`) and reacts via a MutationObserver whenever
- * Vue toggles that visibility.
+ * actually rendered on screen — not `display: none` on itself OR on any
+ * ancestor) and reacts via a MutationObserver whenever anything in the
+ * document's style/class attributes changes, since visibility can be
+ * toggled either on a page element directly or on a container that wraps
+ * all of them (e.g. when the participant is navigated away from the
+ * instructions section entirely).
  *
  * The page number itself now lives on a child element of each
  * `.instruction-page` (e.g. `<div class="instruction-page">
@@ -78,14 +82,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const PAGE_STORAGE_KEY = 'instructionCurrentPage';
 
+  // Checks whether an element is actually rendered on screen, not just
+  // whether its OWN `display` property is set to something other than
+  // 'none'. getComputedStyle(el).display only reflects the element's own
+  // declared value — it does NOT become 'none' just because an ancestor
+  // is hidden. So an .instruction-page can still read as "visible" here
+  // even after the whole instructions section has been hidden/unmounted
+  // by a parent, if Vue never touched that page's own inline style.
+  // checkVisibility() (where available) correctly walks the ancestor
+  // chain; offsetParent is used as a fallback for older browsers.
   function isVisible(el) {
-    if (el.style.display === 'none') return false;
-    return window.getComputedStyle(el).display !== 'none';
+    if (typeof el.checkVisibility === 'function') {
+      return el.checkVisibility({ checkOpacity: false, checkVisibilityCSS: true });
+    }
+    return el.offsetParent !== null || el.getClientRects().length > 0;
   }
 
   function getActivePageIndex() {
     const idx = pages.findIndex((p) => isVisible(p.el));
-    return idx === -1 ? 0 : idx;
+    return idx; // -1 means no .instruction-page is currently visible
   }
 
   let currentPageIndex = getActivePageIndex();
@@ -209,6 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkTimer() {
     if (modalTimeLimitSeconds == null || Number.isNaN(modalTimeLimitSeconds)) return;
+    if (currentPageIndex === -1) return; // no instruction page visible, nothing to remind about
 
     const currentPageNum = pages[currentPageIndex].num;
     if (currentPageNum !== 3 && currentPageNum !== 4) return;
@@ -226,6 +242,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function maybeStartTimerForCurrentPage() {
+    if (currentPageIndex === -1) return; // no instruction page visible
+
     const pageNum = pages[currentPageIndex].num;
     if (pageNum >= PAGE_THRESHOLD) {
       startTimerIfNeeded();
@@ -235,20 +253,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // If the timer was already started in a previous page load within this
   // session (e.g. user reloaded while on page 4+, or navigated back to an
-  // earlier page after having reached page 4), resume ticking immediately.
-  if (pruneStaleTimer()) {
+  // earlier page after having reached page 4), resume ticking immediately —
+  // but only if a page is actually visible right now.
+  if (currentPageIndex !== -1 && pruneStaleTimer()) {
     ensureTimerRunning();
   }
 
   // ---------------------------------------------------------------------
 
   function renderPage() {
+    if (currentPageIndex === -1) return; // nothing visible: don't touch version display, page storage, or timer
+
     renderInstructionVersion();
     maybeStartTimerForCurrentPage();
     sessionStorage.setItem(PAGE_STORAGE_KEY, String(pages[currentPageIndex].num));
   }
 
   function renderInstructionVersion() {
+    if (currentPageIndex === -1) return;
+
     const currentPage = pages[currentPageIndex].el;
 
     currentPage.querySelectorAll('.instruction-section').forEach((section) => {
@@ -282,18 +305,37 @@ document.addEventListener('DOMContentLoaded', () => {
     // Page navigation is entirely owned by the DDM Vue component.
   });
 
-  // React to Vue toggling visibility on the page wrappers.
-  const pageObserver = new MutationObserver(() => {
-    const newIndex = getActivePageIndex();
-    if (newIndex !== currentPageIndex) {
-      currentPageIndex = newIndex;
-      renderPage();
-      scrollToTop();
-    }
-  });
+  // React to Vue toggling visibility anywhere that could affect which
+  // (if any) .instruction-page is actually rendered. This must watch more
+  // than just the page elements themselves: a container that wraps all of
+  // them can be hidden/unmounted without touching the page elements'
+  // own style/class attributes, which would otherwise leave
+  // currentPageIndex stuck pointing at a page that no longer renders.
+  // Mutations are batched via requestAnimationFrame so a burst of
+  // attribute/childList changes only triggers one recomputation.
+  let pendingVisibilityCheck = false;
 
-  pages.forEach(({ el }) => {
-    pageObserver.observe(el, { attributes: true, attributeFilter: ['style', 'class'] });
+  function handlePossibleVisibilityChange() {
+    if (pendingVisibilityCheck) return;
+    pendingVisibilityCheck = true;
+    requestAnimationFrame(() => {
+      pendingVisibilityCheck = false;
+      const newIndex = getActivePageIndex();
+      if (newIndex !== currentPageIndex) {
+        currentPageIndex = newIndex;
+        renderPage();
+        scrollToTop();
+      }
+    });
+  }
+
+  const pageObserver = new MutationObserver(handlePossibleVisibilityChange);
+
+  pageObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ['style', 'class'],
+    subtree: true,
+    childList: true,
   });
 
   renderPage();
