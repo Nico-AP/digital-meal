@@ -18,6 +18,13 @@
       {% endblocktranslate %}
     </div>
 
+    {% if show_invite_link %}
+      <div id="inviteUrl" class="d-none">{{ invite_link }}</div>
+      <div>
+        <button type="button" class="btn mdm-color-btn-v4 report-share-btn fs-3" onclick="shareReport(this)">{% translate "Lade jemand anderen ein" %}</button>
+      </div>
+    {% endif %}
+
     <div class="fs-3 pt-2 ps-2 pe-2">
       <div>
         <button type="button" class="report-link-button" onclick="document.getElementById('report-container')._slideshow?.restart(); return false;">

@@ -201,21 +201,23 @@ class StudyEnrollView(View):
             logger.warning("Study enrollment aborted: missing project_id.")
             raise StudyProjectNotFoundError
 
-        if project_id not in settings.REGISTERED_STUDY_PROJECTS:
-            logger.warning(
-                "Study enrollment aborted: tried to access project that is not "
-                "registered as a study project."
-            )
-            raise ProjectNotRegisteredAsStudyError
-
         try:
-            return DonationProject.objects.get(url_id=project_id)
+            project = DonationProject.objects.get(url_id=project_id)
         except DonationProject.DoesNotExist as e:
             logger.warning(
                 "Study enrollment aborted: project lookup failed (project_id=%r).",
                 project_id,
             )
             raise StudyProjectNotFoundError from e
+
+        if not hasattr(project, "study_project"):
+            logger.warning(
+                "Study enrollment aborted: tried to access project that is not "
+                "registered as a study project."
+            )
+            raise ProjectNotRegisteredAsStudyError
+
+        return project
 
     @staticmethod
     def _reset_ddm_session(request: HttpRequest, project):
@@ -544,6 +546,31 @@ class CheckDownloadAvailabilityView(
             .first()
         )
 
+    def include_reminder_msg(self) -> bool:
+        project = self.get_project_from_study_session()
+        study_project = getattr(project, "study_project", None)
+        if study_project is None or not study_project.show_reminder:
+            return False
+
+        data_request = self.get_data_request()
+        if data_request is None:
+            # Can happen if a concurrent request (e.g. a second open tab)
+            # changed the request's status between the parent view's
+            # lookup and this one. Skip the reminder rather than 500.
+            logger.warning(
+                "CheckDownloadAvailabilityView: no matching TikTokDataRequest "
+                "found while template_name was template_pending."
+            )
+            return False
+
+        if timezone.now() - data_request.issued_at > timedelta(
+            seconds=SECONDS_TO_REMINDER
+        ):
+            self.update_participant_trail(self.request, PAPITrailSteps.WAITING_REMINDER)
+            return True
+
+        return False
+
     def get_context_data(self, **kwargs):
         """Adds participant and project information to context.
 
@@ -553,29 +580,9 @@ class CheckDownloadAvailabilityView(
         self.add_url_parameter_to_context(context)
         context["project_id"] = self.study_session.ddm_project_id
 
-        # Determine whether reminder message should be displayed
         if self.template_name == self.template_pending:
-            show_reminder_msg = False
-            data_request = self.get_data_request()
-            if data_request is None:
-                # Can happen if a concurrent request (e.g. a second open tab)
-                # changed the request's status between the parent view's
-                # lookup and this one. Skip the reminder rather than 500.
-                logger.warning(
-                    "CheckDownloadAvailabilityView: no matching TikTokDataRequest "
-                    "found while template_name was template_pending."
-                )
-            elif timezone.now() - data_request.issued_at > timedelta(
-                seconds=SECONDS_TO_REMINDER
-            ):
-                show_reminder_msg = True
-
-            if show_reminder_msg:
-                self.update_participant_trail(
-                    self.request, PAPITrailSteps.WAITING_REMINDER
-                )
-
-            context["show_reminder_msg"] = show_reminder_msg
+            # Determine whether reminder message should be displayed
+            context["show_reminder_msg"] = self.include_reminder_msg()
 
         elif self.template_name == self.template_error:
             context["study_redirect_link"] = get_ddm_redirect_link(
@@ -738,7 +745,7 @@ def register_got_reminder_info(request):
         participant.pk,
         project.url_id,
     )
-    update_participant_trail(participant, "c_got_reminder_info")
+    update_participant_trail(participant, DLULTrailSteps.GOT_REMINDER)
     return JsonResponse({"status": "ok"})
 
 
@@ -792,11 +799,12 @@ class StudyReportView(TemplateView):
     """
 
     template_name = "studies/report/base.html"
+    participant: Participant
 
     def get(self, request, *args, **kwargs):
         participant_id = self.kwargs.get("participant_id")
         try:
-            participant = Participant.objects.select_related("project").get(
+            self.participant = Participant.objects.select_related("project").get(
                 external_id=participant_id,
                 project__url_id__in=settings.REGISTERED_STUDY_PROJECTS,
             )
@@ -807,7 +815,7 @@ class StudyReportView(TemplateView):
             )
             raise Http404 from e
 
-        if not participant_can_access_report(participant):
+        if not participant_can_access_report(self.participant):
             raise Http404
 
         return super().get(request, *args, **kwargs)
@@ -815,6 +823,14 @@ class StudyReportView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["participant_id"] = self.kwargs.get("participant_id")
+
+        study_project = getattr(self.participant.project, "study_project", None)
+        context["show_invite_link"] = bool(
+            study_project and study_project.show_report_invite_link
+        )
+        context["invite_link"] = (
+            study_project.report_invite_link if study_project else ""
+        )
         return context
 
 

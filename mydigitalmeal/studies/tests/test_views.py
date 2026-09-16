@@ -27,15 +27,20 @@ from mydigitalmeal.studies.constants import (
     StudiesURLShortcut,
 )
 from mydigitalmeal.studies.exceptions import StudyProjectNotFoundError
+from mydigitalmeal.studies.models import StudyProject
 from mydigitalmeal.studies.sessions import StudyParticipationSession
 from mydigitalmeal.studies.views import (
     _REPORT_MAX_AGE,
+    CheckDownloadAvailabilityView,
     DownloadUploadView,
     StudyDebriefingView,
     StudyQuestionnaireView,
     participant_can_access_report,
 )
 from mydigitalmeal.userflow.constants import USERFLOW_SESSION_KEY
+from shared.portability.models import TikTokDataRequest
+from shared.portability.sessions import PortabilitySessionManager
+from shared.portability.tests.utils import get_request_with_session
 
 User = get_user_model()
 
@@ -74,7 +79,6 @@ def _make_request_with_study_session(**session_fields):
     return request
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyEnrollView(TestCase):
     def setUp(self):
         self.url = reverse("mdm:userflow:studies:enroll")
@@ -86,6 +90,9 @@ class TestStudyEnrollView(TestCase):
             owner=self.owner_profile,
             slug="some-study",
             url_id=self.project_url_id,
+        )
+        self.study_project = StudyProject.objects.create(
+            project=self.project,
         )
 
     # ---- routing / status -------------------------------------------------
@@ -144,6 +151,21 @@ class TestStudyEnrollView(TestCase):
             reverse("mdm:userflow:studies:port_tt_connect"),
             fetch_redirect_response=False,
         )
+
+    # ---- project registration (StudyProject vs. legacy setting) -----------
+
+    def test_existing_but_unregistered_project_returns_404(self):
+        """A project that exists but has neither a ``StudyProject`` row nor
+        a legacy-setting entry must still be rejected. Distinct from
+        ``test_unknown_project_id_returns_404``, which covers a
+        ``project_id`` that doesn't resolve to any ``DonationProject`` at
+        all.
+        """
+        self.study_project.delete()
+
+        response = self.client.get(self.url, {"project_id": self.project_url_id})
+
+        self.assertEqual(response.status_code, 404)
 
     # ---- session contents -------------------------------------------------
 
@@ -289,6 +311,79 @@ class TestStudyEnrollView(TestCase):
             reverse("mdm:userflow:studies:download_upload"),
         )
         self.assertEqual(response.status_code, 403)
+
+
+class TestIncludeReminderMsg(TestCase):
+    """Unit-level tests for ``CheckDownloadAvailabilityView.include_reminder_msg``.
+
+    Built directly (no HTTP round trip through ``StudyParticipationMixin
+    .setup()``).
+    """
+
+    def setUp(self):
+        self.owner_profile = _make_owner_profile()
+        self.project = DonationProject.objects.create(
+            owner=self.owner_profile,
+            slug="some-study",
+        )
+        self.view = CheckDownloadAvailabilityView()
+        # Short-circuits get_project_from_study_session()'s session/DB lookup.
+        self.view.study_session_project = self.project
+
+    def _set_port_session(self, open_id="some-open-id"):
+        request = get_request_with_session()
+        port_manager = PortabilitySessionManager.from_request(request)
+        port_manager.update(tiktok_open_id=open_id)
+        self.view.request = request
+        self.view.port_session = port_manager
+
+    def test_false_when_no_study_project_linked(self):
+        """Regression test: a project registered only via the legacy
+        setting (no ``StudyProject`` row) must not 500."""
+        self.assertFalse(hasattr(self.project, "study_project"))
+
+        self.assertFalse(self.view.include_reminder_msg())
+
+    def test_false_when_study_project_show_reminder_disabled(self):
+        StudyProject.objects.create(
+            project=self.project,
+            show_reminder=False,
+            report_invite_link="https://example.com/invite",
+        )
+
+        self.assertFalse(self.view.include_reminder_msg())
+
+    @patch(
+        "mydigitalmeal.studies.views.CheckDownloadAvailabilityView.get_data_request",
+        return_value=TikTokDataRequest(
+            open_id="some-open-id",
+            request_id="some-request-id",
+            issued_at=timezone.now() - timedelta(days=1),
+        ),
+    )
+    @patch(
+        "mydigitalmeal.studies.views.StudyParticipationMixin.update_participant_trail",
+        return_value=None,
+    )
+    def test_true_when_study_project_show_reminder_enabled(self, _mock, _mock2):  # noqa: PT019
+        StudyProject.objects.create(
+            project=self.project,
+            show_reminder=True,
+            report_invite_link="https://example.com/invite",
+        )
+        self.view.request = "mock"
+
+        self.assertTrue(self.view.include_reminder_msg())
+
+    def test_false_when_no_matching_data_request(self):
+        StudyProject.objects.create(
+            project=self.project,
+            show_reminder=True,
+            report_invite_link="https://example.com/invite",
+        )
+        self._set_port_session()
+
+        self.assertFalse(self.view.include_reminder_msg())
 
 
 class TestRequireStudySessionMixin(TestCase):
@@ -749,6 +844,29 @@ class TestStudyReportView(TestCase):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
+
+    # ---- invite link (StudyProject-backed) ---------------------------------
+
+    def test_show_invite_link_false_and_invite_link_empty_when_no_study_project(self):
+        """Project registered only via the legacy setting (no ``StudyProject``
+        row, as in ``setUp``) must not 500 and must default to "off"."""
+        response = self.client.get(self.url)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(response.context["show_invite_link"])
+        self.assertEqual(response.context["invite_link"], "")
+
+    def test_show_invite_link_reflects_linked_study_project(self):
+        StudyProject.objects.create(
+            project=self.project,
+            show_report_invite_link=True,
+            report_invite_link="https://example.com/invite",
+        )
+
+        response = self.client.get(self.url)
+
+        self.assertTrue(response.context["show_invite_link"])
+        self.assertEqual(response.context["invite_link"], "https://example.com/invite")
 
 
 @override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])

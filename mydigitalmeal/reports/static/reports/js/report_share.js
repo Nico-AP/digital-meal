@@ -14,7 +14,8 @@ async function copyToClipboard(text) {
 }
 
 async function shareReport(feedbackEl) {
-  const url = window.location.origin;
+  const inviteUrlEl = document.getElementById('inviteUrl');
+  const url = inviteUrlEl?.textContent?.trim() || window.location.origin;
 
   try {
     if (navigator.share) {
