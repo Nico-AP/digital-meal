@@ -792,6 +792,15 @@ def participant_can_access_report(participant: Participant) -> bool:
     return True
 
 
+def get_study_project_url_ids() -> list[str]:
+    return list(
+        DonationProject.objects.filter(
+            active=True,
+            study_project__isnull=False,
+        ).values_list("url_id", flat=True)
+    )
+
+
 class StudyReportView(TemplateView):
     """Public report page for study participants.
 
@@ -818,10 +827,7 @@ class StudyReportView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         participant_id = self.kwargs.get("participant_id")
-        allowed_project_ids = DonationProject.objects.filter(
-            active=True,
-            study_project__isnull=False,
-        ).values_list("url_id", flat=True)
+        allowed_project_ids = get_study_project_url_ids()
         try:
             self.participant = Participant.objects.select_related("project").get(
                 external_id=participant_id,
@@ -870,9 +876,10 @@ class StudyStatisticsView(BaseStatisticsView):
     report_unavailable_redirect = StudiesURLShortcut.REPORT_UNAVAILABLE
 
     def get_participant(self) -> Participant | None:
+        allowed_project_ids = get_study_project_url_ids()
         return Participant.objects.get(
             external_id=self.kwargs.get("participant_id"),
-            project__url_id__in=settings.REGISTERED_STUDY_PROJECTS,
+            project__url_id__in=allowed_project_ids,
         )
 
     def validate_userflow_session(self, request, *args, **kwargs):
