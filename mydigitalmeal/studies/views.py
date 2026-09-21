@@ -22,6 +22,7 @@ from django.http import Http404, HttpRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.html import strip_tags
 from django.views import View
 from django.views.generic import TemplateView
 
@@ -379,11 +380,25 @@ class PortabilityEntryView(StudyParticipationMixin, port_views.TikTokAuthView):
 
     template_name = "studies/portability/portability_entry.html"
 
+    def get_custom_briefing(self) -> str | None:
+        project = self.get_project_from_study_session()
+        study_project = getattr(project, "study_project", None)
+        if not study_project:
+            return None
+
+        briefing = study_project.portability_briefing
+        if not strip_tags(briefing.replace("&nbsp;", " ")).strip():
+            return None
+        return briefing
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["study_redirect_link"] = get_ddm_redirect_link(
             self.study_session, {"status": "aborted"}
         )
+        custom_briefing = self.get_custom_briefing()
+        if custom_briefing:
+            context["custom_briefing"] = custom_briefing
         return context
 
 

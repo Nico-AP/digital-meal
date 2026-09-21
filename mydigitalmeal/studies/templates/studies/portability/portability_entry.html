@@ -8,6 +8,12 @@
     <div class="row justify-content-center">
       <div class="col col-lg-10 col-xl-8 text-center">
 
+      {% if custom_briefing %}
+
+        {{ custom_briefing|safe }}
+
+      {% else %}
+
         <p class="mdm-text text-start">
           {% blocktranslate trimmed %}
             Für die Studie und damit wir Ihren
@@ -53,6 +59,8 @@
             übermitteln möchten.
           {% endblocktranslate %}
         </p>
+
+      {% endif %}
 
         <div class="mb-2 mt-5">
           <a href="{{ tt_auth_url }}" class="btn mdm-color-btn-v1 ps-5 pe-5" target="_self">{% translate "Mit TikTok verbinden" %}</a>

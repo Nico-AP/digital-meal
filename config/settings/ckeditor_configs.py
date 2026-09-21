@@ -134,6 +134,9 @@ CKEDITOR_5_CONFIGS = {
                 {"name": "button", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
                 {"name": "h1", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
                 {"name": "h2", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
+                {"name": "ul", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
+                {"name": "ol", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
+                {"name": "li", "attributes": ATTRIBUTES_TO_ALLOW, "classes": True},
                 {
                     "name": "img",
                     "attributes": ATTRIBUTES_TO_ALLOW,
