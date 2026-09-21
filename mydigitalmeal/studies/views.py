@@ -818,10 +818,14 @@ class StudyReportView(TemplateView):
 
     def get(self, request, *args, **kwargs):
         participant_id = self.kwargs.get("participant_id")
+        allowed_project_ids = DonationProject.objects.filter(
+            active=True,
+            study_project__isnull=False,
+        ).values_list("url_id", flat=True)
         try:
             self.participant = Participant.objects.select_related("project").get(
                 external_id=participant_id,
-                project__url_id__in=settings.REGISTERED_STUDY_PROJECTS,
+                project__url_id__in=allowed_project_ids,
             )
         except Participant.DoesNotExist as e:
             logger.info(
