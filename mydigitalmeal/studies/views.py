@@ -935,7 +935,7 @@ class StudyStatisticsView(BaseStatisticsView):
                 "StatisticsRequest for participant %s not found",
                 participant.external_id,
             )
-            return self.htmx_redirect(self.session_invalid_redirect)
+            return self.htmx_redirect(StudiesURLShortcut.REPORT_UNAVAILABLE)
 
         self.statistics_request = next(
             (
