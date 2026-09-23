@@ -13,6 +13,16 @@ function getCookie(name) {
   return cookieValue;
 }
 
+function readJsonScript(id, fallback) {
+  const el = document.getElementById(id);
+  if (!el) return fallback;
+  try {
+    return JSON.parse(el.textContent);
+  } catch {
+    return fallback;
+  }
+}
+
 function setWithExpiry(key, value, ttlMs) {
   const record = {
     value,
@@ -105,15 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let currentPageIndex = getActivePageIndex();
 
-  const defaultVersionSource = document.querySelector('#default-instruction-version');
-  let defaultInstructionVersion = 'app';
-  if (defaultVersionSource) {
-    try {
-      defaultInstructionVersion = JSON.parse(defaultVersionSource.textContent);
-    } catch {
-      defaultInstructionVersion = 'app';
-    }
-  }
+  const defaultInstructionVersion = readJsonScript('default-instruction-version', 'app');
 
   let currentVersion = localStorage.getItem('instructionVersion') || defaultInstructionVersion;
 
@@ -128,25 +130,21 @@ document.addEventListener('DOMContentLoaded', () => {
   // discarded; a fresh timer is started instead.
   const TIMER_MAX_AGE_MS = 30 * 60 * 1000; // 30 minutes
 
-  const limitSource = document.querySelector('#seconds-until-reminder');
-  const modalTimeLimitSeconds = limitSource
-    ? JSON.parse(limitSource.textContent)
-    : null;
+  const reminderEnabled = readJsonScript('reminder-enabled', false) === true;
+
+  // Drop any timer left over from when reminders were on.
+  if (!reminderEnabled) {
+    sessionStorage.removeItem(TIMER_STORAGE_KEY);
+  }
+
+  const modalTimeLimitSeconds = readJsonScript('seconds-until-reminder', null);
 
   let timerIntervalId = null;
 
   const REMINDER_REGISTERED_KEY = 'instructionReminderRegistered';
   const REMINDER_REGISTERED_TTL_MS = 2 * 24 * 60 * 60 * 1000; // 2 days | test value: 30 * 1000
 
-  const reminderEndpointSource = document.querySelector('#reminder-registration-endpoint');
-  let reminderRegistrationEndpoint = null;
-  if (reminderEndpointSource) {
-    try {
-      reminderRegistrationEndpoint = JSON.parse(reminderEndpointSource.textContent);
-    } catch {
-      reminderRegistrationEndpoint = null;
-    }
-  }
+  const reminderRegistrationEndpoint = readJsonScript('reminder-registration-endpoint', null);
 
   function registerGotReminderInfo() {
     if (!reminderRegistrationEndpoint) {
@@ -236,12 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function ensureTimerRunning() {
+    if (!reminderEnabled) return;
     if (timerIntervalId !== null) return;
     checkTimer(); // catch up immediately (e.g. right after a reload)
     timerIntervalId = setInterval(checkTimer, 1000);
   }
 
   function maybeStartTimerForCurrentPage() {
+    if (!reminderEnabled) return;
     if (currentPageIndex === -1) return; // no instruction page visible
 
     const pageNum = pages[currentPageIndex].num;

@@ -20,6 +20,7 @@
   <div class="container">
 
     {{ default_instruction|json_script:"default-instruction-version" }}
+    {{ reminder_enabled|json_script:"reminder-enabled" }}
     {{ seconds_until_reminder|json_script:"seconds-until-reminder" }}
     {{ reminder_registration_endpoint|json_script:"reminder-registration-endpoint" }}
 

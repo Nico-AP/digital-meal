@@ -336,9 +336,7 @@ class DownloadUploadView(StudyParticipationMixin, BaseDonationViewDDM):
         """Return the DDM project pinned on the study session at enrolment."""
         return self.get_project_from_study_session()
 
-    def get_context_data(self, **kwargs) -> dict[str, Any]:
-        context = super().get_context_data(**kwargs)
-
+    def add_reminder_context(self, context: dict[str, Any]) -> None:
         show_app_instruction = self.study_session.url_parameters.get(
             "appinstruction", "1"
         )
@@ -347,15 +345,26 @@ class DownloadUploadView(StudyParticipationMixin, BaseDonationViewDDM):
             "mdm:userflow:studies:dlul_register_got_reminder_info"
         )
 
-        context.update(
-            {
-                "default_instruction": "app"
-                if show_app_instruction == "1"
-                else "browser",
-                "seconds_until_reminder": SECONDS_TO_REMINDER,
-                "reminder_registration_endpoint": reminder_registration_endpoint,
-            }
+        study_project = getattr(
+            self.get_project_from_study_session(), "study_project", None
         )
+        if study_project.show_reminder:
+            context.update(
+                {
+                    "reminder_enabled": True,
+                    "default_instruction": "app"
+                    if show_app_instruction == "1"
+                    else "browser",
+                    "seconds_until_reminder": SECONDS_TO_REMINDER,
+                    "reminder_registration_endpoint": reminder_registration_endpoint,
+                }
+            )
+        else:
+            context.update({"reminder_enabled": False})
+
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+        self.add_reminder_context(context)
         return context
 
     def update_participant_information(self, request) -> None:
