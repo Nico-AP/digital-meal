@@ -9,7 +9,7 @@ from ddm.projects.models import DonationProject, ResearchProfile
 from django.contrib.auth import get_user_model
 from django.contrib.sessions.middleware import SessionMiddleware
 from django.db import connection
-from django.test import RequestFactory, TestCase, override_settings
+from django.test import RequestFactory, TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -755,7 +755,6 @@ class TestParticipantCanAccessReportHelper(TestCase):
         self.assertTrue(result)
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyReportView(TestCase):
     """Public report shell. Authentication is by URL participant_id; access
     is additionally gated on (a) project still active and (b) participation
@@ -769,6 +768,7 @@ class TestStudyReportView(TestCase):
             slug="some-study",
             url_id="T3kwxKKQ",
         )
+        self.study_project = StudyProject.objects.create(project=self.project)
         self.participant = Participant.objects.create(
             project=self.project,
             start_time=timezone.now(),
@@ -809,9 +809,10 @@ class TestStudyReportView(TestCase):
 
         self.assertEqual(response.status_code, 404)
 
-    def test_404_when_participant_outside_registered_projects(self):
-        with override_settings(REGISTERED_STUDY_PROJECTS=["different-project"]):
-            response = self.client.get(self.url)
+    def test_404_when_project_has_no_study_project(self):
+        self.study_project.delete()
+
+        response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 404)
 
@@ -847,9 +848,8 @@ class TestStudyReportView(TestCase):
 
     # ---- invite link (StudyProject-backed) ---------------------------------
 
-    def test_show_invite_link_false_and_invite_link_empty_when_no_study_project(self):
-        """Project registered only via the legacy setting (no ``StudyProject``
-        row, as in ``setUp``) must not 500 and must default to "off"."""
+    def test_show_invite_link_false_by_default(self):
+        """A ``StudyProject`` with default settings has the invite link off."""
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
@@ -857,11 +857,9 @@ class TestStudyReportView(TestCase):
         self.assertEqual(response.context["invite_link"], "")
 
     def test_show_invite_link_reflects_linked_study_project(self):
-        StudyProject.objects.create(
-            project=self.project,
-            show_report_invite_link=True,
-            report_invite_link="https://example.com/invite",
-        )
+        self.study_project.show_report_invite_link = True
+        self.study_project.report_invite_link = "https://example.com/invite"
+        self.study_project.save()
 
         response = self.client.get(self.url)
 
@@ -869,7 +867,6 @@ class TestStudyReportView(TestCase):
         self.assertEqual(response.context["invite_link"], "https://example.com/invite")
 
 
-@override_settings(REGISTERED_STUDY_PROJECTS=["T3kwxKKQ"])
 class TestStudyStatisticsView(TestCase):
     """Polled HTMX endpoint that drives the report-loading UX.
 
@@ -884,6 +881,7 @@ class TestStudyStatisticsView(TestCase):
             slug="some-study",
             url_id="T3kwxKKQ",
         )
+        self.study_project = StudyProject.objects.create(project=self.project)
         self.participant = Participant.objects.create(
             project=self.project,
             start_time=timezone.now(),
@@ -901,25 +899,24 @@ class TestStudyStatisticsView(TestCase):
         participants (who have no userflow session) can reach this view.
         """
         # No StatisticsRequest yet → we expect the "no stats request"
-        # HX-Redirect, not the "session invalid" redirect to OVERVIEW that
-        # the parent class would emit.
+        # HX-Redirect to report_unavailable, not the "session invalid"
+        # redirect that the parent class would emit.
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
         self.assertIn("HX-Redirect", response.headers)
         self.assertEqual(
             response.headers["HX-Redirect"],
-            reverse("mdm:userflow:landing_page"),
+            reverse(StudiesURLShortcut.REPORT_UNAVAILABLE),
         )
 
-    def test_participant_outside_registered_projects_redirects(self):
-        """A participant whose project is NOT in ``REGISTERED_STUDY_PROJECTS``
+    def test_redirects_when_project_has_no_study_project(self):
+        """A participant whose project has no linked ``StudyProject``
         should be treated as unknown → HX-Redirect to report_unavailable.
         """
-        # Move the project out of the allowlist via override_settings on
-        # this single call.
-        with override_settings(REGISTERED_STUDY_PROJECTS=["different-project"]):
-            response = self.client.get(self.url)
+        self.study_project.delete()
+
+        response = self.client.get(self.url)
 
         self.assertEqual(
             response.headers["HX-Redirect"],

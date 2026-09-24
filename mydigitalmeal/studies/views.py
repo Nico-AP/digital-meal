@@ -815,8 +815,8 @@ class StudyReportView(TemplateView):
     Authentication is by URL ``participant_id`` (no session), so the page
     is reload-safe and shareable. Access is gated on:
 
-    - The participant exists and belongs to a project on the
-      ``REGISTERED_STUDY_PROJECTS`` allowlist.
+    - The participant exists and belongs to a project with a linked
+      ``StudyProject``.
     - That project is still ``active``.
     - The participation is at most ``REPORT_MAX_AGE`` old, measured from
       ``Participant.start_time`` (i.e. when the participant enrolled).
@@ -872,8 +872,8 @@ class StudyStatisticsView(BaseStatisticsView):
 
     Access is gated on:
 
-    - The participant exists and belongs to a project on the
-      ``REGISTERED_STUDY_PROJECTS`` allowlist.
+    - The participant exists and belongs to a project with a linked
+      ``StudyProject``.
     - That project is still ``active``.
     - The participation is at most ``REPORT_MAX_AGE`` old, measured from
       ``Participant.start_time`` (i.e. when the participant enrolled).
