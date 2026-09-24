@@ -337,33 +337,32 @@ class DownloadUploadView(StudyParticipationMixin, BaseDonationViewDDM):
         return self.get_project_from_study_session()
 
     def add_reminder_context(self, context: dict[str, Any]) -> None:
-        show_app_instruction = self.study_session.url_parameters.get(
-            "appinstruction", "1"
-        )
-
-        reminder_registration_endpoint = reverse(
-            "mdm:userflow:studies:dlul_register_got_reminder_info"
-        )
-
         study_project = getattr(
             self.get_project_from_study_session(), "study_project", None
         )
-        if study_project.show_reminder:
+        if study_project is not None and study_project.show_reminder:
             context.update(
                 {
                     "reminder_enabled": True,
-                    "default_instruction": "app"
-                    if show_app_instruction == "1"
-                    else "browser",
                     "seconds_until_reminder": SECONDS_TO_REMINDER,
-                    "reminder_registration_endpoint": reminder_registration_endpoint,
+                    "reminder_registration_endpoint": reverse(
+                        "mdm:userflow:studies:dlul_register_got_reminder_info"
+                    ),
                 }
             )
         else:
-            context.update({"reminder_enabled": False})
+            context["reminder_enabled"] = False
 
     def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(**kwargs)
+
+        show_app_instruction = self.study_session.url_parameters.get(
+            "appinstruction", "1"
+        )
+        context["default_instruction"] = (
+            "app" if show_app_instruction == "1" else "browser"
+        )
+
         self.add_reminder_context(context)
         return context
 
