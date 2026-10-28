@@ -136,7 +136,7 @@
   </div>
 
   <div class="mt-4 row d-flex flex-column flex-lg-row">
-    <h3>Statistiken & Reports</h3>
+    <h3>Statistiken & Auswertungen</h3>
 
     <div class="col m-0 mb-4 m-lg-3 p-3 bg-blue ff-non-serif">
       <h4>Teilnahmeübersicht</h4>
@@ -180,32 +180,31 @@
         <img alt="Icon Datenauswertung"
              src="{% static 'tool/img/icons/2023_IKMZ_DigitalMeal_Datenauswertung.svg' %}"
              height="50px" />
-        Reports
+        Auswertungen
       </h4>
 
-      <h5>Individuelle Reports</h5>
+      <h5>Individuelle Auswertungen</h5>
 
       <p class="ff-non-serif">
-        Die Schüler:innen erhalten nach der Teilnahme einen Link zu einem personalisierten
-        Report ihrer Nutzungsdaten. {% if example_report_url %}Mit dem folgenden Link können Sie einen individuellen Beispielreport
-        aufrufen: <a href="{{ example_report_url }}" target="_blank">{{ request.scheme }}://{{ request.get_host }}{{ example_report_url }}</a>{% endif %}
+        Die Schüler:innen erhalten nach der Teilnahme einen Link zu einer personalisierten
+        Auswertung ihrer Nutzungsdaten. {% if example_report_url %} Ein Beispiel, wie eine solche Auswertung aussieht, finden Sie unter:
+        <a href="{{ example_report_url }}" target="_blank">{{ request.scheme }}://{{ request.get_host }}{{ example_report_url }}</a>{% endif %}
       </p>
 
-      <h5>Klassenreport</h5>
+      <h5>Klassenauswertung</h5>
 
       <p class="ff-non-serif">
-        Mit dem untenstehenden Link rufen Sie den Klassenreport auf. Das Laden
-        des Reports kann anschliessend einige Sekunden dauern - bitte
-        aktualisieren
-        Sie die Webseite während des Ladens nicht.
+        Mit dem untenstehenden Link rufen Sie die Klassenauswertung auf. Das Laden
+        der Auswertung kann anschliessend einige Sekunden dauern - bitte
+        aktualisieren Sie die Webseite während des Ladens nicht.
       </p>
       <p class="ff-non-serif">
-        Bitte beachten Sie ausserdem, dass die Reports erst angezeigt werden,
-        wenn mindestens 5 Personen einer Gruppe am Modul teilgenommen haben.
+        Bitte beachten Sie ausserdem, dass die Klassenauswertung erst angezeigt wird,
+        wenn mindestens 5 Personen erfolgreich teilgenommen haben.
       </p>
 
       <p><a href="{% url report_view_name classroom.url_id %}" target="_blank"><button
-          class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenreport öffnen
+          class="fs-4 ps-3 pe-3 pt-2 pb-2 fw-bold">Klassenauswertung öffnen
         &#8594</button></a></p>
     </div>
 

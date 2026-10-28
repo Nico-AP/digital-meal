@@ -62,7 +62,7 @@
 
               <div id="intro-after-loading">
                 <p>
-                  Der Report ist bereit!
+                  Die Auswertung ist bereit!
                 </p>
                 <p>
                   {% block report_intro_text %}{% endblock report_intro_text %}
@@ -89,23 +89,23 @@
 
       <div class="report-section save-report-section pb-0">
         <div class="report-content about-section">
-          <h3>Über diesen Report</h3>
+          <h3>Über diese Auswertung</h3>
 
           <p>
-            Dieser Report ist Teil des Lernmoduls <i>Digital Meal</i>.
+            Diese Auswertung ist Teil des Lernmoduls <i>Digital Meal</i>.
           </p>
 
           <p>
             Digital Meal ist eine Initiative von Forschenden der Universität Zürich.
-            Wir legen grossen Wert auf die Datensicherheit. In diesem Report sind nur aggregierte
-            Werte integriert, die keine Rückschlüsse auf einzelne Personen zulassen.
+            Wir legen grossen Wert auf die Datensicherheit. In dieser Auswertung werden nur aggregierte
+            Werte gezeigt, die keine Rückschlüsse auf einzelne Personen zulassen.
           </p>
 
           <p class="text-08">
             {% if class_name %}Klassenname: "{{ class_name }}" | {% endif %}
             {% if class_id %}Klassen-ID: {{ class_id }} | {% endif %}
             {% if participation_date %}Teilgenommen am: {{ participation_date }} | {% endif %}
-            {% if expiration_date %}Report verfügbar bis: {{ expiration_date }}{% endif %}
+            {% if expiration_date %}Auswertung verfügbar bis: {{ expiration_date }}{% endif %}
           </p>
         </div>
 
@@ -176,7 +176,7 @@
   <div class="modal-dialog modal-xl modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-body">
-        <h4>An welche E-Mail-Adresse soll der Report gesendet werden?</h4>
+        <h4>An welche E-Mail-Adresse soll der Link zur Auswertung gesendet werden?</h4>
         <p>
           <input id="email-input" class="w-100 mt-2" name="email" />
           {# djlint:off H021 #}
