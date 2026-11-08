@@ -130,10 +130,12 @@ class IndividualReport(Report, DetailView):
         Returns:
             dict: The updated context.
         """
-
+        end_time = self.object.end_time
+        # TODO: Check if participants without end_time should be able to access
+        #  this view
         context.update(
             {
-                "participation_date": self.object.end_time.date(),
+                "participation_date": end_time.date() if end_time else None,
                 "expiration_date": self.expiration_date,
                 "class_id": self.get_class_id(),
                 "class_name": self.classroom.name,
